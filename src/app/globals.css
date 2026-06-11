@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  /* Design tokens from docs/homepage-spec.md (Figma UGhCSEFr7IXzY4uMnCjNxY) */
+  --color-bg: #e5e5de;
+  --color-accent: #ea2c2c;
+  --color-panel: #ebebe4;
+  --color-pill: rgba(0, 0, 0, 0.1);
+  --color-close: #f5f4ec;
+  --color-hairline: #c8c8c8;
+
+  --font-serif: var(--font-reckless), Georgia, serif;
+  --font-logo: var(--font-poppins), sans-serif;
+}
+
+body {
+  background: var(--color-bg);
+  color: #000;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Hide the native cursor where the custom dot cursor is active */
+@media (hover: hover) and (pointer: fine) {
+  .has-dot-cursor,
+  .has-dot-cursor a,
+  .has-dot-cursor button {
+    cursor: none;
+  }
+}
