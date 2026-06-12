@@ -37,7 +37,7 @@ export const heroSegments: HeroSegment[] = [
   { type: "keyword", id: "advise", text: "advise" },
   {
     type: "text",
-    text: " helping teams and organizations use design as a force for systems transition at scale. ",
+    text: ", helping teams and organizations use design as a force for systems transition at scale. ",
   },
   { type: "story", text: "And there's more to my story+." },
 ];
@@ -121,11 +121,12 @@ export const panels: Record<SectionId, PanelContent> = {
   },
 };
 
+// Order + labels per the 2026-06-11 meeting (brackets removed in Nav.tsx).
 export const navItems = [
   { label: "Work", href: "/work" },
+  { label: "Leadership", href: "/leadership" },
   { label: "Research", href: "/research" },
   { label: "Build", href: "/build" },
   { label: "Teaching/Mentorship", href: "/teaching" },
-  { label: "Leadership", href: "/leadership" },
   { label: "Blogs & Media", href: "/blogs" },
 ];

@@ -134,15 +134,17 @@ export default function Hero() {
 
   return (
     <section className="mx-auto flex w-full max-w-[1088px] flex-col items-center px-6 pb-24">
+      {/* ~square frame per Figma 2:507 (161×145); object-cover crops the tall
+          source photo, object-top keeps the face in frame. */}
       <Image
         src="/portrait.png"
         alt="Portrait of Fas Lebbie"
         width={161}
         height={145}
         priority
-        className="mt-[60px] h-[145px] w-auto object-cover"
+        className="mt-[60px] h-[145px] w-[161px] object-cover object-top"
       />
-      <div className="mt-12 text-center font-serif text-[clamp(26px,3.5vw,42px)] font-bold leading-[1.55] tracking-[0.04em]">
+      <div className="mt-12 w-full text-left font-serif text-[clamp(28px,3.5vw,42px)] font-bold leading-[1.55] tracking-[0.04em] lg:text-center">
         {tokens.map((token, i) => {
           const panelHere = active && insertIndex === i && (
             <Panel id={active} onClose={() => setActive(null)} />
@@ -188,7 +190,7 @@ export default function Hero() {
                 data-cursor="hover"
                 aria-expanded={isActive}
                 onClick={() => toggle(token.id)}
-                className={`-mx-[0.05em] rounded-full px-[0.25em] leading-[1.2] text-accent transition-colors duration-200 ${
+                className={`mx-[-0.05em] rounded-full px-[0.25em] leading-[1.2] text-accent transition-colors duration-200 ${
                   isActive ? "bg-black/20" : "bg-pill hover:bg-black/15"
                 }`}
               >

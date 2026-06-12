@@ -1,49 +1,108 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { navItems } from "@/lib/content";
 
-function BracketLink({ label, href }: { label: string; href: string }) {
+const contactItem = { label: "Contact", href: "/contact" };
+
+// "Fas Lebbie, Ph.D." — normal caps per the mobile frame (16:636). NOTE: the
+// desktop nav frame (40:625) shows a small-caps variant ("Fas lebbie"); unified
+// on normal caps for consistency — flag to Fas if the small-caps was intended.
+function Logo({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link
+      href="/"
+      onClick={onClick}
+      data-cursor="hover"
+      className="whitespace-nowrap font-logo text-[18px] font-bold tracking-[-0.02em] lg:text-[20px]"
+    >
+      Fas Lebbie, Ph.D.
+    </Link>
+  );
+}
+
+function NavLink({ label, href }: { label: string; href: string }) {
   return (
     <Link
       href={href}
       data-cursor="hover"
       className="whitespace-nowrap font-serif font-medium uppercase tracking-[0.02em]"
     >
-      <span className="font-normal">[</span>
       {label}
-      <span className="font-normal">]</span>
     </Link>
   );
 }
 
 export default function Nav() {
+  const [open, setOpen] = useState(false);
+
+  // Lock body scroll while the full-screen mobile menu is open.
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-40 bg-bg shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
       <div className="mx-auto flex h-[52px] max-w-[1380px] items-center justify-between gap-8 px-6">
-        <Link
-          href="/"
-          data-cursor="hover"
-          className="whitespace-nowrap font-logo text-[20px] font-bold tracking-[-0.02em]"
-        >
-          Fas Lebbie, Ph.D.
-        </Link>
-        <nav className="hidden items-center gap-9 text-[14px] lg:flex">
+        <Logo />
+        {/* Desktop: full horizontal menu */}
+        <nav className="hidden items-center gap-x-[clamp(20px,2.6vw,43px)] text-[14px] uppercase lg:flex">
           {navItems.map((item) => (
-            <BracketLink key={item.href} {...item} />
+            <NavLink key={item.href} {...item} />
           ))}
         </nav>
         <Link
           href="/contact"
           data-cursor="hover"
-          className="font-serif text-[16px] font-medium uppercase"
+          className="hidden font-serif text-[16px] font-medium lg:block"
         >
           Contact
         </Link>
+        {/* Mobile/tablet: MENU toggle */}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          data-cursor="hover"
+          className="font-serif text-[16px] uppercase tracking-[0.02em] lg:hidden"
+        >
+          Menu
+        </button>
       </div>
-      <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 pb-2 text-[12px] lg:hidden">
-        {navItems.map((item) => (
-          <BracketLink key={item.href} {...item} />
-        ))}
-      </nav>
+
+      {/* Mobile/tablet: full-screen menu overlay (Figma 21:30) */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-bg lg:hidden">
+          <div className="flex h-[52px] shrink-0 items-center justify-between px-6 shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
+            <Logo onClick={() => setOpen(false)} />
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              data-cursor="hover"
+              className="font-serif text-[14px] font-medium uppercase tracking-[0.02em]"
+            >
+              Close
+            </button>
+          </div>
+          <nav className="flex flex-col gap-[18px] px-6 pt-10 text-[32px] uppercase leading-[1.1]">
+            {[...navItems, contactItem].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                data-cursor="hover"
+                className="font-serif font-medium"
+              >
+                {/* ZWSP after "/" lets long labels wrap at the slash (Figma 21:30) */}
+                {item.label.replace("/", "/​")}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

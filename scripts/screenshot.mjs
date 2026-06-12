@@ -36,5 +36,36 @@ await page.evaluate(() => {
 await new Promise((r) => setTimeout(r, 500));
 await page.screenshot({ path: `${outDir}/home-design-open.png` });
 
+// Mobile (iPhone-ish width)
+await page.setViewport({ width: 402, height: 900 });
+await page.goto(url, { waitUntil: "networkidle0" });
+await page.screenshot({ path: `${outDir}/mobile-default.png`, fullPage: true });
+
+// Mobile: expand the "design" keyword panel
+await page.evaluate(() => {
+  const btn = [...document.querySelectorAll("main button")].find(
+    (b) => b.textContent?.trim() === "design",
+  );
+  btn?.click();
+});
+await new Promise((r) => setTimeout(r, 400));
+await page.screenshot({ path: `${outDir}/mobile-panel.png`, fullPage: true });
+await page.reload({ waitUntil: "networkidle0" });
+
+// Mobile menu open
+await page.evaluate(() => {
+  const btn = [...document.querySelectorAll("header button")].find(
+    (b) => b.textContent?.trim().toLowerCase() === "menu",
+  );
+  btn?.click();
+});
+await new Promise((r) => setTimeout(r, 300));
+await page.screenshot({ path: `${outDir}/mobile-menu.png` });
+
+// iPad portrait
+await page.setViewport({ width: 768, height: 1024 });
+await page.goto(url, { waitUntil: "networkidle0" });
+await page.screenshot({ path: `${outDir}/ipad-default.png` });
+
 await browser.close();
 console.log(`saved to ${outDir}/`);

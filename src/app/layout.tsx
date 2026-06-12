@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, Poppins } from "next/font/google";
+import localFont from "next/font/local";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
 
-// Reckless Neue stand-in until Fas provides licensed webfont files (Displaay).
-// To swap: replace with next/font/local pointing at RecklessNeue-*.woff2 and
-// keep the same `variable` name — nothing else changes.
-const reckless = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+// Reckless Neue (Displaay) — Fas's own licensed webfonts, migrated from
+// faslebbie.com. Weights: Regular 400, Medium 500, SemiBold 600, Bold 700.
+const reckless = localFont({
+  src: [
+    { path: "./fonts/RecklessNeue-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/RecklessNeue-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/RecklessNeue-SemiBold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/RecklessNeue-Bold.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-reckless",
+  display: "swap",
 });
 
 const poppins = Poppins({
