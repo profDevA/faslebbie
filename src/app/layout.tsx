@@ -23,6 +23,18 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+// Neue Haas Grotesk (Fas's licensed files, migrated from faslebbie.com) — used
+// for the big background wordmark in the v2 hero. Display Roman + Text Medium
+// are the heaviest weights available on his server (no Bold cut).
+const nhaas = localFont({
+  src: [
+    { path: "./fonts/NHaasGroteskDSPro-55Rg.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/NHaasGroteskTXPro-65Md.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-nhaas",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Fas Lebbie, Ph.D.",
   description:
@@ -37,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${reckless.variable} ${poppins.variable} h-full antialiased`}
+      className={`${reckless.variable} ${poppins.variable} ${nhaas.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <DotCursor />

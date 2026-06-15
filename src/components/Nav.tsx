@@ -34,7 +34,7 @@ function NavLink({ label, href }: { label: string; href: string }) {
   );
 }
 
-export default function Nav() {
+export default function Nav({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
 
   // Lock body scroll while the full-screen mobile menu is open.
@@ -46,7 +46,13 @@ export default function Nav() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 bg-bg shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
+    <header
+      className={`sticky top-0 z-40 ${
+        dark
+          ? "bg-[#141414] text-bg"
+          : "bg-bg text-black shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
+      }`}
+    >
       <div className="mx-auto flex h-[52px] max-w-[1380px] items-center justify-between gap-8 px-6">
         <Logo />
         {/* Desktop: full horizontal menu */}
@@ -73,16 +79,17 @@ export default function Nav() {
         </button>
       </div>
 
-      {/* Mobile/tablet: full-screen menu overlay (Figma 21:30) */}
+      {/* Mobile/tablet: full-screen menu overlay. Dark treatment for clear
+          contrast vs. the light page (Fas 06/12: "make it black"). */}
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-bg lg:hidden">
-          <div className="flex h-[52px] shrink-0 items-center justify-between px-6 shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#141414] text-bg lg:hidden">
+          <div className="flex h-[52px] shrink-0 items-center justify-between px-6">
             <Logo onClick={() => setOpen(false)} />
             <button
               type="button"
               onClick={() => setOpen(false)}
               data-cursor="hover"
-              className="font-serif text-[14px] font-medium uppercase tracking-[0.02em]"
+              className="font-serif text-[16px] uppercase tracking-[0.02em]"
             >
               Close
             </button>

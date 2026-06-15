@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-// jsan.es-style dot cursor: a small dot trails the pointer and grows over
-// interactive elements. mix-blend-difference keeps it visible on any surface.
+// Custom dot cursor: black dot that trails the pointer and turns red + grows
+// over interactive elements (Emily-Campbell style, per Fas 06/12).
 export default function DotCursor() {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -30,6 +30,7 @@ export default function DotCursor() {
         "a, button, [data-cursor='hover']",
       );
       targetScale = interactive ? 2.8 : 1;
+      el.style.backgroundColor = interactive ? "#ea2c2c" : "#000";
       el.style.opacity = "1";
     };
     const onLeave = () => {
@@ -58,7 +59,7 @@ export default function DotCursor() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-50 size-3 rounded-full bg-white opacity-0 mix-blend-difference"
+      className="pointer-events-none fixed left-0 top-0 z-50 size-3 rounded-full bg-black opacity-0"
     />
   );
 }

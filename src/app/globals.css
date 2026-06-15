@@ -11,6 +11,7 @@
 
   --font-serif: var(--font-reckless), Georgia, serif;
   --font-logo: var(--font-poppins), sans-serif;
+  --font-grotesk: var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif;
 }
 
 body {

@@ -121,12 +121,152 @@ export const panels: Record<SectionId, PanelContent> = {
   },
 };
 
+// ── About content (Figma 224:857 / 135:2260) ──────────────────────────────
+// Tokens: "text" = plain; "role" = the designer/researcher/educator typer;
+// "key" = red keyword on a gray pill (homepage style); "term" = black
+// terminal-style tag with a >/~ prefix. Verbatim copy from the Figma frame.
+export type AboutToken =
+  | { t: "text"; text: string }
+  | { t: "role" }
+  | { t: "key"; text: string }
+  | { t: "term"; text: string }
+  | { t: "logo"; name: keyof typeof aboutLogos };
+
+// Inline brand logos (downloaded from Figma 187:1596) with their box colors.
+export const aboutLogos = {
+  "carnegie-mellon": { src: "/about-logos/carnegie-mellon.png", bg: "#c41230" },
+  parsons: { src: "/about-logos/parsons.png", bg: "#f8f5f0" },
+  utah: { src: "/about-logos/utah.png", bg: "#fefefe" },
+  frankl: { src: "/about-logos/frankl.svg", bg: "#ffe500" },
+  meta: { src: "/about-logos/meta.png", bg: "#1f1f1d" },
+  mastercard: { src: "/about-logos/mastercard.png", bg: "#f8f5f0" },
+  ptc: { src: "/about-logos/ptc.svg", bg: "#4d585a" },
+  "consumer-reports": { src: "/about-logos/consumer-reports.svg", bg: "#00ae4d" },
+  "western-digital": { src: "/about-logos/western-digital.svg", bg: "#f8f5f0" },
+  mit: { src: "/about-logos/mit.png", bg: "#db1f2e" },
+} as const;
+
+export const roleWords = ["designer", "researcher", "educator"];
+
+// Role typer (System 1): clicking cycles the word AND reveals the credential
+// (Figma 82:504 shows >/~ designer → ">/~ PhD in Design from Carnegie Mellon").
+// designer/researcher/educator → the three degrees from the bio.
+// TODO(Fas): confirm which role maps to which degree.
+export const roleCredentials: Record<string, string> = {
+  designer: "PhD in Design from Carnegie Mellon University",
+  researcher: "Master's in Design from Parsons School of Design",
+  educator: "Bachelor's in Entrepreneurship from University of Utah",
+};
+
+// About keyword dropdowns (Systems 2 & 3). Real copy where the Figma shows it;
+// the Figma itself still uses lorem for several, so those are placeholders.
+// TODO(Fas/Israel): final copy for the keywords marked PLACEHOLDER.
+const LOREM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+export const aboutPanels: Record<
+  string,
+  { body: string[]; cta?: { label: string; href: string }; placeholder?: boolean }
+> = {
+  Product: { body: [LOREM], cta: { label: "Continue", href: "/work" }, placeholder: true },
+  "Transition design": { body: [LOREM], cta: { label: "Continue", href: "/research" }, placeholder: true },
+  "AI as material": { body: [LOREM], placeholder: true },
+  "Scalar Design Leadership": { body: [LOREM], placeholder: true },
+  Frankl: { body: ["Building products that connect people with local experiences."] },
+  teach: {
+    body: [
+      "Teaching across Carnegie Mellon, MIT GOV/LAB, SFK International, and Njala University — treating the classroom as an active studio.",
+    ],
+    cta: { label: "Continue to Teaching", href: "/teaching" },
+  },
+  "recognized and awarded": { body: [LOREM], placeholder: true },
+  "what people are saying": { body: [LOREM, LOREM], cta: { label: "Read more", href: "/leadership" }, placeholder: true },
+  monthly: { body: [LOREM], placeholder: true },
+  reader: { body: [LOREM], placeholder: true },
+  fan: { body: [LOREM], placeholder: true },
+};
+
+export const aboutParagraphs: AboutToken[][] = [
+  [
+    { t: "text", text: "As a transdisciplinary " },
+    { t: "role" },
+    { t: "text", text: " I hold a PhD in Design from " },
+    { t: "logo", name: "carnegie-mellon" },
+    { t: "text", text: "Carnegie Mellon University, a Master's in Design from " },
+    { t: "logo", name: "parsons" },
+    { t: "text", text: "Parsons School of Design and a Bachelor's in Entrepreneurship, " },
+    { t: "logo", name: "utah" },
+    { t: "text", text: "University of Utah." },
+  ],
+  [
+    { t: "text", text: "I work at the intersection of " },
+    { t: "key", text: "Product" },
+    { t: "text", text: " and " },
+    { t: "key", text: "Transition design" },
+    { t: "text", text: ", while my research focuses on sustainable minerals, " },
+    { t: "key", text: "AI as material" },
+    { t: "text", text: ", and " },
+    { t: "key", text: "Scalar Design Leadership" },
+    { t: "text", text: "." },
+  ],
+  [
+    { t: "text", text: "Currently Head of Design at " },
+    { t: "logo", name: "frankl" },
+    { t: "key", text: "Frankl" },
+    { t: "text", text: ". Previously led design across " },
+    { t: "logo", name: "meta" },
+    { t: "text", text: "Meta, " },
+    { t: "logo", name: "mastercard" },
+    { t: "text", text: "Mastercard/Finicity, " },
+    { t: "logo", name: "ptc" },
+    { t: "text", text: "PTC, " },
+    { t: "logo", name: "consumer-reports" },
+    { t: "text", text: "Consumer Reports, and " },
+    { t: "logo", name: "western-digital" },
+    { t: "text", text: "Western Digital/SanDisk, working across " },
+    { t: "term", text: "Fintech" },
+    { t: "text", text: "." },
+  ],
+  [
+    { t: "text", text: "I " },
+    { t: "key", text: "teach" },
+    { t: "text", text: " design at Carnegie Mellon University and serve as a mentor and advisor at " },
+    { t: "logo", name: "mit" },
+    {
+      t: "text",
+      text: "MIT GOV/LAB. My teaching extends internationally to SFK International and ACG Arts in China, and Njala University in Sierra Leone.",
+    },
+  ],
+  [
+    { t: "text", text: "My work has been " },
+    { t: "key", text: "recognized and awarded" },
+    { t: "text", text: " across product design, entrepreneurship, and academia. See " },
+    { t: "key", text: "what people are saying" },
+    { t: "text", text: "." },
+  ],
+  [
+    { t: "text", text: "I speak & consult on " },
+    { t: "term", text: "design leadership" },
+    { t: "text", text: " and offer free mentorship " },
+    { t: "key", text: "monthly" },
+    { t: "text", text: " to " },
+    { t: "term", text: "underrepresented communities" },
+    { t: "text", text: " in design and tech." },
+  ],
+  [
+    { t: "text", text: "Outside of the work, I'm a " },
+    { t: "key", text: "reader" },
+    { t: "text", text: ", a " },
+    { t: "key", text: "fan" },
+    { t: "text", text: ", a husband and father." },
+  ],
+];
+
 // Order + labels per the 2026-06-11 meeting (brackets removed in Nav.tsx).
 export const navItems = [
   { label: "Work", href: "/work" },
   { label: "Leadership", href: "/leadership" },
   { label: "Research", href: "/research" },
   { label: "Build", href: "/build" },
-  { label: "Teaching/Mentorship", href: "/teaching" },
+  { label: "Teaching", href: "/teaching" },
   { label: "Blogs & Media", href: "/blogs" },
 ];
