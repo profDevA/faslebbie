@@ -30,8 +30,8 @@ export default async function SectionPage({
   return (
     <>
       <Nav />
-      <main className="mx-auto flex w-full max-w-[1088px] flex-1 flex-col items-center justify-center px-6 py-24 text-center">
-        <h1 className="font-serif text-[clamp(28px,4vw,48px)] font-bold leading-[1.35] tracking-[0.04em]">
+      <main className="mx-auto flex w-full max-w-272 flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+        <h1 className="font-serif text-[32px] font-bold leading-[1.35] tracking-[0.04em] md:text-[40px] lg:text-[48px]">
           {title}
           <span className="text-accent">.</span>
         </h1>

@@ -11,7 +11,7 @@ export default function V2Page() {
       <Nav dark />
       <main className="flex flex-1 flex-col">
         <V2Hero />
-        <AboutContent />
+        <AboutContent className="mx-auto w-full max-w-272 px-6 pb-32 pt-8" />
       </main>
     </>
   );

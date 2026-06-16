@@ -127,10 +127,13 @@ export const panels: Record<SectionId, PanelContent> = {
 // terminal-style tag with a >/~ prefix. Verbatim copy from the Figma frame.
 export type AboutToken =
   | { t: "text"; text: string }
-  | { t: "role" }
-  | { t: "key"; text: string }
+  | { t: "typer"; words: readonly string[] } // black >/~ tag that retype-cycles on click
+  // "key" expands a panel on click. tone "red" = homepage-style red pill;
+  // tone "gray" = System-2 keyword (black text on a gray pill, Figma 187:*).
+  | { t: "key"; text: string; tone?: "red" | "gray" }
   | { t: "term"; text: string }
-  | { t: "logo"; name: keyof typeof aboutLogos };
+  | { t: "logo"; name: keyof typeof aboutLogos }
+  | { t: "photo"; src: string; alt: string }; // inline personal photo (hover-pops)
 
 // Inline brand logos (downloaded from Figma 187:1596) with their box colors.
 export const aboutLogos = {
@@ -146,17 +149,33 @@ export const aboutLogos = {
   mit: { src: "/about-logos/mit.png", bg: "#db1f2e" },
 } as const;
 
+// System 1 — the role is a single click-to-retype tag in the first sentence;
+// the credentials are plain serif text with inline university logos (Figma
+// 224:957). Only the role cycles. (Israel's 06-12 walkthrough implied a second
+// credential typer, but the static frame is the source of truth — Xiang 06-16.)
 export const roleWords = ["designer", "researcher", "educator"];
 
-// Role typer (System 1): clicking cycles the word AND reveals the credential
-// (Figma 82:504 shows >/~ designer → ">/~ PhD in Design from Carnegie Mellon").
-// designer/researcher/educator → the three degrees from the bio.
-// TODO(Fas): confirm which role maps to which degree.
-export const roleCredentials: Record<string, string> = {
-  designer: "PhD in Design from Carnegie Mellon University",
-  researcher: "Master's in Design from Parsons School of Design",
-  educator: "Bachelor's in Entrepreneurship from University of Utah",
-};
+// Retype-cycling >/~ tags — same component as the role tag. Labels verbatim
+// from the Figma frames (2147236505 / 506 / 507).
+export const sectorWords = [
+  "Fintech.",
+  "Enterprise Securities & Analytics",
+  "Consumer Tech",
+  "Healthcare",
+  "Civic infrastructure.",
+];
+export const consultWords = [
+  "design leadership",
+  "AI systems",
+  "civic systems",
+  "sustainable transitions",
+];
+export const communityWords = [
+  "underrepresented communities",
+  "African creatives",
+  "early-career technologists",
+  "systems education",
+];
 
 // About keyword dropdowns (Systems 2 & 3). Real copy where the Figma shows it;
 // the Figma itself still uses lorem for several, so those are placeholders.
@@ -171,7 +190,6 @@ export const aboutPanels: Record<
   "Transition design": { body: [LOREM], cta: { label: "Continue", href: "/research" }, placeholder: true },
   "AI as material": { body: [LOREM], placeholder: true },
   "Scalar Design Leadership": { body: [LOREM], placeholder: true },
-  Frankl: { body: ["Building products that connect people with local experiences."] },
   teach: {
     body: [
       "Teaching across Carnegie Mellon, MIT GOV/LAB, SFK International, and Njala University — treating the classroom as an active studio.",
@@ -188,8 +206,8 @@ export const aboutPanels: Record<
 export const aboutParagraphs: AboutToken[][] = [
   [
     { t: "text", text: "As a transdisciplinary " },
-    { t: "role" },
-    { t: "text", text: " I hold a PhD in Design from " },
+    { t: "typer", words: roleWords },
+    { t: "text", text: " I hold a Phd in Design from " },
     { t: "logo", name: "carnegie-mellon" },
     { t: "text", text: "Carnegie Mellon University, a Master's in Design from " },
     { t: "logo", name: "parsons" },
@@ -199,20 +217,19 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
   [
     { t: "text", text: "I work at the intersection of " },
-    { t: "key", text: "Product" },
+    { t: "key", text: "Product", tone: "gray" },
     { t: "text", text: " and " },
-    { t: "key", text: "Transition design" },
+    { t: "key", text: "Transition design", tone: "gray" },
     { t: "text", text: ", while my research focuses on sustainable minerals, " },
-    { t: "key", text: "AI as material" },
+    { t: "key", text: "AI as material", tone: "gray" },
     { t: "text", text: ", and " },
-    { t: "key", text: "Scalar Design Leadership" },
+    { t: "key", text: "Scalar Design Leadership", tone: "gray" },
     { t: "text", text: "." },
   ],
   [
     { t: "text", text: "Currently Head of Design at " },
     { t: "logo", name: "frankl" },
-    { t: "key", text: "Frankl" },
-    { t: "text", text: ". Previously led design across " },
+    { t: "text", text: "Franki. Previously led design across " },
     { t: "logo", name: "meta" },
     { t: "text", text: "Meta, " },
     { t: "logo", name: "mastercard" },
@@ -223,8 +240,7 @@ export const aboutParagraphs: AboutToken[][] = [
     { t: "text", text: "Consumer Reports, and " },
     { t: "logo", name: "western-digital" },
     { t: "text", text: "Western Digital/SanDisk, working across " },
-    { t: "term", text: "Fintech" },
-    { t: "text", text: "." },
+    { t: "typer", words: sectorWords },
   ],
   [
     { t: "text", text: "I " },
@@ -245,20 +261,46 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
   [
     { t: "text", text: "I speak & consult on " },
-    { t: "term", text: "design leadership" },
+    { t: "typer", words: consultWords },
     { t: "text", text: " and offer free mentorship " },
     { t: "key", text: "monthly" },
     { t: "text", text: " to " },
-    { t: "term", text: "underrepresented communities" },
+    { t: "typer", words: communityWords },
     { t: "text", text: " in design and tech." },
   ],
   [
     { t: "text", text: "Outside of the work, I'm a " },
-    { t: "key", text: "reader" },
+    { t: "key", text: "reader", tone: "gray" },
     { t: "text", text: ", a " },
-    { t: "key", text: "fan" },
-    { t: "text", text: ", a husband and father." },
+    { t: "key", text: "fan", tone: "gray" },
+    { t: "text", text: ", a husband and father " },
+    { t: "photo", src: "/about-logos/father.png", alt: "Fas with family" },
+    { t: "text", text: "." },
   ],
+];
+
+// "What people are saying" — testimonials carousel (Fas 06/15: pop-up you can
+// click "next" through, like case studies). PLACEHOLDER copy — final quotes
+// pending from Fas.
+export const testimonials = [
+  {
+    quote:
+      "Fas brings rare clarity to messy, ambiguous problems — he can hold the systems view and the craft at the same time.",
+    name: "Placeholder Name",
+    role: "VP of Design, Company",
+  },
+  {
+    quote:
+      "Working with Fas reshaped how our team thinks about design as infrastructure, not output. The impact outlasted the engagement.",
+    name: "Placeholder Name",
+    role: "Founder, Startup",
+  },
+  {
+    quote:
+      "A generous mentor and a sharp strategist. Fas raises the level of everyone in the room.",
+    name: "Placeholder Name",
+    role: "Design Lead, Org",
+  },
 ];
 
 // Order + labels per the 2026-06-11 meeting (brackets removed in Nav.tsx).

@@ -30,6 +30,17 @@ body {
   }
 }
 
+/* Gentle continuous wobble for the popped About logos (Emily-Campbell style) */
+@keyframes logo-wobble {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
 /* Hide the native cursor where the custom dot cursor is active */
 @media (hover: hover) and (pointer: fine) {
   .has-dot-cursor,

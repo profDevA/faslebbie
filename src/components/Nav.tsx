@@ -56,7 +56,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
       <div className="mx-auto flex h-[52px] max-w-[1380px] items-center justify-between gap-8 px-6">
         <Logo />
         {/* Desktop: full horizontal menu */}
-        <nav className="hidden items-center gap-x-[clamp(20px,2.6vw,43px)] text-[14px] uppercase lg:flex">
+        <nav className="hidden items-center gap-x-6 text-[14px] uppercase lg:flex xl:gap-x-10">
           {navItems.map((item) => (
             <NavLink key={item.href} {...item} />
           ))}

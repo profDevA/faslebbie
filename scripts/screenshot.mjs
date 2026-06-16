@@ -104,5 +104,24 @@ await page.evaluate(() => document.getElementById("about")?.scrollIntoView());
 await new Promise((r) => setTimeout(r, 400));
 await page.screenshot({ path: `${outDir}/v2-mobile-about.png` });
 
+// About page — desktop, testimonials pop-up, mobile
+const aboutUrl = new URL("/about", url).href;
+await page.setViewport({ width: 1440, height: 1000 });
+await page.goto(aboutUrl, { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 300));
+await page.screenshot({ path: `${outDir}/about.png`, fullPage: true });
+await page.evaluate(() => {
+  const btn = [...document.querySelectorAll("[data-about-key]")].find(
+    (b) => b.textContent?.trim().startsWith("what people"),
+  );
+  btn?.click();
+});
+await new Promise((r) => setTimeout(r, 400));
+await page.screenshot({ path: `${outDir}/about-testimonials.png` });
+await page.setViewport({ width: 402, height: 900 });
+await page.goto(aboutUrl, { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 300));
+await page.screenshot({ path: `${outDir}/about-mobile.png`, fullPage: true });
+
 await browser.close();
 console.log(`saved to ${outDir}/`);

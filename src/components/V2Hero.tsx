@@ -76,8 +76,8 @@ export default function V2Hero() {
             ref={wiggleRef}
             className="flex flex-1 flex-col justify-center bg-linear-to-b from-black via-[#2a2a2a] to-[#8a8a82] bg-clip-text text-transparent"
           >
-            <span className="text-[clamp(52px,13.5vw,230px)]">Fas lebbie</span>
-            <span className="self-end pr-[6%] text-[clamp(52px,13.5vw,230px)]">
+            <span className="text-[72px] sm:text-[120px] md:text-[180px] lg:text-[230px]">Fas lebbie</span>
+            <span className="self-end pr-[6%] text-[72px] sm:text-[120px] md:text-[180px] lg:text-[230px]">
               Ph.D.
             </span>
           </div>

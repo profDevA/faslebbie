@@ -172,7 +172,7 @@ export default function HeroParagraph({
 
   return (
     <div
-      className={`font-serif text-[clamp(28px,3.5vw,42px)] font-bold leading-[1.55] tracking-[0.04em] ${className}`}
+      className={`font-serif text-[28px] font-bold leading-[1.55] tracking-[0.04em] md:text-[36px] lg:text-[42px] ${className}`}
     >
       {tokens.map((token, i) => {
         const panelHere = active && insertIndex === i && (
