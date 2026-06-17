@@ -50,7 +50,7 @@ function Panel({
     <div className="block animate-[panel-in_0.25s_ease-out] py-5 text-left">
       <div
         ref={panelRef}
-        className="relative mx-auto flex w-full max-w-[817px] flex-col gap-[13px] border-l-4 border-accent bg-panel px-[17px] py-[14px]"
+        className="relative mx-auto flex w-full max-w-204.25 flex-col gap-3.25 border-l-4 border-accent bg-panel px-4.25 py-3.5"
       >
         {/* X close at top-right (per Fas 06/12); also closes on click-outside / re-click */}
         <button
@@ -58,11 +58,11 @@ function Panel({
           onClick={onClose}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute right-[12px] top-[10px] font-serif text-[20px] leading-none text-black/60 transition-colors hover:text-black"
+          className="absolute right-3 top-2 font-serif text-[30px] leading-none text-black/70 transition-colors hover:text-black"
         >
           ×
         </button>
-        <p className="pr-6 font-serif text-[20px] font-bold lowercase leading-[1.35] tracking-[0.05em]">
+        <p className="pr-6 font-serif text-[20px] font-bold lowercase leading-[1.35] tracking-wider">
           {panel.title}
         </p>
         {panel.body.map((paragraph) => (
@@ -74,17 +74,22 @@ function Panel({
           </p>
         ))}
         {panel.hasToolStack && (
-          /* eslint-disable-next-line @next/next/no-img-element -- small static strip, no optimization needed */
-          <img
-            src={toolStackImage}
-            alt="Tool stack: design and development tools"
-            className="h-[18px] w-auto max-w-full self-start object-contain pt-0.5"
-          />
+          <span className="flex items-center gap-2">
+            <span className="font-serif text-[16px] font-bold tracking-[0.06em]">
+              Stack:
+            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- small static strip, no optimization needed */}
+            <img
+              src={toolStackImage}
+              alt="Tool stack: design and development tools"
+              className="h-4.5 w-auto max-w-full object-contain"
+            />
+          </span>
         )}
         <Link
           href={panel.cta.href}
           data-cursor="hover"
-          className="pt-1 font-serif text-[16px] font-medium text-accent underline underline-offset-2"
+          className="font-serif text-[16px] font-medium text-accent underline underline-offset-2"
         >
           {panel.cta.label} →
         </Link>
@@ -100,7 +105,7 @@ function Panel({
  */
 export default function HeroParagraph({
   className = "",
-  storyHref = "/story",
+  storyHref = "/about",
 }: {
   className?: string;
   /** Where "And there's more to my story+." links. v2 passes "#about". */
@@ -202,7 +207,7 @@ export default function HeroParagraph({
               key={i}
               href={storyHref}
               data-cursor="hover"
-              className="-mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.25em] leading-[1.2] text-accent transition-colors duration-200 hover:bg-black/15"
+              className="mx-[-0.05em] box-decoration-clone rounded-full bg-pill px-[0.25em] leading-[1.2] text-accent transition-colors duration-200 hover:bg-black hover:text-white"
             >
               {token.text}
             </Link>
@@ -220,8 +225,10 @@ export default function HeroParagraph({
               data-keyword
               aria-expanded={isActive}
               onClick={() => toggle(token.id)}
-              className={`mx-[-0.05em] rounded-full px-[0.25em] leading-[1.2] text-accent transition-colors duration-200 ${
-                isActive ? "bg-black/20" : "bg-pill hover:bg-black/15"
+              className={`mx-[-0.05em] rounded-full px-[0.25em] leading-[1.2] transition-colors duration-200 ${
+                isActive
+                  ? "bg-black text-white"
+                  : "bg-pill text-accent hover:bg-black hover:text-white"
               }`}
             >
               {token.text}

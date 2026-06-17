@@ -135,18 +135,21 @@ export type AboutToken =
   | { t: "logo"; name: keyof typeof aboutLogos }
   | { t: "photo"; src: string; alt: string }; // inline personal photo (hover-pops)
 
-// Inline brand logos (downloaded from Figma 187:1596) with their box colors.
+// Inline brand logos (Figma 187:1596). Each SVG is a self-contained chip — the
+// colored background rect and internal padding are baked in — so they're
+// rendered inline (no <img>, no wrapper background). `src` is relative to
+// /public; the About page reads these files server-side and inlines them.
 export const aboutLogos = {
-  "carnegie-mellon": { src: "/about-logos/carnegie-mellon.png", bg: "#c41230" },
-  parsons: { src: "/about-logos/parsons.png", bg: "#f8f5f0" },
-  utah: { src: "/about-logos/utah.png", bg: "#fefefe" },
-  frankl: { src: "/about-logos/frankl.svg", bg: "#ffe500" },
-  meta: { src: "/about-logos/meta.png", bg: "#1f1f1d" },
-  mastercard: { src: "/about-logos/mastercard.png", bg: "#f8f5f0" },
-  ptc: { src: "/about-logos/ptc.svg", bg: "#4d585a" },
-  "consumer-reports": { src: "/about-logos/consumer-reports.svg", bg: "#00ae4d" },
-  "western-digital": { src: "/about-logos/western-digital.svg", bg: "#f8f5f0" },
-  mit: { src: "/about-logos/mit.png", bg: "#db1f2e" },
+  "carnegie-mellon": { src: "/about-logos/carnegie-mellon-university.svg" },
+  parsons: { src: "/about-logos/parsons.svg" },
+  utah: { src: "/about-logos/utah.svg" },
+  frankl: { src: "/about-logos/franki.svg" },
+  meta: { src: "/about-logos/meta.svg" },
+  mastercard: { src: "/about-logos/mastercard.svg" },
+  ptc: { src: "/about-logos/ptc.svg" },
+  "consumer-reports": { src: "/about-logos/consumer-reports.svg" },
+  "western-digital": { src: "/about-logos/western-digital.svg" },
+  mit: { src: "/about-logos/mit.svg" },
 } as const;
 
 // System 1 — the role is a single click-to-retype tag in the first sentence;
@@ -177,30 +180,111 @@ export const communityWords = [
   "systems education",
 ];
 
-// About keyword dropdowns (Systems 2 & 3). Real copy where the Figma shows it;
-// the Figma itself still uses lorem for several, so those are placeholders.
-// TODO(Fas/Israel): final copy for the keywords marked PLACEHOLDER.
+// Gray keywords expand INLINE (purple text flows into the paragraph, per the
+// Figma states 187:*). Each keyword maps to a token array; nested keywords are
+// themselves expandable buttons. Only "sustainable minerals" has final copy;
+// the rest are lorem until Fas writes them. TODO(Fas): final copy for LOREM.
 const LOREM =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+const lorem = (): AboutToken[] => [{ t: "text", text: LOREM }];
+
+export const aboutExpansions: Record<string, AboutToken[]> = {
+  // The one with finalized copy — and it contains nested keyword buttons.
+  "sustainable minerals": [
+    {
+      t: "text",
+      text: "my research focuses on mineral exploration and mining design decisions, which tend to focus on economic and technical priorities. While social, ecological, and cultural values are increasingly acknowledged, they are still poorly understood and weakly embedded in decision-making across mining policies, practices, and processes. This knowledge gap results in mistrust, conflict, delay, and potential failure. To address this, my research investigates how ",
+    },
+    { t: "key", text: "design decisions", tone: "gray" },
+    { t: "text", text: " shape " },
+    { t: "key", text: "mineral systems", tone: "gray" },
+    {
+      t: "text",
+      text: " — and how those systems, in turn, reshape communities, ecologies, and futures. For two decades, I've worked inside ",
+    },
+    { t: "key", text: "African mining communities", tone: "gray" },
+    { t: "text", text: ", developing " },
+    { t: "key", text: "post-extractive frameworks", tone: "gray" },
+    {
+      t: "text",
+      text: " that center local knowledge and agency over extraction and profit. This work culminated in ",
+    },
+    { t: "key", text: "Mineral Choreography", tone: "gray" },
+    {
+      t: "text",
+      text: " — a new domain of inquiry establishing design as an active force within the ",
+    },
+    { t: "key", text: "extractive sector", tone: "gray" },
+    { t: "text", text: " and " },
+    { t: "key", text: "sustainability transitions", tone: "gray" },
+    {
+      t: "text",
+      text: ". I am working directly with local communities — alongside engineers, policymakers, and scientists. I write about all of it across ",
+    },
+    { t: "key", text: "books", tone: "gray" },
+    { t: "text", text: ", " },
+    { t: "key", text: "journals & articles", tone: "gray" },
+    { t: "text", text: ", and " },
+    { t: "key", text: "academic work", tone: "gray" },
+    { t: "text", text: "." },
+  ],
+  // Top-level keywords (lorem until finalized)
+  Product: lorem(),
+  "Transition design": lorem(),
+  "AI as material": lorem(),
+  "Scalar Design Leadership": lorem(),
+  reader: lorem(),
+  fan: lorem(),
+  "Carnegie Mellon University": lorem(),
+  // Nested keywords inside the research passage (lorem until finalized)
+  "design decisions": lorem(),
+  "mineral systems": lorem(),
+  "African mining communities": lorem(),
+  "post-extractive frameworks": lorem(),
+  "Mineral Choreography": lorem(),
+  "extractive sector": lorem(),
+  "sustainability transitions": lorem(),
+  books: lorem(),
+  "journals & articles": lorem(),
+  "academic work": lorem(),
+};
+
+// Award marks shown in the "recognized and awarded" panel (Figma 187:2004).
+// Each SVG is an isolated export with the panel-colour background baked in, so
+// it sits flush on the panel. `h` is the Figma render height in px (widths vary,
+// so we size by height and let width follow the aspect ratio).
+export const aboutAwards = [
+  { src: "/about-awards/new-macy.svg", alt: "New Macy / ASC.Cybernetics", h: 22 },
+  { src: "/about-awards/parsons.svg", alt: "Parsons School of Design", h: 17 },
+  { src: "/about-awards/webby.svg", alt: "The Webby Awards", h: 27 },
+  { src: "/about-awards/utah-challenge.svg", alt: "Utah Entrepreneur Challenge", h: 20 },
+  { src: "/about-awards/carnegie-mellon.svg", alt: "Carnegie Mellon University", h: 17 },
+] as const;
+
+// Red keywords open a BOXED panel (homepage style: title, body, CTA, × close) —
+// Figma 187:2356 (teach), 187:1913 (recognized and awarded), 187:2107 (monthly).
 export const aboutPanels: Record<
   string,
-  { body: string[]; cta?: { label: string; href: string }; placeholder?: boolean }
+  {
+    body: string[];
+    cta?: { label: string; href: string };
+    awards?: typeof aboutAwards;
+    placeholder?: boolean;
+  }
 > = {
-  Product: { body: [LOREM], cta: { label: "Continue", href: "/work" }, placeholder: true },
-  "Transition design": { body: [LOREM], cta: { label: "Continue", href: "/research" }, placeholder: true },
-  "AI as material": { body: [LOREM], placeholder: true },
-  "Scalar Design Leadership": { body: [LOREM], placeholder: true },
   teach: {
     body: [
       "Teaching across Carnegie Mellon, MIT GOV/LAB, SFK International, and Njala University — treating the classroom as an active studio.",
+      "Focused on systems thinking, product design, and real-world practice.",
     ],
     cta: { label: "Continue to Teaching", href: "/teaching" },
   },
-  "recognized and awarded": { body: [LOREM], placeholder: true },
-  "what people are saying": { body: [LOREM, LOREM], cta: { label: "Read more", href: "/leadership" }, placeholder: true },
-  monthly: { body: [LOREM], placeholder: true },
-  reader: { body: [LOREM], placeholder: true },
-  fan: { body: [LOREM], placeholder: true },
+  "recognized and awarded": { body: [LOREM], awards: aboutAwards, placeholder: true },
+  monthly: {
+    body: [LOREM],
+    cta: { label: "Book a Call", href: "/contact" },
+    placeholder: true,
+  },
 };
 
 export const aboutParagraphs: AboutToken[][] = [
@@ -220,7 +304,9 @@ export const aboutParagraphs: AboutToken[][] = [
     { t: "key", text: "Product", tone: "gray" },
     { t: "text", text: " and " },
     { t: "key", text: "Transition design", tone: "gray" },
-    { t: "text", text: ", while my research focuses on sustainable minerals, " },
+    { t: "text", text: ", while my research focuses on " },
+    { t: "key", text: "sustainable minerals", tone: "gray" },
+    { t: "text", text: ", " },
     { t: "key", text: "AI as material", tone: "gray" },
     { t: "text", text: ", and " },
     { t: "key", text: "Scalar Design Leadership", tone: "gray" },
@@ -245,7 +331,9 @@ export const aboutParagraphs: AboutToken[][] = [
   [
     { t: "text", text: "I " },
     { t: "key", text: "teach" },
-    { t: "text", text: " design at Carnegie Mellon University and serve as a mentor and advisor at " },
+    { t: "text", text: " design at " },
+    { t: "key", text: "Carnegie Mellon University", tone: "gray" },
+    { t: "text", text: " and serve as a mentor and advisor at " },
     { t: "logo", name: "mit" },
     {
       t: "text",

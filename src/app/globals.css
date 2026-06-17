@@ -12,6 +12,12 @@
   --font-serif: var(--font-reckless), Georgia, serif;
   --font-logo: var(--font-poppins), sans-serif;
   --font-grotesk: var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif;
+  /* About-page heading (Figma: Druk Text Trial 700). Druk is commercial and not
+     in the repo; Archivo Black is a free, OFL-licensed stand-in. Drop a licensed
+     Druk Text woff2 + wire next/font/local and it takes over automatically.
+     TODO(Israel/Fas): supply licensed Druk Text. */
+  --font-druk: "Druk Text Trial", "Druk Text", var(--font-archivo-black),
+    "Arial Black", sans-serif;
 }
 
 body {
@@ -19,14 +25,13 @@ body {
   color: #000;
 }
 
+/* Fade only — no transform, so opening a panel doesn't bounce (Israel 06/16). */
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 

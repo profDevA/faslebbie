@@ -53,7 +53,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           : "bg-bg text-black shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
       }`}
     >
-      <div className="mx-auto flex h-[52px] max-w-[1380px] items-center justify-between gap-8 px-6">
+      <div className="mx-auto flex h-13 max-w-345 items-center justify-between gap-8 px-6">
         <Logo />
         {/* Desktop: full horizontal menu */}
         <nav className="hidden items-center gap-x-6 text-[14px] uppercase lg:flex xl:gap-x-10">
@@ -83,7 +83,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           contrast vs. the light page (Fas 06/12: "make it black"). */}
       {open && (
         <div className="fixed inset-0 z-50 flex flex-col bg-[#141414] text-bg lg:hidden">
-          <div className="flex h-[52px] shrink-0 items-center justify-between px-6">
+          <div className="flex h-13 shrink-0 items-center justify-between px-6">
             <Logo onClick={() => setOpen(false)} />
             <button
               type="button"
@@ -94,7 +94,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               Close
             </button>
           </div>
-          <nav className="flex flex-col gap-[18px] px-6 pt-10 text-[32px] uppercase leading-[1.1]">
+          <nav className="flex flex-col gap-4.5 px-6 pt-10 text-[32px] uppercase leading-[1.1]">
             {[...navItems, contactItem].map((item) => (
               <Link
                 key={item.href}

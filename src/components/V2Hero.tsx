@@ -84,20 +84,20 @@ export default function V2Hero() {
         </div>
 
         {/* Small faded portrait, tucked behind the text like the Figma */}
-        <div className="pointer-events-none absolute left-1/2 top-[34%] z-[5] -translate-x-1/4 opacity-70">
+        <div className="pointer-events-none absolute left-1/2 top-[34%] z-5 -translate-x-1/4 opacity-70">
           <Image
             src="/portrait.png"
             alt=""
             width={120}
             height={108}
-            className="h-[108px] w-[120px] object-cover object-top"
+            className="h-27 w-30 object-cover object-top"
           />
         </div>
 
         {/* Interactive paragraph foreground */}
         <div
           style={{ opacity: paraOpacity }}
-          className="relative z-10 mx-auto w-full max-w-[1088px]"
+          className="relative z-10 mx-auto w-full max-w-272"
         >
           <HeroParagraph className="text-center" storyHref="#about" />
         </div>
