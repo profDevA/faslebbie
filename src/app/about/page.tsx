@@ -1,18 +1,9 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import Image from "next/image";
 import Nav from "@/components/Nav";
 import AboutContent from "@/components/AboutContent";
-import { aboutLogos } from "@/lib/content";
+import { getAboutLogoSvgs } from "@/lib/logoSvgs";
 
-// Brand logos are self-contained SVG chips; read them once on the server and
-// pass the raw markup down so they render inline (no <img> wrapper).
-const logoSvgs = Object.fromEntries(
-  Object.entries(aboutLogos).map(([name, { src }]) => [
-    name,
-    readFileSync(join(process.cwd(), "public", src), "utf8"),
-  ]),
-) as Record<keyof typeof aboutLogos, string>;
+const logoSvgs = getAboutLogoSvgs();
 
 // About page (Figma "About Page" / 187:2596) — two columns: photo + heading on
 // the left, the interactive bio on the right. Stacks on mobile.
