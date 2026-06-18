@@ -355,7 +355,7 @@ type RenderCtx = {
   activePanel: string | null // red keyword whose boxed panel is open
   setActivePanel: (key: string | null) => void
   logoSvgs: Record<keyof typeof aboutLogos, string> // inline SVG markup per logo
-  purple?: boolean
+  expanded?: boolean // true while rendering an inline gray-keyword expansion
 }
 
 // Renders a single keyword pill. `displayText` may be a slice of the token's
@@ -408,14 +408,15 @@ function renderKeyPill(
 }
 
 // Recursively render a token stream. Keys come in two flavors:
-//  • gray keyword → inline purple expansion (may contain nested keys)
+//  • gray keyword → inline expansion in black, normal weight (may contain
+//    nested keys)
 //  • red keyword → toggles a boxed panel below the line ("what people are
 //    saying" is a red keyword whose panel holds the testimonial slider)
 function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
   {
     if (tok.t === 'text')
       return (
-        <span key={key} className={ctx.purple ? 'text-[#8a38f5]' : undefined}>
+        <span key={key} className={ctx.expanded ? 'font-normal' : undefined}>
           {tok.text}
         </span>
       )
@@ -442,9 +443,9 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
     return (
       <Fragment key={key}>
         {renderKeyPill(tok, ctx, tok.text, `${key}-pill`)}
-        {/* gray keyword: inline purple expansion (nested keys supported) */}
+        {/* gray keyword: inline expansion in black/normal (nested keys ok) */}
         {isGray && inlineOpen && expansion && (
-          <> {renderTokens(expansion, { ...ctx, purple: true }, key)}</>
+          <> {renderTokens(expansion, { ...ctx, expanded: true }, key)}</>
         )}
       </Fragment>
     )
@@ -572,7 +573,7 @@ function MeasuredParagraph({
                       {' '}
                       {renderTokens(
                         expansion,
-                        { ...ctx, purple: true },
+                        { ...ctx, expanded: true },
                         `${prefix}-${j}`,
                       )}
                     </>
@@ -581,7 +582,7 @@ function MeasuredParagraph({
             )
           }
           if (tok.t === 'text') {
-            const cls = ctx.purple ? 'text-[#8a38f5]' : undefined
+            const cls = ctx.expanded ? 'font-normal' : undefined
             return (
               <Fragment key={j}>
                 <span className={cls}>{tok.text.slice(0, placement.at)}</span>
