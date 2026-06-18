@@ -12,12 +12,9 @@
   --font-serif: var(--font-reckless), Georgia, serif;
   --font-logo: var(--font-poppins), sans-serif;
   --font-grotesk: var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif;
-  /* About-page heading (Figma: Druk Text Trial 700). Druk is commercial and not
-     in the repo; Archivo Black is a free, OFL-licensed stand-in. Drop a licensed
-     Druk Text woff2 + wire next/font/local and it takes over automatically.
-     TODO(Israel/Fas): supply licensed Druk Text. */
-  --font-druk: "Druk Text Trial", "Druk Text", var(--font-archivo-black),
-    "Arial Black", sans-serif;
+  /* About-page "ABOUT ME" heading — Figma 06/18 spec: Helvetica 700, uppercase.
+     Helvetica on macOS, Arial as the Windows/Linux fallback (same metrics). */
+  --font-helvetica: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 body {
@@ -32,6 +29,17 @@ body {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* Mobile menu slides down from the top instead of appearing instantly
+   (Israel 06/17: "it comes down, it doesn't just appear suddenly"). */
+@keyframes menu-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 

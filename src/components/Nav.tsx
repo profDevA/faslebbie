@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { navItems } from "@/lib/content";
+import { navItems, mobileNavItems } from "@/lib/content";
 
 const contactItem = { label: "Contact", href: "/contact" };
+const contactEmail = "dr.faslebbie@gmail.com";
 
-// "Fas Lebbie, Ph.D." — normal caps per the mobile frame (16:636). NOTE: the
-// desktop nav frame (40:625) shows a small-caps variant ("Fas lebbie"); unified
-// on normal caps for consistency — flag to Fas if the small-caps was intended.
+// Wordmark "Fas lebbie, Ph.D." — the surname is intentionally lowercase per the
+// desktop nav (Figma 402:2899, an uppercase base with the surname lowercased).
+// NOTE: the mobile nav frames type it with a capital "Lebbie"; unified on the
+// desktop's lowercase wordmark for consistency — flag to Fas if mobile differs.
 function Logo({ onClick }: { onClick?: () => void }) {
   return (
     <Link
@@ -17,7 +19,7 @@ function Logo({ onClick }: { onClick?: () => void }) {
       data-cursor="hover"
       className="whitespace-nowrap font-logo text-[18px] font-bold tracking-[-0.02em] lg:text-[20px]"
     >
-      Fas Lebbie, Ph.D.
+      Fas lebbie, Ph.D.
     </Link>
   );
 }
@@ -56,7 +58,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
       <div className="mx-auto flex h-13 max-w-345 items-center justify-between gap-8 px-6">
         <Logo />
         {/* Desktop: full horizontal menu */}
-        <nav className="hidden items-center gap-x-6 text-[14px] uppercase lg:flex xl:gap-x-10">
+        <nav className="hidden items-center gap-x-7 text-[14px] uppercase lg:flex xl:gap-x-[43px]">
           {navItems.map((item) => (
             <NavLink key={item.href} {...item} />
           ))}
@@ -79,11 +81,12 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
         </button>
       </div>
 
-      {/* Mobile/tablet: full-screen menu overlay. Dark treatment for clear
-          contrast vs. the light page (Fas 06/12: "make it black"). */}
+      {/* Mobile/tablet: full-screen menu overlay. Slides down on open and matches
+          the light page treatment (Figma 187:3325): #e5e5de bg, black text,
+          Neue Haas Grotesk links, CLOSE label, email footer. */}
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#141414] text-bg lg:hidden">
-          <div className="flex h-13 shrink-0 items-center justify-between px-6">
+        <div className="fixed inset-0 z-50 flex animate-[menu-in_0.3s_ease-out] flex-col overflow-y-auto bg-bg text-black lg:hidden">
+          <div className="sticky top-0 flex h-13 shrink-0 items-center justify-between bg-bg px-6 shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
             <Logo onClick={() => setOpen(false)} />
             <button
               type="button"
@@ -94,20 +97,26 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               Close
             </button>
           </div>
-          <nav className="flex flex-col gap-4.5 px-6 pt-10 text-[32px] uppercase leading-[1.1]">
-            {[...navItems, contactItem].map((item) => (
+          <nav className="flex flex-1 flex-col gap-[31px] px-5 pt-16 font-grotesk text-[36px] font-normal uppercase leading-none">
+            {[...mobileNavItems, contactItem].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
                 data-cursor="hover"
-                className="font-serif font-medium"
               >
                 {/* ZWSP after "/" lets long labels wrap at the slash (Figma 21:30) */}
                 {item.label.replace("/", "/​")}
               </Link>
             ))}
           </nav>
+          <a
+            href={`mailto:${contactEmail}`}
+            data-cursor="hover"
+            className="px-5 pb-10 pt-6 font-serif text-[14px] uppercase tracking-wide text-black/70"
+          >
+            [ {contactEmail} ]
+          </a>
         </div>
       )}
     </header>

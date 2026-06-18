@@ -159,26 +159,36 @@ function TestimonialCard({
     <article
       aria-hidden={inactive}
       inert={inactive || undefined}
-      className="flex w-[clamp(260px,64%,520px)] shrink-0 flex-col gap-4 border border-hairline bg-close px-7 py-6"
+      className="flex w-full shrink-0 flex-col gap-4 border border-hairline bg-bg px-6 py-6 lg:w-[clamp(260px,64%,539px)] lg:px-8 lg:py-7"
     >
-      <span
+      {/* Sharp blocky quote mark (Figma 187:1825) — replaces the rounded serif “ */}
+      <svg
         aria-hidden
-        className="font-serif text-[52px] font-bold leading-[0.6] text-black"
+        viewBox="0 0 25.4908 19.075"
+        className="h-[26px] w-auto shrink-0 self-start lg:h-[32px]"
+        fill="#2C2B2B"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        “
-      </span>
+        <path d="M10.0868 8.83804H6.47909C5.89008 5.0673 9.57138 3.97735 11.4857 3.90372L10.6021 0.000409149C2.35603 -0.0585084 0.098168 6.2604 0 9.42721V19.075H10.0868V8.83804Z" />
+        <path d="M24.0919 8.83805H20.4842C19.8952 5.06731 23.5765 3.97736 25.4908 3.90373L24.6072 0.00041858C16.3611 -0.0584989 14.1033 6.2604 14.0051 9.42722V19.075H24.0919V8.83805Z" />
+      </svg>
       <div className="flex items-center gap-3">
-        <span className="size-[52px] shrink-0 rounded-full bg-linear-to-br from-black/20 to-black/35" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={t.avatar}
+          alt=""
+          className="size-[59px] shrink-0 rounded-full object-cover"
+        />
         <div className="min-w-0">
-          <p className="font-serif text-[20px] font-bold leading-tight text-black">
+          <p className="font-serif text-[20px] font-bold leading-tight tracking-wider text-black">
             {t.name}
           </p>
-          <p className="font-serif text-[18px] leading-tight text-black/80">
-            - {t.role}
+          <p className="font-serif text-[20px] leading-tight tracking-wider text-black">
+            {t.role}
           </p>
         </div>
       </div>
-      <p className="font-serif text-[16px] font-medium leading-normal tracking-[0.02em] text-black/75">
+      <p className="font-serif text-[16px] font-normal leading-[1.19] tracking-wider text-black">
         “{t.quote}”
       </p>
     </article>
@@ -262,7 +272,7 @@ function LogoChip({ svg }: { svg: string }) {
   return (
     <span
       data-cursor="hover"
-      className="group relative mx-1 inline-flex h-[1.15em] translate-y-[-0.2em] items-center justify-center align-middle transition-transform duration-200 ease-out will-change-transform [&>svg]:h-full [&>svg]:w-auto hover:z-30 hover:scale-[4] group-hover:[&>svg]:animate-[logo-wobble_0.5s_ease-in-out_infinite]"
+      className="group relative mx-1 inline-flex h-[1.15em] translate-y-[-0.2em] items-center justify-center align-middle transition-transform duration-200 ease-out will-change-transform [&>svg]:h-full [&>svg]:w-auto hover:z-30 hover:scale-[1.5] group-hover:[&>svg]:animate-[logo-wobble_0.5s_ease-in-out_infinite]"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )
@@ -329,7 +339,7 @@ function TypingTag({ words }: { words: readonly string[] }) {
       type="button"
       data-cursor="hover"
       onClick={() => setIdx(i => (i + 1) % words.length)}
-      className="mx-1 inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] text-left align-middle text-[1em] leading-none text-bg"
+      className="mx-1 my-[0.4em] inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] text-left align-middle text-[1em] leading-none text-bg lg:my-0"
       aria-label={`${shown}. Click to cycle.`}
     >
       <span className="mr-[0.3em]">{'>/~'}</span>
@@ -384,9 +394,13 @@ function renderKeyPill(
           onClick()
         }
       }}
-      className={`mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors ${
-        isGray ? 'text-black' : 'text-accent'
-      } ${isActive ? 'bg-black/20' : 'bg-pill hover:bg-black/15'}`}
+      className={`mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
+        isActive
+          ? 'bg-black text-white'
+          : `bg-pill hover:bg-black hover:text-white ${
+              isGray ? 'text-black' : 'text-accent'
+            }`
+      }`}
     >
       {displayText}
     </span>
@@ -414,7 +428,7 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
       return (
         <span
           key={key}
-          className="mx-1 inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] align-middle font-grotesk text-[1em] leading-none text-bg"
+          className="mx-1 my-[0.4em] inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] align-middle font-grotesk text-[1em] leading-none text-bg lg:my-0"
         >
           <span className="mr-[0.3em]">{'>/~'}</span>
           {tok.text}
@@ -501,22 +515,27 @@ function MeasuredParagraph({
     if (keywordIndex < 0 || placement !== null) return
     const kEl = refs.current[keywordIndex]
     if (!kEl) return
-    const kRect = kEl.getBoundingClientRect()
-    const tol = kRect.height / 2
+    // Reference the keyword's LAST visual line: when the keyword itself wraps
+    // (e.g. on mobile), trailing punctuation sits on that last line and must
+    // stay attached — otherwise it's orphaned below the panel.
+    const kLines = kEl.getClientRects()
+    const kLine = kLines[kLines.length - 1] ?? kEl.getBoundingClientRect()
+    const lineTop = kLine.top
+    const tol = kLine.height / 2
     let last = keywordIndex
     for (let i = keywordIndex + 1; i < para.length; i++) {
       const el = refs.current[i]
       if (!el) continue
       const r = el.getBoundingClientRect()
-      if (r.top - kRect.top >= tol) break // first element on the next line
+      if (r.top - lineTop >= tol) break // first element on the next line
       last = i
       const tok = para[i]
       // Element starts on the line but wraps below it → split it at the wrap.
       if (
-        r.bottom - kRect.top > kRect.height * 1.5 &&
+        r.bottom - lineTop > kLine.height * 1.5 &&
         (tok.t === 'text' || tok.t === 'key')
       ) {
-        const at = wrapCharOffset(el, kRect.top, tol)
+        const at = wrapCharOffset(el, lineTop, tol)
         if (at > 0) {
           setPlacement({ kind: 'split', index: i, at })
           return
@@ -660,7 +679,7 @@ export default function AboutContent({
   return (
     <section
       id="about"
-      className={`font-serif text-[24px] font-bold leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[42px] ${className}`}
+      className={`font-serif text-[28px] font-bold leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal lg:tracking-[0.5px] ${className}`}
     >
       {aboutParagraphs.map((para, i) => {
         // A red keyword in this paragraph whose boxed panel is open.

@@ -6,6 +6,7 @@ import {
   heroSegments,
   panels,
   toolStackImage,
+  toolStackRows,
   type HeroSegment,
   type SectionId,
 } from "@/lib/content";
@@ -50,7 +51,7 @@ function Panel({
     <div className="block animate-[panel-in_0.25s_ease-out] py-5 text-left">
       <div
         ref={panelRef}
-        className="relative mx-auto flex w-full max-w-204.25 flex-col gap-3.25 border-l-4 border-accent bg-panel px-4.25 py-3.5"
+        className="relative mx-auto flex w-full max-w-204.25 flex-col gap-4 border-l-4 border-accent bg-panel px-4.25 py-3.5"
       >
         {/* X close at top-right (per Fas 06/12); also closes on click-outside / re-click */}
         <button
@@ -74,16 +75,28 @@ function Panel({
           </p>
         ))}
         {panel.hasToolStack && (
-          <span className="flex items-center gap-2">
-            <span className="font-serif text-[16px] font-bold tracking-[0.06em]">
+          <span className="flex items-start gap-5">
+            <span className="shrink-0 font-serif text-[16px] font-medium tracking-[0.06em]">
               Stack:
             </span>
+            {/* Desktop: one row. Mobile: wraps to two rows (Figma 119:4288). */}
             {/* eslint-disable-next-line @next/next/no-img-element -- small static strip, no optimization needed */}
             <img
               src={toolStackImage}
               alt="Tool stack: design and development tools"
-              className="h-4.5 w-auto max-w-full object-contain"
+              className="hidden h-4.5 w-auto max-w-full object-contain md:block"
             />
+            <span className="flex flex-col items-start gap-4 md:hidden">
+              {toolStackRows.map((src) => (
+                // eslint-disable-next-line @next/next/no-img-element -- small static strip
+                <img
+                  key={src}
+                  src={src}
+                  alt=""
+                  className="h-[18px] w-auto object-contain"
+                />
+              ))}
+            </span>
           </span>
         )}
         <Link

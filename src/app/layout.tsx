@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Poppins, Archivo_Black } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
 
@@ -21,16 +21,6 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: "700",
   variable: "--font-poppins",
-});
-
-// Stand-in for "Druk Text" (commercial — not in repo) on the About heading.
-// Archivo Black is the closest free, OFL-licensed match for Druk Text's wide,
-// heavy grotesque. The real Druk takes over via the --font-druk stack once a
-// licensed woff2 is added. TODO(Israel/Fas): supply licensed Druk Text.
-const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-archivo-black",
 });
 
 // Neue Haas Grotesk (Fas's licensed files, migrated from faslebbie.com) — used
@@ -59,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${reckless.variable} ${poppins.variable} ${nhaas.variable} ${archivoBlack.variable} h-full antialiased`}
+      className={`${reckless.variable} ${poppins.variable} ${nhaas.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <DotCursor />
