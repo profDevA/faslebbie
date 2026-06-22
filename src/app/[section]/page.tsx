@@ -8,7 +8,6 @@ const sections: Record<string, string> = {
   research: "Research",
   build: "Build",
   teaching: "Teaching / Mentorship",
-  leadership: "Leadership",
   blogs: "Blogs & Media",
   contact: "Contact",
   story: "My Story",

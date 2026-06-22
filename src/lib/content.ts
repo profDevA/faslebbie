@@ -425,6 +425,135 @@ export const testimonials = [
   },
 ]
 
+// ── Leadership page (Figma 354:747 / 354:1065) ────────────────────────────
+// Same interactive-prose system as About (gray highlight pills + red boxed
+// panels) plus a "Leadership Moments" accordion list. Gray pills here are
+// highlights only — no inline expansion copy was designed (unlike About).
+
+// Intro paragraph (gray pills: digital products / enterprise software / civic
+// systems). "View portfolio" is a separate red panel line below it.
+export const leadershipIntro: AboutToken[] = [
+  { t: 'text', text: 'I design and build ' },
+  { t: 'key', text: 'digital products', tone: 'gray' },
+  { t: 'text', text: ' at the intersection of ' },
+  { t: 'key', text: 'enterprise software', tone: 'gray' },
+  { t: 'text', text: ', AI, and ' },
+  { t: 'key', text: 'civic systems', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' — always with the belief that a well-crafted experience is the catalyst to evolve an entire workflow. A decade of work across Meta, Consumer Reports, PTC, and MIT GOV/LAB.',
+  },
+]
+
+// Second paragraph (gray pills: strategic driver + the four orgs).
+export const leadershipLead: AboutToken[] = [
+  {
+    t: 'text',
+    text: 'I lead by designing the conditions for other people to do their best work — moving design from a service function to a ',
+  },
+  { t: 'key', text: 'strategic driver', tone: 'gray' },
+  { t: 'text', text: '. At ' },
+  { t: 'key', text: 'Meta', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' that meant repositioning design across 14 product portfolios. At ',
+  },
+  { t: 'key', text: 'Consumer Reports', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' it meant unifying six research teams into one coherent system. At ',
+  },
+  { t: 'key', text: 'PTC', tone: 'gray' },
+  { t: 'text', text: ' it meant field research across 40 industrial sites. At ' },
+  { t: 'key', text: 'MIT GOV/LAB', tone: 'gray' },
+  { t: 'text', text: ' it meant civic design across two continents.' },
+]
+
+// Closing "What People Say" paragraph (gray pills: speak and present / consult /
+// free mentorship). "Get in touch" is a red panel line below it.
+export const leadershipClosing: AboutToken[] = [
+  { t: 'text', text: 'Beyond organizational roles, I ' },
+  { t: 'key', text: 'speak and present', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' on design leadership, AI, and sustainable futures — and I ',
+  },
+  { t: 'key', text: 'consult', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' with organizations navigating design transformation. I also offer ',
+  },
+  { t: 'key', text: 'free mentorship', tone: 'gray' },
+  {
+    t: 'text',
+    text: ' to underrepresented communities in design, research, and entrepreneurship.',
+  },
+]
+
+// Red boxed panels (same chrome as aboutPanels). "Get in touch" copy is a
+// placeholder until Fas finalizes it.
+export const leadershipPanels: Record<
+  string,
+  { body: string[]; cta?: { label: string; href: string }; placeholder?: boolean }
+> = {
+  'View portfolio': {
+    body: [
+      'Open the deeper work portfolio to see the product, systems, and organizational design work behind this leadership page.',
+    ],
+    cta: { label: 'Continue to portfolio', href: '/work' },
+  },
+  'Get in touch': {
+    body: [
+      'A decade building and scaling design organizations, navigating AI transitions, and working at the intersection of design and humans — let’s talk about what that work actually requires.',
+    ],
+    cta: { label: 'Continue to contact', href: '/contact' },
+    placeholder: true,
+  },
+}
+
+// "Leadership Moments" accordion (Figma 354:1065). Each role has a colored brand
+// chip (reuses the About inline-logo SVGs), a meta line, and a headline. Only
+// Meta has expansion copy + sub-links in the design; the rest are rows for now.
+export const leadershipMoments: {
+  logo: keyof typeof aboutLogos
+  meta: string
+  title: string
+  sub?: string
+  detail?: string[]
+  links?: { label: string; href: string }[]
+}[] = [
+  {
+    logo: 'meta',
+    meta: 'Meta · 2022—2024 · Group Design Manager',
+    title: 'Repositioning design as organizational infrastructure',
+    detail: [
+      '14 product portfolios. The challenge: moving design from Level 1 (producers) to Level 3 (strategic architects).',
+      "Inherited a talented team that needed better infrastructure to scale its impact. Built Design Currency — repositioning the function as a strategic driver across Meta's Enterprise Infrastructure, Security & Analytics division.",
+    ],
+    links: [
+      { label: 'Scale deep', href: '#' },
+      { label: 'Scale wide', href: '#' },
+      { label: 'Scale up', href: '#' },
+    ],
+  },
+  {
+    logo: 'consumer-reports',
+    meta: 'Consumer Reports · Research Director',
+    title: 'Unifying six research teams into one coherent system',
+  },
+  {
+    logo: 'ptc',
+    meta: 'PTC · Senior Product Designer',
+    title: 'AR/AI at industrial scale — 1M+ users, 40 sites',
+  },
+  {
+    logo: 'mit',
+    meta: 'MIT GOV/LAB · Design Advisor',
+    title: 'Civic design across two continents',
+    sub: 'Co-designing innovation frameworks with African governments to repair government-citizen trust.',
+  },
+]
+
 // Order + labels per the 2026-06-11 meeting (brackets removed in Nav.tsx).
 export const navItems = [
   { label: 'About', href: '/about' },
