@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { AboutToken } from '@/lib/content'
 import {
   aboutExpansions,
+  aboutLinks,
   aboutLogos,
   aboutPanels,
   aboutParagraphs,
@@ -73,11 +74,11 @@ function PanelShell({
           onClick={onClose}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute right-3 top-2 z-10 font-serif text-[30px] leading-none text-black/70 transition-colors hover:text-black"
+          className="absolute right-3 top-2 z-10 font-grotesk text-[30px] leading-none text-black/70 transition-colors hover:text-black"
         >
           ×
         </button>
-        <p className="pr-6 font-serif text-[20px] font-bold lowercase leading-[1.35] tracking-wider">
+        <p className="pr-6 font-grotesk text-[20px] font-bold lowercase leading-[1.35] tracking-wider">
           {title}
         </p>
         {children}
@@ -102,14 +103,14 @@ function AboutPanel({
       {panel.body.map((b, i) => (
           <p
             key={i}
-            className="font-serif text-[16px] font-medium leading-[1.35] tracking-[0.06em]"
+            className="font-grotesk text-[16px] font-medium leading-[1.35] tracking-[0.06em]"
           >
             {b}
           </p>
         ))}
         {panel.awards && (
           <div className="flex flex-wrap items-center gap-x-[19px] gap-y-3 pt-1">
-            <span className="font-serif text-[16px] font-medium tracking-[0.06em]">
+            <span className="font-grotesk text-[16px] font-medium tracking-[0.06em]">
               Awards:
             </span>
             <div className="flex flex-wrap items-center gap-[18px]">
@@ -135,7 +136,7 @@ function AboutPanel({
           <Link
             href={panel.cta.href}
             data-cursor="hover"
-            className="font-serif text-[16px] font-medium text-accent underline underline-offset-2"
+            className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2"
           >
             {panel.cta.label} →
           </Link>
@@ -180,15 +181,15 @@ function TestimonialCard({
           className="size-[59px] shrink-0 rounded-full object-cover"
         />
         <div className="min-w-0">
-          <p className="font-serif text-[20px] font-bold leading-tight tracking-wider text-black">
+          <p className="font-grotesk text-[20px] font-bold leading-tight tracking-wider text-black">
             {t.name}
           </p>
-          <p className="font-serif text-[20px] leading-tight tracking-wider text-black">
+          <p className="font-grotesk text-[20px] leading-tight tracking-wider text-black">
             {t.role}
           </p>
         </div>
       </div>
-      <p className="font-serif text-[16px] font-normal leading-[1.19] tracking-wider text-black">
+      <p className="font-grotesk text-[16px] font-normal leading-[1.19] tracking-wider text-black">
         “{t.quote}”
       </p>
     </article>
@@ -246,7 +247,7 @@ function TestimonialsPanel({ onClose }: { onClose: () => void }) {
           onClick={() => go(-1)}
           disabled={i === 0}
           data-cursor="hover"
-          className="font-serif text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
+          className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
         >
           ← Previous
         </button>
@@ -255,7 +256,7 @@ function TestimonialsPanel({ onClose }: { onClose: () => void }) {
           onClick={() => go(1)}
           disabled={i === max}
           data-cursor="hover"
-          className="font-serif text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
+          className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
         >
           Next →
         </button>
@@ -376,6 +377,20 @@ function renderKeyPill(
     if (isGray) ctx.toggleInline(tok.text)
     else ctx.setActivePanel(panelOpen ? null : tok.text)
   }
+  // Two visual systems (Figma "Component Interaction" 823:70182):
+  //  • gray = "Reveal narrative" → grey pill, black text; hover/active black pill,
+  //    white text.
+  //  • red  = "Popup" → red text with an underline, no pill (e.g. teach,
+  //    monthly, recognized and awarded, what people are saying).
+  const className = isGray
+    ? `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
+        isActive
+          ? 'bg-black text-white'
+          : 'bg-pill text-black text-shadow-token hover:bg-black hover:text-white hover:[text-shadow:none]'
+      }`
+    : `box-decoration-clone cursor-pointer leading-none text-accent text-shadow-token border-b-2 border-current transition-opacity duration-200 ${
+        isActive ? 'opacity-100' : 'hover:opacity-70'
+      }`
   return (
     // Span (not <button>): a <button> is an atomic inline box and won't break
     // across lines, so a long pill couldn't wrap. A span + box-decoration-clone
@@ -394,13 +409,7 @@ function renderKeyPill(
           onClick()
         }
       }}
-      className={`mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
-        isActive
-          ? 'bg-black text-white'
-          : `bg-pill hover:bg-black hover:text-white ${
-              isGray ? 'text-black' : 'text-accent'
-            }`
-      }`}
+      className={className}
     >
       {displayText}
     </span>
@@ -680,7 +689,7 @@ export default function AboutContent({
   return (
     <section
       id="about"
-      className={`font-serif text-[28px] font-bold leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal lg:tracking-[0.5px] ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {aboutParagraphs.map((para, i) => {
         // A red keyword in this paragraph whose boxed panel is open.
@@ -720,6 +729,31 @@ export default function AboutContent({
           </p>
         )
       })}
+
+      {/* External links (Figma 807:19215–19234): red text + ↗, underline on
+          hover. CV/Resume open files; LinkedIn/Email leave the site. */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-10 gap-y-3">
+        {aboutLinks.map(link => (
+          <a
+            key={link.label}
+            href={link.href}
+            target={link.href.startsWith('http') ? '_blank' : undefined}
+            rel={link.href.startsWith('http') ? 'noreferrer' : undefined}
+            data-cursor="hover"
+            className="group inline-flex items-center gap-2 text-accent text-shadow-token"
+          >
+            {/* Underline is a border (not text-decoration) so the token's
+                drop-shadow lands on the letters only, not the line (Figma). */}
+            <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
+              {link.label}
+            </span>
+            <span aria-hidden className="text-[0.7em]">
+              ↗
+            </span>
+          </a>
+        ))}
+      </div>
     </section>
   )
 }
+

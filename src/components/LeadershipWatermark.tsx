@@ -48,6 +48,8 @@ export default function LeadershipWatermark() {
   // Soft grey drop-shadow (Figma #b1afac) that dissolves as the word recedes.
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
   const portraitOpacity = 1 - fade * 0.8;
+  // Fade the word down to ~30% once it recedes (Fas 06/23 — barely perceptible).
+  const opacity = 1 - fade * 0.7;
   // Figma 504:3182 → 504:3254: at the top the word + photo sit ON TOP of the
   // content; once it fades it drops behind every section as a watermark.
   // (pointer-events stay off, so it never blocks clicks even while in front.)
@@ -56,8 +58,8 @@ export default function LeadershipWatermark() {
   return (
     <div
       aria-hidden
-      style={{ color, textShadow: shadow, zIndex: z }}
-      className="pointer-events-none fixed inset-0 hidden select-none items-center gap-[1.2vw] overflow-hidden px-[5.6vw] font-logo font-bold capitalize leading-[0.9] tracking-[-0.022em] will-change-[color] lg:flex"
+      style={{ color, textShadow: shadow, zIndex: z, opacity }}
+      className="pointer-events-none fixed inset-0 hidden select-none items-center gap-[1.2vw] overflow-hidden px-[5.6vw] font-logo font-bold capitalize leading-[0.9] tracking-[-0.022em] will-change-[color,opacity] lg:flex"
     >
       <span className="text-[clamp(48px,13vw,190px)]">Leadership</span>
       <Image

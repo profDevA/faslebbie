@@ -57,7 +57,13 @@ export default function V2Hero() {
   // Scroll-driven colour fade only (no movement). `fade` 0 → 1, then stays.
   const fade = ramp(0.08, 0.62, p);
   const nameColor = mix(fade);
-  const nameShadow = `0 0 4px ${nameColor}`;
+  // Tiny softening only (Israel 06/22: "very small, about 1–2px"), not the heavy
+  // "text overload" blur.
+  const nameShadow = `0 0 1.5px ${nameColor}`;
+  // Once it recedes, fade the whole wordmark down so it's only barely
+  // perceptible behind the content (Fas 06/23 — "apply more opacity… users can
+  // notice that barely").
+  const nameOpacity = 1 - fade * 0.7;
   const portraitOpacity = 0.15 + (1 - fade) * 0.85; // colour photo → faint ghost
 
   // Content comes forward (opacity only — it does not move).
@@ -71,26 +77,31 @@ export default function V2Hero() {
           "Ph.D." on the next line, right-aligned. No background words. */}
       <div
         aria-hidden
-        style={{ color: nameColor, textShadow: nameShadow }}
-        className="pointer-events-none fixed inset-0 -z-10 flex select-none flex-col justify-end gap-[0.5vh] overflow-hidden px-[5vw] pb-[10vh] font-grotesk font-bold leading-[0.82] tracking-[-0.03em] will-change-[color] lg:justify-center lg:gap-[4vh] lg:px-[3vw] lg:pb-0"
+        style={{ color: nameColor, textShadow: nameShadow, opacity: nameOpacity }}
+        className="pointer-events-none fixed inset-0 -z-10 flex select-none flex-col items-center justify-center overflow-hidden px-[5vw] font-grotesk font-bold leading-[0.82] tracking-[-0.03em] will-change-[color,opacity] lg:px-0"
       >
-        <div className="flex items-center gap-[2vw]">
-          <span className="text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
-            Fas lebbie
+        {/* Centered block (Israel 06/22 — "it is not centralized"), nudged just
+            below the vertical middle to match the Figma home frame: "Fas lebbie"
+            + portrait on one line, "Ph.D." right-aligned beneath it. */}
+        <div className="flex w-fit translate-y-[12vh] flex-col gap-[1.5vh] lg:gap-[4vh]">
+          <div className="flex items-center gap-[2vw]">
+            <span className="text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
+              Fas lebbie
+            </span>
+            <Image
+              src="/portrait.png"
+              alt=""
+              width={161}
+              height={145}
+              priority
+              style={{ opacity: portraitOpacity }}
+              className="aspect-161/145 w-16 object-cover object-top lg:w-[clamp(96px,11vw,161px)]"
+            />
+          </div>
+          <span className="self-end pr-[1vw] text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
+            Ph.D.
           </span>
-          <Image
-            src="/portrait.png"
-            alt=""
-            width={161}
-            height={145}
-            priority
-            style={{ opacity: portraitOpacity }}
-            className="aspect-161/145 w-16 object-cover object-top lg:w-[clamp(96px,11vw,161px)]"
-          />
         </div>
-        <span className="self-end pr-[1vw] text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
-          Ph.D.
-        </span>
       </div>
 
       {/* (1) → (2) counter (fixed, subtle) */}
@@ -107,7 +118,7 @@ export default function V2Hero() {
         className="sticky top-0 flex h-screen items-center justify-center px-6"
       >
         <div className="mx-auto w-full max-w-272">
-          <HeroParagraph className="text-center" storyHref="#about" />
+          <HeroParagraph className="text-center" storyHref="/about" />
         </div>
       </div>
     </section>

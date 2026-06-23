@@ -22,6 +22,15 @@ body {
   color: #000;
 }
 
+/* Soft grey drop-shadow carried by every interactive token/link in the design
+   (Figma "Component Interaction" 823:70182 — text-shadow -3.876/5.168/5.039 px
+   #b1afac at 42px). Offsets are em-relative so the shadow tracks the responsive
+   font size instead of being fixed in px. Registered as a utility so variants
+   like `hover:[text-shadow:none]` correctly override it in the cascade. */
+@utility text-shadow-token {
+  text-shadow: -0.092em 0.123em 0.12em #b1afac;
+}
+
 /* Fade only — no transform, so opening a panel doesn't bounce (Israel 06/16). */
 @keyframes panel-in {
   from {

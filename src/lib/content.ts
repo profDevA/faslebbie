@@ -398,6 +398,15 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
 ]
 
+// End-of-bio external links (Figma 807:19215–19234) — red text + ↗ arrow,
+// underline on hover. These leave the site (CV/Resume files, LinkedIn, email).
+export const aboutLinks = [
+  { label: 'CV', href: '/cv.pdf' },
+  { label: 'Resume', href: '/resume.pdf' },
+  { label: 'Linkedin', href: 'https://www.linkedin.com/in/faslebbie/' },
+  { label: 'Email', href: 'mailto:dr.faslebbie@gmail.com' },
+] as const
+
 // "What people are saying" — testimonials carousel (Fas 06/15: pop-up you can
 // click "next" through, like case studies). PLACEHOLDER copy — final quotes
 // pending from Fas.
@@ -554,15 +563,16 @@ export const leadershipMoments: {
   },
 ]
 
-// Order + labels per the 2026-06-11 meeting (brackets removed in Nav.tsx).
+// Desktop bar order + labels per the new Figma nav (854:79638): About, Work,
+// Build, Leadership, Research, Teaching, Blogs / Media.
 export const navItems = [
   { label: 'About', href: '/about' },
   { label: 'Work', href: '/work' },
+  { label: 'Build', href: '/build' },
   { label: 'Leadership', href: '/leadership' },
   { label: 'Research', href: '/research' },
-  { label: 'Build', href: '/build' },
   { label: 'Teaching', href: '/teaching' },
-  { label: 'Blogs & Media', href: '/blogs' },
+  { label: 'Blogs / Media', href: '/blogs' },
 ]
 
 // The mobile dropdown lists items in a different order than the desktop bar

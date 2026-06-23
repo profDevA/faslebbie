@@ -24,12 +24,14 @@ function Logo({ onClick }: { onClick?: () => void }) {
   );
 }
 
+// Nav links — Neue Haas Grotesk 55 Roman, capitalized (Figma 854:79643). The
+// surname/words render Capitalized rather than all-caps.
 function NavLink({ label, href }: { label: string; href: string }) {
   return (
     <Link
       href={href}
       data-cursor="hover"
-      className="whitespace-nowrap font-serif font-medium uppercase tracking-[0.02em]"
+      className="whitespace-nowrap font-grotesk font-normal capitalize"
     >
       {label}
     </Link>
@@ -58,7 +60,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
       <div className="mx-auto flex h-13 max-w-345 items-center justify-between gap-8 px-6">
         <Logo />
         {/* Desktop: full horizontal menu */}
-        <nav className="hidden items-center gap-x-7 text-[14px] uppercase lg:flex xl:gap-x-[43px]">
+        <nav className="hidden items-center gap-x-6 text-[15px] capitalize lg:flex xl:gap-x-9 xl:text-[18px]">
           {navItems.map((item) => (
             <NavLink key={item.href} {...item} />
           ))}
@@ -66,7 +68,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
         <Link
           href="/contact"
           data-cursor="hover"
-          className="hidden font-serif text-[16px] font-medium lg:block"
+          className="hidden font-grotesk text-[15px] font-normal capitalize lg:block xl:text-[18px]"
         >
           Contact
         </Link>
@@ -75,7 +77,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           type="button"
           onClick={() => setOpen(true)}
           data-cursor="hover"
-          className="font-serif text-[16px] uppercase tracking-[0.02em] lg:hidden"
+          className="font-grotesk text-[16px] uppercase tracking-[0.02em] lg:hidden"
         >
           Menu
         </button>
@@ -92,7 +94,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               type="button"
               onClick={() => setOpen(false)}
               data-cursor="hover"
-              className="font-serif text-[16px] uppercase tracking-[0.02em]"
+              className="font-grotesk text-[16px] uppercase tracking-[0.02em]"
             >
               Close
             </button>
@@ -113,7 +115,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           <a
             href={`mailto:${contactEmail}`}
             data-cursor="hover"
-            className="px-5 pb-10 pt-6 font-serif text-[14px] uppercase tracking-wide text-black/70"
+            className="px-5 pb-10 pt-6 font-grotesk text-[14px] uppercase tracking-wide text-black/70"
           >
             [ {contactEmail} ]
           </a>
