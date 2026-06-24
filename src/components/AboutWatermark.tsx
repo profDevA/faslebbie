@@ -51,7 +51,8 @@ export default function AboutWatermark() {
   // Fade the word down to ~30% once it recedes so it's only barely perceptible
   // behind the bio (Fas 06/23).
   const opacity = 1 - fade * 0.7;
-  // On top at the start; drops behind once it fades (pointer-events stay off).
+  // On top at the start (the dim bio reads as the back layer behind it); drops
+  // behind once it fades (pointer-events stay off).
   const z = fade < 0.5 ? 30 : -10;
 
   return (
@@ -60,7 +61,11 @@ export default function AboutWatermark() {
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
       className="pointer-events-none fixed inset-0 hidden select-none items-center overflow-hidden px-[6.4vw] font-grotesk font-bold capitalize leading-[0.88] tracking-[-0.021em] will-change-[color,opacity] lg:flex"
     >
-      <span className="text-[clamp(48px,14vw,200px)]">About Me</span>
+      {/* Sits in the lower third (Figma 807:19241 ~63% down), like the Home
+          wordmark — pushed below centre rather than vertically centred. */}
+      <span className="translate-y-[14vh] text-[clamp(48px,14vw,200px)]">
+        About Me
+      </span>
     </div>
   );
 }

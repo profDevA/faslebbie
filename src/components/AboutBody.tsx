@@ -4,47 +4,44 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import AboutContent from "@/components/AboutContent";
 import { aboutLogos } from "@/lib/content";
+import {
+  contentDrift,
+  portraitDrift,
+  revealBlur,
+  revealOpacity,
+  revealProgress,
+} from "@/lib/reveal";
 
 /**
  * Desktop reveal (Figma 807:19122 → 19414, "like home"): the bio (left portrait
- * + prose) starts dimmed BEHIND the big "About Me" watermark and is PINNED in
- * place while it brightens to full contrast — so it doesn't scroll away before
- * it's readable/clickable. Once fully bright the pin releases and the page
- * scrolls normally. The watermark fades grey and drops behind over the same
- * range. Mobile has no watermark/pin — content stays full opacity.
+ * + prose) starts dim + softly blurred BEHIND the big "About Me" watermark and
+ * eases FORWARD as you scroll — brightening + de-blurring while drifting a touch
+ * (portrait settles down-left, the prose rises up-left) — while the watermark
+ * fades grey and drops behind. NO scaling. The portrait then sticks under the
+ * nav alongside the long bio. Mobile has no watermark/reveal — content sits
+ * settled at full opacity.
  *
- * The pin is a tall `position: sticky` block: the bio sticks under the nav for
- * `PIN_VH` of scroll (a trailing spacer supplies that slack), then unsticks.
+ * opacity/blur/transform are applied PER-LAYER (the portrait image + the content
+ * column), never on <main>, so they don't create a containing block that would
+ * break the sticky portrait.
  */
-
-const PIN_VH = 0.85; // share of viewport height the bio stays pinned while it brightens
-
-// smoothstep ramp: 0 below `a`, 1 above `b`, eased between.
-function ramp(a: number, b: number, t: number) {
-  const x = Math.min(1, Math.max(0, (t - a) / (b - a)));
-  return x * x * (3 - 2 * x);
-}
 
 export default function AboutBody({
   logoSvgs,
 }: {
   logoSvgs: Record<keyof typeof aboutLogos, string>;
 }) {
-  const [opacity, setOpacity] = useState(1);
-  const [pinPx, setPinPx] = useState(0); // height of the slack spacer (desktop)
+  // Reveal progress: 0 = pushed back + dim (page top), 1 = settled + clear.
+  const [r, setR] = useState(1);
 
   useEffect(() => {
     const onScroll = () => {
-      if (window.innerWidth < 1024) {
-        setOpacity(1);
-        setPinPx(0);
-        return;
-      }
-      const range = window.innerHeight * PIN_VH;
-      setPinPx(range);
-      const p = range > 0 ? Math.min(1, window.scrollY / range) : 1;
-      // Brighten a touch faster than the pin so it's fully clear before release.
-      setOpacity(0.18 + ramp(0, 0.82, p) * 0.82);
+      // Mobile: no reveal — content sits settled/clear.
+      setR(
+        window.innerWidth < 1024
+          ? 1
+          : revealProgress(window.scrollY, window.innerHeight),
+      );
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -55,12 +52,13 @@ export default function AboutBody({
     };
   }, []);
 
+  const opacity = revealOpacity(r);
+  const blurPx = revealBlur(r);
+  const blur = blurPx ? `blur(${blurPx}px)` : undefined;
+
   return (
     <div className="relative">
-      <main
-        style={{ opacity }}
-        className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 py-12 will-change-[opacity] lg:sticky lg:top-[52px] lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16"
-      >
+      <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
         <div className="flex flex-col lg:sticky lg:top-[88px] lg:self-start">
           {/* Mobile: small left-aligned heading (desktop uses the watermark). */}
           <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px] lg:hidden">
@@ -74,15 +72,18 @@ export default function AboutBody({
             width={620}
             height={684}
             priority
-            className="mt-[72px] h-[299px] w-full bg-[#f0f0f0] object-cover object-top lg:mt-6 lg:h-[299px] lg:w-[271px]"
+            style={{ opacity, filter: blur, transform: portraitDrift(r) }}
+            className="mt-[72px] h-[299px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[299px] lg:w-[271px]"
           />
         </div>
 
-        <AboutContent className="pb-24" logoSvgs={logoSvgs} />
+        <div
+          style={{ opacity, filter: blur, transform: contentDrift(r) }}
+          className="will-change-[opacity,filter,transform]"
+        >
+          <AboutContent className="pb-24" logoSvgs={logoSvgs} />
+        </div>
       </main>
-
-      {/* Slack that lets the bio stay pinned while it brightens (desktop only). */}
-      <div aria-hidden style={{ height: pinPx }} className="hidden lg:block" />
     </div>
   );
 }

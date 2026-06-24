@@ -1,6 +1,14 @@
 'use client'
 
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import type { AboutToken } from '@/lib/content'
 import {
@@ -13,6 +21,74 @@ import {
 } from '@/lib/content'
 
 const TESTIMONIAL_KEY = 'what people are saying'
+
+// North-east "open external" arrow (Figma 807:19517 / Component-Interaction
+// legend) — a real icon, not the Unicode ↗ glyph (which renders differently per
+// font/OS). Thin diagonal shaft + corner arrowhead; inherits colour via
+// currentColor and is sized in em so it tracks the link text. It's positioned
+// raised (superscript) at the link, matching Figma.
+// Exact Figma arrow (node 823_70191): red NE arrow with a baked-in grey
+// drop shadow. The filter id is made unique per instance because this renders
+// once per external link and duplicate SVG filter ids would otherwise collide.
+function ArrowUpRight({ className = '' }: { className?: string }) {
+  const uid = useId()
+  const filterId = `arrow-shadow-${uid}`
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 33 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <g filter={`url(#${filterId})`}>
+        <path
+          d="M10.415 20L29.415 1.5M14.915 1.5H29.415V16.5"
+          stroke="#EA2C2C"
+          strokeWidth={3}
+          strokeLinecap="round"
+        />
+      </g>
+      <defs>
+        <filter
+          id={filterId}
+          x="0.000441074"
+          y="0"
+          width="32.0774"
+          height="31.7066"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dx="-3.87591" dy="5.16788" />
+          <feGaussianBlur stdDeviation="2.51934" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0.694118 0 0 0 0 0.686275 0 0 0 0 0.67451 0 0 0 1 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow"
+            result="shape"
+          />
+        </filter>
+      </defs>
+    </svg>
+  )
+}
 
 // --- Inline-expansion accordion ---------------------------------------------
 // Gray keywords expand inline, and some expansions contain nested gray keywords.
@@ -145,123 +221,110 @@ function AboutPanel({
   )
 }
 
-// A single testimonial card in the slider (Figma 187:1800): quote mark, then
-// avatar + name + role, then the quote body. Off-screen cards stay laid out
-// (the track measures/translates by width) but are hidden from assistive tech
-// and taken out of the tab order.
-function TestimonialCard({
-  t,
-  inactive,
-}: {
-  t: (typeof testimonials)[number]
-  inactive: boolean
-}) {
-  return (
-    <article
-      aria-hidden={inactive}
-      inert={inactive || undefined}
-      className="flex w-full shrink-0 flex-col gap-4 border border-hairline bg-bg px-6 py-6 lg:w-[clamp(260px,64%,539px)] lg:px-8 lg:py-7"
-    >
-      {/* Sharp blocky quote mark (Figma 187:1825) — replaces the rounded serif “ */}
-      <svg
-        aria-hidden
-        viewBox="0 0 25.4908 19.075"
-        className="h-[26px] w-auto shrink-0 self-start lg:h-[32px]"
-        fill="#2C2B2B"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M10.0868 8.83804H6.47909C5.89008 5.0673 9.57138 3.97735 11.4857 3.90372L10.6021 0.000409149C2.35603 -0.0585084 0.098168 6.2604 0 9.42721V19.075H10.0868V8.83804Z" />
-        <path d="M24.0919 8.83805H20.4842C19.8952 5.06731 23.5765 3.97736 25.4908 3.90373L24.6072 0.00041858C16.3611 -0.0584989 14.1033 6.2604 14.0051 9.42722V19.075H24.0919V8.83805Z" />
-      </svg>
-      <div className="flex items-center gap-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={t.avatar}
-          alt=""
-          className="size-[59px] shrink-0 rounded-full object-cover"
-        />
-        <div className="min-w-0">
-          <p className="font-grotesk text-[20px] font-bold leading-tight tracking-wider text-black">
-            {t.name}
-          </p>
-          <p className="font-grotesk text-[20px] leading-tight tracking-wider text-black">
-            {t.role}
-          </p>
-        </div>
-      </div>
-      <p className="font-grotesk text-[16px] font-normal leading-[1.19] tracking-wider text-black">
-        “{t.quote}”
-      </p>
-    </article>
-  )
-}
-
-// "What people are saying" — an inline boxed panel (same chrome as AboutPanel)
-// holding a horizontal testimonial slider you click Prev/Next through
-// (Fas 06/15; Figma 187:1713 / 187:1800).
-function TestimonialsPanel({ onClose }: { onClose: () => void }) {
+// "What people are saying" — a centered MODAL pop-up (Israel 06/23: "there's a
+// pop-up in the middle, and you can go next and previous… the red link opens the
+// pop-up, it doesn't open [inline] anymore"; Figma 840:78434 / 187:1800). One
+// testimonial at a time: quote mark, avatar + name/role, quote, Previous/Next.
+// Portaled to <body> so it's centred on the viewport and sits above (and is not
+// dimmed by) the page content's scroll-fade.
+function TestimonialsModal({ onClose }: { onClose: () => void }) {
   const [i, setI] = useState(0)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [step, setStep] = useState(0)
   const max = testimonials.length - 1
-
-  // Slide distance = card width + flex gap; measured so the peek/translate stays
-  // correct as the panel (and card clamp) resizes.
-  useLayoutEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-    const measure = () => {
-      const first = track.firstElementChild as HTMLElement | null
-      if (!first) return
-      const gap = parseFloat(getComputedStyle(track).columnGap) || 0
-      setStep(first.offsetWidth + gap)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
-
   const go = (d: number) => setI(c => Math.min(max, Math.max(0, c + d)))
 
-  return (
-    <PanelShell
-      title="what people are saying"
-      onClose={onClose}
-      contentClassName="overflow-hidden"
+  // Arrow keys page through the testimonials (Escape is handled globally).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') setI(c => Math.max(0, c - 1))
+      if (e.key === 'ArrowRight') setI(c => Math.min(max, c + 1))
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [max])
+
+  if (typeof document === 'undefined') return null
+  const t = testimonials[i]
+
+  return createPortal(
+    <div
+      data-about-panel
+      role="dialog"
+      aria-modal="true"
+      aria-label={TESTIMONIAL_KEY}
+      onClick={onClose}
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4 animate-[panel-in_0.2s_ease-out]"
     >
-      {/* slider viewport */}
-      <div className="overflow-hidden">
-        <div
-          ref={trackRef}
-          className="flex gap-6 transition-transform duration-300 ease-out"
-          style={{ transform: `translateX(${-i * step}px)` }}
+      <div
+        onClick={e => e.stopPropagation()}
+        className="relative flex w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          data-cursor="hover"
+          className="absolute right-4 top-3 z-10 font-grotesk text-[30px] leading-none text-black/70 transition-colors hover:text-black"
         >
-          {testimonials.map((t, idx) => (
-            <TestimonialCard key={idx} t={t} inactive={idx !== i} />
-          ))}
+          ×
+        </button>
+        {/* Sharp blocky quote mark (Figma 187:1825). */}
+        <svg
+          aria-hidden
+          viewBox="0 0 25.4908 19.075"
+          className="h-[28px] w-auto shrink-0 self-start lg:h-[34px]"
+          fill="#2C2B2B"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M10.0868 8.83804H6.47909C5.89008 5.0673 9.57138 3.97735 11.4857 3.90372L10.6021 0.000409149C2.35603 -0.0585084 0.098168 6.2604 0 9.42721V19.075H10.0868V8.83804Z" />
+          <path d="M24.0919 8.83805H20.4842C19.8952 5.06731 23.5765 3.97736 25.4908 3.90373L24.6072 0.00041858C16.3611 -0.0584989 14.1033 6.2604 14.0051 9.42722V19.075H24.0919V8.83805Z" />
+        </svg>
+        <div className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={t.avatar}
+            alt=""
+            className="size-[59px] shrink-0 rounded-full object-cover"
+          />
+          <div className="min-w-0">
+            <p className="font-grotesk text-[20px] font-bold leading-tight tracking-wider text-black">
+              {t.name}
+            </p>
+            <p className="font-grotesk text-[20px] leading-tight tracking-wider text-black">
+              {t.role}
+            </p>
+          </div>
+        </div>
+        <p className="font-grotesk text-[16px] font-normal leading-[1.45] tracking-wider text-black">
+          “{t.quote}”
+        </p>
+        {/* Navigation control (Figma 823:70250): "< Previous" / "Next >", red,
+            underline on hover only — matched to the aidesign-os arrow style. */}
+        <div className="flex items-center justify-center gap-8 pt-2">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            disabled={i === 0}
+            data-cursor="hover"
+            className="font-grotesk text-[16px] font-medium text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+          >
+            {'< Previous'}
+          </button>
+          <span className="font-grotesk text-[14px] tabular-nums text-black/40">
+            {i + 1} / {testimonials.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            disabled={i === max}
+            data-cursor="hover"
+            className="font-grotesk text-[16px] font-medium text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+          >
+            {'Next >'}
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-6 pt-1">
-        <button
-          type="button"
-          onClick={() => go(-1)}
-          disabled={i === 0}
-          data-cursor="hover"
-          className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
-        >
-          ← Previous
-        </button>
-        <button
-          type="button"
-          onClick={() => go(1)}
-          disabled={i === max}
-          data-cursor="hover"
-          className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2 transition-opacity disabled:opacity-35"
-        >
-          Next →
-        </button>
-      </div>
-    </PanelShell>
+    </div>,
+    document.body,
   )
 }
 
@@ -363,30 +426,39 @@ type RenderCtx = {
 // text — used when a wrapping pill is split around an inline panel (e.g.
 // "Carnegie Mellon" / "University") — while identity + active state still come
 // from `tok.text`.
+// Behaviour vs appearance are independent. `tone` drives appearance (grey pill
+// vs red text); `opens` drives behaviour (inline expansion vs boxed panel).
+// Default: grey → inline, red → panel — so existing tokens are unchanged.
+function keyOpensPanel(tok: Extract<AboutToken, { t: 'key' }>) {
+  return tok.opens ? tok.opens === 'panel' : tok.tone !== 'gray'
+}
+
 function renderKeyPill(
   tok: Extract<AboutToken, { t: 'key' }>,
   ctx: RenderCtx,
   displayText: string,
   key: string,
 ) {
-  const isGray = tok.tone === 'gray'
+  const isPill = tok.tone === 'gray' || tok.tone === 'gray-red' // appearance
+  const isRedText = tok.tone === 'gray-red' // red text on the grey pill
+  const opensPanel = keyOpensPanel(tok) // behaviour
   const inlineOpen = ctx.open.has(tok.text)
   const panelOpen = ctx.activePanel === tok.text
-  const isActive = isGray ? inlineOpen : panelOpen
+  const isActive = opensPanel ? panelOpen : inlineOpen
   const onClick = () => {
-    if (isGray) ctx.toggleInline(tok.text)
-    else ctx.setActivePanel(panelOpen ? null : tok.text)
+    if (opensPanel) ctx.setActivePanel(panelOpen ? null : tok.text)
+    else ctx.toggleInline(tok.text)
   }
-  // Two visual systems (Figma "Component Interaction" 823:70182):
-  //  • gray = "Reveal narrative" → grey pill, black text; hover/active black pill,
-  //    white text.
-  //  • red  = "Popup" → red text with an underline, no pill (e.g. teach,
-  //    monthly, recognized and awarded, what people are saying).
-  const className = isGray
+  // Visual systems (Figma "Component Interaction" 823:70182):
+  //  • grey pill, black text ("gray")     → reveal-narrative keywords.
+  //  • grey pill, red text   ("gray-red") → action keywords (e.g. monthly).
+  //  Both invert to a black pill / white text on hover or while active.
+  //  • red text + underline, no pill ("red"/default) → e.g. what people are saying.
+  const className = isPill
     ? `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
         isActive
           ? 'bg-black text-white'
-          : 'bg-pill text-black text-shadow-token hover:bg-black hover:text-white hover:[text-shadow:none]'
+          : `bg-pill ${isRedText ? 'text-accent' : 'text-black'} text-shadow-token hover:bg-black hover:text-white hover:text-shadow-none`
       }`
     : `box-decoration-clone cursor-pointer leading-none text-accent text-shadow-token border-b-2 border-current transition-opacity duration-200 ${
         isActive ? 'opacity-100' : 'hover:opacity-70'
@@ -430,6 +502,20 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
         </span>
       )
     if (tok.t === 'typer') return <TypingTag key={key} words={tok.words} />
+    // Gray rounded pill, red text — navigates to an internal page (Figma
+    // "Component Interaction" 823:70182). box-decoration-clone keeps the rounded
+    // pill intact if it wraps across lines.
+    if (tok.t === 'link')
+      return (
+        <Link
+          key={key}
+          href={tok.href}
+          data-cursor="hover"
+          className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent text-shadow-token transition-colors duration-200 hover:bg-black hover:text-white hover:text-shadow-none"
+        >
+          {tok.text}
+        </Link>
+      )
     if (tok.t === 'logo')
       return <LogoChip key={key} svg={ctx.logoSvgs[tok.name]} />
     if (tok.t === 'photo')
@@ -445,15 +531,15 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
         </span>
       )
 
-    const isGray = tok.tone === 'gray'
     const inlineOpen = ctx.open.has(tok.text)
     const expansion = aboutExpansions[tok.text]
 
     return (
       <Fragment key={key}>
         {renderKeyPill(tok, ctx, tok.text, `${key}-pill`)}
-        {/* gray keyword: inline expansion in black/normal (nested keys ok) */}
-        {isGray && inlineOpen && expansion && (
+        {/* inline-expansion keyword: continuation in black/normal (nested keys
+            ok). Panel-opening keys (even grey ones) render their box instead. */}
+        {!keyOpensPanel(tok) && inlineOpen && expansion && (
           <> {renderTokens(expansion, { ...ctx, expanded: true }, key)}</>
         )}
       </Fragment>
@@ -575,7 +661,7 @@ function MeasuredParagraph({
                 {renderKeyPill(tok, ctx, part1, `${prefix}-${j}-a`)}
                 {panel}
                 {renderKeyPill(tok, ctx, part2, `${prefix}-${j}-b`)}
-                {tok.tone === 'gray' &&
+                {!keyOpensPanel(tok) &&
                   ctx.open.has(tok.text) &&
                   expansion && (
                     <>
@@ -692,12 +778,15 @@ export default function AboutContent({
       className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {aboutParagraphs.map((para, i) => {
-        // A red keyword in this paragraph whose boxed panel is open.
+        // A red keyword in this paragraph whose boxed panel expands inline.
+        // "what people are saying" is excluded — it opens a centred modal
+        // pop-up instead (rendered below), not an inline box (Israel 06/23).
         const panelKey =
           activePanel &&
+          activePanel !== TESTIMONIAL_KEY &&
           para.some(
             t =>
-              t.t === 'key' && t.text === activePanel && t.tone !== 'gray',
+              t.t === 'key' && t.text === activePanel && keyOpensPanel(t),
           )
             ? activePanel
             : null
@@ -711,14 +800,10 @@ export default function AboutContent({
               activeKeyword={panelKey}
               panel={
                 <div data-about-panel>
-                  {panelKey === TESTIMONIAL_KEY ? (
-                    <TestimonialsPanel onClose={() => setActivePanel(null)} />
-                  ) : (
-                    <AboutPanel
-                      keyword={panelKey}
-                      onClose={() => setActivePanel(null)}
-                    />
-                  )}
+                  <AboutPanel
+                    keyword={panelKey}
+                    onClose={() => setActivePanel(null)}
+                  />
                 </div>
               }
             />
@@ -730,6 +815,11 @@ export default function AboutContent({
         )
       })}
 
+      {/* "what people are saying" → centred modal pop-up (Israel 06/23). */}
+      {activePanel === TESTIMONIAL_KEY && (
+        <TestimonialsModal onClose={() => setActivePanel(null)} />
+      )}
+
       {/* External links (Figma 807:19215–19234): red text + ↗, underline on
           hover. CV/Resume open files; LinkedIn/Email leave the site. */}
       <div className="mt-2 flex flex-wrap items-center gap-x-10 gap-y-3">
@@ -740,16 +830,17 @@ export default function AboutContent({
             target={link.href.startsWith('http') ? '_blank' : undefined}
             rel={link.href.startsWith('http') ? 'noreferrer' : undefined}
             data-cursor="hover"
-            className="group inline-flex items-center gap-2 text-accent text-shadow-token"
+            className="group inline-flex items-center gap-0 text-accent text-shadow-token"
           >
             {/* Underline is a border (not text-decoration) so the token's
                 drop-shadow lands on the letters only, not the line (Figma). */}
             <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
               {link.label}
             </span>
-            <span aria-hidden className="text-[0.7em]">
-              ↗
-            </span>
+            {/* Raised (superscript) NE arrow, matching the Figma legend. The
+                33×32 viewBox already pads the lower-left for the drop shadow
+                and sits the glyph high, so it needs little manual lift/gap. */}
+            <ArrowUpRight className="h-[1em] w-[1em] shrink-0 translate-y-[0.04em] transition-transform duration-200 group-hover:translate-x-[0.06em] group-hover:translate-y-[-0.06em]" />
           </a>
         ))}
       </div>

@@ -59,7 +59,7 @@ export default function DotCursor() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-50 size-3 rounded-full bg-black opacity-0"
+      className="pointer-events-none fixed left-0 top-0 z-1000 size-3 rounded-full bg-black opacity-0"
     />
   );
 }

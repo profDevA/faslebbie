@@ -134,9 +134,21 @@ export const panels: Record<SectionId, PanelContent> = {
 export type AboutToken =
   | { t: 'text'; text: string }
   | { t: 'typer'; words: readonly string[] } // black >/~ tag that retype-cycles on click
-  // "key" expands a panel on click. tone "red" = homepage-style red pill;
-  // tone "gray" = System-2 keyword (black text on a gray pill, Figma 187:*).
-  | { t: 'key'; text: string; tone?: 'red' | 'gray' }
+  // "key" reveals copy on click. `tone` controls APPEARANCE — "red" = red
+  // text/underline (no pill); "gray" = grey pill, black text; "gray-red" = grey
+  // pill, red text (Figma 187:*). `opens` controls BEHAVIOUR — "inline" expands
+  // purple continuation text in place; "panel" opens the boxed panel below the
+  // line. Defaults: gray→inline, everything else→panel. (Set both to mix them,
+  // e.g. a grey pill that opens a box.)
+  | {
+      t: 'key'
+      text: string
+      tone?: 'red' | 'gray' | 'gray-red'
+      opens?: 'inline' | 'panel'
+    }
+  // "link" = gray rounded pill, red text — navigates to an internal page on
+  // click (no popup/expansion). Figma "Component Interaction" 823:70182.
+  | { t: 'link'; text: string; href: string }
   | { t: 'term'; text: string }
   | { t: 'logo'; name: keyof typeof aboutLogos }
   | { t: 'photo'; src: string; alt: string } // inline personal photo (hover-pops)
@@ -235,6 +247,7 @@ export const aboutExpansions: Record<string, AboutToken[]> = {
     { t: 'text', text: '.' },
   ],
   // Top-level keywords (lorem until finalized)
+  'recognized and awarded': lorem(),
   Product: lorem(),
   'Transition design': lorem(),
   'AI as material': lorem(),
@@ -279,8 +292,10 @@ export const aboutAwards = [
   },
 ] as const
 
-// Red keywords open a BOXED panel (homepage style: title, body, CTA, × close) —
-// Figma 187:2356 (teach), 187:1913 (recognized and awarded), 187:2107 (monthly).
+// Keywords that open a BOXED panel (title, body, CTA, × close). No keyword
+// currently uses one: "recognized and awarded" now expands inline, "monthly"
+// and "teach" navigate to /teaching, and "what people are saying" uses the
+// centered testimonials modal. Kept for when a boxed panel is designed.
 export const aboutPanels: Record<
   string,
   {
@@ -289,25 +304,7 @@ export const aboutPanels: Record<
     awards?: typeof aboutAwards
     placeholder?: boolean
   }
-> = {
-  teach: {
-    body: [
-      'Teaching across Carnegie Mellon, MIT GOV/LAB, SFK International, and Njala University — treating the classroom as an active studio.',
-      'Focused on systems thinking, product design, and real-world practice.',
-    ],
-    cta: { label: 'Continue to Teaching', href: '/teaching' },
-  },
-  'recognized and awarded': {
-    body: [LOREM],
-    awards: aboutAwards,
-    placeholder: true,
-  },
-  monthly: {
-    body: [LOREM],
-    cta: { label: 'Book a Call', href: '/contact' },
-    placeholder: true,
-  },
-}
+> = {}
 
 export const aboutParagraphs: AboutToken[][] = [
   [
@@ -358,7 +355,7 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
   [
     { t: 'text', text: 'I ' },
-    { t: 'key', text: 'teach' },
+    { t: 'link', text: 'teach', href: '/teaching' },
     { t: 'text', text: ' design at ' },
     { t: 'key', text: 'Carnegie Mellon University', tone: 'gray' },
     { t: 'text', text: ' and serve as a mentor and advisor at ' },
@@ -370,7 +367,8 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
   [
     { t: 'text', text: 'My work has been ' },
-    { t: 'key', text: 'recognized and awarded' },
+    // Grey pill, black text — expands inline like the other grey keywords.
+    { t: 'key', text: 'recognized and awarded', tone: 'gray' },
     {
       t: 'text',
       text: ' across product design, entrepreneurship, and academia. See ',
@@ -382,7 +380,8 @@ export const aboutParagraphs: AboutToken[][] = [
     { t: 'text', text: 'I speak & consult on ' },
     { t: 'typer', words: consultWords },
     { t: 'text', text: ' and offer free mentorship ' },
-    { t: 'key', text: 'monthly' },
+    // Grey pill, red text — navigates to the Teaching / Mentorship page.
+    { t: 'link', text: 'monthly', href: '/teaching' },
     { t: 'text', text: ' to ' },
     { t: 'typer', words: communityWords },
     { t: 'text', text: ' in design and tech.' },

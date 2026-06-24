@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import HeroParagraph from "@/components/HeroParagraph";
+import { contentDrift, portraitDrift, revealProgress } from "@/lib/reveal";
 
 /**
  * aidesign-os-style shell hero (Fas 06/14 ask — reference: aidesign-os.com).
@@ -22,6 +23,11 @@ function ramp(a: number, b: number, t: number) {
   return x * x * (3 - 2 * x);
 }
 
+// The paragraph starts as the dim, blurred BACK layer behind the wordmark
+// (matches the About page), then brightens + de-blurs as it comes forward.
+const START_OPACITY = 0.32;
+const START_BLUR = 2; // px
+
 // linear blend between two rgb triples → "rgb(r, g, b)"
 const NEAR_BLACK: [number, number, number] = [32, 32, 30];
 const FADED_GREY: [number, number, number] = [183, 183, 175];
@@ -33,6 +39,7 @@ function mix(t: number) {
 export default function V2Hero() {
   const ref = useRef<HTMLElement>(null);
   const [p, setP] = useState(0); // 0 = top, 1 = past the hero scroll range
+  const [r, setR] = useState(1); // reveal/drift progress (0 = back, 1 = settled)
 
   useEffect(() => {
     const el = ref.current;
@@ -44,6 +51,7 @@ export default function V2Hero() {
         total,
       );
       setP(total > 0 ? scrolled / total : 0);
+      setR(revealProgress(window.scrollY, window.innerHeight));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -55,7 +63,9 @@ export default function V2Hero() {
   }, []);
 
   // Scroll-driven colour fade only (no movement). `fade` 0 → 1, then stays.
-  const fade = ramp(0.08, 0.62, p);
+  // Wide, gentle ramp so the transition "dissolves" in softly rather than
+  // snapping (Israel 06/23 — "it eases in… it's a soft start, not just starting").
+  const fade = ramp(0.04, 0.72, p);
   const nameColor = mix(fade);
   // Tiny softening only (Israel 06/22: "very small, about 1–2px"), not the heavy
   // "text overload" blur.
@@ -64,11 +74,22 @@ export default function V2Hero() {
   // perceptible behind the content (Fas 06/23 — "apply more opacity… users can
   // notice that barely").
   const nameOpacity = 1 - fade * 0.7;
-  const portraitOpacity = 0.15 + (1 - fade) * 0.85; // colour photo → faint ghost
+  // Wordmark sits ON TOP at the very first moment (sharp, dark) so the bio
+  // paragraph reads as the dim, blurred BACK layer behind it; once it recedes it
+  // drops behind every section (z below the nav's z-40). Mirrors the About
+  // watermark treatment.
+  const nameZ = fade < 0.5 ? 30 : -10;
+  // The portrait should STAND OUT and stay clear — it must not blend into the
+  // wordmark (Israel 06/23: "this is supposed to stand out… nothing is on top of
+  // this"). Keep it near-full and only gently soften as the page recedes.
+  const portraitOpacity = 0.55 + (1 - fade) * 0.45;
 
-  // Content comes forward (opacity only — it does not move).
-  const paraOpacity = 0.1 + ramp(0.12, 0.6, p) * 0.9;
-  const paraFront = fade >= 0.45;
+  // Content is visible from the FIRST moment as the back layer — dim + blurred
+  // behind the wordmark — then brightens, de-blurs and comes forward as you
+  // scroll (Fas 06/24: "at the first moment we should see the content in back").
+  const paraOpacity = START_OPACITY + fade * (1 - START_OPACITY);
+  const paraBlur = (1 - fade) * START_BLUR;
+  const paraFront = fade >= 0.4;
 
   return (
     <section ref={ref} className="relative h-[240vh] shrink-0">
@@ -77,28 +98,32 @@ export default function V2Hero() {
           "Ph.D." on the next line, right-aligned. No background words. */}
       <div
         aria-hidden
-        style={{ color: nameColor, textShadow: nameShadow, opacity: nameOpacity }}
-        className="pointer-events-none fixed inset-0 -z-10 flex select-none flex-col items-center justify-center overflow-hidden px-[5vw] font-grotesk font-bold leading-[0.82] tracking-[-0.03em] will-change-[color,opacity] lg:px-0"
+        style={{ color: nameColor, textShadow: nameShadow, opacity: nameOpacity, zIndex: nameZ }}
+        className="pointer-events-none fixed inset-0 flex select-none flex-col justify-center overflow-hidden font-grotesk font-bold leading-[0.8] tracking-[-0.03em] will-change-[color,opacity]"
       >
-        {/* Centered block (Israel 06/22 — "it is not centralized"), nudged just
-            below the vertical middle to match the Figma home frame: "Fas lebbie"
-            + portrait on one line, "Ph.D." right-aligned beneath it. */}
-        <div className="flex w-fit translate-y-[12vh] flex-col gap-[1.5vh] lg:gap-[4vh]">
-          <div className="flex items-center gap-[2vw]">
-            <span className="text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
+        {/* Big wordmark STRETCHED across the full width, sitting a touch below
+            centre like aidesign-os (Israel 06/23 — "bring it down a bit… it
+            should be bigger, stretched across, the image is just in the
+            corner"). "Fas lebbie" spans the left with the portrait tucked into
+            the top-right corner; "Ph.D." is right-aligned beneath. */}
+        <div className="w-full translate-y-[6vh] px-[4vw]">
+          <div className="flex items-start justify-between gap-[3vw]">
+            <span className="whitespace-nowrap text-[clamp(72px,15vw,250px)]">
               Fas lebbie
             </span>
+            {/* Portrait tucked in the corner, in front, with a soft shadow so it
+                STANDS OUT and never blends into the wordmark letters. */}
             <Image
               src="/portrait.png"
               alt=""
               width={161}
               height={145}
               priority
-              style={{ opacity: portraitOpacity }}
-              className="aspect-161/145 w-16 object-cover object-top lg:w-[clamp(96px,11vw,161px)]"
+              style={{ opacity: portraitOpacity, transform: portraitDrift(r) }}
+              className="relative z-10 mt-[1.5vh] aspect-161/145 w-20 shrink-0 object-cover object-top shadow-[0_10px_34px_rgba(0,0,0,0.22)] will-change-transform lg:w-[clamp(120px,11vw,180px)]"
             />
           </div>
-          <span className="self-end pr-[1vw] text-[12vw] lg:text-[clamp(64px,13vw,190px)]">
+          <span className="block text-right text-[clamp(72px,15vw,250px)]">
             Ph.D.
           </span>
         </div>
@@ -112,13 +137,20 @@ export default function V2Hero() {
         ({p < 0.5 ? 1 : 2})<span className="text-black/20"> / (2)</span>
       </div>
 
-      {/* Interactive paragraph — fades to the foreground (opacity only). */}
+      {/* Interactive paragraph — fades to the foreground (opacity only). The
+          block is CENTRED in the viewport (equal margins); the text inside stays
+          left-aligned to match Figma (Israel 06/23 — "justify to the left"). */}
       <div
-        style={{ opacity: paraOpacity, pointerEvents: paraFront ? "auto" : "none" }}
-        className="sticky top-0 flex h-screen items-center justify-center px-6"
+        style={{
+          opacity: paraOpacity,
+          filter: paraBlur ? `blur(${paraBlur}px)` : undefined,
+          transform: contentDrift(r),
+          pointerEvents: paraFront ? "auto" : "none",
+        }}
+        className="sticky top-0 flex h-screen items-center justify-center px-6 will-change-[opacity,filter,transform] lg:px-[5vw]"
       >
-        <div className="mx-auto w-full max-w-272">
-          <HeroParagraph className="text-center" storyHref="/about" />
+        <div className="w-full max-w-272 text-left">
+          <HeroParagraph storyHref="/about" />
         </div>
       </div>
     </section>
