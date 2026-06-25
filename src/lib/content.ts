@@ -407,28 +407,121 @@ export const aboutLinks = [
 ] as const
 
 // "What people are saying" — testimonials carousel (Fas 06/15: pop-up you can
-// click "next" through, like case studies). PLACEHOLDER copy — final quotes
-// pending from Fas.
+// click "next" through, like case studies). Full set migrated from the live
+// WordPress site (faslebbie.com/testimonials, Israel 06/24 — "get the rest from
+// the live site… 16 of them"). Names normalised to Title Case.
+// TODO(assets): real head-shots — every entry currently reuses avatar-1.png.
 export const testimonials = [
   {
     quote:
-      'Fas was an exceptional manager and leader who oversaw the product design team with dedication. His significant contributions to the team were instrumental in setting a strong foundation for success and elevated the quality of product design outcomes. This included introducing design frameworks and methodologies to streamline processes, developing comprehensive design and research handbooks to guide best practices, and fostering a learning culture through mentorship, coaching, and workshops. Fas is also an inspirational leader and created a supportive environment for growth, innovation, and collaboration. It was a true blessing to have had Fas as part of the team, and his legacy continues to inspire future generations of designers and leaders..',
+      "I worked with Fas for almost exactly two years within Meta's Enterprise Infrastructure & Security Product/Design organization. Fas joined as a design manager and was absolutely instrumental in reshaping our design approach. Fas introduced advanced system design processes to the team and promoted consistency and standards across the org. He brings unique academic pedigree to the field and acts just as much of a teacher as he does a manager. His team was often digesting new learnings and concepts as part of his leadership approach. As I work cross-functionally in the org, the standardized approach to design became evident in a short matter of time as our interfaces, branding, and interactions all started aligning in application. Working with Fas was a privilege and I'm excited to see the next chapter in his career as he completes his dissertation and continues to contribute to the greater design community both professionally and academically.",
+    name: 'J. Conor Sullivan',
+    role: '- Content Manager, Meta',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Fas has been instrumental in accelerating my career growth. Under his leadership, our team transformed from a group of individual contributors to a cohesive and high-performing design team. Fas leverages his extensive knowledge and experience to constantly identify leadership opportunities for us, enabling impactful contributions beyond our immediate network and fostering individual growth aligned with our career ambitions. He methodically breaks down complex problems and develops frameworks that ensure simple yet strategic execution. All the while, Fas maintains realistic expectations, being mindful of our day-to-day obligations and thoughtfully adjusting his initiatives to better accommodate our needs. If you're finding your design team's growth stagnant or difficult to prove impact, I highly recommend Fas who can help teams grow and thrive. His leadership and expertise have made a significant impact on my career, and I am confident he will do the same for others.",
+    name: 'Kenzo Makitani',
+    role: '- Lead Product Designer, Meta',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Fas is an incredible designer. Talented and forward-thinking, he utilizes marketing insights, an entrepreneurial spirit, and mad skills to manifest ideas into tangible results. I've enjoyed working with Fas - he's motivated, very easy to work with, and open to suggestions which are highly valued traits in any organization.",
+    name: 'Rich Nelson',
+    role: '- Digital Marketing Leader, LifeWave Corporate',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      'I have had the pleasure of working closely with Fas over the past few years on his work in the mineral development and design industries. He constantly shows excellent intelligence and strategic vision which have been instrumental in guiding our projects towards success. Fas is not only adept at setting clear tasks for those who he manages, but also excels in fostering an environment where he can learn from the skills of those working with him.',
+    name: 'Louis Hardiman',
+    role: '- Staff Writer, History of War',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      'Fas was an exceptional manager and leader who oversaw the product design team with dedication. His significant contributions to the team were instrumental in setting a strong foundation for success and elevated the quality of product design outcomes. This included introducing design frameworks and methodologies to streamline processes, developing comprehensive design and research handbooks to guide best practices, and fostering a learning culture through mentorship, coaching, and workshops. Fas is also an inspirational leader and created a supportive environment for growth, innovation, and collaboration. It was a true blessing to have had Fas as part of the team, and his legacy continues to inspire future generations of designers and leaders.',
     name: 'Tori Lamb',
     role: '- Service Delivery Manager, Meta',
     avatar: '/testimonials/avatar-1.png',
   },
   {
     quote:
-      'Fas was an exceptional manager and leader who oversaw the product design team with dedication. His significant contributions to the team were instrumental in setting a strong foundation for success and elevated the quality of product design outcomes. This included introducing design frameworks and methodologies to streamline processes, developing comprehensive design and research handbooks to guide best practices, and fostering a learning culture through mentorship, coaching, and workshops. Fas is also an inspirational leader and created a supportive environment for growth, innovation, and collaboration. It was a true blessing to have had Fas as part of the team, and his legacy continues to inspire future generations of designers and leaders..',
-    name: 'Tori Lamb',
-    role: '- Service Delivery Manager, Meta',
+      "Fas leads through a lens of trust and collaboration. His selfless management style cultivates a culture of excellence, collective success, and inclusivity. Fas's knowledge on product strategy and team building creates an environment for organizational and personal growth that surpasses expectations.",
+    name: 'Bo Jiang',
+    role: '- Senior Product Designer, Meta',
     avatar: '/testimonials/avatar-1.png',
   },
   {
     quote:
-      'Fas was an exceptional manager and leader who oversaw the product design team with dedication. His significant contributions to the team were instrumental in setting a strong foundation for success and elevated the quality of product design outcomes. This included introducing design frameworks and methodologies to streamline processes, developing comprehensive design and research handbooks to guide best practices, and fostering a learning culture through mentorship, coaching, and workshops. Fas is also an inspirational leader and created a supportive environment for growth, innovation, and collaboration. It was a true blessing to have had Fas as part of the team, and his legacy continues to inspire future generations of designers and leaders..',
-    name: 'Tori Lamb',
-    role: '- Service Delivery Manager, Meta',
+      'I had the pleasure of working with Fas during our time together at Meta. As the design team manager, he consistently demonstrated exceptional leadership and a keen eye for user-centered design.',
+    name: 'Jummy Abodunrin',
+    role: '- Project Manager, Meta',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Fas's visionary leadership and strategic prowess drove exceptional results, fostering a collaborative and innovative environment. Under Fas's guidance, our team achieved significant milestones, and their dedication to fostering growth and innovation was truly inspiring. Fas is a leader who not only achieves results but also cultivates a culture of excellence and empowerment.",
+    name: 'Mrugesh Patel',
+    role: '- CTO',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Fas is a designer, entrepreneur, professor, and scholar, and a humble human-being. I have come to know him as a strong leader who inspires others to be their best and most creative selves. At Meta, he and I led initiatives to determine the customer journey for developer tools, learn more about developers' experiences, and propose improvements to product workflows and designs. For each step of the way, Fas established frameworks to obtain first-party user insights to guide product development and implemented best practices to improve our team's operational efficiency and standard of excellence. I'm proud to call Fas a colleague, mentor, and friend.",
+    name: 'Anthony Walsh',
+    role: '- Product Manager, Meta',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      'Fas\u2019s leadership style focuses on acting as a multiplier for the people on his team. He aligns the team through shared strategy and collaborative development of product, while giving individuals the opportunity to develop their own styles and voices.',
+    name: 'Levi Soler',
+    role: '- Content Designer, Meta',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Under Fas's guidance, I've grown significantly as a UX/UI designer. His blend of creativity and practicality inspires our team's success. Fas's visionary mentorship fosters an environment of excellence and innovation, making him a driving force behind our achievements.",
+    name: 'Israel Adeleke',
+    role: '- Snr. Product Designer, ThoughtCab',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Working under Fas Lebbie's guidance has been an invaluable learning journey. As a UX/UI designer, I've witnessed Fas's exceptional leadership firsthand. His mentorship, attention to detail, and commitment to excellence have shaped my growth over the past two years.",
+    name: 'Yinka Jayeola',
+    role: '- UI/UX Designer, ThoughtCab',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "I had the pleasure of working with Fas Lebbie for 3 years and I can confidently say that he is an exceptional leader. His leadership style is a blend of strategic vision, empathy, and unyielding commitment to excellence. One of Fas Lebbie's standout qualities is his strategic vision. He has an uncanny ability to see the bigger picture and easily navigate complex challenges.",
+    name: 'Virender Kumar',
+    role: '- Web Developer/Designer',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      "Fas is a bright and outstanding individual. Teaming up with him and having him as a mentor for a startup to show me the ropes for someone who doesn't know anything about how to set up and run a successful start up, has been the best experience I've had. He's able to stay calm under pressure, and dig deep to find solutions to issues he comes across. He has an undying knack for UX design, and is highly driven to creating a user experience that's functional, versatile, and memorable for any customer that comes across his work. I would definitely recommend Mr. Lebbie to work as a UX designer for any company that is looking for pure talent, or even some sort of management position that allows him to grow more upon his ability to teach others like he did for me.",
+    name: 'Justyn Ramirez',
+    role: '- Strategic Marketing Expert x People Leader, Utah State University',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      'Fas is truly a unique professional and human being! His mind is quick and his thinking deep. He senses brand shifts almost immediately, operating at a very human level with clients and partners. I was blessed to be his client and his adjunct professor.',
+    name: 'Mark Cook',
+    role: '- Keynotes & Consulting, Windfall Partners',
+    avatar: '/testimonials/avatar-1.png',
+  },
+  {
+    quote:
+      'Fas is a wonderful and outstanding guy to work with. His creative problem solving paired with outstanding social skills makes him a valuable asset to the team.',
+    name: 'Sam Lagoy',
+    role: '- Assistant Manager, Aloha Ski and Board Rental',
     avatar: '/testimonials/avatar-1.png',
   },
 ]

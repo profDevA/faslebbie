@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PIN_VH } from "@/lib/reveal";
 
 /**
  * Big "About Me" watermark (Figma 807:19241) — the desktop page heading. Neue
@@ -30,9 +31,9 @@ export default function AboutWatermark() {
 
   useEffect(() => {
     const onScroll = () => {
-      // Match AboutBody's pin range (PIN_VH) so the word finishes receding right
-      // as the bio reaches full contrast.
-      const range = window.innerHeight * 0.85;
+      // Match AboutBody's pin distance so the word recedes over exactly the
+      // scroll where the bio brightens in place, then settles behind it.
+      const range = window.innerHeight * PIN_VH;
       setP(range > 0 ? Math.min(1, window.scrollY / range) : 0);
     };
     onScroll();
@@ -62,8 +63,10 @@ export default function AboutWatermark() {
       className="pointer-events-none fixed inset-0 hidden select-none items-center overflow-hidden px-[6.4vw] font-grotesk font-bold capitalize leading-[0.88] tracking-[-0.021em] will-change-[color,opacity] lg:flex"
     >
       {/* Sits in the lower third (Figma 807:19241 ~63% down), like the Home
-          wordmark — pushed below centre rather than vertically centred. */}
-      <span className="translate-y-[14vh] text-[clamp(48px,14vw,200px)]">
+          wordmark — pushed below centre rather than vertically centred. Nudged
+          a touch lower to match the Home wordmark (Israel 06/24 — "bring the
+          About down a bit… do the same on the home page"). */}
+      <span className="translate-y-[20vh] text-[clamp(48px,14vw,200px)]">
         About Me
       </span>
     </div>

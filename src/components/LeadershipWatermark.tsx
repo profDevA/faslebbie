@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { PIN_VH } from "@/lib/reveal";
 
 /**
  * Big "Leadership" watermark (Figma 504:3226 / 504:3254) — the desktop page
@@ -31,7 +32,8 @@ export default function LeadershipWatermark() {
 
   useEffect(() => {
     const onScroll = () => {
-      const range = window.innerHeight * 0.7;
+      // Match LeadershipBody's pin distance (same transition as About).
+      const range = window.innerHeight * PIN_VH;
       setP(range > 0 ? Math.min(1, window.scrollY / range) : 0);
     };
     onScroll();

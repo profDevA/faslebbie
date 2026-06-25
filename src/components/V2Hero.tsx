@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import HeroParagraph from "@/components/HeroParagraph";
-import { contentDrift, portraitDrift, revealProgress } from "@/lib/reveal";
+import { contentDrift, revealProgress } from "@/lib/reveal";
 
 /**
  * aidesign-os-style shell hero (Fas 06/14 ask — reference: aidesign-os.com).
@@ -106,8 +106,11 @@ export default function V2Hero() {
             should be bigger, stretched across, the image is just in the
             corner"). "Fas lebbie" spans the left with the portrait tucked into
             the top-right corner; "Ph.D." is right-aligned beneath. */}
-        <div className="w-full translate-y-[6vh] px-[4vw]">
-          <div className="flex items-start justify-between gap-[3vw]">
+        <div className="w-full translate-y-[20vh] px-[4vw]">
+          {/* Portrait tucked right up against "lebbie" (Israel 06/24 — "this
+              image should be closer… it's too far away"): pack the row to the
+              left with a small gap instead of pushing the photo to the edge. */}
+          <div className="flex items-start justify-start gap-[1.5vw]">
             <span className="whitespace-nowrap text-[clamp(72px,15vw,250px)]">
               Fas lebbie
             </span>
@@ -119,8 +122,8 @@ export default function V2Hero() {
               width={161}
               height={145}
               priority
-              style={{ opacity: portraitOpacity, transform: portraitDrift(r) }}
-              className="relative z-10 mt-[1.5vh] aspect-161/145 w-20 shrink-0 object-cover object-top shadow-[0_10px_34px_rgba(0,0,0,0.22)] will-change-transform lg:w-[clamp(120px,11vw,180px)]"
+              style={{ opacity: portraitOpacity }}
+              className="relative z-10 mt-[1.5vh] aspect-161/145 w-20 shrink-0 object-cover object-top shadow-[0_10px_34px_rgba(0,0,0,0.22)] lg:w-[clamp(120px,11vw,180px)]"
             />
           </div>
           <span className="block text-right text-[clamp(72px,15vw,250px)]">

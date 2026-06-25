@@ -19,7 +19,11 @@ export function ramp(a: number, b: number, t: number) {
 }
 
 // Share of a viewport of scroll over which the layers settle to the front.
-export const REVEAL_VH = 0.5;
+// This is ALSO the "pin" distance (Israel 06/24): for this much scroll the
+// content is held in place and only brightens / comes forward (the page proper
+// doesn't scroll yet); after it, normal scrolling begins.
+export const REVEAL_VH = 0.8;
+export const PIN_VH = REVEAL_VH;
 
 // Dim/blur the back layer starts at (matches the prior About/Home feel).
 export const START_OPACITY = 0.32;
@@ -45,6 +49,13 @@ export function revealOpacity(r: number) {
 
 export function revealBlur(r: number) {
   return (1 - r) * START_BLUR;
+}
+
+// Pin amount in px from the page-top scroll position. While scrollY is within
+// [0, pinPx] the content is held (translated to look fixed) and only brightens;
+// past it, the page scrolls normally.
+export function pinPx(innerHeight: number) {
+  return Math.round((innerHeight || 0) * PIN_VH);
 }
 
 export function portraitDrift(r: number) {

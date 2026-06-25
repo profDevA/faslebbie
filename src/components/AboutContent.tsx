@@ -256,7 +256,7 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="relative flex w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
+        className="relative flex max-h-[88vh] w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
       >
         <button
           type="button"
@@ -278,7 +278,7 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
           <path d="M10.0868 8.83804H6.47909C5.89008 5.0673 9.57138 3.97735 11.4857 3.90372L10.6021 0.000409149C2.35603 -0.0585084 0.098168 6.2604 0 9.42721V19.075H10.0868V8.83804Z" />
           <path d="M24.0919 8.83805H20.4842C19.8952 5.06731 23.5765 3.97736 25.4908 3.90373L24.6072 0.00041858C16.3611 -0.0584989 14.1033 6.2604 14.0051 9.42722V19.075H24.0919V8.83805Z" />
         </svg>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={t.avatar}
@@ -294,33 +294,49 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
             </p>
           </div>
         </div>
-        <p className="font-grotesk text-[16px] font-normal leading-[1.45] tracking-wider text-black">
+        {/* Quote scrolls if long; the nav + dots below stay pinned & visible. */}
+        <p className="min-h-0 flex-1 overflow-y-auto font-grotesk text-[16px] font-normal leading-[1.45] tracking-wider text-black">
           “{t.quote}”
         </p>
-        {/* Navigation control (Figma 823:70250): "< Previous" / "Next >", red,
-            underline on hover only — matched to the aidesign-os arrow style. */}
-        <div className="flex items-center justify-center gap-8 pt-2">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            disabled={i === 0}
-            data-cursor="hover"
-            className="font-grotesk text-[16px] font-medium text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-          >
-            {'< Previous'}
-          </button>
-          <span className="font-grotesk text-[14px] tabular-nums text-black/40">
-            {i + 1} / {testimonials.length}
-          </span>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            disabled={i === max}
-            data-cursor="hover"
-            className="font-grotesk text-[16px] font-medium text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-          >
-            {'Next >'}
-          </button>
+        {/* Navigation (Figma 807:19371): a row of pagination DOTS (one per
+            testimonial — click to jump) above "< Previous" / "Next >" in BLACK,
+            underline on hover. */}
+        <div className="flex shrink-0 flex-col items-center gap-4 pt-2">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
+            {testimonials.map((tItem, idx) => (
+              <button
+                key={tItem.name}
+                type="button"
+                onClick={() => setI(idx)}
+                aria-label={`Show testimonial ${idx + 1}: ${tItem.name}`}
+                aria-current={idx === i}
+                data-cursor="hover"
+                className={`size-2.5 shrink-0 rounded-full transition-colors ${
+                  idx === i ? 'bg-accent' : 'bg-black/25 hover:bg-black/50'
+                }`}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-8">
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              disabled={i === 0}
+              data-cursor="hover"
+              className="font-grotesk text-[16px] font-medium text-black underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+            >
+              {'< Previous'}
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              disabled={i === max}
+              data-cursor="hover"
+              className="font-grotesk text-[16px] font-medium text-black underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+            >
+              {'Next >'}
+            </button>
+          </div>
         </div>
       </div>
     </div>,

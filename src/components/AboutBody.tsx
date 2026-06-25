@@ -6,6 +6,7 @@ import AboutContent from "@/components/AboutContent";
 import { aboutLogos } from "@/lib/content";
 import {
   contentDrift,
+  pinPx,
   portraitDrift,
   revealBlur,
   revealOpacity,
@@ -13,17 +14,19 @@ import {
 } from "@/lib/reveal";
 
 /**
- * Desktop reveal (Figma 807:19122 → 19414, "like home"): the bio (left portrait
- * + prose) starts dim + softly blurred BEHIND the big "About Me" watermark and
- * eases FORWARD as you scroll — brightening + de-blurring while drifting a touch
- * (portrait settles down-left, the prose rises up-left) — while the watermark
- * fades grey and drops behind. NO scaling. The portrait then sticks under the
- * nav alongside the long bio. Mobile has no watermark/reveal — content sits
- * settled at full opacity.
+ * Desktop reveal (Figma 807:19122 → 19414, "like home"). The transition Israel
+ * keeps describing (06/24): at the very top ONLY the big "About Me" watermark is
+ * sharp and in front — the portrait + prose sit dim + blurred BEHIND it. As you
+ * start scrolling the content is PINNED (held in place, doesn't scroll yet) and
+ * simply brightens + de-blurs + drifts forward while the watermark fades grey
+ * and drops behind. Only once it has settled does the page actually start
+ * scrolling, and the portrait then sticks under the nav alongside the long bio.
  *
- * opacity/blur/transform are applied PER-LAYER (the portrait image + the content
- * column), never on <main>, so they don't create a containing block that would
- * break the sticky portrait.
+ * The pin is a sticky wrapper + a spacer that supplies its scroll distance.
+ * opacity/blur/drift are applied PER-LEAF (the portrait <img> and the prose
+ * column), never on the sticky wrapper / <main> / portrait column, so no
+ * transform containing-block breaks the nested sticky. Mobile: no watermark /
+ * pin / reveal — content sits settled at full opacity.
  */
 
 export default function AboutBody({
@@ -31,17 +34,17 @@ export default function AboutBody({
 }: {
   logoSvgs: Record<keyof typeof aboutLogos, string>;
 }) {
-  // Reveal progress: 0 = pushed back + dim (page top), 1 = settled + clear.
+  // Reveal progress: 0 = behind + dim + blurred (page top), 1 = settled/clear.
   const [r, setR] = useState(1);
+  // Pin distance in px (desktop) — the spacer that gives the pin its scroll.
+  const [pin, setPin] = useState(0);
 
   useEffect(() => {
     const onScroll = () => {
-      // Mobile: no reveal — content sits settled/clear.
-      setR(
-        window.innerWidth < 1024
-          ? 1
-          : revealProgress(window.scrollY, window.innerHeight),
-      );
+      // Mobile: no reveal/pin — content sits settled/clear.
+      const mobile = window.innerWidth < 1024;
+      setR(mobile ? 1 : revealProgress(window.scrollY, window.innerHeight));
+      setPin(mobile ? 0 : pinPx(window.innerHeight));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -58,8 +61,14 @@ export default function AboutBody({
 
   return (
     <div className="relative">
-      <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
-        <div className="flex flex-col lg:sticky lg:top-[88px] lg:self-start">
+      {/* Desktop pin: sticks under the nav (h-13 = 52px) for `pin` px of scroll
+          so the content brightens in place before the page scrolls. */}
+      <div className="lg:sticky lg:top-[52px]">
+        <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
+        {/* Stick the portrait exactly where it starts so it never floats up on
+            release: pin wrapper top (52) + main top padding (pt-32 = 128) =
+            180px. Keeps the photo fixed from the very top to the end. */}
+        <div className="flex flex-col lg:sticky lg:top-[180px] lg:self-start">
           {/* Mobile: small left-aligned heading (desktop uses the watermark). */}
           <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px] lg:hidden">
             About me
@@ -78,12 +87,23 @@ export default function AboutBody({
         </div>
 
         <div
-          style={{ opacity, filter: blur, transform: contentDrift(r) }}
+          style={{
+            opacity,
+            filter: blur,
+            transform: contentDrift(r),
+            // While it's still the dim/blurred BACK layer, it must not catch
+            // hovers/clicks — only interactive once it has settled in front.
+            pointerEvents: r < 1 ? "none" : undefined,
+          }}
           className="will-change-[opacity,filter,transform]"
         >
           <AboutContent className="pb-24" logoSvgs={logoSvgs} />
         </div>
-      </main>
+        </main>
+      </div>
+      {/* Pin scroll distance (desktop only): the wrapper above stays stuck for
+          this height, during which the content brightens in place. */}
+      <div aria-hidden className="hidden lg:block" style={{ height: pin }} />
     </div>
   );
 }
