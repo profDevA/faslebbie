@@ -1,0 +1,77 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { PIN_VH } from "@/lib/reveal";
+import { toolStackImage } from "@/lib/content";
+
+/**
+ * Big "Design Work" watermark (Figma 807:2979) — the desktop page heading, the
+ * same treatment as the About watermark: Neue Haas Grotesk 75 Bold, ~200px @1440
+ * (~14vw), near-black (#171717) with a soft grey drop-shadow. It lives in a
+ * FIXED parallax layer: at the top it sits ON TOP of the content (sharp, dark);
+ * as the page scrolls its colour fades toward the page grey and it drops behind
+ * every section as a faint watermark. Desktop only — mobile keeps a small
+ * heading. Only renders behind the ".txt" view (the grid view passes `show`
+ * false) so it doesn't sit over the masonry grid.
+ */
+
+function ramp(a: number, b: number, t: number) {
+  const x = Math.min(1, Math.max(0, (t - a) / (b - a)));
+  return x * x * (3 - 2 * x);
+}
+
+const NEAR_BLACK: [number, number, number] = [23, 23, 23]; // #171717
+const FADED_GREY: [number, number, number] = [183, 183, 175];
+function mix(t: number) {
+  const c = NEAR_BLACK.map((a, i) => Math.round(a + (FADED_GREY[i] - a) * t));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
+
+export default function WorkWatermark({ show = true }: { show?: boolean }) {
+  const [p, setP] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const range = window.innerHeight * PIN_VH;
+      setP(range > 0 ? Math.min(1, window.scrollY / range) : 0);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  if (!show) return null;
+
+  const fade = ramp(0.05, 0.85, p);
+  const color = mix(fade);
+  const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
+  const opacity = 1 - fade * 0.7;
+  const z = fade < 0.5 ? 30 : -10;
+
+  return (
+    <div
+      aria-hidden
+      style={{ color, textShadow: shadow, zIndex: z, opacity }}
+      className="pointer-events-none fixed inset-0 hidden select-none flex-col items-start justify-center overflow-hidden px-[5.6vw] will-change-[color,opacity] lg:flex"
+    >
+      {/* Heading + Stack are ONE block (Figma 807:2976): "Design Work" with the
+          tech-stack row flush beneath it; the whole block recedes together. */}
+      <div className="translate-y-[6vh]">
+        <span className="block whitespace-nowrap font-grotesk text-[clamp(48px,13vw,200px)] font-bold capitalize leading-[0.88] tracking-[-0.021em]">
+          Design Work
+        </span>
+        <div className="mt-[1.4vw] flex items-center gap-4 pl-[0.4vw]">
+          <span className="font-serif text-[20px] tracking-[0.06em] xl:text-[26px]">
+            Stack:
+          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static icon strip */}
+          <img src={toolStackImage} alt="" className="h-[26px] w-auto xl:h-[30px]" />
+        </div>
+      </div>
+    </div>
+  );
+}

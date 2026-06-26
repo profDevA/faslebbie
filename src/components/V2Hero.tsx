@@ -117,16 +117,18 @@ export default function V2Hero() {
             {/* Portrait tucked in the corner, in front, with a soft shadow so it
                 STANDS OUT and never blends into the wordmark letters. */}
             <Image
-              src="/portrait.png"
+              src="/portrait-home.png"
               alt=""
-              width={161}
-              height={145}
+              width={1111}
+              height={1416}
               priority
               style={{ opacity: portraitOpacity }}
-              className="relative z-10 mt-[1.5vh] aspect-161/145 w-20 shrink-0 object-cover object-top shadow-[0_10px_34px_rgba(0,0,0,0.22)] lg:w-[clamp(120px,11vw,180px)]"
+              className="relative z-10 mt-[1.5vh] aspect-161/145 w-20 shrink-0 bg-[#f0f0f0] object-cover object-center shadow-[0_10px_34px_rgba(0,0,0,0.22)] lg:w-[clamp(120px,11vw,180px)]"
             />
           </div>
-          <span className="block text-right text-[clamp(72px,15vw,250px)]">
+          {/* Bigger gap between "Fas lebbie" and "Ph.D." (Israel 06/26). In em
+              so it tracks the responsive wordmark size. */}
+          <span className="mt-[0.34em] block text-right text-[clamp(72px,15vw,250px)]">
             Ph.D.
           </span>
         </div>

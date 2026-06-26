@@ -415,17 +415,29 @@ function TypingTag({ words }: { words: readonly string[] }) {
   }, [idx, words])
 
   return (
-    <button
-      type="button"
+    // Inline + box-decoration-clone so a long value wraps into SEPARATE black
+    // boxes (one per line) — e.g. ">/~ Enterprise Securities" / "& Analytics" —
+    // instead of two cramped lines inside one box (Israel 06/26). A span (not a
+    // <button>) is required: a button is an atomic inline box and can't break
+    // across lines. The line-height supplies the gap between the wrapped boxes.
+    <span
+      role="button"
+      tabIndex={0}
       data-cursor="hover"
       onClick={() => setIdx(i => (i + 1) % words.length)}
-      className="mx-1 my-[0.4em] inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] text-left align-middle text-[1em] leading-none text-bg lg:my-0"
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setIdx(i => (i + 1) % words.length)
+        }
+      }}
+      className="mx-[0.1em] box-decoration-clone cursor-pointer bg-[#141414] px-[0.4em] py-[0.08em] text-[1em] leading-[1.7] text-bg"
       aria-label={`${shown}. Click to cycle.`}
     >
       <span className="mr-[0.3em]">{'>/~'}</span>
       {shown}
-      <span className="ml-0.5 inline-block w-px animate-pulse self-stretch bg-bg" />
-    </button>
+      <span className="ml-0.5 inline-block h-[0.95em] w-px translate-y-[0.12em] animate-[caret-blink_1s_steps(1,end)_infinite] bg-bg" />
+    </span>
   )
 }
 
@@ -540,7 +552,7 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
       return (
         <span
           key={key}
-          className="mx-1 my-[0.4em] inline-flex translate-y-[-0.3em] items-center bg-[#141414] px-[0.4em] py-[0.1em] align-middle font-grotesk text-[1em] leading-none text-bg lg:my-0"
+          className="mx-[0.1em] box-decoration-clone bg-[#141414] px-[0.4em] py-[0.08em] font-grotesk text-[1em] leading-[1.7] text-bg"
         >
           <span className="mr-[0.3em]">{'>/~'}</span>
           {tok.text}
@@ -556,7 +568,15 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
         {/* inline-expansion keyword: continuation in black/normal (nested keys
             ok). Panel-opening keys (even grey ones) render their box instead. */}
         {!keyOpensPanel(tok) && inlineOpen && expansion && (
-          <> {renderTokens(expansion, { ...ctx, expanded: true }, key)}</>
+          <>
+            {' '}
+            {/* Fade/"load" the continuation in rather than snapping it open
+                (Israel 06/25: "it shouldn't just drop down… it loads, then
+                comes clear"). */}
+            <span className="animate-[panel-in_0.35s_ease-out]">
+              {renderTokens(expansion, { ...ctx, expanded: true }, key)}
+            </span>
+          </>
         )}
       </Fragment>
     )
@@ -682,11 +702,13 @@ function MeasuredParagraph({
                   expansion && (
                     <>
                       {' '}
-                      {renderTokens(
-                        expansion,
-                        { ...ctx, expanded: true },
-                        `${prefix}-${j}`,
-                      )}
+                      <span className="animate-[panel-in_0.35s_ease-out]">
+                        {renderTokens(
+                          expansion,
+                          { ...ctx, expanded: true },
+                          `${prefix}-${j}`,
+                        )}
+                      </span>
                     </>
                   )}
               </Fragment>

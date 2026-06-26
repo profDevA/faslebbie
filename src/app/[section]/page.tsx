@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 
 // Placeholder pages for sections that come after the homepage (Phase 2+).
+// NOTE: "work" is intentionally omitted — it has its own static route at
+// app/work/page.tsx (the "Design Work" page).
 const sections: Record<string, string> = {
-  work: "Work",
   research: "Research",
   build: "Build",
   teaching: "Teaching / Mentorship",

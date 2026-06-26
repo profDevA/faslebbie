@@ -52,6 +52,19 @@ body {
   }
 }
 
+/* Hard on/off caret blink for the typing tags (Israel 06/25: "it should blink
+   so they know they can type" — a real text caret, not a soft fade). */
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 /* Gentle continuous wobble for the popped About logos (Emily-Campbell style) */
 @keyframes logo-wobble {
   0%,

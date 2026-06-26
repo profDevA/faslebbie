@@ -19,7 +19,9 @@ function Logo({ onClick }: { onClick?: () => void }) {
       data-cursor="hover"
       className="whitespace-nowrap font-logo text-[18px] font-bold tracking-[-0.02em] lg:text-[20px]"
     >
-      Fas lebbie, Ph.D.
+      {/* Wider gap before "Ph.D." to match Figma (Israel 06/25 — the negative
+          tracking pulled it in too tight). */}
+      Fas lebbie,<span className="ml-[0.4em]">Ph.D.</span>
     </Link>
   );
 }

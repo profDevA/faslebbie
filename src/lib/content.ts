@@ -655,6 +655,300 @@ export const leadershipMoments: {
   },
 ]
 
+// ── Work / "Design Work" page (Figma 807:2954 / 823:65046 / 840:74764) ─────
+// Same architecture as About: a giant "Design Work" watermark that recedes as
+// the dimmed content brightens forward, a sticky portrait, and an interactive
+// prose narrative — except here the red keywords are PROJECT NAMES. The page
+// has two toggled views (".txt" = the narrative, ".img" = a masonry grid of
+// project cards) and clicking any project opens a centred lightbox with
+// Previous/Next (Figma 840:74764), mirroring the testimonials modal.
+
+export type WorkCategory =
+  | 'Product Design'
+  | 'Design Research'
+  | 'Design Technology'
+  | 'Service Design'
+  | 'Branding'
+
+// Ordered category list for the "FILTER WORK" panel (Figma 823:67611). "All"
+// is implicit (the default). Counts are derived from the project tags below.
+export const workCategories: WorkCategory[] = [
+  'Product Design',
+  'Design Research',
+  'Design Technology',
+  'Service Design',
+  'Branding',
+]
+
+export interface WorkProject {
+  slug: string
+  name: string
+  /** One-line descriptor shown in the grid/lightbox (verbatim, live site). */
+  tagline: string
+  categories: WorkCategory[]
+  /** Placeholder brand colour until the real hero art is supplied. */
+  accent: string
+  /** Masonry card height tier so the grid varies like Figma 823:65046. */
+  span: 'sm' | 'md' | 'lg'
+  /** Real hero image when available (TODO(assets): migrate from live site). */
+  image?: string
+}
+
+// Credit line shown under every grid card (Figma 823:65046 placeholder names —
+// real per-project credits pending from Fas).
+export const WORK_CREDIT = 'Credit: Jane Doe, Sabrina Fessler, John Doe'
+
+// The 17 projects (taglines verbatim from faslebbie.com/works). Category tags
+// are a best-effort grouping — TODO(Fas): confirm the real category mapping
+// (Figma counts All 33 / Product 25 / Research 18 / Tech 7 / Service 8 /
+// Branding 4 don't line up with 17 projects, so some assignment is pending).
+export const workProjects: WorkProject[] = [
+  {
+    slug: 'coral-health',
+    name: 'Coral Health',
+    tagline: 'Bridging healthcare disparities for underserved communities',
+    categories: ['Product Design', 'Branding'],
+    accent: '#ff5a3c',
+    span: 'md',
+  },
+  {
+    slug: 'snapback-lifestyle',
+    name: 'Snapback Lifestyle',
+    tagline: 'Artist & community-led brand storytelling',
+    categories: ['Branding'],
+    accent: '#f2c14e',
+    span: 'lg',
+  },
+  {
+    slug: 'life-of-a-miner-vr',
+    name: 'Life of a Miner VR',
+    tagline: 'Immersive design in becoming a miner',
+    categories: ['Design Research', 'Design Technology'],
+    accent: '#3f4756',
+    span: 'sm',
+  },
+  {
+    slug: 'experian-boost',
+    name: 'Experian Boost',
+    tagline: 'Reimagining Credit Access for Millions',
+    categories: ['Product Design'],
+    accent: '#5b2a86',
+    span: 'sm',
+  },
+  {
+    slug: 'diamond-valuation-ai',
+    name: 'Diamond Valuation AI',
+    tagline: 'AI design democratizing diamond valuation for miners',
+    categories: ['Product Design', 'Design Technology'],
+    accent: '#c9a227',
+    span: 'md',
+  },
+  {
+    slug: 'vuforia-chalk',
+    name: 'Vuforia Chalk',
+    tagline: 'Cross-platform AR design',
+    categories: ['Design Technology', 'Product Design'],
+    accent: '#6b46c1',
+    span: 'md',
+  },
+  {
+    slug: 'vuforia-editor',
+    name: 'Vuforia Editor',
+    tagline: 'The Industrial Knowledge Studio',
+    categories: ['Design Technology', 'Product Design'],
+    accent: '#0f766e',
+    span: 'sm',
+  },
+  {
+    slug: 'design-assist-ai',
+    name: 'Design Assist AI',
+    tagline: 'AI UX Assistant for product designers',
+    categories: ['Product Design', 'Design Technology'],
+    accent: '#db2777',
+    span: 'sm',
+  },
+  {
+    slug: 'galderma',
+    name: 'Galderma',
+    tagline: 'Digital transformation of premium medical education',
+    categories: ['Product Design', 'Service Design'],
+    accent: '#be185d',
+    span: 'md',
+  },
+  {
+    slug: 'forever-a-surfer',
+    name: 'Forever a Surfer',
+    tagline: 'Transforming surf culture into social activism',
+    categories: ['Design Research', 'Branding'],
+    accent: '#2b6cb0',
+    span: 'lg',
+  },
+  {
+    slug: 'the-ar-handbook',
+    name: 'The AR Handbook',
+    tagline:
+      'Spare parts recognition for remote assistance in industrial manufacturing',
+    categories: ['Design Technology'],
+    accent: '#1e3a8a',
+    span: 'md',
+  },
+  {
+    slug: 'memory-tubes',
+    name: 'Memory Tubes',
+    tagline: 'Behavioral design research through provocative urban installations',
+    categories: ['Design Research'],
+    accent: '#4a7c59',
+    span: 'sm',
+  },
+  {
+    slug: 'acme-lending',
+    name: 'Acme Lending',
+    tagline: 'UX design streamlining income verification for lenders',
+    categories: ['Product Design', 'Service Design'],
+    accent: '#1f6feb',
+    span: 'sm',
+  },
+  {
+    slug: 'oc-links',
+    name: 'OC Links',
+    tagline:
+      "Reducing response times for Orange County's digital mental health crisis management platform",
+    categories: ['Service Design', 'Product Design'],
+    accent: '#0891b2',
+    span: 'md',
+  },
+  {
+    slug: 'oc-digital-resource-navigator',
+    name: 'OC Digital Resource Navigator',
+    tagline: 'Improving Mental Health Resource Access',
+    categories: ['Service Design', 'Design Research'],
+    accent: '#0ea5e9',
+    span: 'lg',
+  },
+  {
+    slug: 'census-benefit-calculator',
+    name: '2020 US Census Benefit Calculator',
+    tagline:
+      'Resource locator increasing Immigrant families census participation',
+    categories: ['Service Design', 'Product Design'],
+    accent: '#b45309',
+    span: 'sm',
+  },
+  {
+    slug: 'financial-data-exchange',
+    name: 'Financial Data Exchange',
+    tagline:
+      'Designing industry standard for Open Banking through secure data sharing',
+    categories: ['Product Design', 'Design Research'],
+    accent: '#15803d',
+    span: 'md',
+  },
+]
+
+// Tokens for the ".txt" narrative (Figma 807:2954). "project" = red underlined
+// project name that opens the lightbox; "org" = red underlined company that has
+// no case study (Western Digital / SanDisk) so it isn't clickable.
+export type WorkToken =
+  | { t: 'text'; text: string }
+  | { t: 'project'; slug: string; text: string }
+  | { t: 'org'; text: string }
+
+const wp = (slug: string, text: string): WorkToken => ({ t: 'project', slug, text })
+
+// Narrative paragraphs verbatim from Figma 807:2954.
+export const workNarrative: WorkToken[][] = [
+  [
+    {
+      t: 'text',
+      text: 'I started my design career working across hardware, software, and consumer technology, helping shape products such as ',
+    },
+    wp('coral-health', 'Coral Health'),
+    { t: 'text', text: ', ' },
+    wp('snapback-lifestyle', 'Snapback Lifestyle'),
+    { t: 'text', text: ', and ' },
+    wp('experian-boost', 'Experian Boost'),
+    { t: 'text', text: '. Early work with organizations including ' },
+    { t: 'org', text: 'Western Digital' },
+    { t: 'text', text: ', ' },
+    { t: 'org', text: 'SanDisk' },
+    { t: 'text', text: ', and ' },
+    wp('acme-lending', 'Acme Lending'),
+    {
+      t: 'text',
+      text: ' introduced me to the challenge of designing systems that build trust, simplify complexity, and connect digital experiences to real human needs.',
+    },
+  ],
+  [
+    {
+      t: 'text',
+      text: 'This foundation expanded into fintech and enterprise infrastructure through projects such as ',
+    },
+    wp('financial-data-exchange', 'Financial Data Exchange'),
+    { t: 'text', text: ', ' },
+    wp('oc-links', 'OC Links'),
+    { t: 'text', text: ', and the ' },
+    wp('census-benefit-calculator', '2020 US Census Benefit Calculator'),
+    {
+      t: 'text',
+      text: ', where design became a tool for accessibility, inclusion, and large-scale decision making.',
+    },
+  ],
+  [
+    {
+      t: 'text',
+      text: 'My work later moved into emerging technologies, spatial computing, and AI-powered systems. Through projects such as ',
+    },
+    wp('vuforia-chalk', 'Vuforia Chalk'),
+    { t: 'text', text: ', ' },
+    wp('vuforia-editor', 'Vuforia Editor'),
+    { t: 'text', text: ', ' },
+    wp('design-assist-ai', 'Design Assist AI'),
+    { t: 'text', text: ', ' },
+    wp('diamond-valuation-ai', 'Diamond Valuation AI'),
+    { t: 'text', text: ', and ' },
+    wp('oc-digital-resource-navigator', 'OC Digital Resource Navigator'),
+    {
+      t: 'text',
+      text: ', I explored how augmented reality, artificial intelligence, and human expertise can work together to improve learning, collaboration, and decision making. This period also produced knowledge-sharing initiatives such as ',
+    },
+    wp('the-ar-handbook', 'The AR Handbook'),
+    {
+      t: 'text',
+      text: ', helping translate complex technical ideas into practical tools and frameworks for broader audiences.',
+    },
+  ],
+  [
+    {
+      t: 'text',
+      text: 'Alongside commercial work, I continued to pursue speculative, civic, and community-centred projects that examine how people understand and interact with systems. Projects such as ',
+    },
+    wp('life-of-a-miner-vr', 'Life of a Miner VR'),
+    { t: 'text', text: ', ' },
+    wp('forever-a-surfer', 'Forever a Surfer'),
+    { t: 'text', text: ', ' },
+    wp('memory-tubes', 'Memory Tubes'),
+    { t: 'text', text: ', and ' },
+    wp('galderma', 'Galderma'),
+    {
+      t: 'text',
+      text: ' explored identity, health, memory, and lived experience through research-driven design. Together, these investigations informed later work including ',
+    },
+    wp('financial-data-exchange', 'Financial Data Exchange'),
+    { t: 'text', text: ' and ' },
+    wp('oc-links', 'OC Links'),
+    {
+      t: 'text',
+      text: ', reinforcing a practice grounded in both technological innovation and human understanding.',
+    },
+  ],
+  [
+    {
+      t: 'text',
+      text: 'Across healthcare, fintech, enterprise systems, artificial intelligence, augmented reality, civic services, and speculative design, these projects reflect a consistent belief: design is most powerful when it helps people navigate complexity, build trust, and create meaningful change within the systems that shape everyday life.',
+    },
+  ],
+]
+
 // Desktop bar order + labels per the new Figma nav (854:79638): About, Work,
 // Build, Leadership, Research, Teaching, Blogs / Media.
 export const navItems = [

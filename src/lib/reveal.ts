@@ -1,12 +1,12 @@
 // Shared "transition" math (Israel's signature scroll reveal). Every page uses
 // the SAME move: the big wordmark/watermark recedes into the background while
 // the real content + portrait start dim + softly blurred BEHIND it and ease
-// FORWARD — brightening + de-blurring while drifting a touch in a diagonal
-// direction. NO scaling — translation + opacity (+ a little blur) is enough.
+// FORWARD — brightening + de-blurring. NO scaling.
 //
-// Directions (Israel 06/24):
-//  • portrait: from back-right-TOP → front-left-BOTTOM  (drifts left + down)
-//  • content : from back-right-BOTTOM → front-left-TOP  (rises: left + up)
+// Israel 06/25: the content must NOT slide sideways — "when it becomes clear it
+// moves to the left… it should just become clear, only comes up." So the
+// horizontal drift is removed; the content only brightens + de-blurs and rises
+// a touch (the portrait simply stays put and clarifies).
 //
 // `r` is the eased reveal progress: 0 = pushed back/dim (page top), 1 = settled
 // in front/clear. `k = 1 - r` is the remaining offset, so everything lands at
@@ -29,11 +29,12 @@ export const PIN_VH = REVEAL_VH;
 export const START_OPACITY = 0.32;
 export const START_BLUR = 2; // px
 
-// Subtle drift magnitudes in px. Kept small on purpose. No scale.
+// Subtle drift magnitudes in px. Kept small on purpose. No scale, no sideways
+// motion (Israel 06/25) — only the content rises a touch as it clarifies.
 const DRIFT = {
-  x: 16, // both start pushed right, settle left
-  portraitY: -12, // portrait starts higher, settles down
-  contentY: 20, // content starts lower, rises up
+  x: 0, // no horizontal motion
+  portraitY: 0, // portrait stays put, just clarifies
+  contentY: 16, // content starts slightly lower and rises as it brightens
 };
 
 // Eased reveal progress from the page scroll position (0 = back, 1 = front).
