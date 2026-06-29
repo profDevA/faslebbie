@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PIN_VH } from "@/lib/reveal";
-import { toolStackImage } from "@/lib/content";
+import { toolStackLogos } from "@/lib/content";
 
 /**
  * Big "Design Work" watermark (Figma 807:2979) — the desktop page heading, the
@@ -64,12 +64,30 @@ export default function WorkWatermark({ show = true }: { show?: boolean }) {
         <span className="block whitespace-nowrap font-grotesk text-[clamp(48px,13vw,200px)] font-bold capitalize leading-[0.88] tracking-[-0.021em]">
           Design Work
         </span>
-        <div className="mt-[1.4vw] flex items-center gap-4 pl-[0.4vw]">
+        <div className="mt-[1.4vw] flex items-center gap-[31px] pl-[0.4vw]">
           <span className="font-serif text-[20px] tracking-[0.06em] xl:text-[26px]">
             Stack:
           </span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- static icon strip */}
-          <img src={toolStackImage} alt="" className="h-[26px] w-auto xl:h-[30px]" />
+          <span className="flex flex-wrap items-center gap-x-[30px] gap-y-3">
+            {toolStackLogos.map((logo) => (
+              <span
+                key={logo.src}
+                className="inline-block shrink-0 bg-current"
+                style={{
+                  width: `${logo.w}px`,
+                  height: `${logo.h}px`,
+                  WebkitMaskImage: `url(${logo.src})`,
+                  maskImage: `url(${logo.src})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
+            ))}
+          </span>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import {
   WORK_CREDIT,
   type WorkCategory,
   type WorkToken,
-  toolStackImage,
+  toolStackLogos,
   workCategories,
   workNarrative,
   workProjects,
@@ -96,6 +96,19 @@ export default function WorkBody() {
     [filter],
   );
 
+  // Split into the two 2-column groups that flank the centred FILTER WORK menu
+  // (Figma 823:65046). Dealing in PAIRS keeps the top row matching the design:
+  // [0,1] → left, [2,3] → right, [4,5] → left … so cols 1–2 sit left of the
+  // menu and cols 3–4 sit right of it.
+  const [leftProjects, rightProjects] = useMemo(() => {
+    const left: WorkProject[] = [];
+    const right: WorkProject[] = [];
+    visible.forEach((p, i) => {
+      (Math.floor(i / 2) % 2 === 0 ? left : right).push(p);
+    });
+    return [left, right];
+  }, [visible]);
+
   const openProject = (slug: string) => {
     const i = slugIndex.get(slug);
     if (i !== undefined) setLightbox(i);
@@ -166,16 +179,30 @@ export default function WorkBody() {
                   <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px]">
                     Design Work
                   </h1>
-                  <div className="mt-3 flex items-center gap-4">
+                  <div className="mt-3 flex items-center gap-[30px]">
                     <span className="font-serif text-[18px] tracking-[0.06em] text-black">
                       Stack:
                     </span>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static icon strip */}
-                    <img
-                      src={toolStackImage}
-                      alt="Design tool stack"
-                      className="h-[24px] w-auto opacity-80"
-                    />
+                    <span className="flex flex-wrap items-center gap-x-[26px] gap-y-3 text-black">
+                      {toolStackLogos.map((logo) => (
+                        <span
+                          key={logo.src}
+                          className="inline-block shrink-0 bg-current"
+                          style={{
+                            width: `${logo.w * 0.75}px`,
+                            height: `${logo.h * 0.75}px`,
+                            WebkitMaskImage: `url(${logo.src})`,
+                            maskImage: `url(${logo.src})`,
+                            WebkitMaskRepeat: "no-repeat",
+                            maskRepeat: "no-repeat",
+                            WebkitMaskPosition: "center",
+                            maskPosition: "center",
+                            WebkitMaskSize: "contain",
+                            maskSize: "contain",
+                          }}
+                        />
+                      ))}
+                    </span>
                   </div>
                 </div>
                 <Image
@@ -214,22 +241,81 @@ export default function WorkBody() {
         </>
       ) : (
         <main className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-10 lg:px-12">
-          <div className="relative lg:pl-12">
-            {/* Vertical "FILTER WORK" tab (Figma 823:65046/67611). */}
+          {/* Desktop: 2 columns | centred FILTER WORK menu | 2 columns
+              (Figma 823:65046 / 823:67611). */}
+          <div className="hidden lg:flex lg:items-start lg:justify-center lg:gap-6 xl:gap-8">
+            <div className="flex-1 gap-x-5 [column-fill:balance] columns-2 *:mb-7 *:break-inside-avoid">
+              {leftProjects.map((p) => (
+                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
+              ))}
+            </div>
+
+            {/* Centre menu: vertical tab when closed, category list when open. */}
+            <div className="sticky top-[120px] flex shrink-0 justify-center self-start pt-[14vh]">
+              {filterOpen ? (
+                <div className="flex w-[200px] flex-col gap-3">
+                  {(["All", ...workCategories] as Filter[]).map((cat) => {
+                    const active = filter === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        data-cursor="hover"
+                        onClick={() => setFilter(cat)}
+                        className={`flex items-center justify-between gap-6 font-grotesk text-[16px] transition-colors ${
+                          active ? "font-bold text-accent" : "text-black hover:text-accent"
+                        }`}
+                      >
+                        <span>{cat}</span>
+                        <span className={active ? "text-accent" : "text-black/45"}>
+                          {counts[cat]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    data-cursor="hover"
+                    onClick={() => setFilterOpen(false)}
+                    className="mt-2 self-start font-grotesk text-[11px] uppercase tracking-[0.2em] text-black/40 transition-colors hover:text-black"
+                  >
+                    Close ×
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen(true)}
+                  data-cursor="hover"
+                  aria-expanded={false}
+                  className="font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
+                  style={{ transform: "rotate(180deg)" }}
+                >
+                  Filter Work
+                </button>
+              )}
+            </div>
+
+            <div className="flex-1 gap-x-5 [column-fill:balance] columns-2 *:mb-7 *:break-inside-avoid">
+              {rightProjects.map((p) => (
+                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile / tablet: horizontal filter + single masonry. */}
+          <div className="lg:hidden">
             <button
               type="button"
               onClick={() => setFilterOpen((o) => !o)}
               data-cursor="hover"
               aria-expanded={filterOpen}
-              className="absolute left-0 top-0 hidden font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black lg:block"
-              style={{ transform: "rotate(180deg)" }}
+              className="mb-5 inline-flex items-center gap-2 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70"
             >
-              Filter Work
+              Filter Work <span className="text-accent">{filterOpen ? "−" : "+"}</span>
             </button>
-
-            {/* Filter panel (Figma 823:67611) — category list with counts. */}
             {filterOpen && (
-              <div className="mb-8 flex flex-col gap-2 border-l-2 border-accent bg-close px-5 py-4 lg:absolute lg:left-10 lg:top-0 lg:z-20 lg:mb-0 lg:w-[260px] lg:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+              <div className="mb-8 flex flex-col gap-2 border-l-2 border-accent bg-close px-5 py-4">
                 {(["All", ...workCategories] as Filter[]).map((cat) => {
                   const active = filter === cat;
                   return (
@@ -254,15 +340,9 @@ export default function WorkBody() {
                 })}
               </div>
             )}
-
-            {/* Masonry grid of project cards (CSS columns flow). */}
-            <div className="gap-x-6 [column-fill:balance] sm:columns-2 lg:columns-3 *:mb-8 *:break-inside-avoid">
+            <div className="gap-x-5 [column-fill:balance] columns-1 sm:columns-2 *:mb-7 *:break-inside-avoid">
               {visible.map((p) => (
-                <ProjectCard
-                  key={p.slug}
-                  project={p}
-                  onOpen={() => openProject(p.slug)}
-                />
+                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
               ))}
             </div>
           </div>
@@ -295,23 +375,30 @@ function ProjectCard({
       data-cursor="hover"
       className="group block w-full text-left"
     >
-      {/* Branded colour placeholder until real hero art lands. */}
-      <div
-        className={`w-full overflow-hidden ${SPAN_H[project.span]}`}
-        style={{
-          backgroundImage: project.image
-            ? `url(${project.image})`
-            : `radial-gradient(130% 130% at 30% 20%, ${project.accent} 0%, ${project.accent}cc 55%, ${project.accent}66 100%)`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <span className="flex h-full w-full items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <span className="font-grotesk text-[13px] font-medium uppercase tracking-wide text-white/90">
-            View project →
+      {project.image ? (
+        // Real card art (Figma 823:65046) at its natural aspect — true masonry.
+        // eslint-disable-next-line @next/next/no-img-element -- static design asset
+        <img
+          src={project.image}
+          alt={project.name}
+          loading="lazy"
+          className="w-full"
+        />
+      ) : (
+        // Branded colour placeholder until real art lands.
+        <div
+          className={`relative w-full overflow-hidden ${SPAN_H[project.span]}`}
+          style={{
+            backgroundImage: `radial-gradient(130% 130% at 30% 20%, ${project.accent} 0%, ${project.accent}cc 55%, ${project.accent}66 100%)`,
+          }}
+        >
+          <span className="flex h-full w-full items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <span className="font-grotesk text-[13px] font-medium uppercase tracking-wide text-white/90">
+              View project →
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
+      )}
       <p className="mt-2 font-grotesk text-[16px] font-bold leading-tight text-black underline-offset-2 group-hover:underline">
         {project.name}
       </p>

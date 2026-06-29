@@ -50,14 +50,28 @@ export interface PanelContent {
   hasToolStack?: boolean
 }
 
-// Rendered strip of the design panel's 13 tool icons from the Figma prototype.
-// `full` is the single row used in the wide desktop panel; `row1`/`row2` split
-// it 7+6 so the narrow mobile panel wraps to two rows (Figma 119:4288).
-// TODO: replace with individual named icons once Fas confirms the tool list.
-export const toolStackImage = '/tools/tool-stack-row.png'
-export const toolStackRows = [
-  '/tools/tool-stack-row-1.png',
-  '/tools/tool-stack-row-2.png',
+// The 14 design-tool logos (Figma 807:2982), each exported at 4x as its own
+// transparent PNG (cream page background keyed out to a clean alpha matte) so
+// they stay razor-sharp. They're drawn as CSS masks tinted with `currentColor`
+// so they take the SAME colour as the wordmark (near-black at the top, fading
+// to grey as it recedes). `w`/`h` are each glyph's native Figma size in px — we
+// keep those exact proportions and per-icon heights instead of forcing them all
+// to one height. TODO: swap for named brand SVGs once Fas confirms the list.
+export const toolStackLogos: { src: string; w: number; h: number }[] = [
+  { src: '/tools/stack/logo-01.png', w: 28.75, h: 28.0 },
+  { src: '/tools/stack/logo-02.png', w: 18.75, h: 28.75 },
+  { src: '/tools/stack/logo-03.png', w: 29.75, h: 29.75 },
+  { src: '/tools/stack/logo-04.png', w: 29.5, h: 19.0 },
+  { src: '/tools/stack/logo-05.png', w: 32.25, h: 32.25 },
+  { src: '/tools/stack/logo-06.png', w: 25.5, h: 26.25 },
+  { src: '/tools/stack/logo-07.png', w: 24.0, h: 24.25 },
+  { src: '/tools/stack/logo-08.png', w: 28.0, h: 28.0 },
+  { src: '/tools/stack/logo-09.png', w: 31.0, h: 30.5 },
+  { src: '/tools/stack/logo-10.png', w: 28.75, h: 29.5 },
+  { src: '/tools/stack/logo-11.png', w: 33.75, h: 32.25 },
+  { src: '/tools/stack/logo-12.png', w: 28.75, h: 24.0 },
+  { src: '/tools/stack/logo-13.png', w: 29.75, h: 29.75 },
+  { src: '/tools/stack/logo-14.png', w: 32.25, h: 28.0 },
 ]
 
 export const panels: Record<SectionId, PanelContent> = {
@@ -680,6 +694,60 @@ export const workCategories: WorkCategory[] = [
   'Branding',
 ]
 
+// ── Case study (Figma 807:8804 / 807:11960 / 838:71331) ────────────────────
+// Each project can open a full-screen, scrollable case-study overlay: a black
+// hero (brand logo + curved photo), an OVERVIEW band (prose + VISIT SITE +
+// "RESEARCH & DESIGN" meta beside a framed photo), a "WHAT I BROUGHT" section,
+// and a black "PROBLEM STATEMENT". Only Coral Health is authored so far; the
+// rest degrade gracefully to hero + tagline until Fas supplies their copy.
+export interface CaseStudyMeta {
+  /** Disciplines line, e.g. "Mixed-Methods User Research · Platform Design…". */
+  disciplines: string
+  duration: string
+  team: string
+  confidentiality?: string
+}
+
+/** A collapsible row (Figma: "WHAT I BROUGHT" / "DESIGN PROCESS" accordions). */
+export interface CaseStudyAccordionItem {
+  title: string
+  body?: string
+}
+
+/** A headline metric tile (Figma stat band: "75% / Find & keep providers…"). */
+export interface CaseStudyStat {
+  value: string
+  label: string
+  note?: string
+}
+
+export interface CaseStudy {
+  /** Caption under the hero logo. */
+  caption: string
+  /** "VISIT SITE" external link (omit to hide). */
+  visitHref?: string
+  /** OVERVIEW paragraph. */
+  overview: string
+  meta: CaseStudyMeta
+  /** "WHAT I BROUGHT" (sage) — eyebrow + accordion (first item open). */
+  brought?: { eyebrow: string; items: CaseStudyAccordionItem[] }
+  /** Black "PROBLEM CONTEXT" prose (paragraphs split on blank lines). */
+  problem?: string
+  /** "MY APPROACH" (sage) — blurb + orange "DESIGN PROCESS" accordion. */
+  approach?: { blurb: string; items: CaseStudyAccordionItem[] }
+  /** Shared intro used by the gallery sections (real Coral copy). */
+  interventions?: string
+  /** Maroon "EMPOWERING…" callout — headline + body. */
+  advocate?: { heading: string; body: string }
+  /** Sage stat band. */
+  stats?: CaseStudyStat[]
+  /** Black "IMPACT" prose. */
+  impact?: string
+  /** Real hero / overview art when available (falls back to accent panels). */
+  heroImage?: string
+  overviewImage?: string
+}
+
 export interface WorkProject {
   slug: string
   name: string
@@ -692,6 +760,8 @@ export interface WorkProject {
   span: 'sm' | 'md' | 'lg'
   /** Real hero image when available (TODO(assets): migrate from live site). */
   image?: string
+  /** Full case-study content (Figma 807:8804). Optional until authored. */
+  caseStudy?: CaseStudy
 }
 
 // Credit line shown under every grid card (Figma 823:65046 placeholder names —
@@ -710,6 +780,72 @@ export const workProjects: WorkProject[] = [
     categories: ['Product Design', 'Branding'],
     accent: '#ff5a3c',
     span: 'md',
+    image: '/work/coral-health.png',
+    caseStudy: {
+      caption: 'Making quality healthcare accessible for underserved communities',
+      visitHref: '#',
+      overview:
+        "In communities across America, finding healthcare providers who genuinely understand your background isn't just a preference; it's the difference between getting care or going without. Coral Health tackles this challenge by creating pathways that connect patients from underserved communities with culturally competent providers who understand their needs and experiences. As the only designer, I worked with the founding team and built the entire experience design system platform. The platform delivers smart matching technology and dedicated navigation support to its clients, helping over 75% of their users find and stick with providers they trust, improving healthcare accessibility and utilization among historically underserved groups.",
+      meta: {
+        disciplines:
+          'Mixed-Methods User Research · Platform Design · Branding · Family Management Integration · Healthcare Equity Strategy',
+        duration: 'March 2022–February 2023',
+        team: 'Fas Lebbie, Patrick Wesonga, Dr. Fatima Cody Stanford, Dr. Chris T. Pernell',
+        confidentiality:
+          "This case study's insights and design process reflect my perspective and design approach. Specific details have been modified to protect sensitive information while showcasing my design approach.",
+      },
+      brought: {
+        eyebrow: 'Project Overview · Baseline Information',
+        items: [
+          {
+            title: 'Project Overview · Baseline Information',
+            body: 'Initial assessment revealed that 65% of Black and 54% of Latinx adults report difficulty finding providers who share their background and experiences. Research showed that 77% of participants were somewhat or extremely satisfied with current healthcare providers.',
+          },
+          { title: 'Design Research & Strategy' },
+          { title: 'Summary Of Findings' },
+        ],
+      },
+      problem:
+        'The data was stark, but the human reality was even heavier. In the U.S., 83% of health outcomes show worse results for Black patients compared to White patients, and Black women face 3× higher pregnancy-related mortality. Yet, the system often treats these disparities as inevitable.\n\nWe found that 65% of Black adults and 54% of Latinx adults struggle to find providers who understand their cultural backgrounds. This creates a cycle of mistrust: patients delay care, avoid screenings, and disengage until it is too late. The existing landscape offered them fragmented directories and cold clinical portals, forcing them to act as their own case managers in a system that didn\u2019t seem to see them.\n\nFor Coral Health, the challenge wasn\u2019t just technical; it was systemic and economic. We had to intervene upstream. Traditional primary care dependency was a major barrier because many employees of color didn\u2019t see PCPs regularly or faced \u201csurprise costs\u201d that eroded trust. We needed a design intervention that could bypass these systemic failures, offering a direct, transparent, and efficient pathway to early detection.',
+      approach: {
+        blurb:
+          'Our design process followed a user-centered approach, beginning with extensive research among both patients and providers to understand healthcare access barriers. Through iterative development and continuous feedback from diverse stakeholder groups, we created a platform that addresses core cultural competency gaps in healthcare delivery. The process emphasized data-driven decision making while maintaining sensitivity to the complex cultural and social factors affecting healthcare access.',
+        items: [
+          {
+            title: 'Project Overview · Baseline Information',
+            body: 'Baseline data indicated that patients spend significant time searching through insurance provider directories, cross-referencing provider pictures, online reviews, and practice websites. This fragmented process creates substantial friction in healthcare access, particularly for underserved populations seeking culturally competent care.',
+          },
+          { title: 'Design Research & Strategy' },
+          { title: 'Summary Of Findings' },
+          { title: 'Prototyping & Implementation Strategy' },
+        ],
+      },
+      interventions:
+        'The design intervention targets patients from underserved communities who struggle finding culturally competent providers. Currently, 65% of Black adults and 54% of Latinx adults report difficulty finding providers who understand their experiences. The Coral Health digital platform uses matching algorithms to connect patients with culturally competent providers and provides navigation support. The platform connects patients with providers who understand their cultural context, and it provides engagement tools and resources so patients can make informed healthcare decisions. By streamlining cultural matching, 75% of users find and stick with trusted providers.',
+      advocate: {
+        heading: 'Empowering you to truly be their advocate.',
+        body: 'Coral Health is an actionable way to embody your diversity, equity, and inclusion commitment by helping culturally-diverse people within your organization feel a sense of safety, understanding and belonging in healthcare situations.',
+      },
+      stats: [
+        {
+          value: '75%',
+          label: 'Find & keep trusted providers',
+          note: 'of users find and stick with culturally competent providers they trust.',
+        },
+        {
+          value: '65%',
+          label: 'Black adults',
+          note: 'report difficulty finding providers who understand their experiences.',
+        },
+        {
+          value: '54%',
+          label: 'Latinx adults',
+          note: 'report the same difficulty finding culturally competent care.',
+        },
+      ],
+      impact:
+        'By streamlining cultural matching and pairing it with dedicated navigation support, Coral Health helped over 75% of its users find and stick with providers they trust — improving healthcare accessibility and utilization among historically underserved groups, and shifting the relationship with care from transactional to genuinely supported.',
+    },
   },
   {
     slug: 'snapback-lifestyle',
@@ -718,6 +854,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Branding'],
     accent: '#f2c14e',
     span: 'lg',
+    image: '/work/snapback-lifestyle.png',
   },
   {
     slug: 'life-of-a-miner-vr',
@@ -726,6 +863,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Design Research', 'Design Technology'],
     accent: '#3f4756',
     span: 'sm',
+    image: '/work/life-of-a-miner-vr.png',
   },
   {
     slug: 'experian-boost',
@@ -734,6 +872,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Product Design'],
     accent: '#5b2a86',
     span: 'sm',
+    image: '/work/experian-boost.png',
   },
   {
     slug: 'diamond-valuation-ai',
@@ -750,6 +889,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Design Technology', 'Product Design'],
     accent: '#6b46c1',
     span: 'md',
+    image: '/work/vuforia-chalk.png',
   },
   {
     slug: 'vuforia-editor',
@@ -766,6 +906,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Product Design', 'Design Technology'],
     accent: '#db2777',
     span: 'sm',
+    image: '/work/design-assist-ai.png',
   },
   {
     slug: 'galderma',
@@ -774,6 +915,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Product Design', 'Service Design'],
     accent: '#be185d',
     span: 'md',
+    image: '/work/galderma.png',
   },
   {
     slug: 'forever-a-surfer',
@@ -782,6 +924,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Design Research', 'Branding'],
     accent: '#2b6cb0',
     span: 'lg',
+    image: '/work/forever-a-surfer.png',
   },
   {
     slug: 'the-ar-handbook',
@@ -816,6 +959,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Service Design', 'Product Design'],
     accent: '#0891b2',
     span: 'md',
+    image: '/work/oc-links.png',
   },
   {
     slug: 'oc-digital-resource-navigator',
@@ -824,6 +968,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Service Design', 'Design Research'],
     accent: '#0ea5e9',
     span: 'lg',
+    image: '/work/oc-digital-resource-navigator.png',
   },
   {
     slug: 'census-benefit-calculator',
@@ -842,6 +987,7 @@ export const workProjects: WorkProject[] = [
     categories: ['Product Design', 'Design Research'],
     accent: '#15803d',
     span: 'md',
+    image: '/work/financial-data-exchange.png',
   },
 ]
 
