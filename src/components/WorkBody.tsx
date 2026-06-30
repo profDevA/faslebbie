@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import ProjectLightbox from "@/components/ProjectLightbox";
 import {
   WORK_CREDIT,
   type WorkCategory,
@@ -24,8 +24,6 @@ import {
 type View = "txt" | "img";
 type Filter = WorkCategory | "All";
 
-const slugIndex = new Map(workProjects.map((p, i) => [p.slug, i]));
-
 // Masonry card image heights per span tier (desktop) so the grid varies like
 // Figma 823:65046.
 const SPAN_H: Record<WorkProject["span"], string> = {
@@ -37,13 +35,13 @@ const SPAN_H: Record<WorkProject["span"], string> = {
 type WorkProject = (typeof workProjects)[number];
 
 export default function WorkBody() {
+  const router = useRouter();
   const [view, setView] = useState<View>("txt");
   // Reveal/pin (txt view only) — same transition as About/Home.
   const [r, setR] = useState(1);
   const [pin, setPin] = useState(0);
   const [filter, setFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [lightbox, setLightbox] = useState<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -60,16 +58,6 @@ export default function WorkBody() {
       window.removeEventListener("resize", onScroll);
     };
   }, [view]);
-
-  // Lock body scroll while the lightbox is open.
-  useEffect(() => {
-    if (lightbox === null) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [lightbox]);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -109,10 +97,9 @@ export default function WorkBody() {
     return [left, right];
   }, [visible]);
 
-  const openProject = (slug: string) => {
-    const i = slugIndex.get(slug);
-    if (i !== undefined) setLightbox(i);
-  };
+  // Soft-navigate to the case study. From /work this is intercepted into an
+  // overlay (app/work/@modal/(.)[slug]); a direct visit renders the full page.
+  const openProject = (slug: string) => router.push(`/work/${slug}`);
 
   // --- token renderer for the .txt narrative ---
   const renderToken = (tok: WorkToken, key: string) => {
@@ -140,7 +127,7 @@ export default function WorkBody() {
             openProject(tok.slug);
           }
         }}
-        className="cursor-pointer text-accent text-shadow-token underline decoration-2 underline-offset-2 transition-opacity duration-200 hover:opacity-70"
+        className="cursor-pointer text-accent text-shadow-token underline decoration-2 underline-offset-2"
       >
         {tok.text}
       </span>
@@ -347,15 +334,6 @@ export default function WorkBody() {
             </div>
           </div>
         </main>
-      )}
-
-      {lightbox !== null && (
-        <ProjectLightbox
-          projects={workProjects}
-          index={lightbox}
-          onIndex={setLightbox}
-          onClose={() => setLightbox(null)}
-        />
       )}
     </div>
   );

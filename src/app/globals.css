@@ -84,3 +84,36 @@ body {
     cursor: none;
   }
 }
+
+/* Case-study scroll reveal — faithful copy of faslebbie.com.
+   Each <section>'s direct children start dropped + transparent and rise/fade
+   in over 0.6s when the section enters the viewport (IntersectionObserver adds
+   `.cs-active` at 0.1 threshold). Scoped to `.cs-root` so the rest of the app's
+   <section> elements are untouched. */
+.cs-root {
+  scroll-behavior: smooth;
+}
+
+.cs-root section > * {
+  opacity: 0;
+  transform: translateY(100px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+.cs-root section.cs-active > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-root {
+    scroll-behavior: auto;
+  }
+  .cs-root section > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
