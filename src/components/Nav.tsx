@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { navItems, mobileNavItems } from "@/lib/content";
+
+// Whether a nav href is the current section (WIP3 1111:4384 — the active page,
+// e.g. "Work", is highlighted stronger than the rest).
+function useIsActive() {
+  const pathname = usePathname();
+  return (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
+}
 
 const contactItem = { label: "Contact", href: "/contact" };
 const contactEmail = "dr.faslebbie@gmail.com";
@@ -28,12 +37,15 @@ function Logo({ onClick }: { onClick?: () => void }) {
 
 // Nav links — Neue Haas Grotesk 55 Roman, capitalized (Figma 854:79643). The
 // surname/words render Capitalized rather than all-caps.
-function NavLink({ label, href }: { label: string; href: string }) {
+function NavLink({ label, href, active }: { label: string; href: string; active?: boolean }) {
   return (
     <Link
       href={href}
       data-cursor="hover"
-      className="whitespace-nowrap font-grotesk font-normal capitalize"
+      aria-current={active ? "page" : undefined}
+      className={`whitespace-nowrap font-grotesk capitalize underline-offset-[6px] transition-opacity ${
+        active ? "font-medium underline decoration-2" : "font-normal opacity-70 hover:opacity-100"
+      }`}
     >
       {label}
     </Link>
@@ -42,6 +54,7 @@ function NavLink({ label, href }: { label: string; href: string }) {
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
+  const isActive = useIsActive();
 
   // Lock body scroll while the full-screen mobile menu is open.
   useEffect(() => {
@@ -64,13 +77,18 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
         {/* Desktop: full horizontal menu */}
         <nav className="hidden items-center gap-x-6 text-[15px] capitalize lg:flex xl:gap-x-9 xl:text-[18px]">
           {navItems.map((item) => (
-            <NavLink key={item.href} {...item} />
+            <NavLink key={item.href} {...item} active={isActive(item.href)} />
           ))}
         </nav>
         <Link
           href="/contact"
           data-cursor="hover"
-          className="hidden font-grotesk text-[15px] font-normal capitalize lg:block xl:text-[18px]"
+          aria-current={isActive("/contact") ? "page" : undefined}
+          className={`hidden font-grotesk text-[15px] capitalize underline-offset-[6px] transition-opacity lg:block xl:text-[18px] ${
+            isActive("/contact")
+              ? "font-medium underline decoration-2"
+              : "font-normal opacity-70 hover:opacity-100"
+          }`}
         >
           Contact
         </Link>
@@ -108,6 +126,8 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 data-cursor="hover"
+                aria-current={isActive(item.href) ? "page" : undefined}
+                className={isActive(item.href) ? "underline decoration-2 underline-offset-[6px]" : ""}
               >
                 {/* ZWSP after "/" lets long labels wrap at the slash (Figma 21:30) */}
                 {item.label.replace("/", "/​")}

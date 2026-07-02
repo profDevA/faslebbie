@@ -14,5 +14,5 @@ export default async function InterceptedCaseStudy({
   const found = findWorkProject(slug);
   if (!found) notFound();
 
-  return <CaseStudyModal project={found.project} next={found.next} />;
+  return <CaseStudyModal project={found.project} prev={found.prev} next={found.next} />;
 }

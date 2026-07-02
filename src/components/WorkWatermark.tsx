@@ -27,7 +27,15 @@ function mix(t: number) {
   return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
 
-export default function WorkWatermark({ show = true }: { show?: boolean }) {
+export default function WorkWatermark({
+  show = true,
+  receded = false,
+}: {
+  show?: boolean;
+  /** Force the fully-receded (faint grey, behind) state regardless of scroll —
+   *  used by the ".img" grid, where the wordmark always sits in the back. */
+  receded?: boolean;
+}) {
   const [p, setP] = useState(0);
 
   useEffect(() => {
@@ -46,7 +54,7 @@ export default function WorkWatermark({ show = true }: { show?: boolean }) {
 
   if (!show) return null;
 
-  const fade = ramp(0.05, 0.85, p);
+  const fade = receded ? 1 : ramp(0.05, 0.85, p);
   const color = mix(fade);
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
   const opacity = 1 - fade * 0.7;

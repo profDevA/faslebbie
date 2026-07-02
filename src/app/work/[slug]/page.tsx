@@ -34,5 +34,12 @@ export default async function CaseStudyPage({
   const found = findWorkProject(slug);
   if (!found) notFound();
 
-  return <CaseStudy project={found.project} next={found.next} variant="page" />;
+  return (
+    <CaseStudy
+      project={found.project}
+      prev={found.prev}
+      next={found.next}
+      variant="page"
+    />
+  );
 }

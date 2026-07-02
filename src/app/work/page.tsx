@@ -1,5 +1,4 @@
 import Nav from "@/components/Nav";
-import WorkWatermark from "@/components/WorkWatermark";
 import WorkBody from "@/components/WorkBody";
 
 // Work / "Design Work" page (Figma 807:2954 / 823:65046 / 840:74764). Mirrors
@@ -11,7 +10,8 @@ export default function WorkPage() {
   return (
     <>
       <Nav dark />
-      <WorkWatermark />
+      {/* WorkWatermark now lives inside WorkBody so it only renders in the ".txt"
+          view (the ".img" grid must never show the "Design Work" wordmark). */}
       <WorkBody />
     </>
   );

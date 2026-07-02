@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
-  WORK_CREDIT,
   type WorkCategory,
   type WorkToken,
   toolStackLogos,
@@ -20,6 +19,7 @@ import {
   revealOpacity,
   revealProgress,
 } from "@/lib/reveal";
+import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
 type Filter = WorkCategory | "All";
@@ -32,6 +32,16 @@ const SPAN_H: Record<WorkProject["span"], string> = {
   lg: "h-[380px]",
 };
 
+// Per-column auto-scroll durations for the `.img` wall — deliberately different
+// so each of the 4 columns drifts up at its own (slow) speed, like
+// faslebbie.com/works. Higher = slower.
+const WALL_SPEEDS = ["58s", "76s", "66s", "84s"];
+
+// Width (px) of the expanded FILTER WORK menu. On open, the left column pair
+// slides left by half this and the right pair slides right by half, opening a
+// centred gap for the menu (Figma 1111:4653 / 1111:6992).
+const WALL_MENU_W = 220;
+
 type WorkProject = (typeof workProjects)[number];
 
 export default function WorkBody() {
@@ -42,6 +52,7 @@ export default function WorkBody() {
   const [pin, setPin] = useState(0);
   const [filter, setFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -84,18 +95,45 @@ export default function WorkBody() {
     [filter],
   );
 
-  // Split into the two 2-column groups that flank the centred FILTER WORK menu
-  // (Figma 823:65046). Dealing in PAIRS keeps the top row matching the design:
-  // [0,1] → left, [2,3] → right, [4,5] → left … so cols 1–2 sit left of the
-  // menu and cols 3–4 sit right of it.
-  const [leftProjects, rightProjects] = useMemo(() => {
-    const left: WorkProject[] = [];
-    const right: WorkProject[] = [];
-    visible.forEach((p, i) => {
-      (Math.floor(i / 2) % 2 === 0 ? left : right).push(p);
-    });
-    return [left, right];
+  // Round-robin the visible projects into 4 columns for the auto-scroll wall.
+  const wallColumns = useMemo(() => {
+    const cols: WorkProject[][] = [[], [], [], []];
+    visible.forEach((p, i) => cols[i % 4].push(p));
+    return cols;
   }, [visible]);
+
+  // Scroll-triggered reveal for the `.img` grid: each card fades up as it
+  // enters the viewport (faslebbie.com/works fades on load, but our 17-card
+  // grid is taller than one screen, so we tie it to scroll). Re-runs when the
+  // view/filter changes (cards remount via their key and start hidden again).
+  useEffect(() => {
+    if (view !== "img") return;
+    const root = gridRef.current;
+    if (!root) return;
+    const cards = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-work-card]"),
+    );
+    if (
+      typeof IntersectionObserver === "undefined" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      cards.forEach((el) => el.classList.add("is-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-in");
+            io.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+    cards.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [view, filter, visible]);
 
   // Soft-navigate to the case study. From /work this is intercepted into an
   // overlay (app/work/@modal/(.)[slug]); a direct visit renders the full page.
@@ -134,32 +172,56 @@ export default function WorkBody() {
     );
   };
 
+  // ".txt / .img" view toggle (Figma 807:2954) — always sharp/clickable, centred
+  // near the top. It renders INSIDE the pinned wrapper (txt view) so the pin
+  // engages right under the nav like About: the content is held in place and only
+  // brightens until the watermark has fully receded, then the page scrolls.
+  const viewToggle = (
+    <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
+      {(["txt", "img"] as const).map((v) => (
+        <button
+          key={v}
+          type="button"
+          onClick={() => switchView(v)}
+          data-cursor="hover"
+          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 transition-opacity lg:text-[27px] ${
+            view === v ? "underline" : "opacity-60 hover:opacity-100"
+          }`}
+        >
+          .{v}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="relative">
-      {/* ".txt / .img" view toggle (Figma 807:2954) — always sharp/clickable,
-          centred near the top above the watermark + content. */}
-      <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
-        {(["txt", "img"] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => switchView(v)}
-            data-cursor="hover"
-            className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 transition-opacity lg:text-[27px] ${
-              view === v ? "underline" : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            .{v}
-          </button>
-        ))}
-      </div>
-
+      {/* "Design Work" wordmark. In ".txt" it does the front→back reveal on scroll;
+          in ".img" it's forced to its receded (faint grey, behind) state so the grid
+          always sits over a backdropped wordmark — like Figma — instead of snapping
+          back to the front when switching views resets the scroll. */}
+      <WorkWatermark receded={view === "img"} />
       {view === "txt" ? (
         <>
           {/* Desktop pin: sticks under the nav for `pin` px of scroll so the
-              content brightens in place before the page scrolls. */}
+              content brightens in place before the page scrolls. The toggle is
+              inside the pinned wrapper so the pin engages immediately (no pre-pin
+              scroll while the content is still dim), exactly like the About page. */}
           <div className="lg:sticky lg:top-[52px]">
-            <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+            {/* The toggle is part of the dim back layer too: at the very top it's
+                grayed out + blurred behind the wordmark and not clickable, then it
+                brightens and goes live alongside the content (~70% revealed). */}
+            <div
+              style={{
+                opacity,
+                filter: blur,
+                pointerEvents: r < 0.7 ? "none" : undefined,
+              }}
+              className="will-change-[opacity,filter]"
+            >
+              {viewToggle}
+            </div>
+            <main className="relative z-10 mx-auto grid w-full max-w-[1288px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,853px)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
               <div className="flex flex-col gap-6 lg:sticky lg:top-[150px] lg:self-start">
                 {/* Mobile heading + Stack (desktop uses the watermark block). */}
                 <div className="lg:hidden">
@@ -208,13 +270,18 @@ export default function WorkBody() {
                   opacity,
                   filter: blur,
                   transform: contentDrift(r),
-                  pointerEvents: r < 1 ? "none" : undefined,
+                  // Enable clicks/hovers once the content has come forward of the
+                  // wordmark (~70% revealed) rather than waiting for the pin to
+                  // fully settle — so links like "Coral Health" work a touch early.
+                  pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
                 className="will-change-[opacity,filter,transform]"
               >
                 <section className="pb-24 font-grotesk text-[26px] font-medium leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[42px]">
                   {workNarrative.map((para, i) => (
-                    <p key={i} className="mb-7">
+                    // Figma separates paragraphs by a full blank line (~1 line-height,
+                    // ~63px at 42px/1.5) — scale the gap with the responsive font size.
+                    <p key={i} className="mb-[39px] md:mb-[48px] lg:mb-[63px]">
                       {para.map((tok, j) => (
                         <Fragment key={j}>{renderToken(tok, `${i}-${j}`)}</Fragment>
                       ))}
@@ -227,20 +294,64 @@ export default function WorkBody() {
           <div aria-hidden className="hidden lg:block" style={{ height: pin }} />
         </>
       ) : (
-        <main className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-10 lg:px-12">
-          {/* Desktop: 2 columns | centred FILTER WORK menu | 2 columns
-              (Figma 823:65046 / 823:67611). */}
-          <div className="hidden lg:flex lg:items-start lg:justify-center lg:gap-6 xl:gap-8">
-            <div className="flex-1 gap-x-5 [column-fill:balance] columns-2 *:mb-7 *:break-inside-avoid">
-              {leftProjects.map((p) => (
-                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
-              ))}
+        <>
+          {viewToggle}
+          <main ref={gridRef} className="relative z-10 w-full pb-24 pt-10 lg:pb-0 lg:pt-4">
+          {/* Desktop: 4 full-width auto-scroll columns (~25% each). FILTER WORK
+              is a centred tab; on open the left pair slides left and the right
+              pair slides right by half the menu width, opening a centred gap for
+              the menu — columns keep their width and clip at the screen edges
+              (Figma 1111:4653 closed / 1111:6992 open). */}
+          <div className="relative hidden h-[calc(100vh-190px)] w-full overflow-hidden lg:block">
+            <div className="flex h-full w-full gap-5 px-6">
+              <div
+                className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
+                style={{
+                  transform: filterOpen ? `translateX(-${WALL_MENU_W / 2}px)` : undefined,
+                }}
+              >
+                {[0, 1].map((ci) => (
+                  <WallColumn
+                    key={`${filter}-col-${ci}`}
+                    col={wallColumns[ci]}
+                    speed={WALL_SPEEDS[ci % WALL_SPEEDS.length]}
+                    onOpen={openProject}
+                  />
+                ))}
+              </div>
+              <div
+                className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
+                style={{
+                  transform: filterOpen ? `translateX(${WALL_MENU_W / 2}px)` : undefined,
+                }}
+              >
+                {[2, 3].map((ci) => (
+                  <WallColumn
+                    key={`${filter}-col-${ci}`}
+                    col={wallColumns[ci]}
+                    speed={WALL_SPEEDS[ci % WALL_SPEEDS.length]}
+                    onOpen={openProject}
+                  />
+                ))}
+              </div>
             </div>
 
-            {/* Centre menu: vertical tab when closed, category list when open. */}
-            <div className="sticky top-[120px] flex shrink-0 justify-center self-start pt-[14vh]">
+            {/* Centred FILTER WORK — vertical tab (closed) / category list
+                (open). When open a transparent backdrop closes on click. */}
+            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+              {filterOpen && (
+                <button
+                  type="button"
+                  aria-label="Close filter"
+                  onClick={() => setFilterOpen(false)}
+                  className="pointer-events-auto absolute inset-0 cursor-pointer"
+                />
+              )}
               {filterOpen ? (
-                <div className="flex w-[200px] flex-col gap-3">
+                <div
+                  className="work-filter-expand pointer-events-auto relative flex flex-col gap-3"
+                  style={{ width: WALL_MENU_W }}
+                >
                   {(["All", ...workCategories] as Filter[]).map((cat) => {
                     const active = filter === cat;
                     return (
@@ -249,8 +360,10 @@ export default function WorkBody() {
                         type="button"
                         data-cursor="hover"
                         onClick={() => setFilter(cat)}
-                        className={`flex items-center justify-between gap-6 font-grotesk text-[16px] transition-colors ${
-                          active ? "font-bold text-accent" : "text-black hover:text-accent"
+                        className={`flex items-baseline justify-between gap-6 font-grotesk transition-all ${
+                          active
+                            ? "text-[24px] font-semibold text-accent"
+                            : "text-[16px] text-black hover:text-accent"
                         }`}
                       >
                         <span>{cat}</span>
@@ -260,14 +373,6 @@ export default function WorkBody() {
                       </button>
                     );
                   })}
-                  <button
-                    type="button"
-                    data-cursor="hover"
-                    onClick={() => setFilterOpen(false)}
-                    className="mt-2 self-start font-grotesk text-[11px] uppercase tracking-[0.2em] text-black/40 transition-colors hover:text-black"
-                  >
-                    Close ×
-                  </button>
                 </div>
               ) : (
                 <button
@@ -275,23 +380,17 @@ export default function WorkBody() {
                   onClick={() => setFilterOpen(true)}
                   data-cursor="hover"
                   aria-expanded={false}
-                  className="font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
+                  className="pointer-events-auto font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
                   style={{ transform: "rotate(180deg)" }}
                 >
                   Filter Work
                 </button>
               )}
             </div>
-
-            <div className="flex-1 gap-x-5 [column-fill:balance] columns-2 *:mb-7 *:break-inside-avoid">
-              {rightProjects.map((p) => (
-                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
-              ))}
-            </div>
           </div>
 
           {/* Mobile / tablet: horizontal filter + single masonry. */}
-          <div className="lg:hidden">
+          <div className="px-6 lg:hidden">
             <button
               type="button"
               onClick={() => setFilterOpen((o) => !o)}
@@ -328,13 +427,43 @@ export default function WorkBody() {
               </div>
             )}
             <div className="gap-x-5 [column-fill:balance] columns-1 sm:columns-2 *:mb-7 *:break-inside-avoid">
-              {visible.map((p) => (
-                <ProjectCard key={p.slug} project={p} onOpen={() => openProject(p.slug)} />
+              {visible.map((p, i) => (
+                <ProjectCard
+                  key={`${filter}-${p.slug}`}
+                  project={p}
+                  index={i}
+                  onOpen={() => openProject(p.slug)}
+                />
               ))}
             </div>
           </div>
-        </main>
+          </main>
+        </>
       )}
+    </div>
+  );
+}
+
+// One auto-scrolling column of the `.img` wall. Its cards are duplicated once
+// so the CSS `-50%` loop is seamless; `speed` sets the drift duration.
+function WallColumn({
+  col,
+  speed,
+  onOpen,
+}: {
+  col: WorkProject[];
+  speed: string;
+  onOpen: (slug: string) => void;
+}) {
+  return (
+    <div className="work-wall-col flex-1">
+      <div className="work-wall-track" style={{ animationDuration: speed }}>
+        {[...col, ...col].map((p, i) => (
+          <div key={`${p.slug}-${i}`} className="mb-5">
+            <ProjectCard project={p} reveal={false} onOpen={() => onOpen(p.slug)} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -342,16 +471,27 @@ export default function WorkBody() {
 function ProjectCard({
   project,
   onOpen,
+  index = 0,
+  reveal = true,
 }: {
   project: WorkProject;
   onOpen: () => void;
+  index?: number;
+  // When false (auto-scroll wall) the card is always visible — the column's
+  // continuous drift is the animation, so no scroll-reveal is applied.
+  reveal?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onOpen}
       data-cursor="hover"
-      className="group block w-full text-left"
+      {...(reveal ? { "data-work-card": true } : {})}
+      className={`${reveal ? "work-card-reveal " : ""}group block w-full text-left`}
+      // Small repeating per-row stagger so cards cascade in as a group without
+      // later cards waiting too long — mirrors the staggered fade on
+      // faslebbie.com/works.
+      style={reveal ? { transitionDelay: `${(index % 6) * 70}ms` } : undefined}
     >
       {project.image ? (
         // Real card art (Figma 823:65046) at its natural aspect — true masonry.
@@ -380,8 +520,8 @@ function ProjectCard({
       <p className="mt-2 font-grotesk text-[16px] font-bold leading-tight text-black underline-offset-2 group-hover:underline">
         {project.name}
       </p>
-      <p className="mt-1 font-grotesk text-[13px] italic leading-snug text-black/55">
-        {WORK_CREDIT}
+      <p className="mt-1 font-grotesk text-[13px] leading-snug text-black/55">
+        {project.tagline}
       </p>
     </button>
   );

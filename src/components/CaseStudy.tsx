@@ -51,11 +51,13 @@ const SANS = "Helvetica, Arial, sans-serif";
 
 export default function CaseStudy({
   project: p,
+  prev,
   next,
   variant,
   onClose,
 }: {
   project: WorkProject;
+  prev: WorkProject;
   next: WorkProject;
   variant: "page" | "overlay";
   onClose?: () => void;
@@ -109,38 +111,42 @@ export default function CaseStudy({
   const cs = p.caseStudy;
   const nextImg = next.caseStudy?.hero.image ?? next.image;
 
-  const body = (
-    <div
-      ref={scrollRef}
-      {...(overlay
-        ? { role: "dialog", "aria-modal": true, "aria-label": p.name }
-        : {})}
-      className={
-        overlay
-          ? "cs-root fixed inset-0 z-100 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black animate-[panel-in_0.2s_ease-out]"
-          : "cs-root min-h-screen bg-white font-serif text-black"
-      }
-    >
-      {overlay ? (
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          data-cursor="hover"
-          className="fixed right-5 top-4 z-50 flex size-11 items-center justify-center rounded-full bg-white/90 font-grotesk text-[26px] leading-none text-black shadow-[0_4px_16px_rgba(0,0,0,0.25)] backdrop-blur transition-transform hover:scale-110"
-        >
-          ×
-        </button>
-      ) : (
-        <Link
-          href="/work"
-          aria-label="Back to work"
-          data-cursor="hover"
-          className="fixed left-5 top-4 z-50 flex h-11 items-center gap-2 rounded-full bg-white/90 px-4 font-grotesk text-[14px] font-medium leading-none text-black shadow-[0_4px_16px_rgba(0,0,0,0.25)] backdrop-blur transition-transform hover:scale-105"
-        >
-          ← Work
-        </Link>
-      )}
+  const inner = (
+    <>
+      {/* Breadcrumb chrome (WIP3 1098:1602): sticky white bar with "Work / {name}"
+          on the left (project underlined) and a × on the right. Overlay closes via
+          onClose; the standalone page routes back to /work. */}
+      <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]">
+          <Link href="/work" data-cursor="hover" className="text-black/55 transition-colors hover:text-black">
+            Work
+          </Link>
+          <span aria-hidden className="text-black/35">/</span>
+          <span aria-current="page" className="underline underline-offset-4">
+            {p.name}
+          </span>
+        </nav>
+        {overlay ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            data-cursor="hover"
+            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
+          >
+            ×
+          </button>
+        ) : (
+          <Link
+            href="/work"
+            aria-label="Close"
+            data-cursor="hover"
+            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
+          >
+            ×
+          </Link>
+        )}
+      </div>
 
       {cs ? (
         <>
@@ -426,14 +432,47 @@ export default function CaseStudy({
           </span>
         </div>
       </Link>
-    </div>
+
+      {/* Sticky Previous / Next chrome (WIP3 1098:1602) — red, pinned to the modal
+          bottom so it stays reachable while the study scrolls. The row itself is
+          click-through; only the two links catch the pointer. */}
+      <div className="pointer-events-none sticky bottom-0 z-50 py-5">
+        <div className="pointer-events-none mx-auto flex max-w-[900px] items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]" style={{ color: RED }}>
+          <Link href={`/work/${prev.slug}`} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+            &lt; Previous
+          </Link>
+          <Link href={`/work/${next.slug}`} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+            Next &gt;
+          </Link>
+        </div>
+      </div>
+    </>
   );
 
   if (overlay) {
     if (typeof document === "undefined") return null;
-    return createPortal(body, document.body);
+    // Full-viewport modal over /work (WIP3 1098:1602): edge-to-edge white surface
+    // with the breadcrumb bar on top and Prev/Next pinned at the bottom. Same
+    // content, styling and scroll-reveal animation as the standalone page. Closes
+    // on Esc / × (→ router.back), keeping the URL shareable via the intercept.
+    return createPortal(
+      <div
+        ref={scrollRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={p.name}
+        className="cs-root fixed inset-0 z-100 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black animate-[panel-in_0.2s_ease-out]"
+      >
+        {inner}
+      </div>,
+      document.body,
+    );
   }
-  return body;
+  return (
+    <div ref={scrollRef} className="cs-root min-h-screen bg-white font-serif text-black">
+      {inner}
+    </div>
+  );
 }
 
 /** Small uppercase Helvetica section label (the live `sect_title`). */

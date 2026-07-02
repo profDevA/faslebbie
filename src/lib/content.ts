@@ -682,16 +682,16 @@ export const leadershipMoments: {
 export type WorkCategory =
   | 'Product Design'
   | 'Design Research'
-  | 'Design Technology'
   | 'Service Design'
   | 'Branding'
 
-// Ordered category list for the "FILTER WORK" panel (Figma 823:67611). "All"
-// is implicit (the default). Counts are derived from the project tags below.
+// Ordered category list for the "FILTER WORK" panel — matches the live site's
+// taxonomy + order exactly (faslebbie.com/works/: All 17 / Product Design 14 /
+// Design Research 5 / Service Design 3 / Branding 2). "All" is implicit; counts
+// are derived from each project's `categories` (tagged from the live cs_category).
 export const workCategories: WorkCategory[] = [
   'Product Design',
   'Design Research',
-  'Design Technology',
   'Service Design',
   'Branding',
 ]
@@ -788,15 +788,15 @@ export interface WorkProject {
 export const WORK_CREDIT = 'Credit: Jane Doe, Sabrina Fessler, John Doe'
 
 // The 17 projects (taglines verbatim from faslebbie.com/works). Category tags
-// are a best-effort grouping — TODO(Fas): confirm the real category mapping
-// (Figma counts All 33 / Product 25 / Research 18 / Tech 7 / Service 8 /
-// Branding 4 don't line up with 17 projects, so some assignment is pending).
+// mirror the live site's `cs_category` taxonomy exactly, so the FILTER WORK
+// counts resolve to All 17 / Product Design 14 / Design Research 5 /
+// Service Design 3 / Branding 2.
 const baseWorkProjects: WorkProject[] = [
   {
     slug: 'coral-health',
     name: 'Coral Health',
     tagline: 'Bridging healthcare disparities for underserved communities',
-    categories: ['Product Design', 'Branding'],
+    categories: ['Product Design'],
     accent: '#ff5a3c',
     span: 'md',
     image: '/work/coral-health.png',
@@ -985,7 +985,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'life-of-a-miner-vr',
     name: 'Life of a Miner VR',
     tagline: 'Immersive design in becoming a miner',
-    categories: ['Design Research', 'Design Technology'],
+    categories: ['Product Design', 'Design Research'],
     accent: '#3f4756',
     span: 'sm',
     image: '/work/life-of-a-miner-vr.png',
@@ -994,7 +994,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'experian-boost',
     name: 'Experian Boost',
     tagline: 'Reimagining Credit Access for Millions',
-    categories: ['Product Design'],
+    categories: ['Product Design', 'Design Research'],
     accent: '#5b2a86',
     span: 'sm',
     image: '/work/experian-boost.png',
@@ -1003,7 +1003,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'diamond-valuation-ai',
     name: 'Diamond Valuation AI',
     tagline: 'AI design democratizing diamond valuation for miners',
-    categories: ['Product Design', 'Design Technology'],
+    categories: ['Product Design', 'Design Research'],
     accent: '#c9a227',
     span: 'md',
   },
@@ -1011,7 +1011,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'vuforia-chalk',
     name: 'Vuforia Chalk',
     tagline: 'Cross-platform AR design',
-    categories: ['Design Technology', 'Product Design'],
+    categories: ['Product Design'],
     accent: '#6b46c1',
     span: 'md',
     image: '/work/vuforia-chalk.png',
@@ -1020,7 +1020,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'vuforia-expert-capture',
     name: 'Vuforia Editor',
     tagline: 'The Industrial Knowledge Studio',
-    categories: ['Design Technology', 'Product Design'],
+    categories: ['Product Design'],
     accent: '#0f766e',
     span: 'sm',
   },
@@ -1028,7 +1028,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'design-assist-ai',
     name: 'Design Assist AI',
     tagline: 'AI UX Assistant for product designers',
-    categories: ['Product Design', 'Design Technology'],
+    categories: ['Product Design'],
     accent: '#db2777',
     span: 'sm',
     image: '/work/design-assist-ai.png',
@@ -1037,7 +1037,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'galderma',
     name: 'Galderma',
     tagline: 'Digital transformation of premium medical education',
-    categories: ['Product Design', 'Service Design'],
+    categories: ['Product Design'],
     accent: '#be185d',
     span: 'md',
     image: '/work/galderma.png',
@@ -1046,7 +1046,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'forever-a-surfer',
     name: 'Forever a Surfer',
     tagline: 'Transforming surf culture into social activism',
-    categories: ['Design Research', 'Branding'],
+    categories: ['Branding'],
     accent: '#2b6cb0',
     span: 'lg',
     image: '/work/forever-a-surfer.png',
@@ -1056,7 +1056,7 @@ const baseWorkProjects: WorkProject[] = [
     name: 'The AR Handbook',
     tagline:
       'Spare parts recognition for remote assistance in industrial manufacturing',
-    categories: ['Design Technology'],
+    categories: ['Product Design'],
     accent: '#1e3a8a',
     span: 'md',
   },
@@ -1072,7 +1072,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'acme-lending',
     name: 'Acme Lending',
     tagline: 'UX design streamlining income verification for lenders',
-    categories: ['Product Design', 'Service Design'],
+    categories: ['Product Design'],
     accent: '#1f6feb',
     span: 'sm',
   },
@@ -1081,7 +1081,7 @@ const baseWorkProjects: WorkProject[] = [
     name: 'OC Links',
     tagline:
       "Reducing response times for Orange County's digital mental health crisis management platform",
-    categories: ['Service Design', 'Product Design'],
+    categories: ['Product Design', 'Design Research', 'Service Design'],
     accent: '#0891b2',
     span: 'md',
     image: '/work/oc-links.png',
@@ -1090,7 +1090,7 @@ const baseWorkProjects: WorkProject[] = [
     slug: 'oc-digital-resource-navigator',
     name: 'OC Digital Resource Navigator',
     tagline: 'Improving Mental Health Resource Access',
-    categories: ['Service Design', 'Design Research'],
+    categories: ['Product Design', 'Service Design'],
     accent: '#0ea5e9',
     span: 'lg',
     image: '/work/oc-digital-resource-navigator.png',
@@ -1100,7 +1100,7 @@ const baseWorkProjects: WorkProject[] = [
     name: '2020 US Census Benefit Calculator',
     tagline:
       'Resource locator increasing Immigrant families census participation',
-    categories: ['Service Design', 'Product Design'],
+    categories: ['Product Design', 'Service Design'],
     accent: '#b45309',
     span: 'sm',
   },
@@ -1109,7 +1109,7 @@ const baseWorkProjects: WorkProject[] = [
     name: 'Financial Data Exchange',
     tagline:
       'Designing industry standard for Open Banking through secure data sharing',
-    categories: ['Product Design', 'Design Research'],
+    categories: ['Product Design'],
     accent: '#15803d',
     span: 'md',
     image: '/work/financial-data-exchange.png',
@@ -1118,28 +1118,44 @@ const baseWorkProjects: WorkProject[] = [
 
 // Attach the faithfully-extracted live-site case study to each project. Coral
 // Health keeps its hand-authored study (richer); every other project uses the
-// auto-generated one from scripts/extract-case-studies.mjs. A card with no card
-// art falls back to the study's hero image so the grid is never empty.
+// auto-generated one from scripts/extract-case-studies.mjs. Card art uses the
+// exact live works-wall thumbnail (scripts/fetch-card-thumbs.mjs →
+// /work/cards/<slug>.png), falling back to the study hero if ever missing.
+// The extractor captured WordPress's post navigation ("Previous"/"Next"
+// project links) as single-image galleries. They aren't case-study content
+// (and point at the adjacent project's hero, which often lives in a different
+// folder → 404), so drop them. The modal supplies its own prev/next chrome.
+function stripNavGalleries(cs: CaseStudy | undefined): CaseStudy | undefined {
+  if (!cs?.extraGalleries) return cs
+  const galleries = cs.extraGalleries.filter(
+    (g) => g.heading !== 'Previous' && g.heading !== 'Next',
+  )
+  return { ...cs, extraGalleries: galleries.length ? galleries : undefined }
+}
+
 export const workProjects: WorkProject[] = baseWorkProjects.map((p) => {
-  const caseStudy = p.caseStudy ?? generatedCaseStudies[p.slug]
+  const caseStudy = stripNavGalleries(p.caseStudy ?? generatedCaseStudies[p.slug])
   return {
     ...p,
     caseStudy,
-    image: p.image ?? caseStudy?.hero.image,
+    image: `/work/cards/${p.slug}.png`,
   }
 })
 
-// Resolve a project by slug along with the one that follows it (wrapping), for
-// the case-study routes (/work/[slug] page + intercepted overlay) and the
-// "Next up-" CTA. Returns null when the slug is unknown so the route can 404.
+// Resolve a project by slug plus the wrapping previous/next entries, for the
+// case-study routes (/work/[slug] page + intercepted overlay), the breadcrumb
+// "< Previous / Next >" chrome (WIP3 1098:1602) and the "Next up-" CTA. Returns
+// null when the slug is unknown so the route can 404.
 export function findWorkProject(
   slug: string,
-): { project: WorkProject; next: WorkProject } | null {
+): { project: WorkProject; prev: WorkProject; next: WorkProject } | null {
   const i = workProjects.findIndex((p) => p.slug === slug)
   if (i === -1) return null
+  const n = workProjects.length
   return {
     project: workProjects[i],
-    next: workProjects[(i + 1) % workProjects.length],
+    prev: workProjects[(i - 1 + n) % n],
+    next: workProjects[(i + 1) % n],
   }
 }
 

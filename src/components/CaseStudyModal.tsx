@@ -11,15 +11,18 @@ import type { WorkProject } from "@/lib/content";
  */
 export default function CaseStudyModal({
   project,
+  prev,
   next,
 }: {
   project: WorkProject;
+  prev: WorkProject;
   next: WorkProject;
 }) {
   const router = useRouter();
   return (
     <CaseStudy
       project={project}
+      prev={prev}
       next={next}
       variant="overlay"
       onClose={() => router.back()}
