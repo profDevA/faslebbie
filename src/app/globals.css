@@ -142,10 +142,10 @@ body {
   }
 }
 
-/* Work `.img` 4-column auto-scroll wall — clones faslebbie.com/works: each
-   column's track (content duplicated once) drifts up continuously, looping
-   seamlessly at -50%. Speed per column is set inline (animation-duration).
-   The columns scroll continuously and never pause on hover. */
+/* Work `.img` 4-column wall — clones faslebbie.com/works: each column's track
+   (content duplicated once) drifts up continuously and loops seamlessly. The
+   translateY is driven by JS (WorkBody rAF + wheel) so the wall auto-scrolls
+   AND can be scrolled manually with the mouse wheel (Israel 07/03). */
 .work-wall-col {
   overflow: hidden;
 }
@@ -153,25 +153,7 @@ body {
 .work-wall-track {
   display: flex;
   flex-direction: column;
-  animation-name: work-wall-up;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
   will-change: transform;
-}
-
-@keyframes work-wall-up {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .work-wall-track {
-    animation: none;
-  }
 }
 
 /* Filter menu expand — matches the column slide (500ms ease-out) so the menu

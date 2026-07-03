@@ -31,10 +31,13 @@ const SPAN_H: Record<WorkProject["span"], string> = {
   lg: "h-[380px]",
 };
 
-// Per-column auto-scroll durations for the `.img` wall — deliberately different
-// so each of the 4 columns drifts up at its own (slow) speed, like
-// faslebbie.com/works. Higher = slower.
-const WALL_SPEEDS = ["58s", "76s", "66s", "84s"];
+// Per-column parallax multipliers for the `.img` wall. A single shared scroll
+// offset (auto-advanced each frame AND nudged by the mouse wheel) is multiplied
+// by these so the 4 columns drift at their own slightly-different speeds, like
+// faslebbie.com/works — while still being manually scrollable (Israel 07/03).
+const WALL_FACTORS = [0.75, 0.55, 0.65, 0.5];
+const WALL_AUTO_SPEED = 0.9; // base px added to the shared offset each frame
+const WALL_WHEEL_SCALE = 0.65; // how strongly the wheel scrolls the wall
 
 // Width (px) of the expanded FILTER WORK menu. On open, the left column pair
 // slides left by half this and the right pair slides right by half, opening a
@@ -53,6 +56,57 @@ export default function WorkBody() {
   const [filter, setFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  // `.img` wall auto/manual scroll: one shared offset drives all 4 column
+  // tracks (via refs, mutated in rAF for perf — no re-render per frame).
+  const wallWinRef = useRef<HTMLDivElement>(null);
+  const trackRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const wallOffset = useRef(0);
+
+  // Auto-drift + wheel-driven manual scroll for the desktop `.img` wall. The
+  // columns loop seamlessly (content duplicated once → wrap at half height) and
+  // each drifts at its own speed; the wheel adds to the same offset so users can
+  // scroll it manually (Israel 07/03) while it keeps auto-scrolling.
+  useEffect(() => {
+    if (view !== "img") return;
+    const win = wallWinRef.current;
+    if (!win || window.innerWidth < 1024) return;
+
+    const reduce = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    let raf = 0;
+
+    const apply = () => {
+      const tracks = trackRefs.current;
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i];
+        if (!track) continue;
+        const half = track.scrollHeight / 2 || 1;
+        const raw = wallOffset.current * (WALL_FACTORS[i] ?? 0.6);
+        const y = ((raw % half) + half) % half; // positive modulo
+        track.style.transform = `translateY(${-y}px)`;
+      }
+    };
+
+    const tick = () => {
+      if (!reduce) wallOffset.current += WALL_AUTO_SPEED;
+      apply();
+      raf = requestAnimationFrame(tick);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      wallOffset.current += e.deltaY * WALL_WHEEL_SCALE;
+      apply();
+    };
+
+    win.addEventListener("wheel", onWheel, { passive: false });
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      win.removeEventListener("wheel", onWheel);
+    };
+  }, [view, filter]);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -288,7 +342,10 @@ export default function WorkBody() {
               pair slides right by half the menu width, opening a centred gap for
               the menu — columns keep their width and clip at the screen edges
               (Figma 1111:4653 closed / 1111:6992 open). */}
-          <div className="relative hidden h-[calc(100vh-190px)] w-full overflow-hidden lg:block">
+          <div
+            ref={wallWinRef}
+            className="relative hidden h-[calc(100vh-190px)] w-full overflow-hidden lg:block"
+          >
             <div className="flex h-full w-full gap-5 px-6">
               <div
                 className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
@@ -300,7 +357,9 @@ export default function WorkBody() {
                   <WallColumn
                     key={`${filter}-col-${ci}`}
                     col={wallColumns[ci]}
-                    speed={WALL_SPEEDS[ci % WALL_SPEEDS.length]}
+                    trackRef={(el) => {
+                      trackRefs.current[ci] = el;
+                    }}
                     onOpen={openProject}
                   />
                 ))}
@@ -315,7 +374,9 @@ export default function WorkBody() {
                   <WallColumn
                     key={`${filter}-col-${ci}`}
                     col={wallColumns[ci]}
-                    speed={WALL_SPEEDS[ci % WALL_SPEEDS.length]}
+                    trackRef={(el) => {
+                      trackRefs.current[ci] = el;
+                    }}
                     onOpen={openProject}
                   />
                 ))}
@@ -430,20 +491,21 @@ export default function WorkBody() {
   );
 }
 
-// One auto-scrolling column of the `.img` wall. Its cards are duplicated once
-// so the CSS `-50%` loop is seamless; `speed` sets the drift duration.
+// One column of the `.img` wall. Its cards are duplicated once so the loop is
+// seamless (wraps at half height); `trackRef` exposes the track element so the
+// parent's rAF/wheel loop can drive its translateY (auto + manual scroll).
 function WallColumn({
   col,
-  speed,
+  trackRef,
   onOpen,
 }: {
   col: WorkProject[];
-  speed: string;
+  trackRef: (el: HTMLDivElement | null) => void;
   onOpen: (slug: string) => void;
 }) {
   return (
     <div className="work-wall-col flex-1">
-      <div className="work-wall-track" style={{ animationDuration: speed }}>
+      <div ref={trackRef} className="work-wall-track">
         {[...col, ...col].map((p, i) => (
           <div key={`${p.slug}-${i}`} className="mb-5">
             <ProjectCard project={p} reveal={false} onOpen={() => onOpen(p.slug)} />
