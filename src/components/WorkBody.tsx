@@ -13,12 +13,11 @@ import {
 } from "@/lib/content";
 import {
   contentDrift,
-  pinPx,
   portraitDrift,
   revealBlur,
   revealOpacity,
-  revealProgress,
 } from "@/lib/reveal";
+import { useReveal } from "@/lib/useReveal";
 import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
@@ -47,28 +46,13 @@ type WorkProject = (typeof workProjects)[number];
 export default function WorkBody() {
   const router = useRouter();
   const [view, setView] = useState<View>("txt");
-  // Reveal/pin (txt view only) — same transition as About/Home.
-  const [r, setR] = useState(1);
-  const [pin, setPin] = useState(0);
+  // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
+  // on first completion so scrolling back up never replays it (Israel 07/02);
+  // re-arms when toggling back to `.txt` (which scrolls to top).
+  const { r, pin } = useReveal(view === "txt");
   const [filter, setFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const mobile = window.innerWidth < 1024;
-      const txt = view === "txt";
-      setR(mobile || !txt ? 1 : revealProgress(window.scrollY, window.innerHeight));
-      setPin(mobile || !txt ? 0 : pinPx(window.innerHeight));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [view]);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -184,8 +168,10 @@ export default function WorkBody() {
           type="button"
           onClick={() => switchView(v)}
           data-cursor="hover"
-          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 transition-opacity lg:text-[27px] ${
-            view === v ? "underline" : "opacity-60 hover:opacity-100"
+          // Israel 07/02 link system: same colour throughout (no dimming),
+          // hover just adds the underline, the active view stays underlined.
+          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
+            view === v ? "underline" : "no-underline"
           }`}
         >
           .{v}

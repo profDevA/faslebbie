@@ -1,17 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import AboutContent from "@/components/AboutContent";
 import { aboutLogos } from "@/lib/content";
 import {
   contentDrift,
-  pinPx,
   portraitDrift,
   revealBlur,
   revealOpacity,
-  revealProgress,
 } from "@/lib/reveal";
+import { useReveal } from "@/lib/useReveal";
 
 /**
  * Desktop reveal (Figma 807:19122 → 19414, "like home"). The transition Israel
@@ -34,26 +32,10 @@ export default function AboutBody({
 }: {
   logoSvgs: Record<keyof typeof aboutLogos, string>;
 }) {
-  // Reveal progress: 0 = behind + dim + blurred (page top), 1 = settled/clear.
-  const [r, setR] = useState(1);
-  // Pin distance in px (desktop) — the spacer that gives the pin its scroll.
-  const [pin, setPin] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      // Mobile: no reveal/pin — content sits settled/clear.
-      const mobile = window.innerWidth < 1024;
-      setR(mobile ? 1 : revealProgress(window.scrollY, window.innerHeight));
-      setPin(mobile ? 0 : pinPx(window.innerHeight));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  // Reveal progress (0 = behind + dim + blurred, 1 = settled/clear) + pin
+  // distance. Latches at 1 on first completion so scrolling back up never
+  // replays the entrance (Israel 07/02).
+  const { r, pin } = useReveal(true);
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);

@@ -55,12 +55,16 @@ export default function CaseStudy({
   next,
   variant,
   onClose,
+  onNavigate,
 }: {
   project: WorkProject;
   prev: WorkProject;
   next: WorkProject;
   variant: "page" | "overlay";
   onClose?: () => void;
+  // Overlay only: navigate to another study by REPLACING the URL (no new
+  // history entry) so modals never stack and × always closes back to /work.
+  onNavigate?: (slug: string) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const overlay = variant === "overlay";
@@ -102,7 +106,9 @@ export default function CaseStudy({
           }
         }
       },
-      { threshold: 0.1 },
+      // Overlay scrolls inside the popup panel, so observe relative to it;
+      // the standalone page scrolls in the viewport (root = null).
+      { threshold: 0.1, root: overlay ? root : null },
     );
     sections.forEach((s) => io.observe(s));
     return () => io.disconnect();
@@ -110,6 +116,16 @@ export default function CaseStudy({
 
   const cs = p.caseStudy;
   const nextImg = next.caseStudy?.hero.image ?? next.image;
+
+  // In the overlay, Prev/Next/Next-up REPLACE the URL (via onNavigate) instead
+  // of pushing, so repeated paging never stacks modals/history and × closes
+  // straight back to /work. The standalone page keeps normal <Link> pushes.
+  const goTo = (slug: string) => (e: React.MouseEvent) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(slug);
+    }
+  };
 
   const inner = (
     <>
@@ -413,6 +429,7 @@ export default function CaseStudy({
           as an overlay during client-side navigation). */}
       <Link
         href={`/work/${next.slug}`}
+        onClick={goTo(next.slug)}
         data-cursor="hover"
         className="group relative block w-full overflow-hidden text-left"
       >
@@ -438,10 +455,10 @@ export default function CaseStudy({
           click-through; only the two links catch the pointer. */}
       <div className="pointer-events-none sticky bottom-0 z-50 py-5">
         <div className="pointer-events-none mx-auto flex max-w-[900px] items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]" style={{ color: RED }}>
-          <Link href={`/work/${prev.slug}`} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+          <Link href={`/work/${prev.slug}`} onClick={goTo(prev.slug)} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
             &lt; Previous
           </Link>
-          <Link href={`/work/${next.slug}`} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+          <Link href={`/work/${next.slug}`} onClick={goTo(next.slug)} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
             Next &gt;
           </Link>
         </div>
@@ -451,19 +468,27 @@ export default function CaseStudy({
 
   if (overlay) {
     if (typeof document === "undefined") return null;
-    // Full-viewport modal over /work (WIP3 1098:1602): edge-to-edge white surface
-    // with the breadcrumb bar on top and Prev/Next pinned at the bottom. Same
-    // content, styling and scroll-reveal animation as the standalone page. Closes
-    // on Esc / × (→ router.back), keeping the URL shareable via the intercept.
+    // Centred pop-up modal over /work (WIP3 1098:1602, Israel 07/02: "it's not a
+    // full page… the case study [sits] on top" of the works page). A soft cream
+    // backdrop lets the works page show through around the edges; the white
+    // panel is narrower + shorter than the viewport and scrolls internally, with
+    // the breadcrumb bar sticky on top and Prev/Next at the bottom. Same content,
+    // styling and scroll-reveal as the standalone page. Backdrop / Esc / × close.
     return createPortal(
       <div
-        ref={scrollRef}
         role="dialog"
         aria-modal="true"
         aria-label={p.name}
-        className="cs-root fixed inset-0 z-100 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black animate-[panel-in_0.2s_ease-out]"
+        onClick={onClose}
+        className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.85)] p-3 sm:p-6 lg:p-10 animate-[panel-in_0.2s_ease-out]"
       >
-        {inner}
+        <div
+          ref={scrollRef}
+          onClick={(e) => e.stopPropagation()}
+          className="cs-root relative h-full w-full max-w-[1200px] overflow-y-auto overflow-x-hidden overscroll-contain rounded-[12px] bg-white font-serif text-black shadow-2xl"
+        >
+          {inner}
+        </div>
       </div>,
       document.body,
     );

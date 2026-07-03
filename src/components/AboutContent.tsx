@@ -252,11 +252,17 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
       aria-modal="true"
       aria-label={TESTIMONIAL_KEY}
       onClick={onClose}
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4 animate-[panel-in_0.2s_ease-out]"
+      // Israel 07/02: the pop-up backdrop is NOT black — it uses the WIP3
+      // pop-up tint (light cream, 80%) so it matches the case-study pop-up
+      // system rather than a dark dim.
+      className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.8)] p-4 animate-[panel-in_0.2s_ease-out]"
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="relative flex max-h-[88vh] w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
+        // Israel 07/02: fixed height so paging through testimonials of
+        // different quote lengths doesn't resize the box and make it "bounce"
+        // (the quote area scrolls instead). Falls back to 88vh on short screens.
+        className="relative flex h-[600px] max-h-[88vh] w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
       >
         <button
           type="button"

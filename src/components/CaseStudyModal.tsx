@@ -26,6 +26,9 @@ export default function CaseStudyModal({
       next={next}
       variant="overlay"
       onClose={() => router.back()}
+      // Replace (not push) so paging Prev/Next never stacks modals/history —
+      // one modal stays over /work and × (router.back) always closes to it.
+      onNavigate={(slug) => router.replace(`/work/${slug}`)}
     />
   );
 }

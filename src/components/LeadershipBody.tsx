@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import LeadershipContent from "@/components/LeadershipContent";
 import {
   contentDrift,
-  pinPx,
   portraitDrift,
   revealBlur,
   revealOpacity,
-  revealProgress,
 } from "@/lib/reveal";
+import { useReveal } from "@/lib/useReveal";
 
 /**
  * Desktop reveal (Figma 504:3182 → 504:3254, "like home") — same pinned
@@ -31,24 +29,9 @@ export default function LeadershipBody({
 }: {
   logoSvgs: Record<string, string>;
 }) {
-  // Reveal progress: 0 = behind + dim + blurred (page top), 1 = settled/clear.
-  const [r, setR] = useState(1);
-  const [pin, setPin] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const mobile = window.innerWidth < 1024;
-      setR(mobile ? 1 : revealProgress(window.scrollY, window.innerHeight));
-      setPin(mobile ? 0 : pinPx(window.innerHeight));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  // Reveal progress + pin distance. Latches at 1 on first completion so
+  // scrolling back up never replays the entrance (Israel 07/02).
+  const { r, pin } = useReveal(true);
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
