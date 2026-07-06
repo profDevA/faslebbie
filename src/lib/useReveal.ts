@@ -21,11 +21,14 @@ import { pinPx, revealProgress } from "./reveal";
 export function useReveal(active: boolean = true) {
   const [r, setR] = useState(1);
   const [pin, setPin] = useState(0);
-  const latched = useRef(false);
+  // `r` RATCHETS: it can only increase, never decrease. Once the content has
+  // come forward it stays forward on the way back up — the entrance plays ONCE
+  // (Israel 07/04). Re-armed only when the reveal re-activates (e.g. toggling
+  // back to the Work `.txt` view, which scrolls to top).
+  const rMax = useRef(0);
 
   useEffect(() => {
-    // Re-arm the entrance each time it (re)activates.
-    latched.current = false;
+    rMax.current = 0; // re-arm the entrance each time it (re)activates.
 
     const onScroll = () => {
       const mobile = window.innerWidth < 1024;
@@ -35,13 +38,11 @@ export function useReveal(active: boolean = true) {
         return;
       }
       setPin(pinPx(window.innerHeight));
-      // Once fully revealed, stay revealed — never reverse on scroll-up.
-      if (latched.current) {
-        setR(1);
-        return;
-      }
-      const next = revealProgress(window.scrollY, window.innerHeight);
-      if (next >= 0.999) latched.current = true;
+      const next = Math.max(
+        rMax.current,
+        revealProgress(window.scrollY, window.innerHeight),
+      );
+      rMax.current = next;
       setR(next);
     };
 

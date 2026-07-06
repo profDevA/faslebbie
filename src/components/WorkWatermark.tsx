@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PIN_VH } from "@/lib/reveal";
 import { toolStackLogos } from "@/lib/content";
 
@@ -36,12 +36,19 @@ export default function WorkWatermark({
    *  used by the ".img" grid, where the wordmark always sits in the back. */
   receded?: boolean;
 }) {
-  const [p, setP] = useState(0);
+  // `fade` RATCHETS (never decreases): the reveal plays ONCE, so once "Design
+  // Work" has receded it stays behind — scrolling back to the top never brings
+  // it forward again (Israel 07/04). The `.img` view forces it fully receded.
+  const [fade, setFade] = useState(0);
+  const fadeMax = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       const range = window.innerHeight * PIN_VH;
-      setP(range > 0 ? Math.min(1, window.scrollY / range) : 0);
+      const p = range > 0 ? Math.min(1, window.scrollY / range) : 0;
+      const next = Math.max(fadeMax.current, ramp(0.05, 0.85, p));
+      fadeMax.current = next;
+      setFade(next);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -52,13 +59,22 @@ export default function WorkWatermark({
     };
   }, []);
 
+  // Once forced-receded (switching to `.img`), keep the ratchet pinned so it
+  // stays behind after toggling back to `.txt`.
+  useEffect(() => {
+    if (receded) {
+      fadeMax.current = 1;
+      setFade(1);
+    }
+  }, [receded]);
+
   if (!show) return null;
 
-  const fade = receded ? 1 : ramp(0.05, 0.85, p);
-  const color = mix(fade);
-  const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
-  const opacity = 1 - fade * 0.7;
-  const z = fade < 0.5 ? 30 : -10;
+  const effFade = receded ? 1 : fade;
+  const color = mix(effFade);
+  const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - effFade).toFixed(3)})`;
+  const opacity = 1 - effFade * 0.7;
+  const z = effFade < 0.5 ? 30 : -10;
 
   return (
     <div

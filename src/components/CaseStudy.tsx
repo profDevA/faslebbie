@@ -134,9 +134,22 @@ export default function CaseStudy({
           onClose; the standalone page routes back to /work. */}
       <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]">
-          <Link href="/work" data-cursor="hover" className="text-black/55 transition-colors hover:text-black">
-            Work
-          </Link>
+          {overlay ? (
+            // Clicking "Work" closes the popup back to the works page
+            // (Israel 07/04 — "when you click on work here, you should go back").
+            <button
+              type="button"
+              onClick={onClose}
+              data-cursor="hover"
+              className="text-black/55 transition-colors hover:text-black"
+            >
+              Work
+            </button>
+          ) : (
+            <Link href="/work" data-cursor="hover" className="text-black/55 transition-colors hover:text-black">
+              Work
+            </Link>
+          )}
           <span aria-hidden className="text-black/35">/</span>
           <span aria-current="page" className="underline underline-offset-4">
             {p.name}
@@ -185,7 +198,7 @@ export default function CaseStudy({
           {/* 2 — Overview. */}
           {cs.overview && (
           <section className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-between gap-8 px-7.5 py-14 xl:py-[3.8rem]">
+            <div className="flex flex-col justify-between gap-8 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
               <div>
                 <Label>Overview</Label>
                 <p className="mt-[1em] text-[18px] leading-[1.6] lg:leading-[1.2] xl:text-[1.4vw]">
@@ -225,7 +238,7 @@ export default function CaseStudy({
           {/* 3 — What I brought (sage). */}
           {cs.brought && cs.brought.length > 0 && (
             <section className="py-[60px] xl:py-[5vw]" style={{ backgroundColor: SAGE }}>
-              <div className="mx-auto w-full max-w-[1140px] px-[15px]">
+              <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-[700px]">
                   <Label center>What I Brought</Label>
                   <div className="mt-6">
@@ -239,7 +252,7 @@ export default function CaseStudy({
           {/* 4 — Problem context (black). */}
           {cs.problem && (
             <section className="bg-black py-[60px] text-center text-white xl:py-[5vw]">
-              <div className="mx-auto w-full max-w-[1140px] px-[15px]">
+              <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-full lg:max-w-[60%]">
                   <Label center light>
                     Problem Context
@@ -257,7 +270,7 @@ export default function CaseStudy({
           {/* 5 — My approach + orange Design Process accordion (cream). */}
           {cs.approach && (
             <section className="py-[60px] xl:py-[5vw]" style={{ backgroundColor: CREAM }}>
-              <div className="mx-auto grid w-full max-w-[1140px] grid-cols-1 gap-10 px-[15px] lg:grid-cols-2 lg:gap-12">
+              <div className="mx-auto grid w-full max-w-[1140px] grid-cols-1 gap-10 px-6 sm:px-10 xl:px-[3.5vw] lg:grid-cols-2 lg:gap-12">
                 <div className="lg:self-end">
                   <Label>My Approach</Label>
                   <p className="mt-3 max-w-[90%] text-[18px] leading-normal lg:max-w-[80%] xl:text-[1.25vw]">
@@ -289,7 +302,7 @@ export default function CaseStudy({
                   />
                 </div>
               )}
-              <div className="px-7.5 py-12 text-white xl:py-[3vw]">
+              <div className="px-6 py-12 text-white sm:px-10 xl:px-[3.5vw] xl:py-[3vw]">
                 <Label light>Design Interventions</Label>
                 <p className="mt-3 text-justify text-[18px] leading-[1.6] xl:text-[1.25vw]">
                   {cs.designInterventions.body}
@@ -300,7 +313,7 @@ export default function CaseStudy({
 
           {/* 7 — Core experience flows (tan, device tabs). */}
           {cs.coreFlows && (
-            <section className="px-[15px] py-[60px] xl:py-[5vw]" style={{ backgroundColor: TAN }}>
+            <section className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]" style={{ backgroundColor: TAN }}>
               <div className="mb-2">
                 <Label>{cs.coreFlows.heading}</Label>
                 <p className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]">
@@ -324,7 +337,7 @@ export default function CaseStudy({
                   />
                 </div>
               )}
-              <div className="px-7.5 py-12 text-white xl:py-[3vw]">
+              <div className="px-6 py-12 text-white sm:px-10 xl:px-[3.5vw] xl:py-[3vw]">
                 <Label light>{cs.advocate.heading}</Label>
                 <p className="mt-3 text-[18px] leading-[1.6] xl:text-[1.25vw]">
                   {cs.advocate.body}
@@ -336,7 +349,7 @@ export default function CaseStudy({
           {/* 9 — Research outputs (periwinkle grid). */}
           {cs.researchOutputs && cs.researchOutputs.images.length > 0 && (
             <section
-              className="px-[15px] py-[60px] xl:py-[5vw]"
+              className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]"
               style={{ backgroundColor: PERIWINKLE }}
             >
               <div className="mb-2">
@@ -352,7 +365,7 @@ export default function CaseStudy({
           {/* 9b — Extra galleries captured from the live page (e.g. "Marketing
               & Brand", "Supporting Design Streams") so nothing is lost. */}
           {cs.extraGalleries?.map((g, i) => (
-            <section key={i} className="px-[15px] py-[60px] xl:py-[5vw]">
+            <section key={i} className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]">
               {(g.heading || g.body) && (
                 <div className="mb-2">
                   {g.heading && <Label>{g.heading}</Label>}
@@ -369,7 +382,7 @@ export default function CaseStudy({
 
           {/* 10 — Impact stat band (white, count-up). */}
           {cs.stats && cs.stats.length > 0 && (
-            <section className="px-[15px] py-[60px] text-center xl:py-[5vw]">
+            <section className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] text-center xl:py-[5vw]">
               <div className="mx-auto grid max-w-[1140px] grid-cols-1 gap-12 sm:grid-cols-3">
                 {cs.stats.map((s, i) => (
                   <Stat key={i} stat={s} />
@@ -381,7 +394,7 @@ export default function CaseStudy({
           {/* 11 — Reflections & Impact (black). */}
           {cs.reflections && (
             <section className="bg-black py-[60px] text-center text-white xl:py-[5vw]">
-              <div className="mx-auto w-full max-w-[1140px] px-[15px]">
+              <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-full lg:max-w-[60%]">
                   <Label center light>
                     Reflections &amp; Impact
@@ -399,7 +412,7 @@ export default function CaseStudy({
           {/* 12 — Next steps (white bullets). */}
           {cs.nextSteps && cs.nextSteps.length > 0 && (
             <section className="py-[60px] xl:py-[5vw]">
-              <div className="mx-auto w-full max-w-[1140px] px-[15px]">
+              <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-[640px]">
                   <Label>Next Steps</Label>
                   <ul className="mt-5 list-disc space-y-3 pl-5 text-[18px] leading-[1.6] xl:text-[1.1vw]">
@@ -438,7 +451,7 @@ export default function CaseStudy({
           <img src={nextImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
         )}
         <div className="absolute inset-0 bg-black/75" />
-        <div className="relative mx-auto w-full max-w-[1140px] px-[15px] py-[60px] xl:py-[5vw]">
+        <div className="relative mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]">
           <span className="relative inline-block font-serif text-[34px] font-thin leading-[1.3] text-white/50 transition-[padding] duration-300 group-hover:pl-[2.5vw] xl:text-[5vw]">
             <span
               aria-hidden
@@ -468,24 +481,25 @@ export default function CaseStudy({
 
   if (overlay) {
     if (typeof document === "undefined") return null;
-    // Centred pop-up modal over /work (WIP3 1098:1602, Israel 07/02: "it's not a
-    // full page… the case study [sits] on top" of the works page). A soft cream
-    // backdrop lets the works page show through around the edges; the white
-    // panel is narrower + shorter than the viewport and scrolls internally, with
-    // the breadcrumb bar sticky on top and Prev/Next at the bottom. Same content,
-    // styling and scroll-reveal as the standalone page. Backdrop / Esc / × close.
+    // Centred pop-up modal over /work (Figma 1262:6021). A 1098px-wide white card
+    // with SHARP corners floats over the works page, which stays visible but
+    // dimmed behind a cream scrim (Figma scrim 1262:6038 = rgba(226,226,218,0.8),
+    // the same tint as the testimonials modal) — NOT an opaque white page. The
+    // panel scrolls internally, breadcrumb bar sticky on top, Prev/Next at the
+    // bottom. Same content, styling and scroll-reveal as the standalone page.
+    // Backdrop / Esc / × close.
     return createPortal(
       <div
         role="dialog"
         aria-modal="true"
         aria-label={p.name}
         onClick={onClose}
-        className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.85)] p-3 sm:p-6 lg:p-10 animate-[panel-in_0.2s_ease-out]"
+        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] px-4 pb-8 pt-8 sm:px-6 lg:pt-[30px] animate-[panel-in_0.2s_ease-out]"
       >
         <div
           ref={scrollRef}
           onClick={(e) => e.stopPropagation()}
-          className="cs-root relative h-full w-full max-w-[1200px] overflow-y-auto overflow-x-hidden overscroll-contain rounded-[12px] bg-white font-serif text-black shadow-2xl"
+          className="cs-root relative h-full max-h-[814px] w-full max-w-[1098px] overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
         >
           {inner}
         </div>

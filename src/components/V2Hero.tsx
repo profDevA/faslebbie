@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import HeroParagraph from "@/components/HeroParagraph";
-import { contentDrift, revealProgress } from "@/lib/reveal";
+import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import HeroParagraph from '@/components/HeroParagraph'
+import { contentDrift, revealProgress } from '@/lib/reveal'
 
 /**
  * aidesign-os-style shell hero (Fas 06/14 ask — reference: aidesign-os.com).
@@ -19,77 +19,93 @@ import { contentDrift, revealProgress } from "@/lib/reveal";
 
 // smoothstep ramp: 0 below `a`, 1 above `b`, eased in between.
 function ramp(a: number, b: number, t: number) {
-  const x = Math.min(1, Math.max(0, (t - a) / (b - a)));
-  return x * x * (3 - 2 * x);
+  const x = Math.min(1, Math.max(0, (t - a) / (b - a)))
+  return x * x * (3 - 2 * x)
 }
 
 // The paragraph starts as the dim, blurred BACK layer behind the wordmark
 // (matches the About page), then brightens + de-blurs as it comes forward.
-const START_OPACITY = 0.32;
-const START_BLUR = 2; // px
+const START_OPACITY = 0.32
+const START_BLUR = 2 // px
 
 // linear blend between two rgb triples → "rgb(r, g, b)"
-const NEAR_BLACK: [number, number, number] = [32, 32, 30];
-const FADED_GREY: [number, number, number] = [183, 183, 175];
+const NEAR_BLACK: [number, number, number] = [32, 32, 30]
+const FADED_GREY: [number, number, number] = [183, 183, 175]
 function mix(t: number) {
-  const c = NEAR_BLACK.map((a, i) => Math.round(a + (FADED_GREY[i] - a) * t));
-  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  const c = NEAR_BLACK.map((a, i) => Math.round(a + (FADED_GREY[i] - a) * t))
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`
 }
 
 export default function V2Hero() {
-  const ref = useRef<HTMLElement>(null);
-  const [p, setP] = useState(0); // 0 = top, 1 = past the hero scroll range
-  const [r, setR] = useState(1); // reveal/drift progress (0 = back, 1 = settled)
+  const ref = useRef<HTMLElement>(null)
+  const [p, setP] = useState(0) // 0 = top, 1 = past the hero scroll range
+  // The dissolve plays ONCE. `fade`/`rEff` RATCHET — they can only ever
+  // increase, never decrease — so once the wordmark has receded and the content
+  // is clear, scrolling back up (even all the way to the top) never brings it
+  // forward again (Fas/Israel 07/04 — "it should never come up again… only the
+  // first time"). A boolean latch wasn't enough because the wordmark drops
+  // behind at ~50% but only "completed" near 100%. Computed in the scroll
+  // handler (refs can't be touched during render).
+  const [fade, setFade] = useState(0) // 0 = wordmark in front, 1 = fully receded
+  const [rEff, setREff] = useState(0) // ratcheted content drift progress
+  const fadeMax = useRef(0)
+  const rMax = useRef(0)
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current
+    if (!el) return
     const onScroll = () => {
-      const total = el.offsetHeight - window.innerHeight;
+      const total = el.offsetHeight - window.innerHeight
       const scrolled = Math.min(
         Math.max(-el.getBoundingClientRect().top, 0),
         total,
-      );
-      setP(total > 0 ? scrolled / total : 0);
-      setR(revealProgress(window.scrollY, window.innerHeight));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+      )
+      const pv = total > 0 ? scrolled / total : 0
+      setP(pv)
+      // Wide, gentle ramp so the transition "dissolves" in softly (Israel 06/23).
+      const nextFade = Math.max(fadeMax.current, ramp(0.04, 0.72, pv))
+      fadeMax.current = nextFade
+      setFade(nextFade)
+      const nextR = Math.max(
+        rMax.current,
+        revealProgress(window.scrollY, window.innerHeight),
+      )
+      rMax.current = nextR
+      setREff(nextR)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
 
-  // Scroll-driven colour fade only (no movement). `fade` 0 → 1, then stays.
-  // Wide, gentle ramp so the transition "dissolves" in softly rather than
-  // snapping (Israel 06/23 — "it eases in… it's a soft start, not just starting").
-  const fade = ramp(0.04, 0.72, p);
-  const nameColor = mix(fade);
+  const nameColor = mix(fade)
   // Tiny softening only (Israel 06/22: "very small, about 1–2px"), not the heavy
   // "text overload" blur.
-  const nameShadow = `0 0 1.5px ${nameColor}`;
+  const nameShadow = `0 0 1.5px ${nameColor}`
   // Once it recedes, fade the whole wordmark down so it's only barely
   // perceptible behind the content (Fas 06/23 — "apply more opacity… users can
   // notice that barely").
-  const nameOpacity = 1 - fade * 0.7;
+  const nameOpacity = 1 - fade * 0.7
   // Wordmark sits ON TOP at the very first moment (sharp, dark) so the bio
   // paragraph reads as the dim, blurred BACK layer behind it; once it recedes it
   // drops behind every section (z below the nav's z-40). Mirrors the About
   // watermark treatment.
-  const nameZ = fade < 0.5 ? 30 : -10;
+  const nameZ = fade < 0.5 ? 30 : -10
   // The portrait should STAND OUT and stay clear — it must not blend into the
   // wordmark (Israel 06/23: "this is supposed to stand out… nothing is on top of
   // this"). Keep it near-full and only gently soften as the page recedes.
-  const portraitOpacity = 0.55 + (1 - fade) * 0.45;
+  const portraitOpacity = 0.55 + (1 - fade) * 0.45
 
   // Content is visible from the FIRST moment as the back layer — dim + blurred
   // behind the wordmark — then brightens, de-blurs and comes forward as you
   // scroll (Fas 06/24: "at the first moment we should see the content in back").
-  const paraOpacity = START_OPACITY + fade * (1 - START_OPACITY);
-  const paraBlur = (1 - fade) * START_BLUR;
-  const paraFront = fade >= 0.4;
+  const paraOpacity = START_OPACITY + fade * (1 - START_OPACITY)
+  const paraBlur = (1 - fade) * START_BLUR
+  const paraFront = fade >= 0.4
 
   return (
     <section ref={ref} className="relative h-[240vh] shrink-0">
@@ -98,7 +114,12 @@ export default function V2Hero() {
           "Ph.D." on the next line, right-aligned. No background words. */}
       <div
         aria-hidden
-        style={{ color: nameColor, textShadow: nameShadow, opacity: nameOpacity, zIndex: nameZ }}
+        style={{
+          color: nameColor,
+          textShadow: nameShadow,
+          opacity: nameOpacity,
+          zIndex: nameZ,
+        }}
         className="pointer-events-none fixed inset-0 flex select-none flex-col justify-center overflow-hidden font-grotesk font-bold leading-[0.8] tracking-[-0.03em] will-change-[color,opacity]"
       >
         {/* Big wordmark STRETCHED across the full width, sitting a touch below
@@ -149,8 +170,8 @@ export default function V2Hero() {
         style={{
           opacity: paraOpacity,
           filter: paraBlur ? `blur(${paraBlur}px)` : undefined,
-          transform: contentDrift(r),
-          pointerEvents: paraFront ? "auto" : "none",
+          transform: contentDrift(rEff),
+          pointerEvents: paraFront ? 'auto' : 'none',
         }}
         className="sticky top-0 flex h-screen items-center justify-center px-6 will-change-[opacity,filter,transform] lg:px-[5vw]"
       >
@@ -159,5 +180,5 @@ export default function V2Hero() {
         </div>
       </div>
     </section>
-  );
+  )
 }

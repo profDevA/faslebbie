@@ -12,7 +12,7 @@ const logoSvgs = getAboutLogoSvgs();
 export default function LeadershipPage() {
   return (
     <>
-      <Nav />
+      <Nav dark />
       <LeadershipWatermark />
       <LeadershipBody logoSvgs={logoSvgs} />
     </>

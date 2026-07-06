@@ -28,9 +28,9 @@ export const heroSegments: HeroSegment[] = [
   },
   { type: 'keyword', id: 'prototype', text: 'prototype' },
   { type: 'text', text: ', ' },
-  { type: 'keyword', id: 'teach', text: 'teach' },
-  { type: 'text', text: ' and ' },
-  { type: 'keyword', id: 'mentor', text: 'mentor' },
+  // "teach" and "mentor" are combined into one keyword (Israel 07/04 — "we are
+  // combining… it's leading to the same thing"); both went to /teaching anyway.
+  { type: 'keyword', id: 'teach', text: 'teach/mentor' },
   { type: 'text', text: ', ' },
   { type: 'keyword', id: 'write', text: 'write' },
   { type: 'text', text: ', ' },
@@ -969,6 +969,32 @@ const baseWorkProjects: WorkProject[] = [
         'Deepen matching models by incorporating richer variables, such as communication style, into the algorithm to drive down further \u201cTime to Relevant Match.\u201d',
         'Enhance navigation to automate \u201chuman-in-the-loop\u201d reminders to sustain gains in at-home drop-off rates.',
         'Build dashboards for employer analytics that visualize the ROI of equity for B2B partners, proving the \u201cBusiness Objective\u201d connection directly to their bottom line.',
+      ],
+      // Two named galleries the live page shows between "Core Experience Flows"
+      // and "Empowering…" (Israel 07/04 — "you don't have this marketing and
+      // brand experience design section… or the supporting design streams").
+      extraGalleries: [
+        {
+          heading: 'Marketing & Brand Experience Designs',
+          body: 'I also contributed to the design of the marketing site and brand identity. We knew that for underserved communities, the platform\u2019s "vibe" had to feel different from traditional corporate healthcare.',
+          images: [
+            '/work/coral-health/ch_bi.jpg-scaled.png',
+            '/work/coral-health/ch_mv_hero.jpg.png',
+            '/work/coral-health/slc_hero.jpg-scaled.png',
+            '/work/coral-health/slc_mv_hero.jpg.png',
+          ],
+        },
+        {
+          heading: 'Supporting Design Streams',
+          body: 'We developed a visual identity rooted in community warmth and representation, moving away from sterile medical blues to a more human, vibrant palette. The marketing site served a dual purpose: it validated the platform for potential users by showing people who looked like them, and it articulated the value of \u201cculturally competent care\u201d to employer partners. This top-of-funnel work was critical for adoption, as it framed the product as a place of safety and understanding, directly impacting our customer acquisition costs (CAC) and conversion rates.',
+          images: [
+            '/work/coral-health/coral_health_desktop.png',
+            '/work/coral-health/coral_health_desktop_2.png',
+            '/work/coral-health/coral_health_desktop_3.png',
+            '/work/coral-health/coral_health_desktop_4.png',
+            '/work/coral-health/coral_health_desktop_5.png',
+          ],
+        },
       ],
     },
   },

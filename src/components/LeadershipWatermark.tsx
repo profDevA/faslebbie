@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { PIN_VH } from "@/lib/reveal";
 
@@ -28,13 +28,19 @@ function mix(t: number) {
 }
 
 export default function LeadershipWatermark() {
-  const [p, setP] = useState(0); // 0 = top, 1 = scrolled past the fade range
+  // `fade` RATCHETS (never decreases): the reveal plays ONCE, so once the word
+  // recedes it stays behind even when scrolling back to the top (Israel 07/04).
+  const [fade, setFade] = useState(0);
+  const fadeMax = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       // Match LeadershipBody's pin distance (same transition as About).
       const range = window.innerHeight * PIN_VH;
-      setP(range > 0 ? Math.min(1, window.scrollY / range) : 0);
+      const p = range > 0 ? Math.min(1, window.scrollY / range) : 0;
+      const next = Math.max(fadeMax.current, ramp(0.05, 0.85, p));
+      fadeMax.current = next;
+      setFade(next);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -45,7 +51,6 @@ export default function LeadershipWatermark() {
     };
   }, []);
 
-  const fade = ramp(0.05, 0.85, p);
   const color = mix(fade);
   // Soft grey drop-shadow (Figma #b1afac) that dissolves as the word recedes.
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;

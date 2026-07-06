@@ -63,9 +63,11 @@ export default function WorkBody() {
   const wallOffset = useRef(0);
 
   // Auto-drift + wheel-driven manual scroll for the desktop `.img` wall. The
-  // columns loop seamlessly (content duplicated once → wrap at half height) and
-  // each drifts at its own speed; the wheel adds to the same offset so users can
-  // scroll it manually (Israel 07/03) while it keeps auto-scrolling.
+  // wall is FINITE (Israel 07/04 — "it's endless… it needs to stop, it should
+  // have a beginning and an end"): a single shared offset is clamped to
+  // [0, maxOffset] so the columns drift down (each at its own speed) until the
+  // last card reaches the bottom of the window, then stop. The wheel nudges the
+  // same offset so it stays manually scrollable within those bounds.
   useEffect(() => {
     if (view !== "img") return;
     const win = wallWinRef.current;
@@ -75,21 +77,44 @@ export default function WorkBody() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     let raf = 0;
+    wallOffset.current = 0; // always start the wall at its beginning
+
+    // Per-column scrollable distance, and the shared-offset value at which the
+    // deepest column bottoms out (offset * factor === colMax).
+    const columnMax = (i: number) => {
+      const track = trackRefs.current[i];
+      if (!track) return 0;
+      return Math.max(0, track.scrollHeight - win.clientHeight);
+    };
+    const maxOffset = () => {
+      let m = 0;
+      for (let i = 0; i < trackRefs.current.length; i++) {
+        const f = WALL_FACTORS[i] ?? 0.6;
+        if (f > 0) m = Math.max(m, columnMax(i) / f);
+      }
+      return m;
+    };
 
     const apply = () => {
+      const max = maxOffset();
+      wallOffset.current = Math.min(Math.max(wallOffset.current, 0), max);
       const tracks = trackRefs.current;
       for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i];
         if (!track) continue;
-        const half = track.scrollHeight / 2 || 1;
-        const raw = wallOffset.current * (WALL_FACTORS[i] ?? 0.6);
-        const y = ((raw % half) + half) % half; // positive modulo
+        const y = Math.min(
+          wallOffset.current * (WALL_FACTORS[i] ?? 0.6),
+          columnMax(i),
+        );
         track.style.transform = `translateY(${-y}px)`;
       }
     };
 
     const tick = () => {
-      if (!reduce) wallOffset.current += WALL_AUTO_SPEED;
+      // Auto-advance until the end, then hold (no looping back to the top).
+      if (!reduce && wallOffset.current < maxOffset()) {
+        wallOffset.current += WALL_AUTO_SPEED;
+      }
       apply();
       raf = requestAnimationFrame(tick);
     };
@@ -184,7 +209,7 @@ export default function WorkBody() {
       return (
         <span
           key={key}
-          className="text-accent text-shadow-token underline decoration-2 underline-offset-2"
+          className="text-black underline decoration-2 underline-offset-2 transition-colors hover:text-accent"
         >
           {tok.text}
         </span>
@@ -203,7 +228,7 @@ export default function WorkBody() {
             openProject(tok.slug);
           }
         }}
-        className="cursor-pointer text-accent text-shadow-token underline decoration-2 underline-offset-2"
+        className="cursor-pointer text-black underline decoration-2 underline-offset-2 transition-colors hover:text-accent"
       >
         {tok.text}
       </span>
@@ -491,9 +516,11 @@ export default function WorkBody() {
   );
 }
 
-// One column of the `.img` wall. Its cards are duplicated once so the loop is
-// seamless (wraps at half height); `trackRef` exposes the track element so the
-// parent's rAF/wheel loop can drive its translateY (auto + manual scroll).
+// One column of the `.img` wall. The cards are NOT duplicated — the wall is
+// finite (Israel 07/04: "it's endless… it needs to stop, it should have a
+// beginning and an end"). `trackRef` exposes the track element so the parent's
+// rAF/wheel loop can drive its translateY (auto-drift + manual scroll), clamped
+// so it stops once the last card reaches the bottom of the window.
 function WallColumn({
   col,
   trackRef,
@@ -506,7 +533,7 @@ function WallColumn({
   return (
     <div className="work-wall-col flex-1">
       <div ref={trackRef} className="work-wall-track">
-        {[...col, ...col].map((p, i) => (
+        {col.map((p, i) => (
           <div key={`${p.slug}-${i}`} className="mb-5">
             <ProjectCard project={p} reveal={false} onOpen={() => onOpen(p.slug)} />
           </div>
@@ -565,10 +592,13 @@ function ProjectCard({
           </span>
         </div>
       )}
-      <p className="mt-2 font-grotesk text-[16px] font-bold leading-tight text-black underline-offset-2 group-hover:underline">
+      {/* Figma 1111:4653 + Israel: the name is thick (bold) and underlined by
+          default, and turns red on hover — "default is still thick… turns red,
+          this will be our interaction". */}
+      <p className="mt-2 font-grotesk text-[16px] font-bold leading-tight text-black underline decoration-2 underline-offset-2 transition-colors group-hover:text-accent">
         {project.name}
       </p>
-      <p className="mt-1 font-grotesk text-[13px] leading-snug text-black/55">
+      <p className="mt-1 font-grotesk text-[13px] italic leading-snug text-black/55">
         {project.tagline}
       </p>
     </button>

@@ -416,7 +416,17 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     ],
     "extraGalleries": [
       {
-        "heading": "Supporting Designs Streams",
+        "heading": "Marketing & Brand Experience Designs",
+        "body": "I also contributed to the design of the marketing site and brand identity. We knew that for underserved communities, the platform's \"vibe\" had to feel different from traditional corporate healthcare.",
+        "images": [
+          "/work/coral-health/ch_bi.jpg-scaled.png",
+          "/work/coral-health/ch_mv_hero.jpg.png",
+          "/work/coral-health/slc_hero.jpg-scaled.png",
+          "/work/coral-health/slc_mv_hero.jpg.png"
+        ]
+      },
+      {
+        "heading": "Supporting Design Streams",
         "body": "We developed a visual identity rooted in community warmth and representation, moving away from sterile medical blues to a more human, vibrant palette. The marketing site served a dual purpose: it validated the platform for potential users by showing people who looked like them, and it articulated the value of “culturally competent care” to employer partners. This top-of-funnel work was critical for adoption, as it framed the product as a place of safety and understanding, directly impacting our customer acquisition costs (CAC) and conversion rates.",
         "images": [
           "/work/coral-health/coral_health_desktop.png",
