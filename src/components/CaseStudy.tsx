@@ -657,7 +657,7 @@ function ImageGrid({ images, tile }: { images: string[]; tile?: boolean }) {
           tile ? (
             <div
               key={i}
-              className="p-[5vw] shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] xl:p-[3vw_4vw]"
+              className="shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]"
               style={{ backgroundColor: TILE }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -665,7 +665,7 @@ function ImageGrid({ images, tile }: { images: string[]; tile?: boolean }) {
                 src={src}
                 alt=""
                 loading="lazy"
-                className="h-[40vw] w-full object-contain xl:h-[20vw]"
+                className="h-[40vw] w-full object-contain xl:h-[20vw]  scale-[1.2]"
               />
             </div>
           ) : (
