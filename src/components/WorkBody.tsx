@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   type WorkCategory,
   type WorkToken,
+  WORK_CREDIT,
+  findWorkProject,
   toolStackLogos,
   workCategories,
   workNarrative,
   workProjects,
 } from "@/lib/content";
+import CaseStudy from "@/components/CaseStudy";
 import {
   contentDrift,
   portraitDrift,
@@ -47,7 +49,10 @@ const WALL_MENU_W = 220;
 type WorkProject = (typeof workProjects)[number];
 
 export default function WorkBody() {
-  const router = useRouter();
+  // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
+  // popup, don't create a new path"). No route change — `openSlug` drives the
+  // overlay, so there's no full-page fallback and no intercepting-route flakiness.
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [view, setView] = useState<View>("txt");
   // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
   // on first completion so scrolling back up never replays it (Israel 07/02);
@@ -198,9 +203,8 @@ export default function WorkBody() {
     return () => io.disconnect();
   }, [view, filter, visible]);
 
-  // Soft-navigate to the case study. From /work this is intercepted into an
-  // overlay (app/work/@modal/(.)[slug]); a direct visit renders the full page.
-  const openProject = (slug: string) => router.push(`/work/${slug}`);
+  // Open the case study as an in-page popup (no navigation).
+  const openProject = (slug: string) => setOpenSlug(slug);
 
   // --- token renderer for the .txt narrative ---
   const renderToken = (tok: WorkToken, key: string) => {
@@ -209,7 +213,7 @@ export default function WorkBody() {
       return (
         <span
           key={key}
-          className="text-black underline decoration-2 underline-offset-2 transition-colors hover:text-accent"
+          className="text-accent text-shadow-token underline decoration-2 underline-offset-2"
         >
           {tok.text}
         </span>
@@ -228,7 +232,7 @@ export default function WorkBody() {
             openProject(tok.slug);
           }
         }}
-        className="cursor-pointer text-black underline decoration-2 underline-offset-2 transition-colors hover:text-accent"
+        className="cursor-pointer text-accent text-shadow-token underline decoration-2 underline-offset-2"
       >
         {tok.text}
       </span>
@@ -512,6 +516,25 @@ export default function WorkBody() {
           </main>
         </>
       )}
+
+      {/* Case-study popup (client-side, portalled to <body>). Prev/Next/Next-up
+          swap the open slug in place via onNavigate, so paging never stacks
+          modals and × always closes back to the works page. */}
+      {openSlug &&
+        (() => {
+          const found = findWorkProject(openSlug);
+          if (!found) return null;
+          return (
+            <CaseStudy
+              project={found.project}
+              prev={found.prev}
+              next={found.next}
+              variant="overlay"
+              onClose={() => setOpenSlug(null)}
+              onNavigate={(slug) => setOpenSlug(slug)}
+            />
+          );
+        })()}
     </div>
   );
 }
@@ -592,14 +615,14 @@ function ProjectCard({
           </span>
         </div>
       )}
-      {/* Figma 1111:4653 + Israel: the name is thick (bold) and underlined by
-          default, and turns red on hover — "default is still thick… turns red,
-          this will be our interaction". */}
-      <p className="mt-2 font-grotesk text-[16px] font-bold leading-tight text-black underline decoration-2 underline-offset-2 transition-colors group-hover:text-accent">
+      {/* Figma 1111:4653 + Israel 07/06: the project name is MEDIUM weight (not
+          bold) and turns red on hover. Under it is the CREDIT line (not a
+          description) — "It's credits and tags… no description". */}
+      <p className="mt-2 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
         {project.name}
       </p>
-      <p className="mt-1 font-grotesk text-[13px] italic leading-snug text-black/55">
-        {project.tagline}
+      <p className="mt-1 font-grotesk text-[13px] leading-snug text-black/55">
+        {WORK_CREDIT}
       </p>
     </button>
   );

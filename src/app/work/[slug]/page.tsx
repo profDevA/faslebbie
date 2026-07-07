@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import CaseStudy from "@/components/CaseStudy";
 import { findWorkProject, workProjects } from "@/lib/content";
 
-// Standalone, shareable case-study page at /work/<slug>. This is what renders on
-// a direct visit / refresh / share; client-side navigation from /work shows the
-// same study as an intercepted overlay (app/work/@modal/(.)[slug]) instead.
+// Standalone, shareable case-study page at /work/<slug> — renders on a direct
+// visit / refresh / share. Inside the works page itself, clicking a project opens
+// the same study as a client-side popup (see WorkBody), so no navigation happens.
 export function generateStaticParams() {
   return workProjects.map((p) => ({ slug: p.slug }));
 }

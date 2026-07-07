@@ -107,6 +107,20 @@ body {
   transform: translateY(0);
 }
 
+/* Israel 07/06: inside the popup, every case-study section fills the modal
+   viewport ("first section and all sections should take full height" — one
+   section per screen). Scoped to `.cs-fullheight` (the overlay root only) so the
+   standalone page keeps natural document flow. `container-type: size` makes the
+   scroll container a size query container so `100cqh` resolves to its height
+   reliably (percentage min-height doesn't resolve through the flex/scroll box). */
+.cs-fullheight {
+  container-type: size;
+}
+
+.cs-fullheight > section {
+  min-height: 100cqh;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cs-root {
     scroll-behavior: auto;

@@ -179,68 +179,98 @@ export default function CaseStudy({
 
       {cs ? (
         <>
-          {/* 1 — Hero image + caption. */}
-          <section className="relative">
+          {/* 1 — Hero image + caption. Fills the full section height (the image
+              is absolutely positioned so the section's `100cqh` min-height drives
+              the size in the popup; `min-h-[60vh]` keeps the standalone page
+              sensible). */}
+          <section className="relative min-h-[60vh] bg-black">
+            {/* Centred + contained on black so the full composition (logo +
+                couple in the curved cutout) always shows — no matter the modal
+                aspect — with any letterbox blending into the black background. */}
             {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
             <img
               src={cs.hero.image}
               alt={p.name}
-              className="block h-auto max-h-screen w-full object-cover object-left"
+              className="absolute inset-0 h-full w-full object-contain object-center"
             />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
-            <div className="absolute bottom-4 left-7.5 p-[10px] text-white">
-              <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
-                <strong className="font-bold">{p.name}</strong> · {cs.hero.caption ?? p.tagline}
-              </p>
-            </div>
+            {cs.hero.caption && (
+              <>
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
+                <div className="absolute bottom-4 left-7.5 p-[10px] text-white">
+                  <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
+                    <strong className="font-bold">{p.name}</strong> · {cs.hero.caption}
+                  </p>
+                </div>
+              </>
+            )}
           </section>
 
-          {/* 2 — Overview. */}
+          {/* 2 — Overview (Figma 1099:12527). LEFT column: Overview prose at the
+              top, then the compact meta block (Research & Design / Duration /
+              Team) below; the teal decorative portrait panel is on the RIGHT. */}
           {cs.overview && (
           <section className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="flex flex-col justify-between gap-8 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
+            <div className="flex flex-col justify-between gap-10 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
               <div>
                 <Label>Overview</Label>
-                <p className="mt-[1em] text-[18px] leading-[1.6] lg:leading-[1.2] xl:text-[1.4vw]">
+                <p className="mt-[1em] text-[17px] leading-normal lg:leading-[1.3] xl:text-[1.15vw]">
                   {cs.overview.body}
                 </p>
+                {cs.overview.visitSite && (
+                  <a
+                    href={cs.overview.visitSite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="hover"
+                    style={{ fontFamily: SANS }}
+                    className="mt-6 inline-block text-[13px] uppercase tracking-wide underline underline-offset-4 transition-colors hover:text-accent xl:text-[0.85vw]"
+                  >
+                    Visit Site
+                  </a>
+                )}
               </div>
-              <div className="grid grid-cols-1 gap-8 pt-12 sm:grid-cols-2 xl:pt-[10vw]">
-                <div>
+              <div className="flex flex-col gap-5">
+                <div className="max-w-[340px]">
                   <Label>Research &amp; Design</Label>
-                  <p className="mt-2 text-[16px] leading-normal xl:text-[0.95vw]">
+                  <p className="mt-2 text-[13px] font-light leading-[1.35] xl:text-[0.95vw]">
                     {cs.overview.disciplines}
                   </p>
                 </div>
-                <ul className="space-y-2 text-[16px] leading-normal xl:text-[0.95vw]">
-                  <li>
-                    <span className="font-medium">Duration:</span> {cs.overview.duration}
-                  </li>
-                  <li>
-                    <span className="font-medium">Team:</span> {cs.overview.team}
-                  </li>
-                </ul>
+                <div className="max-w-[340px] space-y-1 text-[13px] font-light leading-[1.35] xl:text-[0.95vw]">
+                  <p>
+                    <span className="font-normal">Duration</span>: {cs.overview.duration}
+                  </p>
+                  <p>
+                    <span className="font-normal">Team</span>: {cs.overview.team}
+                  </p>
+                </div>
+                {cs.overview.note && (
+                  <p className="mt-4 max-w-[400px] text-[11px] italic leading-[1.4] text-black/55 xl:text-[0.78vw]">
+                    {cs.overview.note}
+                  </p>
+                )}
               </div>
             </div>
-            <div className="relative min-h-[60vw] bg-neutral-100 lg:min-h-0">
+            <div className="relative min-h-[70vw] bg-[#52747e] lg:min-h-full">
               {cs.overview.image && (
                 // eslint-disable-next-line @next/next/no-img-element -- case-study art
                 <img
                   src={cs.overview.image}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain object-center"
                 />
               )}
             </div>
           </section>
           )}
 
-          {/* 3 — What I brought (sage). */}
+          {/* 3 — What I brought (sage). Figma 1099:12578: content is centred both
+              ways in the full-height section, in a narrow ~466px column. */}
           {cs.brought && cs.brought.length > 0 && (
-            <section className="py-[60px] xl:py-[5vw]" style={{ backgroundColor: SAGE }}>
+            <section className="flex items-center py-[60px] xl:py-[5vw]" style={{ backgroundColor: SAGE }}>
               <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
-                <div className="mx-auto max-w-[700px]">
-                  <Label center>What I Brought</Label>
+                <div className="mx-auto max-w-[480px]">
+                  <Label center>{cs.broughtHeading ?? "What I Brought"}</Label>
                   <div className="mt-6">
                     <Accordion items={cs.brought} variant="brought" />
                   </div>
@@ -463,15 +493,15 @@ export default function CaseStudy({
         </div>
       </Link>
 
-      {/* Sticky Previous / Next chrome (WIP3 1098:1602) — red, pinned to the modal
-          bottom so it stays reachable while the study scrolls. The row itself is
-          click-through; only the two links catch the pointer. */}
-      <div className="pointer-events-none sticky bottom-0 z-50 py-5">
-        <div className="pointer-events-none mx-auto flex max-w-[900px] items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]" style={{ color: RED }}>
-          <Link href={`/work/${prev.slug}`} onClick={goTo(prev.slug)} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+      {/* Sticky Previous / Next chrome (Figma 1262:20851) — a full-width WHITE bar
+          pinned to the modal bottom with red bold links, so it stays reachable
+          while the study scrolls. */}
+      <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-5">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]" style={{ color: RED }}>
+          <Link href={`/work/${prev.slug}`} onClick={goTo(prev.slug)} data-cursor="hover" className="transition-opacity hover:opacity-70">
             &lt; Previous
           </Link>
-          <Link href={`/work/${next.slug}`} onClick={goTo(next.slug)} data-cursor="hover" className="pointer-events-auto transition-opacity hover:opacity-70">
+          <Link href={`/work/${next.slug}`} onClick={goTo(next.slug)} data-cursor="hover" className="transition-opacity hover:opacity-70">
             Next &gt;
           </Link>
         </div>
@@ -499,7 +529,7 @@ export default function CaseStudy({
         <div
           ref={scrollRef}
           onClick={(e) => e.stopPropagation()}
-          className="cs-root relative h-full max-h-[814px] w-full max-w-[1098px] overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
+          className="cs-root cs-fullheight relative h-full max-h-[814px] w-full max-w-[1098px] overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
         >
           {inner}
         </div>

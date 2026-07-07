@@ -44,11 +44,12 @@ export default function HeroParagraph({
 }) {
   const tokens = useMemo(() => tokenize(heroSegments), []);
 
-  // Israel 07/04: the keywords read as MUTED inline text (they inherit the
-  // paragraph colour, no filled pill) and only reveal the interaction on hover —
-  // "when you hover on text, it underlines" and "hover text should [be] red".
+  // Figma "Component Interaction" legend (823:70182) → "Navigate to internal
+  // page": red text on a light-grey rounded pill that fills to BLACK with white
+  // text on hover/click. Same treatment as the About-page internal-link pills.
+  // box-decoration-clone keeps the rounded pill intact if it wraps across lines.
   const pillClass =
-    "text-shadow-token underline-offset-[6px] decoration-2 transition-colors duration-200 hover:text-accent hover:underline";
+    "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent text-shadow-token transition-colors duration-200 hover:bg-black hover:text-white hover:text-shadow-none";
 
   return (
     <div

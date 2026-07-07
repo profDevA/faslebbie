@@ -740,9 +740,16 @@ export interface CaseStudy {
     duration: string
     team: string
     image?: string
+    /** Optional "VISIT SITE" link target shown under the overview body. */
+    visitSite?: string
+    /** Optional small-print confidentiality note at the bottom of the column. */
+    note?: string
   }
   /** "WHAT I BROUGHT" — sage accordion (first item open). */
   brought?: CaseStudyAccordionItem[]
+  /** Heading for the `brought` section. Defaults to "What I Brought"; some live
+   *  studies title it differently (e.g. Galderma → "My Role"). */
+  broughtHeading?: string
   /** Black "PROBLEM CONTEXT" prose (paragraphs split on blank lines). */
   problem?: string
   /** "MY APPROACH" (cream) — blurb + orange "DESIGN PROCESS" accordion. */
@@ -802,8 +809,10 @@ const baseWorkProjects: WorkProject[] = [
     image: '/work/coral-health.png',
     caseStudy: {
       hero: {
-        caption: 'Bridging healthcare disparities for underserved communities',
-        image: '/work/coral-health/ch_hero.jpg-scaled.png',
+        // Figma-composed hero (1262:17742): logo + couple in the curved cutout
+        // with the caption baked in, sized to fill the popup hero. Caption is
+        // omitted here so the code overlay doesn't duplicate the baked one.
+        image: '/work/coral-health/ch_hero_figma.png',
         imageMobile: '/work/coral-health/ch_mv_hero.jpg.png',
       },
       overview: {
@@ -812,7 +821,11 @@ const baseWorkProjects: WorkProject[] = [
           'Mixed-Methods User Research · Platform Design (UX) · Branding · Cultural Competency Frameworks · Platform Architecture · Journey Mapping · Screening Workflow Modeling · Assessment Design',
         duration: 'March 2022–February 2023',
         team: 'Fas Lebbie (Design + Strategy), Patrick Wesonga (Product), Dr. Fatima Cody Stanford (Clinical Lead), Dr. Chris T. Pernell (Clinical & Equity Lead)',
-        image: '/work/coral-health/frame-1171276875-1.png',
+        // Figma-composed teal decorative panel (1099:12528) — sits on the RIGHT
+        // of the overview; text/meta on the left.
+        image: '/work/coral-health/ch_overview_panel.png',
+        visitSite: 'https://www.coralhealth.io/',
+        note: "Confidentiality: This case study's insights and design process reflect my perspective and design approach. Specific details have been modified to protect sensitive information from Coral Health while showcasing my design approach.",
       },
       brought: [
         {
@@ -1159,8 +1172,48 @@ function stripNavGalleries(cs: CaseStudy | undefined): CaseStudy | undefined {
   return { ...cs, extraGalleries: galleries.length ? galleries : undefined }
 }
 
+// Hand-authored patches merged onto the auto-generated studies. The extractor
+// only recognises sections by their live heading, so Galderma's "My Role" block
+// (its equivalent of "What I Brought", titled differently on the live page) was
+// dropped — Israel 07/06: "something's wrong… it's not showing". Restore it here
+// and label the section "My Role" to match faslebbie.com/case-studies/galderma.
+const caseStudyOverrides: Record<string, Partial<CaseStudy>> = {
+  galderma: {
+    broughtHeading: 'My Role',
+    brought: [
+      {
+        title: 'Design Leadership & PLG Strategy',
+        paras: [
+          'I introduced the User Engagement State framework to Galderma, moving stakeholders from a "content library" mindset to a "growth funnel" mindset. I defined the critical thresholds for Setup, Aha!, and Habit moments, aligning the design roadmap to optimize for "Activation" rather than just "Registration".',
+        ],
+      },
+      {
+        title: 'Research & Insight Leadership',
+        paras: [
+          'I led the ethnographic inquiry into the "mouth-to-mouth" system to identify what constituted a true "Aha! Moment" for a doctor. I synthesized these findings to define the "Habit Moment" as the specific point where an HCP is paired with a supervisor for their first patient interaction, shifting the focus from "content consumption" to "verified capability".',
+        ],
+      },
+      {
+        title: 'Experience / Systems / Product Design Leadership',
+        paras: [
+          'I architected the HCP Flow to function as a retention engine. This involved designing "Resurrection" loops in which failed accreditation assessments automatically triggered reactivation flows, and structuring "Power" user features such as Clinic Management and Resources to drive long-term engagement loops.',
+        ],
+      },
+      {
+        title: 'Organizational Influence & Cross-Functional Partnership',
+        paras: [
+          'I navigated the friction between Brand Strategy (Jennifer Younes) and Digital Aesthetics (Pierre Geiger) by using the PLG framework as a neutral source of truth. By defining "Activated" and "Power" states, I aligned distinct business units on shared KPIs, helping the team prioritize an "Innovation Viable Product" (IVP) for the Brazil pilot that specifically tested the Time-to-Aha.',
+        ],
+      },
+    ],
+  },
+}
+
 export const workProjects: WorkProject[] = baseWorkProjects.map((p) => {
-  const caseStudy = stripNavGalleries(p.caseStudy ?? generatedCaseStudies[p.slug])
+  const generated = p.caseStudy ?? generatedCaseStudies[p.slug]
+  const override = caseStudyOverrides[p.slug]
+  const merged = generated ? { ...generated, ...override } : generated
+  const caseStudy = stripNavGalleries(merged)
   return {
     ...p,
     caseStudy,
