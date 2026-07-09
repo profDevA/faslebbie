@@ -67,8 +67,38 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "Product Demo",
+      "body": "",
+      "video": "/work/2020-us-census-benefit-calculator/Census_Video.mp4"
+    },
     "designInterventions": {
       "body": "The design intervention targets immigrant parents in New York City who distrust government institutions yet prioritize their children’s welfare. Currently, more than half a million kids in New York state risk being undercounted, losing federal funding. To address this, we proposed the Census Benefit Calculator. This web application connects users’ locations, incomes, and children’s ages to personalized federal programs and their corresponding participation funds. By linking participation to benefits, families gained practical motivation for engagement."
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "Through a transdisciplinary design approach, I integrated several methods and frameworks, some of which are presented here, including the ethnographic research, systems analysis, and participatory co-creation methodologies. From stakeholder mapping to competitive analysis, each method and approach aims to reveal the civic challenges and opportunities within the New York City US census.",
+      "images": [
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_1.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_2.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_3.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_4.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_5.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_6.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_7.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_8.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_9.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_10.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_11.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_12.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_13.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_14.Jpg.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_15.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_17.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/UC_AI_slider_18.Jpg-1.png",
+        "/work/2020-us-census-benefit-calculator/Frame-1171276926.png",
+        "/work/2020-us-census-benefit-calculator/Frame-1171276927.png"
+      ]
     },
     "stats": [
       {
@@ -99,39 +129,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Develop field worker training materials and protocols to ensure optimal tool deployment.",
       "Integrate real-time federal funding data for more precise benefit calculations.",
       "Develop offline capabilities for communities with limited internet access."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "Through a transdisciplinary design approach, I integrated several methods and frameworks, some of which are presented here, including the ethnographic research, systems analysis, and participatory co-creation methodologies. From stakeholder mapping to competitive analysis, each method and approach aims to reveal the civic challenges and opportunities within the New York City US census.",
-        "images": [
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_1.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_2.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_3.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_4.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_5.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_6.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_7.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_8.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_9.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_10.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_11.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_12.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_13.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_14.Jpg.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_15.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_17.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/UC_AI_slider_18.Jpg-1.png",
-          "/work/2020-us-census-benefit-calculator/Frame-1171276926.png",
-          "/work/2020-us-census-benefit-calculator/Frame-1171276927.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/2020-us-census-benefit-calculator/OC-Links_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   },
   "acme-lending": {
@@ -145,6 +142,21 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie · John Adams (Collaborating across Product, Engineering, and Compliance)",
       "image": "/work/acme-lending/Section.png"
     },
+    "brought": [
+      {
+        "title": "Research & Insight",
+        "paras": [
+          "I conducted interviews with borrowers and loan officers to uncover the specific anxieties around connecting bank accounts. I synthesized these findings to challenge the assumption that \"thin file\" borrowers were high-risk, reframing them as data-rich users who simply lacked the traditional W-2 artifacts our systems demanded."
+        ]
+      },
+      {
+        "title": "Experience Design",
+        "paras": [
+          "I designed the end-to-end UX interfaces and API integration strategies based on key use cases identified, with a heavy focus on the \"trust layer\" between the borrower, Acme, and Finicity. I designed the logic for error handling, specifically the \"MFA Handoff,\" to reduce anxiety during multi-factor challenges, ensuring that the \"sad paths\" provided clear, human-readable recovery options rather than dead ends."
+        ]
+      }
+    ],
+    "broughtHeading": "My Role",
     "problem": "The mortgage industry has long operated under a “guilty until proven innocent” model for income verification. At Acme Lending, the traditional verification process was not just time-consuming; it was fundamentally broken for a massive segment of the population. We were asking users to perform manual labor by collecting, scanning, and uploading physical documents in an era where their financial lives were entirely digital. This friction created a divide. While W-2 employees could struggle through the “happy path,” the 98 million workers paid through disparate payroll providers found themselves in a systemic loop of failure. Take “Leah,” a persona we identified: a gig-economy worker flagged as “high-risk” simply because she couldn’t upload a standard paystub. They were digitally native but institutionally excluded. The system failed to connect seamlessly with modern digital channels, forcing loan officers to spend hours staring at screens, manually verifying the authenticity of PDFs. This manual bottleneck didn’t just delay approvals; it also increased operational costs and reduced lenders’ throughput. With industry averages pegging manual verification costs at $150+ per loan, every manual intervention eroded our margin. A design intervention was needed not just to speed things up, but to rewire the infrastructure of trust.",
     "approach": {
       "blurb": "At the core, we realized that for “thin-file” borrowers, the friction wasn’t just the interface but the fear of institutional judgment. We continue to reframe the verification process from a compliance interrogation into a “Data Handshake,” centering the marginalized user through Design Justice principles. This strategy prioritized transparency and revocability, ensuring that the process empowered the borrower’s narrative rather than satisfying the lender’s checklist.",
@@ -190,6 +202,22 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "Acme Lending Income Verification Demo",
+      "body": "Shows how TX Verify API integration replaces manual document uploads with secure, user-authorized data access, reducing verification friction.",
+      "video": "/work/acme-lending/Acme-Lending_-Video.mp4"
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "Here is a list of the research and design methods used to understand the verification challenges. From research observations to key platform features developed and defining the user journeys of some personas, informed design decisions informed the redesign of the digital verification process.",
+      "images": [
+        "/work/acme-lending/AL_AI_slider_1.Jpg-1-2.png",
+        "/work/acme-lending/AL_AI_slider_5.Jpg.png",
+        "/work/acme-lending/AL_AI_slider_2.Jpg-1-1.png",
+        "/work/acme-lending/AL_AI_slider_3.Jpg-1-1.png",
+        "/work/acme-lending/AL_AI_slider_4.Jpg-1-1.png"
+      ]
+    },
     "stats": [
       {
         "value": 33,
@@ -214,19 +242,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     "nextSteps": [
       "Expand experience design and interface integration with additional payroll providers and financial institutions.",
       "Develop new designs for international verification capabilities for non-U.S. income sources."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "Here is a list of the research and design methods used to understand the verification challenges. From research observations to key platform features developed and defining the user journeys of some personas, informed design decisions informed the redesign of the digital verification process.",
-        "images": [
-          "/work/acme-lending/AL_AI_slider_1.Jpg-1-2.png",
-          "/work/acme-lending/AL_AI_slider_5.Jpg.png",
-          "/work/acme-lending/AL_AI_slider_2.Jpg-1-1.png",
-          "/work/acme-lending/AL_AI_slider_3.Jpg-1-1.png",
-          "/work/acme-lending/AL_AI_slider_4.Jpg-1-1.png"
-        ]
-      }
     ]
   },
   "coral-health": {
@@ -370,6 +385,25 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "Marketing & Brand Experience Designs",
+      "body": "I also contributed to the design of the marketing site and brand identity. We knew that for underserved communities, the platform's \"vibe\" had to feel different from traditional corporate healthcare.",
+      "video": "/work/coral-health/Coral-Healthe_Video-3.mp4"
+    },
+    "extraGalleries": [
+      {
+        "heading": "Supporting Designs Streams",
+        "body": "We developed a visual identity rooted in community warmth and representation, moving away from sterile medical blues to a more human, vibrant palette. The marketing site served a dual purpose: it validated the platform for potential users by showing people who looked like them, and it articulated the value of “culturally competent care” to employer partners. This top-of-funnel work was critical for adoption, as it framed the product as a place of safety and understanding, directly impacting our customer acquisition costs (CAC) and conversion rates.",
+        "images": [
+          "/work/coral-health/coral_health_desktop.png",
+          "/work/coral-health/coral_health_desktop_2.png",
+          "/work/coral-health/coral_health_desktop_3.png",
+          "/work/coral-health/coral_health_desktop_4.png",
+          "/work/coral-health/coral_health_desktop_5.png"
+        ],
+        "variant": "mockups"
+      }
+    ],
     "advocate": {
       "heading": "Empowering You to Truly be Their Advocate",
       "body": "Coral Health is an actionable way to support your organization's diversity, equity, and inclusion commitment by helping culturally diverse people within your organization feel a sense of safety, understanding, and belonging in healthcare situations.",
@@ -413,29 +447,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Deepen matching models by incorporating richer variables, such as communication style, into the algorithm to drive down further “Time to Relevant Match.”",
       "Enhance navigation to automate “human-in-the-loop” reminders to sustain gains in at-home drop-off rates.",
       "Build dashboards for employer analytics that visualize the ROI of equity for B2B partners, proving the “Business Objective” connection directly to their bottom line."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Marketing & Brand Experience Designs",
-        "body": "I also contributed to the design of the marketing site and brand identity. We knew that for underserved communities, the platform's \"vibe\" had to feel different from traditional corporate healthcare.",
-        "images": [
-          "/work/coral-health/ch_bi.jpg-scaled.png",
-          "/work/coral-health/ch_mv_hero.jpg.png",
-          "/work/coral-health/slc_hero.jpg-scaled.png",
-          "/work/coral-health/slc_mv_hero.jpg.png"
-        ]
-      },
-      {
-        "heading": "Supporting Design Streams",
-        "body": "We developed a visual identity rooted in community warmth and representation, moving away from sterile medical blues to a more human, vibrant palette. The marketing site served a dual purpose: it validated the platform for potential users by showing people who looked like them, and it articulated the value of “culturally competent care” to employer partners. This top-of-funnel work was critical for adoption, as it framed the product as a place of safety and understanding, directly impacting our customer acquisition costs (CAC) and conversion rates.",
-        "images": [
-          "/work/coral-health/coral_health_desktop.png",
-          "/work/coral-health/coral_health_desktop_2.png",
-          "/work/coral-health/coral_health_desktop_3.png",
-          "/work/coral-health/coral_health_desktop_4.png",
-          "/work/coral-health/coral_health_desktop_5.png"
-        ]
-      }
     ]
   },
   "design-assist-ai": {
@@ -449,6 +460,32 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "5 Senior Designers (Kenzo, Ankita, Bo, Andrew, Levi), EISA Engineering, MetaGen AI Team, Blueprint Design System",
       "image": "/work/design-assist-ai/Section.png"
     },
+    "brought": [
+      {
+        "title": "Design Leadership & Direction",
+        "paras": [
+          "I defined the \"AI as Raw Material\" strategy, shifting our focus from simple automation to deep workflow augmentation. Rather than treating AI as a replacement threat, I positioned it as a substrate that designers shape and mold to augment decision-making. I also oversaw license governance and managed the $450K budget to ensure scalable, responsible adoption, while architecting the foundation for an enterprise-wide system that would eventually extend beyond designers."
+        ]
+      },
+      {
+        "title": "Research & Insight Leadership",
+        "paras": [
+          "I facilitated cross-disciplinary workshops that identified critical \"abandonment moments,\" specifically finding that 87% of components were dropped when classification was complex. This insight pivoted our entire strategy toward an \"in-context\" intervention rather than a separate dashboard."
+        ]
+      },
+      {
+        "title": "Experience Design Leadership & IC Role",
+        "paras": [
+          "I architected the \"DesignKit\" and \"Design Orb\" concepts, creating a system in which the AI \"reads\" local variables and project context (e.g., Google Docs) to tailor its output. I structured the team topology, delegating feature streams to specific designers while personally executing the Core Toolbar & Quick Starter to ensure the architectural foundation was stable."
+        ]
+      },
+      {
+        "title": "Organizational Influence & Cross-Functional Partnership",
+        "paras": [
+          "I partnered with Engineering to build the RAG Knowledge Pipeline, mapping 6,000+ patterns to a standardized taxonomy and integrating it with our design documentation. This infrastructure enabled real-time verification against live code repositories, ensuring we were designing against truth, not just static files."
+        ]
+      }
+    ],
     "problem": "Our internal data showed that 46% of designers were struggling to use Blueprint consistently. The cost of this friction was massive: for every senior designer we hired, nearly 16 hours of their month were lost to “system archeology,” digging through repositories to find the right component. The “abandonment” metric was our smoking gun. We found that 87% of designers would abandon a compliant component if the classification process required multiple steps. They weren’t being rebellious. They were being efficient. To keep up with aggressive shipping timelines, they would simply “detach” and build from scratch, creating massive technical debt downstream. Furthermore, the sheer volume of context, voice, tone, and accessibility rules meant designers were constantly context-switching out of Figma to read documentation in “Dim Sum” (our internal wiki). Beyond designer inefficiency, friction extended to dependencies: engineers and PMs couldn’t access design logic without manually requesting help, creating organizational bottlenecks. We needed a solution that brought the documentation to the pixel, eliminating the gap between decisions and data.",
     "approach": {
       "blurb": "My strategy began with a provocation: “How can AI become a new ‘Raw Material’ for design?” Identifying workflow friction, I pivoted our tooling strategy from static documentation to an embedded RAG-powered Figma plugin. I followed a “Skateboard to Airplane” maturity model: starting with designers to validate the infrastructure before scaling enterprise-wide. I aligned Product and Engineering on the data foundation, then operationalized the vision by delegating feature streams to my team, orchestrating our collective efforts toward a high-fidelity MVP.",
@@ -503,6 +540,16 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     "designInterventions": {
       "body": "Design Assist began as a Figma plugin acting as a real-time bridge between Blueprint and the designer’s active file. It intervenes in three ways: contextual guidance, automated production, and system enforcement. We didn’t just build a chatbot. We built infrastructure. We created a Design Data Schema mapping 6,000+ component patterns to a standardized taxonomy and collaborated with engineering to build the RAG Knowledge Pipeline, ensuring AI could securely “read” Figma tables and Product Catalog context."
     },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "During the research, we analyzed 300+ Figma files, conducted 17 interviews, and 20 contextual inquiries. This uncovered barriers to design system adoption at Meta EISA. Findings showed 46% inconsistent Blueprint usage, 25% time lost searching components, and high compliance errors, with friction extending beyond designers to cross-functional dependencies.",
+      "images": [
+        "/work/design-assist-ai/1-3.png",
+        "/work/design-assist-ai/10-4.png",
+        "/work/design-assist-ai/11-4.png",
+        "/work/design-assist-ai/13-1.png"
+      ]
+    },
     "stats": [
       {
         "value": 15,
@@ -524,23 +571,9 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       }
     ],
     "reflections": "Design Assist helped Meta’s EISA designers work more efficiently. By saving each designer 10-15 hours per month, we increased our 5-person team’s capacity by 40-50%. That’s like having 2-3 additional senior designers, worth an estimated $450K-$900K annually in reclaimed time.\n\nBlueprint adoption jumped from 45% to 90% within 9 months, showing we’d actually made it easier for designers to make the right choices. The satisfaction score rose from 75% to 84%, which told us designers saw the tool as something that helped them do better work, not just another system to police their decisions.\n\nThe biggest lesson? AI-powered design systems can reduce design debt while helping teams move faster. By building intelligence directly into Figma rather than making designers switch contexts, we showed that doing things right and doing them quickly can work together when you design the infrastructure thoughtfully.",
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "During the research, we analyzed 300+ Figma files, conducted 17 interviews, and 20 contextual inquiries. This uncovered barriers to design system adoption at Meta EISA. Findings showed 46% inconsistent Blueprint usage, 25% time lost searching components, and high compliance errors, with friction extending beyond designers to cross-functional dependencies.",
-        "images": [
-          "/work/design-assist-ai/1-3.png",
-          "/work/design-assist-ai/10-4.png",
-          "/work/design-assist-ai/11-4.png",
-          "/work/design-assist-ai/13-1.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/design-assist-ai/FAS_Hero.Jpg-1-1-scaled.png"
-        ]
-      }
+    "nextSteps": [
+      "Phase II: Extending the Operating System",
+      "With Phase I proving the foundation (90% adoption, $450K-900K annual revenue impact), we’re extending design intelligence beyond Figma to engineers (VS Code) and product managers (Jira), enabling true self-service across the organization. The same “Design Brain” that powered designer workflows will now democratize design knowledge enterprise-wide, transforming Design Assist from a productivity tool into an organizational infrastructure."
     ]
   },
   "diamond-valuation-ai": {
@@ -568,6 +601,87 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       }
     ],
     "problem": "Diamond valuation has historically favored buyers over miners. In Sierra Leone’s artisanal mining communities, this information gap leads to systematic undervaluation due to the asymmetry in the valuation process. Existing tools such as DiamondMaster and CARATRATE cater to dealers and traders, requiring extensive gemological knowledge, subscription fees, and a stable Internet, which most miners lack. Our early research revealed that most miners lacked practical methods to assess the minerals they discovered. Professional scanning systems are not readily available in remote areas, and when they are, they are often used discreetly. In some cases, scanning systems are available in major trading centers, but security risks and travel costs make them inaccessible. Despite these challenges, miners did have access to cell phones. The Root Foundation, the company launching this app, aims to build a local grading and valuation office as an embedded ally approach while engaging in potential partnerships with Pact and GIA. Through community-led discussions with miners about the local grading and valuation office in Kono, the Diamond Valuation AI app emerged, allowing them to shift from a centralized valuation office to a decentralized mobile solution. This app addresses security concerns raised by local miners, protects Root Foundation agents and office safety, decentralizes the accessibility of market prices, and puts them in miners’ pockets.",
+    "approach": {
+      "blurb": "This research is based off the idea that most systems are designed to be exclusionary, and the designer’s role is to democratize systems that marginalize and oppress vulnerable people and communities. I used this principle to identify leverage points within the system. Our research and design decisions prioritize accessibility, transparency, and immediate value for miners previously excluded from fair market participation. This aligns with the Participatory Technology Development framework, which focuses on equity, inclusion, and meaningful stakeholder engagement throughout the technology development process. For this project, we’ve prioritized transparency, respect, partnership, two-way knowledge exchange, and capacity building, core principles that guide our work with miners.",
+      "process": [
+        {
+          "title": "Baseline Information",
+          "paras": [
+            "Early fieldwork showed that smartphones were common in Kono and Sierra Leone, but technical literacy varied among miners. Traditional diamond assessment tools such as Diamond Master and CARATRATE served dealers, requiring specialized gemological expertise and costly subscriptions. Market analysis showed that professional solutions, such as Sarine’s scanning technology, made diamond valuation feasible but inaccessible to miners. Security concerns made centralized valuation facilities impractical. By understanding the socioeconomic challenges within Kono’s mining communities, supply chain power imbalances, and miners’ technological capabilities, I grounded my approach the local context."
+          ]
+        },
+        {
+          "title": "Design Research & Strategy",
+          "paras": [
+            "I employed a mixed-methods approach, using a participatory technology development approach to research and contextual interviews with miners across various sites. These sessions revealed miners’ workflows, pain points, and technology usage patterns. Participatory design workshops with 25 miners helped reveal the systemic barriers and knowledge gaps that they faced. Collaboration with gemological experts helped distill complex valuation principles into accessible interactions."
+          ]
+        },
+        {
+          "title": "Summary of Findings",
+          "paras": [
+            "Research findings revealed that miners’ knowledge of diamond valuation was fragmented. While miners understood basic principles of diamond valuation, they struggled to link these qualities to market value and optimal cutting strategies. This gap perpetuates power imbalances when middlemen, such as local dealers and foreign buyers, exploit this information asymmetry. This study identified some barriers to fair valuations:",
+            "Working with gemologists and miners, we developed three strategic pillars:"
+          ],
+          "bullets": [
+            "Limited technical literacy despite smartphone access",
+            "Intermittent connectivity in remote mining sites",
+            "Deep mistrust of centralized valuation systems due to historical exploitation",
+            "Reliance on local pricing networks that often undervalue stones by 30-70%",
+            "Create a simplified interface design that requires minimal technical knowledge. Visual-first interactions translate complex gemological concepts into intuitive assessments.",
+            "Built with an offline-first architecture to provide full functionality without Internet, ensuring accessibility in remote regions through locally cached data.",
+            "Integrate viewing, imaging, and pricing into a unified AI-powered analysis system to democratize valuation expertise and translate simplified inputs into trustworthy price estimates."
+          ]
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "paras": [
+            "Miners tested conceptual and experience design flows, starting with basic wireframes, to understand our intervention within infrastructure limitations and cultural contexts. The initial prototypes highlighted the need for clear visual guidance during diamond scanning and clear value reports suitable for mining conditions. Current tests focus on the offline optimization of the AI model for mobile devices. Miners can install the model through the Root Foundation office. Enhanced features refined from miner feedback include real-time visual guidance for optimal image and video capture, automated value estimation, and downloadable reports for negotiation support. Limited AI literacy suggests a 50-80% accuracy rate in field conditions, but the app can still have successful use cases with a simplified UI assessment approach. Successful implementation may indicate new opportunities for technology transfers that can expand functionality to other minerals, such as gold, potentially benefiting artisanal mining communities."
+          ]
+        }
+      ]
+    },
+    "productDemo": {
+      "heading": "Product Demo",
+      "body": "",
+      "video": "/work/diamond-valuation-ai/Diamond-Valuation-AI-_Video.mp4"
+    },
+    "extraGalleries": [
+      {
+        "heading": "Undervalued Exchange",
+        "body": "The miner finds diamonds but lacks market knowledge, selling to dealers without fair valuation due to limited knowledge of minerals and pricing.",
+        "images": [
+          "/work/diamond-valuation-ai/RA_PS.Jpg-scaled.png"
+        ]
+      },
+      {
+        "heading": "Gallery",
+        "body": "Surrounded by dust and silence, miners endure harsh conditions—trapped in systems built to keep them down.",
+        "images": [
+          "/work/diamond-valuation-ai/RA_BI.jpg"
+        ]
+      }
+    ],
+    "designInterventions": {
+      "body": "The app democratizes diamond valuation using AI-powered mobile technology that enables miners to independently assess rough diamonds, their market value, and potential yield analysis. The solution offers both online and offline smartphone scanning for live capture photography and videos, which are analyzed using AI to provide reliable market value estimates without Internet connectivity. The app prioritizes accessibility and usability for miners with limited technical knowledge by simplifying professional assessment principles into clear steps that anyone can follow.",
+      "heading": "Design Solution"
+    },
+    "advocate": {
+      "heading": "Product Demo",
+      "body": "",
+      "video": "/work/diamond-valuation-ai/3.mp4"
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "Root Ally’s development utilized six strategic design frameworks to ensure a thorough solution development process. The Theory of Change outlined pathways connecting technological intervention to economic empowerment. Stakeholder and Ecosystem Mapping pinpointed essential participants and market dynamics. Resource Mapping disclosed available resources and limitations. Pain Scale Analysis emphasized critical challenges faced by miners that required prompt action. The Wheel of Reasoning confirmed the logical relationships between issues and suggested solutions. This structured approach ensured that Root Ally met the authentic needs of miners while anticipating market resistance and enhancing transformative impact.",
+      "images": [
+        "/work/diamond-valuation-ai/RA_AI_slider_2.Jpg.png",
+        "/work/diamond-valuation-ai/RA_AI_slider_3.Jpg.png",
+        "/work/diamond-valuation-ai/RA_AI_slider_6.Jpg.png",
+        "/work/diamond-valuation-ai/RA_AI_slider_5.Jpg.png",
+        "/work/diamond-valuation-ai/RA_AI_slider_4.Jpg.png",
+        "/work/diamond-valuation-ai/RA_AI_slider_1.Jpg.png"
+      ]
+    },
     "stats": [
       {
         "value": 70,
@@ -588,48 +702,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Establish a local valuation hub through Root Foundation to support adoption, build trust, and assist miners with low digital literacy.",
       "Create visual-first training programs that boost miners’ valuation skills, negotiation confidence, and long-term app engagement.",
       "Explore expansion to gold and coltan by assessing miner needs, tech feasibility, and opportunities for cross-mineral adaptation."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Undervalued Exchange",
-        "body": "The miner finds diamonds but lacks market knowledge, selling to dealers without fair valuation due to limited knowledge of minerals and pricing.",
-        "images": [
-          "/work/diamond-valuation-ai/RA_PS.Jpg-scaled.png"
-        ]
-      },
-      {
-        "heading": "Design Solution",
-        "body": "The app democratizes diamond valuation using AI-powered mobile technology that enables miners to independently assess rough diamonds, their market value, and potential yield analysis. The solution offers both online and offline smartphone scanning for live capture photography and videos, which are analyzed using AI to provide reliable market value estimates without Internet connectivity. The app prioritizes accessibility and usability for miners with limited technical knowledge by simplifying professional assessment principles into clear steps that anyone can follow.",
-        "images": [
-          "/work/diamond-valuation-ai/RA_DI_slider_1.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_2.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_3.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_4.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_5.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_6.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_7.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_8.Jpg.png",
-          "/work/diamond-valuation-ai/RA_DI_slider_9.Jpg.png"
-        ]
-      },
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "Root Ally’s development utilized six strategic design frameworks to ensure a thorough solution development process. The Theory of Change outlined pathways connecting technological intervention to economic empowerment. Stakeholder and Ecosystem Mapping pinpointed essential participants and market dynamics. Resource Mapping disclosed available resources and limitations. Pain Scale Analysis emphasized critical challenges faced by miners that required prompt action. The Wheel of Reasoning confirmed the logical relationships between issues and suggested solutions. This structured approach ensured that Root Ally met the authentic needs of miners while anticipating market resistance and enhancing transformative impact.",
-        "images": [
-          "/work/diamond-valuation-ai/RA_AI_slider_2.Jpg.png",
-          "/work/diamond-valuation-ai/RA_AI_slider_3.Jpg.png",
-          "/work/diamond-valuation-ai/RA_AI_slider_6.Jpg.png",
-          "/work/diamond-valuation-ai/RA_AI_slider_5.Jpg.png",
-          "/work/diamond-valuation-ai/RA_AI_slider_4.Jpg.png",
-          "/work/diamond-valuation-ai/RA_AI_slider_1.Jpg.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/diamond-valuation-ai/VC_Hero.Jpg.jpg"
-        ]
-      }
     ]
   },
   "experian-boost": {
@@ -712,8 +784,25 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "How it works",
+      "body": "The UltraFICO™ Score incorporates transactional data from consumers' checking, savings, and money market accounts, extending the scorable population and refining prediction accuracy to broaden financial inclusion.",
+      "video": "/work/experian-boost/Experian-Boost_Video.mp4"
+    },
     "designInterventions": {
       "body": "The core design intervention was Experian Boost, a mobile experience designed to target renters and utility payers who have been historically penalized by the credit system. Currently, 35% of credit-invisible Americans see no benefit from making their bill payments on time. To address this, we designed a secure data bridge that links their bank accounts directly to their Experian credit file. This works by inverting the traditional credit reporting model. Instead of waiting for a lender to report data, the user actively grants Experian permission to scan their transaction history for qualifying payments—such as water, electricity, and rent. We integrated this into a seamless flow that translates these existing behaviors into immediate points on their FICO® Score."
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods, & Frameworks",
+      "body": "Here are some design artifacts during the research process. We use ethnographic research to employ methods such as stakeholder mapping, user interviews, pain scale analysis, and more, helping uncover barriers faced by credit-invisible consumers. Competitive analysis and a theory-of-change framework clarified market gaps. We documented everything to de-risk the regulatory review process and ensure strategic clarity.",
+      "images": [
+        "/work/experian-boost/EB_AI_slider_1.Jpg.png",
+        "/work/experian-boost/EB_AI_slider_3.Jpg.png",
+        "/work/experian-boost/EB_AI_slider_2.Jpg.png",
+        "/work/experian-boost/EB_AI_slider_4.Jpg.png",
+        "/work/experian-boost/EB_AI_slider_6.Jpg.png",
+        "/work/experian-boost/32.png"
+      ]
     },
     "stats": [
       {
@@ -735,30 +824,12 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         "note": "Thin-file users are experiencing meaningful credit growth and financial recognition."
       }
     ],
+    "reflections": "To understand the design’s impact, we connected design decisions directly to financial outcomes. We linked the clarity of the consent flow to “Time-to-Data-Capture,” proving that reducing anxiety increased authorization rates. This focus on trust delivered tangible results: we unlocked credit access for 86% of thin-file users, increased average scores by 19 points, and slashed partner loan origination timelines by 33%.\n\nThis efficiency created a strategic moat for Experian. By validating consumer-permissioned data at scale, we accelerated the adoption of FDX standards across 36+ institutions. We turned a regulatory constraint into a competitive advantage, proving that in regulated fintech, a transparent user experience is the most effective lever for operational growth.\n\nOur 92% trust rating confirmed we built something people believed in. Beyond the metrics, meaningful stories emerged of individuals qualifying for their first apartments and securing better loans. Experian Boost didn’t create new financial behaviors; it simply gave credit where credit was due. Ultimately, this initiative benefits over 7 million consumers, providing a critical pathway for the 53 million Americans who have been historically excluded by traditional models. Collectively, our partnership built something people believed in, reminding us why we design: to make complex systems work better for everyday people.",
+    "reflectionsHeading": "Short & Long-term Impact",
     "nextSteps": [
       "Expand data ingestion by integrating streaming and telco data to increase the “Match Rate” for younger demographics with limited utility history.",
       "Refine Re-verification by gamifying the monthly re-scan process to boost “Retention Rate” and ensure credit scores remain dynamic.",
       "Scale brand mirroring and extend the UI adaptation framework to regional credit unions to maintain high “Consent Rates” across smaller institutions."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods, & Frameworks",
-        "body": "Here are some design artifacts during the research process. We use ethnographic research to employ methods such as stakeholder mapping, user interviews, pain scale analysis, and more, helping uncover barriers faced by credit-invisible consumers. Competitive analysis and a theory-of-change framework clarified market gaps. We documented everything to de-risk the regulatory review process and ensure strategic clarity.",
-        "images": [
-          "/work/experian-boost/EB_AI_slider_1.Jpg.png",
-          "/work/experian-boost/EB_AI_slider_3.Jpg.png",
-          "/work/experian-boost/EB_AI_slider_2.Jpg.png",
-          "/work/experian-boost/EB_AI_slider_4.Jpg.png",
-          "/work/experian-boost/EB_AI_slider_6.Jpg.png",
-          "/work/experian-boost/32.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/experian-boost/RA_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   },
   "financial-data-exchange": {
@@ -772,6 +843,27 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie, John Adams, Brian Burges",
       "image": "/work/financial-data-exchange/Frame-1171276875-3.png"
     },
+    "brought": [
+      {
+        "title": "Research & Strategy",
+        "paras": [
+          "Synthesized foundational behavioral research from Mint and FDX partners, mapping trust indicators across 1,500+ consumers. I helped translate these high-level insights into an experience design strategy that drove the adoption of API-based financial connectivity across 30+ institutions."
+        ]
+      },
+      {
+        "title": "Experience & Systems Design",
+        "paras": [
+          "Designed \"headless\" consent framework that translates complex API capabilities into intuitive flows, which gave users granular control over their data (what data is shared, for how long, and with whom) while ensuring consistent, consumer-grade usability across disparate partners like Mint and Chase."
+        ]
+      },
+      {
+        "title": "Organizational Influence",
+        "paras": [
+          "Align design solutions with strict regulatory requirements by embedding security compliance directly into the experience design."
+        ]
+      }
+    ],
+    "broughtHeading": "My Role",
     "problem": "The financial data ecosystem faced challenges with outdated and insecure data-sharing methods between consumers and third-party applications. Before FDX, consumers had to provide their banking credentials (usernames and passwords) to third-party financial apps through a process called screen scraping, creating serious security vulnerabilities. The Financial Data Exchange was developed as a non-profit financial organization that promotes and enhances a standard operating framework for sharing consumer financial data, empowering consumers to control their personal financial data. The backdrop of this project was a digital ecosystem held together by duct tape. For years, the industry relied on screen-scraping, a workaround where users surrendered their credentials to third-party apps. It was functional, but it stripped consumers of agency and created a “black box” liability nightmare for banks. Consumers maintained an average of more than 5 financial accounts but lacked a standardized way to connect them securely. The lack of interoperability increased support costs and abandonment. For a market leader like Mint, this was existential. Our data revealed that 63% of Mint users lacked clarity on data sharing, which was actively hindering retention. 56% of users explicitly demanded more control before connecting new accounts. We were starting from a point where security fears were actively capping growth, and the existing “user experience” of data sharing was essentially a security violation dressed up as a feature.",
     "approach": {
       "blurb": "Our VP of Design steered the high-level strategy, navigating the friction between Intuit’s conversion goals and the banks’ security mandates. My role as a Senior Designer was to operationalize this vision. I served as the tactical bridge, translating their regulatory agreements into tangible UI designs, working directly with engineering and external partners to deliver consent UX flows.",
@@ -804,6 +896,25 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     "designInterventions": {
       "body": "The core design intervention was the introduction of a standardized, API-driven consent flow that fundamentally changed the data “handshake.” We treated FDX as a “Headless UI Framework,” a set of logic, permissions, and disclosure patterns that could accept branding from any partner while enforcing strict trust standards. Built on Finicity’s secure aggregation platform, the design features a streamlined selection interface that prioritizes installed apps and leverages existing bank authentication to enhance security. Crucially, it allows users to view real-time balances for informed decision-making and provides granular controls to grant, modify, or revoke access, aligning with the FDX principles of transparency and consumer agency."
     },
+    "advocate": {
+      "heading": "",
+      "body": "We applied the FDX standard as a \"Headless UI Framework\" directly within the Mint experience. The solution progressively discloses specific data requests, explicitly listing sensitive items such as SSNs and routing numbers. We introduced granular controls that allow users to toggle individual accounts and view precise access expiration dates.",
+      "image": "/work/financial-data-exchange/FDX_BI.Jpg-scaled.png"
+    },
+    "extraGalleries": [
+      {
+        "heading": "Experience Touchpoints",
+        "body": "The design intervention allows users to understand what data is being shared, with whom, for what purpose, and for how long. Building on this, my UX solutions started with basic information about connections, then detailed specific data requested (SSN, routing numbers, account information).",
+        "images": [
+          "/work/financial-data-exchange/1445-3.png",
+          "/work/financial-data-exchange/1446-2.png",
+          "/work/financial-data-exchange/1447-3.png",
+          "/work/financial-data-exchange/1448-2.png",
+          "/work/financial-data-exchange/1449-2.png",
+          "/work/financial-data-exchange/1450-1.png"
+        ]
+      }
+    ],
     "stats": [
       {
         "value": 20,
@@ -829,26 +940,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Develop advanced permission management features allowing users to set time-based and usage-based data access controls.",
       "Implement real-time monitoring and notification systems for data access activities and permission changes.",
       "Develop educational resources and onboarding flows to increase consumer understanding of the benefits of data sharing."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Experience Touchpoints",
-        "body": "The design intervention allows users to understand what data is being shared, with whom, for what purpose, and for how long. Building on this, my UX solutions started with basic information about connections, then detailed specific data requested (SSN, routing numbers, account information).",
-        "images": [
-          "/work/financial-data-exchange/1445-3.png",
-          "/work/financial-data-exchange/1446-2.png",
-          "/work/financial-data-exchange/1447-3.png",
-          "/work/financial-data-exchange/1448-2.png",
-          "/work/financial-data-exchange/1449-2.png",
-          "/work/financial-data-exchange/1450-1.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/financial-data-exchange/AL_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   },
   "forever-a-surfer": {
@@ -857,7 +948,7 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     },
     "overview": {
       "body": "Launched in October 2017, this two-month initiative connected local surfers with social justice activism through FAS Movement brand ambassadors. The campaign increased brand awareness, improved engagement across all channels, and established a sustainable network of surfer partnerships dedicated to social change, integrating humanitarian action with the promotion of surf culture. The initiative leveraged surf workshops and clinics into fundraising opportunities, raising $50,000 for a surf clinic in Sierra Leone. Through integrated lifestyle branding, the campaign successfully bridged recreational surfing with meaningful nonprofit impact.",
-      "disciplines": "",
+      "disciplines": "Brand strategy development · Social justice advocacy · Social impact campaigns · Partnership development · Photography & videography",
       "duration": "October–December 2017",
       "team": "Fas Lebbie, Lance Lowry, Nick Jones, Parker Welbeck, local surfers"
     },
@@ -881,6 +972,8 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         ]
       }
     ],
+    "problem": "The Forever a Surfer campaign taps into the vibrant intersection of surf culture, travel, and social responsibility rooted in the global surf community. While other nonprofit organizations struggled to connect with surfers, we saw an opportunity in surfing’s deep connection to world travel – where passionate surfers often find themselves in surf locations in the Global South, seeking the perfect wave. Surfers who travel globally often encounter underprivileged communities but lack structured ways to make a positive impact. Our challenge was to authentically integrate the nonprofit’s social justice mission with local surf culture, while leveraging the sport’s adventurous spirit to increase brand awareness. Surfers want to give back to communities they visit, but only a few actively participate in surf-related humanitarian work. We zeroed in on surf communities where passionate athletes were already working on social justice platforms: Orange County’s competitive surf scene, Hawaii’s traditional surf heritage, and California’s progressive surf culture. Each location offered unique perspectives on how local surfers who travel to places like South Africa, Bali, and more could become vehicles to create a positive impact on local systems.",
+    "problemHeading": "Campaign Background",
     "approach": {
       "blurb": "I employed three strategic frameworks: mapping community needs and values, identifying relationships among surfers, competitions, and humanitarian missions, and developing pathways from ambassador recruitment to social impact outcomes.",
       "process": [
@@ -898,31 +991,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
-    "designInterventions": {
-      "body": "Lifestyle Branding & Photoshoots"
-    },
-    "stats": [
-      {
-        "value": 8,
-        "suffix": "%",
-        "label": "Engagement",
-        "note": "Documentary videos achieved 3x nonprofit average of 2.3%."
-      },
-      {
-        "value": 50,
-        "suffix": "K",
-        "label": "Raised",
-        "note": "Funded Sierra Leone programs and artist partnerships."
-      }
-    ],
-    "nextSteps": [
-      "Expand the ambassador program to include surfers from our next trip in South Africa.",
-      "Develop a mobile app connecting traveling surfers with local humanitarian opportunities.",
-      "Create a standardized surf clinic curriculum for implementation",
-      "Establish partnerships with surf equipment manufacturers for gear donations",
-      "Launch annual “Surfers for Change” conference, bringing together athlete activists",
-      "Develop a documentary series that follows surfers on humanitarian missions around the world."
-    ],
     "extraGalleries": [
       {
         "heading": "Phase 1 Strategy",
@@ -947,13 +1015,39 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
           "/work/forever-a-surfer/FAS_DI_2_slider_3.Jpg.png",
           "/work/forever-a-surfer/FAS_DI_2_slider_4.Jpg.png"
         ]
+      }
+    ],
+    "designInterventions": {
+      "body": "Lifestyle Branding & Photoshoots"
+    },
+    "advocate": {
+      "heading": "",
+      "body": "",
+      "image": "/work/forever-a-surfer/FAS_BI_1.Jpg.jpg"
+    },
+    "stats": [
+      {
+        "value": 8,
+        "suffix": "%",
+        "label": "Engagement",
+        "note": "Documentary videos achieved 3x nonprofit average of 2.3%."
       },
       {
-        "heading": "Previous",
-        "images": [
-          "/work/forever-a-surfer/OC-Navs_Hero.Jpg-1-scaled.png"
-        ]
+        "value": 50,
+        "suffix": "K",
+        "label": "Raised",
+        "note": "Funded Sierra Leone programs and artist partnerships."
       }
+    ],
+    "reflections": "The Forever a Surfer Campaign successfully improved how surfers engage with social justice initiatives, creating immediate pathways for humanitarian impact through surfer-led content creation, local cultural integration, and service-based workshops. The campaign successfully achieved its goal of traveling to Sierra Leone, West Africa, where surfers taught underprivileged youth through surf clinics that fostered confidence and encouraged positive lifestyle choices. Long-term impacts were beginning to be realized as the ambassador program grew organically, with influential figures approaching the team and demonstrating a deep resonance with our activities. This community-driven approach evolved into sustained partnerships, shifting perceptions within the surf industry about the compatibility of social justice work with authentic surf culture, and inspiring a new generation of surfers to view their recreational passion as a vehicle for meaningful global change.",
+    "reflectionsHeading": "Short & Long-term Impact",
+    "nextSteps": [
+      "Expand the ambassador program to include surfers from our next trip in South Africa.",
+      "Develop a mobile app connecting traveling surfers with local humanitarian opportunities.",
+      "Create a standardized surf clinic curriculum for implementation",
+      "Establish partnerships with surf equipment manufacturers for gear donations",
+      "Launch annual “Surfers for Change” conference, bringing together athlete activists",
+      "Develop a documentary series that follows surfers on humanitarian missions around the world."
     ]
   },
   "galderma": {
@@ -967,6 +1061,33 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Thought Cab Design (Fas Lebbie, Daniel Borer, Sabrina Fessler) & Galderma Internal Design (David Sohrabian)",
       "image": "/work/galderma/Group-1171275380.png"
     },
+    "brought": [
+      {
+        "title": "Design Leadership & PLG Strategy",
+        "paras": [
+          "I introduced the User Engagement State framework to Galderma, moving stakeholders from a \"content library\" mindset to a \"growth funnel\" mindset. I defined the critical thresholds for Setup, Aha!, and Habit moments, aligning the design roadmap to optimize for \"Activation\" rather than just \"Registration"
+        ]
+      },
+      {
+        "title": "Research & Insight Leadership",
+        "paras": [
+          "I led the ethnographic inquiry into the \"mouth-to-mouth\" system to identify what constituted a true \"Aha! Moment\" for a doctor. I synthesized these findings to define the \"Habit Moment\" as the specific point where an HCP is paired with a supervisor for their first patient interaction, shifting the focus from \"content consumption\" to \"verified capability\""
+        ]
+      },
+      {
+        "title": "Experience / Systems / Product Design Leadership",
+        "paras": [
+          "I architected the HCP Flow to function as a retention engine. This involved designing \"Resurrection\" loops in which failed accreditation assessments automatically triggered reactivation flows, and structuring \"Power\" user features such as Clinic Management and Resources to drive long-term engagement loops."
+        ]
+      },
+      {
+        "title": "Organizational Influence & Cross-Functional Partnership",
+        "paras": [
+          "I navigated the friction between Brand Strategy (Jennifer Younes) and Digital Aesthetics (Pierre Geiger) by using the PLG framework as a neutral source of truth. By defining \"Activated\" and \"Power\" states, I aligned distinct business units on shared KPIs, helping the team prioritize an \"Innovation Viable Product\" (IVP) for the Brazil pilot that specifically tested the Time-to-Aha."
+        ]
+      }
+    ],
+    "broughtHeading": "My Role",
     "problem": "The central tension at Galderma was a disconnect between the sophistication of their methodology and the stickiness of their training. The AART (Assessment) and HIT (Treatment) systems represent a paradigm shift in aesthetics. However, teaching this through a “mouth-to-mouth” system created a leaky funnel: users would “Sign Up” physically but never reach the “Habit Moment” digitally. In the data, we saw a massive population of “Non-Activated” users. While practitioners utilized products, they did so without the “Setup Moment” required to access the core value prop. Without an expert standing over their shoulder to enforce the habit, injectors churned back to old methods, unable to recall complex HIT protocols. Organizational friction compounded this. The “solution” had been batch communication (slides), which offered no “Resurrection” path for users who dropped off. The business risk was clear without reaching the “Habit Moment,” practitioners wouldn’t adopt the premium portfolio. We needed a design intervention that functioned as a growth engine to bridge the gap between “Signed Up” and “Habit Established.”",
     "approach": {
       "blurb": "My philosophy was to treat medical competency as a Product-Led Growth funnel. I adapted standard PLG frameworks to the clinical environment, defining the “Aha! Moment” not as “finishing a video,” but as “using specialist training to unlock AART”. My execution focused on engineering the Setup Moment (Access) to reduce friction, ensuring users reached the Habit Moment (treating a patient) before they could churn.",
@@ -1020,7 +1141,29 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       ]
     },
     "designInterventions": {
-      "body": "Collaborating with global educators to translate AART’s methodology into meaningful digital learning experiences. We realized that a static library of content doesn’t create clinical habits. So, we re-architected GAIN Connect using a User Engagement State framework, shifting our design goal from “organizing information” to “engineering milestones.” This strategy dictated a new Experience Design architecture: we moved from an open-access model to a Gated Progression System that forces users through specific behavioral thresholds."
+      "body": "Collaborating with global educators to translate AART’s methodology into meaningful digital learning experiences. We realized that a static library of content doesn’t create clinical habits. So, we re-architected GAIN Connect using a User Engagement State framework, shifting our design goal from “organizing information” to “engineering milestones.” This strategy dictated a new Experience Design architecture: we moved from an open-access model to a Gated Progression System that forces users through specific behavioral thresholds.",
+      "slider": [
+        "/work/galderma/Galderma_DI_slider_1-1-scaled.png",
+        "/work/galderma/Galderma_DI_slider_2-1-scaled.png",
+        "/work/galderma/Galderma_DI_slider_3-1-scaled.png",
+        "/work/galderma/Galderma_DI_slider_4-1-scaled.png",
+        "/work/galderma/Galderma_DI_slider_5-1.png",
+        "/work/galderma/Galderma_DI_slider_9.png",
+        "/work/galderma/Galderma_DI_slider_10.png"
+      ]
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "Collectively, the team and i created a robust library of strategic artifacts to align the organization around the PLG model, establishing a single source of truth for both the clinical methodology and the digital experience. Here are some of the assets below, and not limited to.",
+      "images": [
+        "/work/galderma/Galderma_AI_slider_9.Jpg-1.png",
+        "/work/galderma/Galderma_AI_slider_2.Jpg-4.png",
+        "/work/galderma/Galderma_AI_slider_2.Jpg-6.png",
+        "/work/galderma/Galderma_AI_slider_4.Jpg-2.png",
+        "/work/galderma/Galderma_AI_slider_5.Jpg-1.png",
+        "/work/galderma/Galderma_AI_slider_7.Jpg-3.png",
+        "/work/galderma/Galderma_AI_slider_8.Jpg-3.png"
+      ]
     },
     "stats": [
       {
@@ -1048,27 +1191,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Deepen Power Usage: Expand the Clinic Management module to include patient scheduling, increasing platform stickiness.",
       "Automate Verification: Use AR to act as a “digital supervisor” for the Habit Moment, reducing reliance on human oversight.",
       "Social Proof Loops: Integrate peer success stories into the Setup Moment to increase Activation velocity."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "Collectively, the team and i created a robust library of strategic artifacts to align the organization around the PLG model, establishing a single source of truth for both the clinical methodology and the digital experience. Here are some of the assets below, and not limited to.",
-        "images": [
-          "/work/galderma/Galderma_AI_slider_9.Jpg-1.png",
-          "/work/galderma/Galderma_AI_slider_2.Jpg-4.png",
-          "/work/galderma/Galderma_AI_slider_2.Jpg-6.png",
-          "/work/galderma/Galderma_AI_slider_4.Jpg-2.png",
-          "/work/galderma/Galderma_AI_slider_5.Jpg-1.png",
-          "/work/galderma/Galderma_AI_slider_7.Jpg-3.png",
-          "/work/galderma/Galderma_AI_slider_8.Jpg-3.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/galderma/PP_Hero.Jpg-1.png"
-        ]
-      }
     ]
   },
   "life-of-a-miner-vr": {
@@ -1163,19 +1285,13 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         "note": "Testers reported haptic feedback significantly enhanced immersion"
       }
     ],
+    "reflections": "Life of a Miner’ showed how VR could connect consumers to artisanal mining communities through immersive experience. We tested with 12 participants in New York City, and 65-75% said they better understood mining conditions and wanted to think more about ethical sourcing when making purchases.\n\nTen minutes turned out to be the right length to create emotional impact while keeping it practical to deploy. We drew on VR empathy research and our six months of fieldwork in Sierra Leone’s Kono District to ground the experience in miners’ real daily lives, from ambient sounds to economic pressures.\n\nInitial surveys showed the experience resonated emotionally, but we need more research to understand long-term behavioral change. VR empathy studies don’t yet have good data on whether these effects last beyond the initial experience. Our next phase includes 3-6 month follow-up studies to see if increased awareness leads to actual changes in purchasing habits and continued support for artisanal mining communities.",
+    "reflectionsHeading": "Short & Long-term Impact",
     "nextSteps": [
       "Deploy VR at point-of-sale environments to allow consumers to experience miners’ realities before purchasing diamonds, increasing awareness and ethical consideration.",
       "Integrate immersive journey into retailer education programs so jewelry brands can use it as part of their transparency and ethical sourcing initiatives.",
       "Expand field research to other mining regions like the DRC and Botswana to broaden the experience’s scope and ensure representation across different mining contexts.",
       "Develop a mobile and AR companion experience to increase accessibility, reach wider audiences, and show product-specific supply chain transparency in real time."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/life-of-a-miner-vr/EB_Hero.Jpg-1.png"
-        ]
-      }
     ]
   },
   "memory-tubes": {
@@ -1189,6 +1305,27 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie, Theo Walcot",
       "image": "/work/memory-tubes/LW_PO.Jpg-1.png"
     },
+    "brought": [
+      {
+        "title": "Design Ethnographic Research",
+        "paras": [
+          "Conducted field research with team members, mapping movement patterns and analyzing behaviors to inform interactive urban interventions."
+        ]
+      },
+      {
+        "title": "Provotyping & Design Execution",
+        "paras": [
+          "Co-created and deployed Memory Tube installations, iterating prompts and designs to increase participation and engagement."
+        ]
+      },
+      {
+        "title": "Collaborative Testing & Documentation",
+        "paras": [
+          "Partnered with cross-disciplinary peers to refine interventions, capturing and synthesizing stories, observations, and behavioral insights."
+        ]
+      }
+    ],
+    "broughtHeading": "My Role",
     "problem": "Urban environments, especially dense metropolises like New York City, present a paradox: residents often feel isolated despite being near millions of people. Research shows that 52% of New Yorkers regularly feel lonely. This phenomenon, termed urban anonymity, appears in avoidance behaviors — headphones in, eyes down, minimal acknowledgment — that are normal for city life. The challenge is evident in transitional spaces like street corners, subway platforms, and park benches, representing untapped opportunities for connection. Traditional methods to foster urban community rely on formal events or infrastructure changes, which overlook the spontaneous nature of urban movement. The gap between physical proximity and social connection in urban areas created an opportunity for design interventions. By identifying moments when people are open to interruption, my team and I could create meaningful shared experiences that encouraged people to acknowledge their common humanity without disrupting urban navigation. Our research aimed to understand how thoughtful interventions might temporarily transform anonymous public spaces into sites of collective joy and connection.",
     "approach": {
       "blurb": "A key philosophy guiding this project was embracing ambiguity as a design strength rather than a weakness. As we observed in our field notes: “A provotype is as much about the provocateur as the ones they intend to provoke. What kicks up dust in the designer?” This perspective aligns with Frayling’s concept of “research through design,” where the design process itself becomes the primary method of investigation, and insights emerge through the creation and deployment of artifacts in context.",
@@ -1228,8 +1365,37 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "extraGalleries": [
+      {
+        "heading": "Speak Here Prompt",
+        "body": "Our installations had a 'speak here' prompt, which increases participation in anonymous city spaces, activating anonymous city spaces into shared, joyful interactions.",
+        "images": [
+          "/work/memory-tubes/PP_PS.Jpg-scaled.png"
+        ]
+      }
+    ],
     "designInterventions": {
       "body": "Our design intervention focused on creating a provocative object — the Memory, developed as a golden tube installation with carefully crafted prompts to encourage sharing and reflection, serving as both a research instrument and a catalyst for social interaction. This was displayed at Washington Square Park, Union Square, and NYC subway stations, as part of an ethnographic study. We leveraged the research through probing and provotyping, a form of prototyping designed to create a reaction in an audience."
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "My approach leverages design-led research methods and frameworks to sense-making through HMW, wheel of reasons, and more to deliver research insights and generate provotypes to activate next steps for further research work, some of which are presented here.",
+      "images": [
+        "/work/memory-tubes/ProbesProvotypes_needanalysismatrix.png",
+        "/work/memory-tubes/ProbesProvotypes_intervention-strategy-1.png",
+        "/work/memory-tubes/ProbesProvotypes_Provotype-Concept-Generation-1.png",
+        "/work/memory-tubes/ProbesProvotypes_Session-four-1.png",
+        "/work/memory-tubes/ProbesProvotypes_Session-five-1.png",
+        "/work/memory-tubes/ProbesProvotypes_Session-five-Cont-1.png",
+        "/work/memory-tubes/ProbesProvotypes_Wheel-of-Reasoning.png",
+        "/work/memory-tubes/ProbesProvotypes_Sense-Making.png",
+        "/work/memory-tubes/ProbesProvotypes_Integrated-Methodology.png"
+      ]
+    },
+    "productDemo": {
+      "heading": "Product Demo",
+      "body": "",
+      "video": "/work/memory-tubes/Union-Square-Probing.mp4"
     },
     "stats": [
       {
@@ -1255,36 +1421,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Partner with community groups to co-create a simple open-source toolkit for replicating urban interventions.",
       "Launch a digital archive to document and share participant stories, audio clips, and engagement data.",
       "Work with city planners and public art programs to embed provotyping insights into future public space designs."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Speak Here Prompt",
-        "body": "Our installations had a 'speak here' prompt, which increases participation in anonymous city spaces, activating anonymous city spaces into shared, joyful interactions.",
-        "images": [
-          "/work/memory-tubes/PP_PS.Jpg-scaled.png"
-        ]
-      },
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "My approach leverages design-led research methods and frameworks to sense-making through HMW, wheel of reasons, and more to deliver research insights and generate provotypes to activate next steps for further research work, some of which are presented here.",
-        "images": [
-          "/work/memory-tubes/ProbesProvotypes_needanalysismatrix.png",
-          "/work/memory-tubes/ProbesProvotypes_intervention-strategy-1.png",
-          "/work/memory-tubes/ProbesProvotypes_Provotype-Concept-Generation-1.png",
-          "/work/memory-tubes/ProbesProvotypes_Session-four-1.png",
-          "/work/memory-tubes/ProbesProvotypes_Session-five-1.png",
-          "/work/memory-tubes/ProbesProvotypes_Session-five-Cont-1.png",
-          "/work/memory-tubes/ProbesProvotypes_Wheel-of-Reasoning.png",
-          "/work/memory-tubes/ProbesProvotypes_Sense-Making.png",
-          "/work/memory-tubes/ProbesProvotypes_Integrated-Methodology.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/memory-tubes/UC_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   },
   "oc-digital-resource-navigator": {
@@ -1360,9 +1496,27 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "OC Navigator Demo",
+      "body": "Shows how OC Navigator streamlines complex resource navigation into clear, personalized pathways for residents.",
+      "video": "/work/oc-digital-resource-navigator/OC-Resource-Navigator_Video.mp4"
+    },
     "designInterventions": {
       "body": "The design intervention targets individuals seeking mental health services and providers making referrals who struggle with fragmented resource navigation. The Navigator enables users to complete a Social Determinants of Health (SDoH) screener, matches their needs with appropriate resources, facilitates self-referrals or provider referrals, and allows users to track their referral progress. The core intervention was the creation of a dual-sided digital ecosystem: a “warm,” accessible front door for residents and a high-velocity command center for providers. We realized early on that a static directory would not solve the fragmentation crisis. Instead, we built an intelligent triage engine that acts as a connective tissue between the two groups."
     },
+    "extraGalleries": [
+      {
+        "heading": "Journey Maps",
+        "body": "Individual · Social Worker · Office Admin · Service provider",
+        "images": [
+          "/work/oc-digital-resource-navigator/Mask-Group-1.png",
+          "/work/oc-digital-resource-navigator/Bitmap-1.png",
+          "/work/oc-digital-resource-navigator/Bitmap-1-1.png",
+          "/work/oc-digital-resource-navigator/Bitmap-2-1.png",
+          "/work/oc-digital-resource-navigator/journal_map_image.svg"
+        ]
+      }
+    ],
     "researchOutputs": {
       "heading": "Research Outputs",
       "body": "Participatory workshops shaped both the technology design and the values behind it, which emphasize transparency, partnership, and capacity building. We used Journey maps as the key driver of design decisions. Additionally, personas and lived-experience scenarios (e.g., veterans, immigrants, caregivers, youth, and the elderly) revealed the nuanced contexts shaping help-seeking behaviour. Building an extensive system map clarified the interplay of providers, competitors, allies, and barriers such as stigma and transportation.",
@@ -1419,24 +1573,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Integrate with Health Records for seamless coordination between county systems and providers.",
       "Develop Culturally Responsive Access by adding a Spanish-language interface and tailored resource categories.",
       "Create a Mobile App for Accessibility optimized for offline use in low-connectivity areas."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Individual",
-        "images": [
-          "/work/oc-digital-resource-navigator/Mask-Group-1.png",
-          "/work/oc-digital-resource-navigator/Bitmap-1.png",
-          "/work/oc-digital-resource-navigator/Bitmap-1-1.png",
-          "/work/oc-digital-resource-navigator/Bitmap-2-1.png",
-          "/work/oc-digital-resource-navigator/journal_map_image.svg"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/oc-digital-resource-navigator/RTOD_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   },
   "oc-links": {
@@ -1450,6 +1586,32 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie, Parker Gibbons, Sage Bennett",
       "image": "/work/oc-links/OC-Links_PO.Jpg.jpg"
     },
+    "brought": [
+      {
+        "title": "Design Leadership & Direction",
+        "paras": [
+          "I steered the strategic vision for an integrated platform that had to interface with complex healthcare privacy and accessibility compliance standards. This required aligning diverse stakeholders around a shared \"Single Point Access\" framework, ensuring we solved for systemic cohesion."
+        ]
+      },
+      {
+        "title": "Research & Insight Leadership",
+        "paras": [
+          "I conducted mixed-methods research strategy, utilizing contextual inquiry and crisis workflow analysis to expose hidden inefficiencies. My focus was on moving beyond surface-level user complaints to uncover the structural \"workarounds\" responders used, such as manual notes and side conversations, that generated the evidence needed to improve legacy systems."
+        ]
+      },
+      {
+        "title": "Experience / Systems / Product Design Leadership",
+        "paras": [
+          "I architected the core flows for a unified ecosystem, designing a system that seamlessly handles complex permission structures and secure inter-agency handoffs. I focused on creating intuitive navigation and clear visual hierarchies that support rapid decision-making in high-stress, high-stakes environments."
+        ]
+      },
+      {
+        "title": "Organizational Influence & Cross-Functional Partnership",
+        "paras": [
+          "I facilitated deep collaboration between OC Links, the Crisis Team, and NAMI/WarmLine, helping these distinct agencies agree on standardized workflows. Through workgroup sessions, I helped operational partners see the value in shifting from isolated databases to a shared, transparent information architecture."
+        ]
+      }
+    ],
     "problem": "The mental health crisis response system in Orange County consisted of multiple disconnected services on outdated platforms. The system was a patchwork of disconnected services running on iCarol, an outdated software platform notoriously difficult to navigate. While the staff’s intentions were heroic, their tools actively worked against them. We found that three interconnected services, OC Links, the Crisis Assessment Team, and the NAMI WarmLine, were effectively functioning as islands. Data structures were messy and inconsistent, making it nearly impossible to track a caller’s journey across different agencies. If a resident needed to be transferred from a warm line to a crisis team, the information transfer was often manual and prone to error. The friction wasn’t just administrative; it was dangerous. Critical gaps emerged: vulnerable populations needed immediate intervention, but the system’s inability to facilitate real-time communication or trustworthy reporting led to delays. Responders were spending valuable minutes wrestling with software rather than supporting clients. The fragmentation led to inefficient resource allocation and, most critically, missed opportunities for intervention in a field where timing is everything.",
     "approach": {
       "blurb": "I realized early on that we weren’t just fixing software; we were repairing trust in a fractured system. The legacy infrastructure forced responders to choose between accurate data entry and clinical empathy, creating a massive administrative burden. My strategy centered on leveraging deep research to architect a unified ecosystem focused entirely on the human in crisis, designing not just for efficiency, but for the moment of connection.",
@@ -1494,8 +1656,36 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         }
       ]
     },
+    "productDemo": {
+      "heading": "OC Links Platform Demo",
+      "body": "Shows the streamlined crisis-response workflow enabling faster, safer coordination across Orange County’s behavioral-health system.",
+      "video": "/work/oc-links/OC-Links_Video.mp4"
+    },
     "designInterventions": {
       "body": "The core of our intervention was the creation of a unified digital platform for mental health crisis management. We replaced the isolated instances of iCarol with a single, integrated ecosystem that connects OC Links, the Crisis Assessment Team, and NAMI. This unified digital system streamlines workflows, reduces delays, and connects crisis responders with trusted resources instantly. A complete redesign of the responder experience transformed how care is delivered. Our solution allows responders to manage calls, chat securely with clients, and access a verified resource directory without ever switching tabs. By integrating these workflows, we removed the friction of manual data transformation. We built a digital workflow that allows a case to be transferred between agencies while preserving context, eliminating the “black holes” where clients previously fell through the cracks. This system respects each agency’s varying privacy permissions while ensuring the person in crisis doesn’t have to repeat their story three times."
+    },
+    "researchOutputs": {
+      "heading": "Toolkit, Methods & Frameworks",
+      "body": "This project was fundamentally a service design challenge disguised as a software project. We couldn’t just build a UI; we had to map the ecosystem. We used journey mapping, stakeholder activity mapping, value proposition canvas, and ecosystem mapping to understand the complex relationships among the county, non-profits, and hospital systems. We employed a theory-of-change framework to align these diverse partners around a shared vision. By visualizing the entire service blueprint from the moment a resident feels distress to the moment they are connected with long-term care, we identified the “informal workarounds” that were holding the old system together. This allowed us to formalize those pathways in the new digital tool, ensuring the software reflected the reality of the work rather than an idealized version.",
+      "images": [
+        "/work/oc-links/OC-Links_AI_slider_Research-Phases.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_Participant-insights.jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_User-Journey-Map.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_Value-Proposition-Canvas.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_3.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_8.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_9.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_Defining-Requirement.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_Business-Model-Canvs.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_OC-Links-Success-Stories.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_KNOWNS-UNKNOWNS.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_12.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_11.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_10.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_4.Jpg.png",
+        "/work/oc-links/OC-Links_AI_slider_5.Jpg.png",
+        "/work/oc-links/CH_AI_slider_OC-Links.Jpg.png"
+      ]
     },
     "stats": [
       {
@@ -1517,37 +1707,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Expand Integration by extending the platform to include additional county mental health services and community partners for a more connected crisis response ecosystem.",
       "Enhance field usability by developing mobile-responsive interfaces and multilingual chat to support Crisis Assessment Teams and Orange County’s diverse populations in real time.",
       "Implement Predictive Analytics: Utilize aggregated intake data to forecast resource demand, optimizing “Resource Allocation Efficiency” before surges occur."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Toolkit, Methods & Frameworks",
-        "body": "This project was fundamentally a service design challenge disguised as a software project. We couldn’t just build a UI; we had to map the ecosystem. We used journey mapping, stakeholder activity mapping, value proposition canvas, and ecosystem mapping to understand the complex relationships among the county, non-profits, and hospital systems. We employed a theory-of-change framework to align these diverse partners around a shared vision. By visualizing the entire service blueprint from the moment a resident feels distress to the moment they are connected with long-term care, we identified the “informal workarounds” that were holding the old system together. This allowed us to formalize those pathways in the new digital tool, ensuring the software reflected the reality of the work rather than an idealized version.",
-        "images": [
-          "/work/oc-links/OC-Links_AI_slider_Research-Phases.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_Participant-insights.jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_User-Journey-Map.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_Value-Proposition-Canvas.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_3.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_8.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_9.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_Defining-Requirement.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_Business-Model-Canvs.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_OC-Links-Success-Stories.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_KNOWNS-UNKNOWNS.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_12.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_11.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_10.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_4.Jpg.png",
-          "/work/oc-links/OC-Links_AI_slider_5.Jpg.png",
-          "/work/oc-links/CH_AI_slider_OC-Links.Jpg.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/oc-links/FDX_Hero.Jpg-1-scaled.png"
-        ]
-      }
     ]
   },
   "remote-assistant-object-detection": {
@@ -1644,6 +1803,11 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
           ]
         }
       ]
+    },
+    "productDemo": {
+      "heading": "Product Demo",
+      "body": "",
+      "video": "/work/remote-assistant-object-detection/rtod-prototype-vidburner.com_-1.mp4"
     },
     "coreFlows": {
       "heading": "Core Experience Flows",
@@ -1766,14 +1930,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Design offline states that calibrate trust when edge-based inference operates at lower accuracy, expanding addressable market to disconnected industrial environments while maintaining user confidence.",
       "Optimize voice interaction through on-site studies in 90dB+ environments, testing multimodal patterns (gaze selection combined with voice confirmation) to reduce command failure below 5%.",
       "Close the learning loop by designing single-tap error correction that automatically queues rejected predictions for model improvement, accelerating accuracy gains from 3-month to 1-month cycles."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/remote-assistant-object-detection/Galderma_Hero.Jpg-2.jpg"
-        ]
-      }
     ]
   },
   "snapback-lifestyle": {
@@ -1807,6 +1963,8 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
         ]
       }
     ],
+    "problem": "The Snapback Watch campaign tapped into the vibrant intersection of fashion, culture, and individual expression rooted in the snapback culture since the 1990s. While other brands chased influencers, we saw an opportunity in hip-hop’s deep connection to snapback culture — where headwear transcended function to become a canvas for self-expression. We sought to authentically integrate the watch brand with local artists while leveraging the snapback’s rich history for brand awareness. Market analysis highlighted the cultural significance of snapback fashion in cities like New York, Los Angeles, London, Brussels, and Stockholm. We zeroed in on cities where snapback and hip-hop culture have evolved uniquely through local artists: New York’s neighborhood pride, Los Angeles’ cross-cultural fusion, London’s rap battle scene, Brussels’ multilingual hip-hop movement, and Stockholm’s genre-blending creative community.",
+    "problemHeading": "Campaign Background",
     "approach": {
       "blurb": "My process began with stakeholder interviews and market analysis across five cities to understand hip-hop culture dynamics. Through community-centered strategy, I repositioned the brand from luxury marketing to cultural integration. I directed visual storytelling and art direction, creating design systems integrating timepieces into artist narratives.",
       "process": [
@@ -1835,25 +1993,16 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     "designInterventions": {
       "body": "We flipped the script and let artists tell our story instead. We collaborated with them on photo shoots that showcased both the watches and their unique creative style. Each artist brought their own perspective and naturally worked the Snapback watches into what they were already doing. Instead of forcing our brand message, we celebrated what made each artist unique and let the watches become part of their creative stories, each bringing their unique perspective."
     },
-    "stats": [
-      {
-        "value": 125,
-        "suffix": "%",
-        "label": "Artist Network Growth",
-        "note": "From organic partnerships and community referrals across five cities during a four-month campaign"
-      },
-      {
-        "value": 18,
-        "suffix": "%",
-        "label": "Conversion Rate",
-        "note": "Instagram-to-website purchase completion on Luku Watches website."
-      }
-    ],
-    "nextSteps": [
-      "Expand the artist partnership program to additional cities in the US.",
-      "Develop limited edition timepiece collaborations with featured campaign artists and implement artist-designed watch face customization options based on campaign feedback.",
-      "Launch an artist residency program that provides creative spaces and brand partnership opportunities."
-    ],
+    "productDemo": {
+      "heading": "Product Demo",
+      "body": "Lifestyle videos captured through authentic street style and urban scenery, and product showcase.",
+      "video": "https://www.youtube.com/embed/A0hkFUJ-Jfk?si=WddoLsBgFBDbrCPZ",
+      "embeds": [
+        "https://www.youtube.com/embed/A0hkFUJ-Jfk?si=WddoLsBgFBDbrCPZ",
+        "https://www.youtube.com/embed/OG9o8-iZtNs?si=iKIb8my3qSYh19Um",
+        "https://www.youtube.com/embed/MwU8NjZzWOs?si=lWiUjnUwz5ZN9ymh"
+      ]
+    },
     "extraGalleries": [
       {
         "heading": "Concept to Consumer",
@@ -1875,13 +2024,28 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
           "/work/snapback-lifestyle/LW_DI_slider_7.Jpg-1.png",
           "/work/snapback-lifestyle/LW_DI_slider_8.Jpg-1.png"
         ]
+      }
+    ],
+    "stats": [
+      {
+        "value": 125,
+        "suffix": "%",
+        "label": "Artist Network Growth",
+        "note": "From organic partnerships and community referrals across five cities during a four-month campaign"
       },
       {
-        "heading": "Previous",
-        "images": [
-          "/work/snapback-lifestyle/Root-VR_Hero.png"
-        ]
+        "value": 18,
+        "suffix": "%",
+        "label": "Conversion Rate",
+        "note": "Instagram-to-website purchase completion on Luku Watches website."
       }
+    ],
+    "reflections": "The success of this campaign is a direct result of a community-driven and grassroots approach that shifted the Luku brand’s relationship with target audiences, moving beyond transactional interactions to meaningful cultural participation. The campaign’s success established an authentic brand storytelling that influenced partnerships, demonstrating how grassroots collaboration could achieve greater engagement than traditional marketing. Partnerships with artist networks created ongoing content opportunities that elevated brand awareness and drove sales across all channels.",
+    "reflectionsHeading": "Impact",
+    "nextSteps": [
+      "Expand the artist partnership program to additional cities in the US.",
+      "Develop limited edition timepiece collaborations with featured campaign artists and implement artist-designed watch face customization options based on campaign feedback.",
+      "Launch an artist residency program that provides creative spaces and brand partnership opportunities."
     ]
   },
   "vuforia-chalk": {
@@ -1895,53 +2059,34 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie, Dev Yamakawa",
       "image": "/work/vuforia-chalk/VC-_PO.Jpg-1-2.png"
     },
-    "problem": "The Core Friction: Distance vs. Downtime Industrial teams have traditionally relied on flying experts to job sites to resolve equipment failures. This model is slow and expensive, resulting in massive operational downtime. Frontline technicians lacked real-time visual support, leading to inconsistent fixes and frequent repeat visits. Vuforia Chalk addressed this by enabling remote experts to see what the technician sees, providing step-by-step guidance through live video and anchored AR annotations. Two experience gaps that emerged as we scaled that threatened enterprise adoption:\n\nThe Mobile Orchestration Gap. Our original 1-to-1 calling model broke down in the real world. Industrial troubleshooting is rarely a solitary act; it is a “committee event” involving a site manager, a remote vendor, and a headquarters expert. When these groups tried to collaborate on Mobile, it was chaos. There was no hierarchy, people talked over one another, and crucially, large enterprise clients blocked adoption because they couldn’t secure the “room.” We needed to transform the app from a simple phone into a secure command center that could manage permissions, video sources, and access control.",
-    "stats": [
+    "brought": [
       {
-        "value": 20,
-        "suffix": "%",
-        "label": "Operational Improvement (Mobile)",
-        "note": "By enabling Multi-Expert Sessions, we ensured the right experts were in the room on the first call, directly improving operational outcomes (reducing repeat visits)."
+        "title": "Strategy mentorship",
+        "paras": [
+          "Received mentorship from my design manager at the time in contributing to the end-to-end product design process for AI-driven AR features. My focus was on defining a flexible interaction strategy that could scale across different hardware form factors, ensuring that a session felt enterprise-secure on a phone, while remaining OSHA-compliant and safe on a head-mounted display."
+        ]
       },
       {
-        "value": 40,
-        "suffix": "%",
-        "label": "Efficiency Gain (RealWear)",
-        "note": "By replacing error-prone manual entry with the Phonetic Voice UI, we reduced the time it takes a technician to join a session by 40%, eliminating the “fumble time” at the start of a crisis."
+        "title": "Design Led Research",
+        "paras": [
+          "I contributed to UX research to understand the specific environmental constraints faced by our users. By analyzing how technicians operated in the field, I translated raw insights into interaction designs, for example, building models, identifying that mobile users were \"Orchestrators\" managing the crisis, while headset users were \"Fixers\" executing the solution."
+        ]
+      },
+      {
+        "title": "Cross-Platform Design",
+        "paras": [
+          "Designed cross-platform enterprise UX and AR spatial interaction systems across desktop, mobile, and RealWear, creating cohesive and intuitive user experiences while creating divergent UI patterns, hierarchical touch controls for Mobile, and phonetic voice commands for RealWear while respecting the native behaviors of each device."
+        ]
       }
     ],
-    "reflections": "For the multi-expert session feature, the introduction of Waiting Rooms and Host Controls satisfied critical SecOps requirements, unblocking deployment in high-security environments that previously rejected the tool. We satisfied the strict security and hierarchy requirements of enterprise IT, removing the primary blocker to large-scale deployment. Additionally, by designing a Native Voice Interface for RealWear, we removed the physical barrier to entry. These feature cases are among many in my time at PTC that helped improve my approach and experience in cross-platform design, where designers must be immersed in the distinct “physics” of each platform (Touch for Control, Voice for Action) to create a user experience that solves real user problems.",
+    "broughtHeading": "My Role",
+    "problem": "The Core Friction: Distance vs. Downtime Industrial teams have traditionally relied on flying experts to job sites to resolve equipment failures. This model is slow and expensive, resulting in massive operational downtime. Frontline technicians lacked real-time visual support, leading to inconsistent fixes and frequent repeat visits. Vuforia Chalk addressed this by enabling remote experts to see what the technician sees, providing step-by-step guidance through live video and anchored AR annotations. Two experience gaps that emerged as we scaled that threatened enterprise adoption:\n\nThe Mobile Orchestration Gap. Our original 1-to-1 calling model broke down in the real world. Industrial troubleshooting is rarely a solitary act; it is a “committee event” involving a site manager, a remote vendor, and a headquarters expert. When these groups tried to collaborate on Mobile, it was chaos. There was no hierarchy, people talked over one another, and crucially, large enterprise clients blocked adoption because they couldn’t secure the “room.” We needed to transform the app from a simple phone into a secure command center that could manage permissions, video sources, and access control.",
     "extraGalleries": [
       {
         "heading": "Chalk Mobile Support",
         "body": "Supporting technicians with live AR remote guidance make it possible for users to realize the potential of combining augmented reality with remote assistance.",
         "images": [
           "/work/vuforia-chalk/Frame-1171276941-scaled.png"
-        ]
-      },
-      {
-        "heading": "Featured Designs",
-        "body": "For Chalk mobile, I helped design a Multi-Expert Session Architecture that transformed the app into a secure command center. Introducing a strict Host/Participant hierarchy with Lobbies and Waiting Rooms empowered users to manage access and direct video broadcasting during complex group calls.",
-        "images": [
-          "/work/vuforia-chalk/VCA_DI_slider_1.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_2.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_3.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_4.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_5.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_6.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_7.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_8.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_9.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_10.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_11.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_12.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_13.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_14.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_15.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_16.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_17.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_19.Jpg.png",
-          "/work/vuforia-chalk/VCA_DI_slider_20.Jpg.png"
         ]
       },
       {
@@ -1968,14 +2113,27 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
           "/work/vuforia-chalk/VCR_DI_slider_11.Jpg.png",
           "/work/vuforia-chalk/VCR_DI_slider_12.Jpg.png"
         ]
+      }
+    ],
+    "designInterventions": {
+      "body": "For Chalk mobile, I helped design a Multi-Expert Session Architecture that transformed the app into a secure command center. Introducing a strict Host/Participant hierarchy with Lobbies and Waiting Rooms empowered users to manage access and direct video broadcasting during complex group calls.",
+      "heading": "Featured Designs"
+    },
+    "stats": [
+      {
+        "value": 20,
+        "suffix": "%",
+        "label": "Operational Improvement (Mobile)",
+        "note": "By enabling Multi-Expert Sessions, we ensured the right experts were in the room on the first call, directly improving operational outcomes (reducing repeat visits)."
       },
       {
-        "heading": "Previous",
-        "images": [
-          "/work/vuforia-chalk/EC_Hero.Jpg-1-scaled.png"
-        ]
+        "value": 40,
+        "suffix": "%",
+        "label": "Efficiency Gain (RealWear)",
+        "note": "By replacing error-prone manual entry with the Phonetic Voice UI, we reduced the time it takes a technician to join a session by 40%, eliminating the “fumble time” at the start of a crisis."
       }
-    ]
+    ],
+    "reflections": "For the multi-expert session feature, the introduction of Waiting Rooms and Host Controls satisfied critical SecOps requirements, unblocking deployment in high-security environments that previously rejected the tool. We satisfied the strict security and hierarchy requirements of enterprise IT, removing the primary blocker to large-scale deployment. Additionally, by designing a Native Voice Interface for RealWear, we removed the physical barrier to entry. These feature cases are among many in my time at PTC that helped improve my approach and experience in cross-platform design, where designers must be immersed in the distinct “physics” of each platform (Touch for Control, Voice for Action) to create a user experience that solves real user problems."
   },
   "vuforia-expert-capture": {
     "hero": {
@@ -1988,7 +2146,40 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "team": "Fas Lebbie, Duffy Fallon, Kathy Saviola, James Lema",
       "image": "/work/vuforia-expert-capture/EC-_PO.Jpg.png"
     },
+    "brought": [
+      {
+        "title": "Design Research",
+        "paras": [
+          "I operated as a hybrid design researcher and lead product designer, bridging the gap between the factory floor and the back office. I conducted ethnographic research to understand why workers avoided documentation. I mapped the \"invisible work\" of compliance chains and shift handoffs, identifying that the friction wasn't in capturing the video, but in the tedious labor of transcribing it into a compliant document."
+        ]
+      },
+      {
+        "title": "Experience Design",
+        "paras": [
+          "I architected the Information Architecture and interaction patterns for the Vuforia Editor. My work improved the product from a simple video player to a complex non-linear editing suite. This involved designing AI-driven text-harvesting workflows and the logic for automated visual inspections, and guiding experts to define complex quality checks via the desktop interface."
+        ]
+      }
+    ],
+    "broughtHeading": "My Role",
     "problem": "The Vuforia Expert Capture product was built to solve a critical industrial knowledge gap, but the existing process was failing at the ‘last mile.’ We found that Subject Matter Experts were losing 7 hours per week answering repetitive questions, yet the tools to document their knowledge were creating a ‘Post-Capture Hangover. While AR headsets successfully captured the “what” of industrial work, they failed to capture the structure required for enterprise training. In our field research across 10 facilities, we observed a critical “Post-Capture Hangover”: the moment an expert sat down at a computer, the workflow broke. Raw capture sessions resulted in long, unstructured videos that were impossible to search or consume without a way to slice them into discrete steps. Furthermore, the burden of manually transcribing voiceovers into written instructions caused massive documentation abandonment; experts loved showing their work but hated typing it up. Finally, regulated industries faced a compliance void. Without a rigorous audit trail or versioning lifecycle, safety officers viewed the fluid content as a liability risk rather than a secure system of record. We realized the business didn’t just need a video player; it needed a “Knowledge Studio” to transform the chaos of raw footage into compliant business assets.",
+    "designInterventions": {
+      "body": "In this case study, I outlined 3 feature solutions delivered within the Vuforia Editor, including a Timeline Interface for capture flow to structure raw video and an AI-driven “harvesting” workflow that instantly converts voiceovers into text, eliminating manual entry. Additionally, I implemented a rigorous “release candidate” governance lifecycle to ensure audit compliance through versioning and approval workflows. This turned raw, messy data into the trusted, compliant assets required by regulated enterprises.",
+      "heading": "Featured Designs"
+    },
+    "extraGalleries": [
+      {
+        "heading": "Prototyping",
+        "body": "On-site contextual inquiry and prototype with RealWear and AR lenses to validate designs against real-world operational flows.",
+        "images": [
+          "/work/vuforia-expert-capture/1449-5.png",
+          "/work/vuforia-expert-capture/1450-2.png",
+          "/work/vuforia-expert-capture/1451-2.png",
+          "/work/vuforia-expert-capture/1452-1.png",
+          "/work/vuforia-expert-capture/1453-2.png",
+          "/work/vuforia-expert-capture/1454-1.png"
+        ]
+      }
+    ],
     "stats": [
       {
         "value": 24,
@@ -2015,75 +2206,6 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Using AI to analyze pauses and hand movements in the video to place “Step Markers” on the timeline automatically.",
       "Instant translation of voice transcripts, allowing a German expert to generate English SOPs automatically./span>",
       "Replacing password-based approvals with “Voice Signatures,” allowing safety officers to approve releases hands-free."
-    ],
-    "extraGalleries": [
-      {
-        "heading": "Featured Designs",
-        "body": "In this case study, I outlined 3 feature solutions delivered within the Vuforia Editor, including a Timeline Interface for capture flow to structure raw video and an AI-driven “harvesting” workflow that instantly converts voiceovers into text, eliminating manual entry. Additionally, I implemented a rigorous “release candidate” governance lifecycle to ensure audit compliance through versioning and approval workflows. This turned raw, messy data into the trusted, compliant assets required by regulated enterprises.",
-        "images": [
-          "/work/vuforia-expert-capture/1445-4.png",
-          "/work/vuforia-expert-capture/1446-3.png",
-          "/work/vuforia-expert-capture/1447-4.png",
-          "/work/vuforia-expert-capture/17-1.png",
-          "/work/vuforia-expert-capture/1448-3.png",
-          "/work/vuforia-expert-capture/16-1.png",
-          "/work/vuforia-expert-capture/1441-3.png",
-          "/work/vuforia-expert-capture/1442-2.png",
-          "/work/vuforia-expert-capture/1443-3.png",
-          "/work/vuforia-expert-capture/1444-2.png",
-          "/work/vuforia-expert-capture/13-8.png",
-          "/work/vuforia-expert-capture/14-6.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-1-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-1-1-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-2-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-3-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-4-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-5-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-6-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-7-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-8-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-9-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-10-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-11-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-12-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-13-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-14-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-15-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-16-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-17-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-18-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-19-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-20-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-21-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-22-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-23-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-24-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-25-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-26-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-27-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-28-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-29-scaled.png",
-          "/work/vuforia-expert-capture/ST_DI_slider_1.Jpg-30-scaled.png"
-        ]
-      },
-      {
-        "heading": "Prototyping",
-        "body": "On-site contextual inquiry and prototype with RealWear and AR lenses to validate designs against real-world operational flows.",
-        "images": [
-          "/work/vuforia-expert-capture/1449-5.png",
-          "/work/vuforia-expert-capture/1450-2.png",
-          "/work/vuforia-expert-capture/1451-2.png",
-          "/work/vuforia-expert-capture/1452-1.png",
-          "/work/vuforia-expert-capture/1453-2.png",
-          "/work/vuforia-expert-capture/1454-1.png"
-        ]
-      },
-      {
-        "heading": "Previous",
-        "images": [
-          "/work/vuforia-expert-capture/DA_Hero.Jpg-scaled.png"
-        ]
-      }
     ]
   }
 };

@@ -39,15 +39,27 @@ import type {
  */
 
 const SAGE = "#99B29D66";
-const CREAM = "#FDE9CA";
 const ORANGE = "rgba(255, 80, 5, 0.5)";
 const TEAL = "#52747e";
 const TAN = "rgba(164, 133, 110, 1)";
+// Product-demo band. Matches the live site's `.desktop_screen_videos` section
+// (background-color: #fe9d68); the original demo video plays full-width on it.
+const PEACH = "#fe9d68";
+// "EMPOWERING…" maroon band — matches the maroon baked into ch_bi.jpg-scaled.png
+// so the portrait blends seamlessly into the band.
 const MAROON = "#50242d";
 const PERIWINKLE = "rgba(183, 198, 229, 1)";
 const TILE = "#4f6b76";
 const RED = "#e06164";
+// Supporting Design Streams masonry (live #design_interventions_new /
+// Figma 1099:14538): dark teal band with pale sage panels behind each mockup.
+const FOREST = "#003545";
+const SAGE_PANEL = "#d4e9d7";
 const SANS = "Helvetica, Arial, sans-serif";
+
+function isEmbedUrl(src: string) {
+  return /youtu|vimeo|player\.|\/embed\//i.test(src);
+}
 
 export default function CaseStudy({
   project: p,
@@ -87,32 +99,63 @@ export default function CaseStudy({
 
   // Scroll reveal — faithful copy of the live faslebbie.com case-study script:
   // an IntersectionObserver tags each <section> with `.cs-active` (live: `.active`)
-  // at a 0.1 threshold, and the `.cs-root` CSS rises/fades its children in. Once
-  // revealed it stays revealed (the live site never un-tags), so we unobserve.
+  // and the `.cs-root` CSS rises/fades its children in. Once revealed it stays
+  // revealed (the live site never un-tags), so we unobserve.
+  //
+  // Because sections are now full-modal-height (some taller than the viewport),
+  // a positive ratio threshold is unreliable — a 1400px section inside an 814px
+  // container can never reach a high ratio, and fast scrolls skip the crossing,
+  // leaving content stuck at opacity 0. So we fire on ANY intersection
+  // (threshold 0) with a small negative bottom margin so the reveal triggers as
+  // the section rises into the lower part of the viewport. A scroll fallback
+  // catches anything the observer misses.
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-    const sections = root.querySelectorAll("section");
+    const sections = Array.from(root.querySelectorAll("section"));
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       sections.forEach((s) => s.classList.add("cs-active"));
       return;
     }
+
+    const reveal = (s: Element) => s.classList.add("cs-active");
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.classList.add("cs-active");
+            reveal(entry.target);
             io.unobserve(entry.target);
           }
         }
       },
       // Overlay scrolls inside the popup panel, so observe relative to it;
       // the standalone page scrolls in the viewport (root = null).
-      { threshold: 0.1, root: overlay ? root : null },
+      { threshold: 0, rootMargin: "0px 0px -10% 0px", root: overlay ? root : null },
     );
     sections.forEach((s) => io.observe(s));
-    return () => io.disconnect();
-  }, [p.slug]);
+
+    // Fallback: on scroll, reveal any section whose top has passed 90% of the
+    // scroll viewport. Guarantees no section is ever left invisible even if the
+    // observer misses a fast scroll.
+    const scroller: HTMLElement | Window = overlay ? root : window;
+    const onScroll = () => {
+      const vh = overlay ? root.clientHeight : window.innerHeight;
+      const rootTop = overlay ? root.getBoundingClientRect().top : 0;
+      for (const s of sections) {
+        if (s.classList.contains("cs-active")) continue;
+        const top = s.getBoundingClientRect().top - rootTop;
+        if (top < vh * 0.9) reveal(s);
+      }
+    };
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      io.disconnect();
+      scroller.removeEventListener("scroll", onScroll);
+    };
+  }, [p.slug, overlay]);
 
   const cs = p.caseStudy;
   const nextImg = next.caseStudy?.hero.image ?? next.image;
@@ -179,37 +222,28 @@ export default function CaseStudy({
 
       {cs ? (
         <>
-          {/* 1 — Hero image + caption. Fills the full section height (the image
-              is absolutely positioned so the section's `100cqh` min-height drives
-              the size in the popup; `min-h-[60vh]` keeps the standalone page
-              sensible). */}
-          <section className="relative min-h-[60vh] bg-black">
-            {/* Centred + contained on black so the full composition (logo +
-                couple in the curved cutout) always shows — no matter the modal
-                aspect — with any letterbox blending into the black background. */}
+          {/* 1 — Hero image + caption, at the image's natural height (exact copy
+              of the live site — the hero does NOT fill the modal). */}
+          <section className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
             <img
               src={cs.hero.image}
               alt={p.name}
-              className="absolute inset-0 h-full w-full object-contain object-center"
+              className="block h-auto w-full object-cover object-left"
             />
-            {cs.hero.caption && (
-              <>
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
-                <div className="absolute bottom-4 left-7.5 p-[10px] text-white">
-                  <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
-                    <strong className="font-bold">{p.name}</strong> · {cs.hero.caption}
-                  </p>
-                </div>
-              </>
-            )}
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
+            <div className="absolute bottom-4 left-7.5 p-[10px] text-white">
+              <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
+                <strong className="font-bold">{p.name}</strong> · {cs.hero.caption ?? p.tagline}
+              </p>
+            </div>
           </section>
 
           {/* 2 — Overview (Figma 1099:12527). LEFT column: Overview prose at the
               top, then the compact meta block (Research & Design / Duration /
               Team) below; the teal decorative portrait panel is on the RIGHT. */}
           {cs.overview && (
-          <section className="grid grid-cols-1 lg:grid-cols-2">
+          <section data-cs-stretch className="grid grid-cols-1 lg:grid-cols-2">
             <div className="flex flex-col justify-between gap-10 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
               <div>
                 <Label>Overview</Label>
@@ -264,10 +298,9 @@ export default function CaseStudy({
           </section>
           )}
 
-          {/* 3 — What I brought (sage). Figma 1099:12578: content is centred both
-              ways in the full-height section, in a narrow ~466px column. */}
+          {/* 3 — What I brought (sage), narrow centred column (Figma 1099:12578). */}
           {cs.brought && cs.brought.length > 0 && (
-            <section className="flex items-center py-[60px] xl:py-[5vw]" style={{ backgroundColor: SAGE }}>
+            <section className="py-[60px] xl:py-[5vw]" style={{ backgroundColor: SAGE }}>
               <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-[480px]">
                   <Label center>{cs.broughtHeading ?? "What I Brought"}</Label>
@@ -285,7 +318,7 @@ export default function CaseStudy({
               <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-full lg:max-w-[60%]">
                   <Label center light>
-                    Problem Context
+                    {cs.problemHeading ?? "Problem Context"}
                   </Label>
                   <div className="mt-6 space-y-5 text-[18px] leading-[1.4] xl:text-[1.25vw]">
                     {cs.problem.split("\n\n").map((para, i) => (
@@ -297,49 +330,84 @@ export default function CaseStudy({
             </section>
           )}
 
-          {/* 5 — My approach + orange Design Process accordion (cream). */}
+          {/* 5 — My approach + orange Design Process accordion (Figma 1099:12599).
+              Sage background; the "My Approach" copy is anchored to the BOTTOM of
+              the left column while the orange Design Process panel stretches the
+              full section height on the right. */}
           {cs.approach && (
-            <section className="py-[60px] xl:py-[5vw]" style={{ backgroundColor: CREAM }}>
-              <div className="mx-auto grid w-full max-w-[1140px] grid-cols-1 gap-10 px-6 sm:px-10 xl:px-[3.5vw] lg:grid-cols-2 lg:gap-12">
-                <div className="lg:self-end">
+            <section
+              data-cs-stretch
+              className="grid grid-cols-1 gap-10 px-6 py-14 sm:px-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] xl:px-[3.5vw] xl:py-[3.8rem]"
+              style={{ backgroundColor: SAGE }}
+            >
+              <div className="flex flex-col justify-end">
+                <div className="max-w-[445px]">
                   <Label>My Approach</Label>
-                  <p className="mt-3 max-w-[90%] text-[18px] leading-normal lg:max-w-[80%] xl:text-[1.25vw]">
+                  <p className="mt-3 text-[18px] leading-normal xl:text-[1.25vw]">
                     {cs.approach.blurb}
                   </p>
                 </div>
-                <div className="p-[10vw_5vw] xl:p-[2vw]" style={{ backgroundColor: ORANGE }}>
-                  <Label center>Design Process</Label>
-                  <div className="mt-4">
-                    <Accordion items={cs.approach.process} />
-                  </div>
+              </div>
+              <div
+                className="self-stretch p-[10vw_5vw] xl:p-[2vw]"
+                style={{ backgroundColor: ORANGE }}
+              >
+                <Label center>Design Process</Label>
+                <div className="mt-4">
+                  <Accordion items={cs.approach.process} />
                 </div>
               </div>
             </section>
           )}
 
-          {/* 6 — Design interventions (teal video band). */}
-          {cs.designInterventions && (
-            <section style={{ backgroundColor: TEAL }}>
-              {cs.designInterventions.video && (
-                <div className="flex max-h-[80vh] justify-center overflow-hidden">
-                  <video
-                    className="h-auto max-h-[80vh] w-full object-contain"
-                    src={cs.designInterventions.video}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  />
+          {/* 6 — Design interventions. Two live variants:
+              - Cover-flow slider (Galderma `#design_interventions.center_slide`):
+                black band, 5-up centered carousel, copy below.
+              - Phone/video band (Coral): teal, media top, copy bottom-right. */}
+          {cs.designInterventions &&
+            (cs.designInterventions.slider && cs.designInterventions.slider.length > 0 ? (
+              <section
+                data-cs-stretch
+                className="flex flex-col justify-center gap-10 bg-black py-14 text-white"
+              >
+                <CenterSlider images={cs.designInterventions.slider} />
+                <div className="w-full max-w-[50%] px-[5vw] py-[3vw] text-justify">
+                  <Label light>
+                    {cs.designInterventions.heading ?? "Design Interventions"}
+                  </Label>
+                  <p className="mt-3 text-[13px] leading-normal xl:text-[0.9vw]">
+                    {cs.designInterventions.body}
+                  </p>
                 </div>
-              )}
-              <div className="px-6 py-12 text-white sm:px-10 xl:px-[3.5vw] xl:py-[3vw]">
-                <Label light>Design Interventions</Label>
-                <p className="mt-3 text-justify text-[18px] leading-[1.6] xl:text-[1.25vw]">
-                  {cs.designInterventions.body}
-                </p>
-              </div>
-            </section>
-          )}
+              </section>
+            ) : (
+              <section
+                data-cs-stretch
+                className="flex flex-col gap-10 px-6 py-16 sm:px-10 xl:px-[3.5vw]"
+                style={{ backgroundColor: TEAL }}
+              >
+                {cs.designInterventions.video && (
+                  <div className="flex justify-center">
+                    <video
+                      className="h-auto w-[240px] max-w-full drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)] sm:w-[262px]"
+                      src={cs.designInterventions.video}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  </div>
+                )}
+                <div className="mt-auto ml-auto w-full max-w-[360px] text-white">
+                  <Label light>
+                    {cs.designInterventions.heading ?? "Design Interventions"}
+                  </Label>
+                  <p className="mt-3 text-[13px] leading-normal xl:text-[0.9vw]">
+                    {cs.designInterventions.body}
+                  </p>
+                </div>
+              </section>
+            ))}
 
           {/* 7 — Core experience flows (tan, device tabs). */}
           {cs.coreFlows && (
@@ -354,29 +422,137 @@ export default function CaseStudy({
             </section>
           )}
 
-          {/* 8 — Empowering callout (maroon). */}
-          {cs.advocate && (
-            <section style={{ backgroundColor: MAROON }}>
-              {cs.advocate.image && (
-                <div className="flex max-h-[80vh] justify-center overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-                  <img
-                    src={cs.advocate.image}
-                    alt=""
-                    className="h-auto max-h-[80vh] w-auto object-contain"
-                  />
+          {/* 8 — Peach desktop-video band (live `.desktop_screen_videos`):
+              Coral-Healthe_Video-3.mp4 full-width, with the live content_side
+              copy ("Marketing & Brand Experience Designs") below, right-aligned.
+              Next section on the live page is Supporting Design Streams. */}
+          {cs.productDemo && (
+            <section
+              data-cs-stretch
+              className="flex flex-col justify-center gap-10 py-16"
+              style={{ backgroundColor: PEACH }}
+            >
+              {cs.productDemo.video && isEmbedUrl(cs.productDemo.video) ? (
+                <div className="mx-auto grid w-full max-w-[1140px] gap-6 px-6 sm:grid-cols-2 sm:px-10 xl:grid-cols-3 xl:px-[3.5vw]">
+                  {(cs.productDemo.embeds ?? [cs.productDemo.video]).map((src) => (
+                    <div key={src} className="aspect-video w-full overflow-hidden bg-black/10">
+                      <iframe
+                        src={src}
+                        title={cs.productDemo!.heading}
+                        className="h-full w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ))}
                 </div>
+              ) : cs.productDemo.video ? (
+                <video
+                  className="block h-auto w-full"
+                  src={cs.productDemo.video}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : (
+                cs.productDemo.image && (
+                  // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                  <img src={cs.productDemo.image} alt="" className="block h-auto w-full" />
+                )
               )}
-              <div className="px-6 py-12 text-white sm:px-10 xl:px-[3.5vw] xl:py-[3vw]">
-                <Label light>{cs.advocate.heading}</Label>
-                <p className="mt-3 text-[18px] leading-[1.6] xl:text-[1.25vw]">
-                  {cs.advocate.body}
+              <div className="ml-auto w-full max-w-[440px] px-6 text-black sm:px-10 xl:px-[3.5vw]">
+                <Label>{cs.productDemo.heading}</Label>
+                <p className="mt-3 text-[12px] leading-[1.45] xl:text-[0.85vw]">
+                  {cs.productDemo.body}
                 </p>
               </div>
             </section>
           )}
 
-          {/* 9 — Research outputs (periwinkle grid). */}
+          {/* 9 — Supporting Design Streams (and any other extra galleries).
+              Live order: immediately after the peach desktop video, before
+              "Empowering…". The 'mockups' variant is Figma 1099:14538. */}
+          {cs.extraGalleries?.map((g, i) =>
+            g.variant === "mockups" ? (
+              <MockupMasonry key={i} heading={g.heading} body={g.body} images={g.images} />
+            ) : (
+              <section key={i} className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]">
+                {(g.heading || g.body) && (
+                  <div className="mb-2">
+                    {g.heading && <Label>{g.heading}</Label>}
+                    {g.body && (
+                      <p className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]">
+                        {g.body}
+                      </p>
+                    )}
+                  </div>
+                )}
+                <ImageGrid images={g.images} />
+              </section>
+            ),
+          )}
+
+          {/* 10 — Empowering callout (Figma 1099:14539): maroon band with the
+              portrait (its maroon + "z" swoosh baked in) centred, and the
+              "EMPOWERING…" label + copy pinned bottom-right. The band colour
+              matches the portrait's baked maroon so it blends seamlessly. Live
+              order: after "Supporting Design Streams", before Research Outputs. */}
+          {cs.advocate && (
+            <section
+              data-cs-stretch
+              className="flex flex-col justify-center gap-8 py-14"
+              style={{ backgroundColor: MAROON }}
+            >
+              {cs.advocate.video && isEmbedUrl(cs.advocate.video) ? (
+                <div className="mx-auto grid w-full max-w-[1140px] gap-6 px-6 sm:grid-cols-2 sm:px-10 xl:grid-cols-3 xl:px-[3.5vw]">
+                  {(cs.advocate.embeds ?? [cs.advocate.video]).map((src) => (
+                    <div key={src} className="aspect-video w-full overflow-hidden bg-black/20">
+                      <iframe
+                        src={src}
+                        title={cs.advocate!.heading || "Video"}
+                        className="h-full w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : cs.advocate.video ? (
+                <video
+                  className="mx-auto block h-auto w-full max-w-[760px]"
+                  src={cs.advocate.video}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : (
+                cs.advocate.image && (
+                  // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                  <img
+                    src={cs.advocate.image}
+                    alt=""
+                    className="mx-auto block h-auto w-full max-w-[760px]"
+                  />
+                )
+              )}
+              {(cs.advocate.heading || cs.advocate.body) && (
+                <div className="ml-auto w-full max-w-[540px] px-6 text-white sm:px-10 xl:px-[3.5vw]">
+                  {cs.advocate.heading ? (
+                    <Label light>{cs.advocate.heading}</Label>
+                  ) : null}
+                  {cs.advocate.body ? (
+                    <p className="mt-3 text-[12px] leading-[1.45] xl:text-[0.85vw]">
+                      {cs.advocate.body}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* 11 — Research outputs (periwinkle grid). */}
           {cs.researchOutputs && cs.researchOutputs.images.length > 0 && (
             <section
               className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]"
@@ -391,24 +567,6 @@ export default function CaseStudy({
               <ImageGrid images={cs.researchOutputs.images} />
             </section>
           )}
-
-          {/* 9b — Extra galleries captured from the live page (e.g. "Marketing
-              & Brand", "Supporting Design Streams") so nothing is lost. */}
-          {cs.extraGalleries?.map((g, i) => (
-            <section key={i} className="px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]">
-              {(g.heading || g.body) && (
-                <div className="mb-2">
-                  {g.heading && <Label>{g.heading}</Label>}
-                  {g.body && (
-                    <p className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]">
-                      {g.body}
-                    </p>
-                  )}
-                </div>
-              )}
-              <ImageGrid images={g.images} />
-            </section>
-          ))}
 
           {/* 10 — Impact stat band (white, count-up). */}
           {cs.stats && cs.stats.length > 0 && (
@@ -427,7 +585,7 @@ export default function CaseStudy({
               <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
                 <div className="mx-auto max-w-full lg:max-w-[60%]">
                   <Label center light>
-                    Reflections &amp; Impact
+                    {cs.reflectionsHeading ?? "Reflections & Impact"}
                   </Label>
                   <div className="mt-6 space-y-5 text-[18px] leading-[1.4] xl:text-[1.25vw]">
                     {cs.reflections.split("\n\n").map((para, i) => (
@@ -467,31 +625,16 @@ export default function CaseStudy({
         </section>
       )}
 
-      {/* Next-up CTA — full-bleed image + black 75% overlay + big link.
-          A real <Link>, so it deep-links to the next study (and re-intercepts
-          as an overlay during client-side navigation). */}
-      <Link
-        href={`/work/${next.slug}`}
-        onClick={goTo(next.slug)}
-        data-cursor="hover"
-        className="group relative block w-full overflow-hidden text-left"
-      >
-        {nextImg && (
-          // eslint-disable-next-line @next/next/no-img-element -- next-up art
-          <img src={nextImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        )}
-        <div className="absolute inset-0 bg-black/75" />
-        <div className="relative mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw] py-[60px] xl:py-[5vw]">
-          <span className="relative inline-block font-serif text-[34px] font-thin leading-[1.3] text-white/50 transition-[padding] duration-300 group-hover:pl-[2.5vw] xl:text-[5vw]">
-            <span
-              aria-hidden
-              className="absolute left-0 top-1/2 z-[-1] size-[1.8vw] -translate-y-1/2 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              style={{ backgroundColor: RED }}
-            />
-            Next up- {next.name}
-          </span>
-        </div>
-      </Link>
+      {/* Next-up CTA — live `#case_footer.has-overlay`: full viewport height
+          (100cqh in the modal / 100vh on the page), next project's hero as a
+          cover image under a 75% black overlay, and the "Next up- {name}" link
+          with the live character-fill + red-dot hover animation. */}
+      <NextUp
+        next={next}
+        image={nextImg}
+        onNavigate={onNavigate}
+        scrollRoot={overlay ? scrollRef : undefined}
+      />
 
       {/* Sticky Previous / Next chrome (Figma 1262:20851) — a full-width WHITE bar
           pinned to the modal bottom with red bold links, so it stays reachable
@@ -541,6 +684,311 @@ export default function CaseStudy({
     <div ref={scrollRef} className="cs-root min-h-screen bg-white font-serif text-black">
       {inner}
     </div>
+  );
+}
+
+/** Live Galderma `#design_interventions.center_slide` — Slick centerMode
+ *  cover-flow: track slides smoothly left/right, 5 slides visible (3 / 1 on
+ *  smaller breakpoints), center card scaled + undimmed, white prev/next arrows
+ *  pinned top-right. Autoplay every 6s; center image pans top→bottom. */
+function CenterSlider({ images }: { images: string[] }) {
+  const n = images.length;
+  const [visible, setVisible] = useState(5);
+  // Index into the tripled track; start in the middle copy so we can move either way.
+  const [index, setIndex] = useState(() => Math.max(n, 0));
+  const [noAnim, setNoAnim] = useState(false);
+  const locked = useRef(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [viewportW, setViewportW] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setVisible(w < 575 ? 1 : w < 992 ? 3 : 5);
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Re-measure once mounted / when the modal opens.
+  useEffect(() => {
+    if (!viewportRef.current) return;
+    setViewportW(viewportRef.current.clientWidth);
+    const ro = new ResizeObserver(() => {
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth);
+    });
+    ro.observe(viewportRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const go = (dir: 1 | -1) => {
+    if (locked.current || n < 2) return;
+    locked.current = true;
+    setIndex((i) => i + dir);
+    window.setTimeout(() => {
+      locked.current = false;
+    }, 820);
+  };
+
+  // After sliding into a clone copy, snap back to the middle copy with no
+  // animation so the loop feels infinite (Slick-style).
+  useEffect(() => {
+    if (n < 1) return;
+    if (index >= 2 * n || index < n) {
+      const t = window.setTimeout(() => {
+        setNoAnim(true);
+        setIndex((i) => (i >= 2 * n ? i - n : i < n ? i + n : i));
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setNoAnim(false));
+        });
+      }, 800);
+      return () => window.clearTimeout(t);
+    }
+  }, [index, n]);
+
+  useEffect(() => {
+    if (n < 2) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => {
+      if (locked.current) return;
+      locked.current = true;
+      setIndex((i) => i + 1);
+      window.setTimeout(() => {
+        locked.current = false;
+      }, 820);
+    }, 6000);
+    return () => window.clearInterval(id);
+  }, [n]);
+
+  const loop = n > 0 ? [...images, ...images, ...images] : [];
+  // Equal slide width + equal side gap (live 1.5vw). Center only scales up —
+  // no extra margin, so every card shares the same base size and the active
+  // one stays geometrically centered.
+  const gapPx = viewportW > 0 ? viewportW * 0.015 : 0;
+  const slideW = viewportW > 0 ? viewportW / visible : 0;
+  // Shift so the active slide's midpoint sits at the viewport midpoint.
+  const translateX =
+    viewportW > 0 ? viewportW / 2 - (index + 0.5) * slideW : 0;
+  const realIdx = n > 0 ? ((index % n) + n) % n : 0;
+
+  return (
+    <div className="cs-center-slider relative w-full pt-[3.5vw] pb-[3vw]">
+      {/* White prev / next — live: absolute above the track, top-right */}
+      <div className="pointer-events-none absolute top-0 right-[3vw] z-10 flex items-center gap-[1.5vw]">
+        <button
+          type="button"
+          aria-label="Previous slide"
+          data-cursor="hover"
+          onClick={() => go(-1)}
+          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
+          <img
+            src="/work/slider-arrows.svg"
+            alt=""
+            className="h-[0.85vw] min-h-[8px] w-[2vw] min-w-[19px] -scale-x-100 brightness-0 invert"
+          />
+        </button>
+        <button
+          type="button"
+          aria-label="Next slide"
+          data-cursor="hover"
+          onClick={() => go(1)}
+          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
+          <img
+            src="/work/slider-arrows.svg"
+            alt=""
+            className="h-[0.85vw] min-h-[8px] w-[2vw] min-w-[19px] brightness-0 invert"
+          />
+        </button>
+      </div>
+
+      {/* overflow-x only — vertical overflow stays visible so scale(1.15) isn't clipped */}
+      <div ref={viewportRef} className="overflow-x-hidden overflow-y-visible py-[2vw]">
+        <div
+          className="flex items-center"
+          style={{
+            transform: `translateX(${translateX}px)`,
+            transition: noAnim ? "none" : "transform 800ms ease-in-out",
+            willChange: "transform",
+          }}
+        >
+          {loop.map((src, i) => {
+            const isCtr = i === index;
+            return (
+              <button
+                key={`${src}-${i}`}
+                type="button"
+                aria-label={`Slide ${(i % n) + 1}`}
+                aria-current={isCtr ? "true" : undefined}
+                onClick={() => {
+                  if (i === index || locked.current || n < 1) return;
+                  const target = Math.floor(index / n) * n + (i % n);
+                  locked.current = true;
+                  setIndex(target);
+                  window.setTimeout(() => {
+                    locked.current = false;
+                  }, 820);
+                }}
+                data-cursor="hover"
+                className="relative shrink-0 overflow-visible bg-transparent p-0"
+                style={{
+                  width: slideW > 0 ? `${slideW}px` : `${100 / visible}%`,
+                  paddingLeft: gapPx,
+                  paddingRight: gapPx,
+                  zIndex: isCtr ? 2 : 1,
+                }}
+              >
+                {/* Same 2:3 frame for every slide; center only scales up */}
+                <div
+                  className="relative w-full overflow-hidden pt-[150%] transition-transform duration-800 ease-in-out"
+                  style={{ transform: isCtr ? "scale(1.15)" : "scale(1)" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                  <img
+                    key={isCtr ? `c-${realIdx}` : `s-${i}`}
+                    src={src}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full object-cover object-top ${
+                      isCtr ? "cs-center-pan" : ""
+                    }`}
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-500"
+                    style={{ opacity: isCtr ? 0 : 0.85 }}
+                    aria-hidden
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Live `#case_footer` — full-height "Next up" band. When it enters view the
+ *  title fills character-by-character from dim white → solid white (live
+ *  `animateCharacterFill`). Hover shifts the title right and reveals a red
+ *  dot behind the first letter, matching faslebbie.com. */
+function NextUp({
+  next,
+  image,
+  onNavigate,
+  scrollRoot,
+}: {
+  next: WorkProject;
+  image?: string;
+  onNavigate?: (slug: string) => void;
+  scrollRoot?: React.RefObject<HTMLDivElement | null>;
+}) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const label = `Next up- ${next.name}`;
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const textEl = textRef.current;
+    if (!section || !textEl) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      textEl.textContent = label;
+      textEl.style.color = "#ffffff";
+      return;
+    }
+
+    const FILL_MS = 3000;
+    let timers: ReturnType<typeof setTimeout>[] = [];
+
+    const reset = () => {
+      timers.forEach(clearTimeout);
+      timers = [];
+      textEl.textContent = label;
+      textEl.style.color = "";
+    };
+
+    const fill = () => {
+      reset();
+      textEl.innerHTML = "";
+      const chars = label.split("");
+      const step = FILL_MS / Math.max(chars.length, 1);
+      chars.forEach((ch, i) => {
+        const span = document.createElement("span");
+        span.textContent = ch;
+        span.style.color = "rgba(255,255,255,0.2)";
+        span.style.transition = "color 0.5s ease";
+        textEl.appendChild(span);
+        timers.push(
+          setTimeout(() => {
+            span.style.color = "#ffffff";
+          }, i * step),
+        );
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) fill();
+          else reset();
+        }
+      },
+      {
+        threshold: 0.3,
+        root: scrollRoot?.current ?? null,
+      },
+    );
+    io.observe(section);
+    return () => {
+      io.disconnect();
+      timers.forEach(clearTimeout);
+    };
+  }, [label, scrollRoot, next.slug]);
+
+  const go = (e: React.MouseEvent) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(next.slug);
+    }
+  };
+
+  return (
+    <section
+      ref={sectionRef}
+      data-cs-stretch
+      className="cs-next-up relative flex items-center overflow-hidden text-left"
+    >
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element -- next-up art
+        <img
+          src={image}
+          alt=""
+          className="absolute inset-0 z-0 h-full w-full object-cover"
+        />
+      )}
+      <div className="absolute inset-0 z-[1] bg-black/75" aria-hidden />
+      <div className="relative z-[2] mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
+        <Link
+          href={`/work/${next.slug}`}
+          onClick={go}
+          data-cursor="hover"
+          className="group relative inline-block max-w-full font-serif text-[34px] font-thin leading-[1.3] text-white/50 no-underline transition-[padding] duration-[400ms] ease-in-out hover:pl-[2.5vw] xl:text-[5vw]"
+        >
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-[0.55em] left-[2.5vw] z-[-1] size-[1.8vw] min-h-[18px] min-w-[18px] rounded-full opacity-0 transition-all duration-[400ms] ease-in-out group-hover:left-0 group-hover:opacity-100"
+            style={{ backgroundColor: RED }}
+          />
+          <span ref={textRef} className="relative">
+            {label}
+          </span>
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -643,6 +1091,69 @@ function DeviceGallery({ views, tile }: { views: CaseStudyGalleryView[]; tile?: 
   );
 }
 
+/** Design-Interventions mockup showcase (Figma 1099:14538): a dark forest-teal
+ *  band with the intro copy top-left and the framed website mockups arranged as
+ *  an offset two-column masonry, each sitting on a pale sage panel. */
+function MockupMasonry({
+  heading,
+  body,
+  images,
+}: {
+  heading?: string;
+  body?: string;
+  images: string[];
+}) {
+  // Two equal columns (left: 1st/3rd/5th, right: 2nd/4th), tops aligned —
+  // same as the live site's Supporting Design Streams grid.
+  const left = images.filter((_, i) => i % 2 === 0);
+  const right = images.filter((_, i) => i % 2 === 1);
+
+  const Panel = ({ src }: { src: string }) => (
+    <div
+      className="rounded-[8px] p-[7%]"
+      style={{ backgroundColor: SAGE_PANEL }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        className="block h-auto w-full drop-shadow-[0_10px_26px_rgba(0,0,0,0.22)]"
+      />
+    </div>
+  );
+
+  return (
+    <section
+      className="px-6 py-[60px] sm:px-10 xl:px-[3.5vw] xl:py-[5vw]"
+      style={{ backgroundColor: FOREST }}
+    >
+      {(heading || body) && (
+        <div className="mb-10 max-w-[560px] xl:mb-[3vw]">
+          {heading && <Label light>{heading}</Label>}
+          {body && (
+            <p className="text-[13px] leading-[1.55] text-white/90 xl:text-[0.95vw]">
+              {body}
+            </p>
+          )}
+        </div>
+      )}
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-6 xl:gap-[2vw]">
+        <div className="flex flex-1 flex-col gap-6 xl:gap-[2vw]">
+          {left.map((src, i) => (
+            <Panel key={i} src={src} />
+          ))}
+        </div>
+        <div className="flex flex-1 flex-col gap-6 xl:gap-[2vw]">
+          {right.map((src, i) => (
+            <Panel key={i} src={src} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /** 2-column image grid + underlined "Load More" (matches the live grids). */
 function ImageGrid({ images, tile }: { images: string[]; tile?: boolean }) {
   // Live `initializeGridView`: first 6 visible, "Load More" reveals +4.
@@ -665,7 +1176,7 @@ function ImageGrid({ images, tile }: { images: string[]; tile?: boolean }) {
                 src={src}
                 alt=""
                 loading="lazy"
-                className="h-[40vw] w-full object-contain xl:h-[20vw]  scale-[1.2]"
+                className="h-[40vw] w-full object-contain xl:h-[20vw]"
               />
             </div>
           ) : (

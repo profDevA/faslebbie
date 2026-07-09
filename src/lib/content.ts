@@ -752,26 +752,61 @@ export interface CaseStudy {
   broughtHeading?: string
   /** Black "PROBLEM CONTEXT" prose (paragraphs split on blank lines). */
   problem?: string
+  /** Override for the problem band label (e.g. "Campaign Background"). */
+  problemHeading?: string
   /** "MY APPROACH" (cream) — blurb + orange "DESIGN PROCESS" accordion. */
   approach?: { blurb: string; process: CaseStudyAccordionItem[] }
-  /** Teal video band — "DESIGN INTERVENTIONS". */
-  designInterventions?: { body: string; video?: string }
+  /** "DESIGN INTERVENTIONS" — either a teal phone/video band (Coral) or a
+   *  black cover-flow slider (Galderma). `slider` is optional; when present the
+   *  centered Slick-style carousel renders instead of the phone video. */
+  designInterventions?: {
+    body: string
+    video?: string
+    slider?: string[]
+    /** Alternate live title (e.g. "Design Solution", "Featured Designs"). */
+    heading?: string
+  }
   /** Tan device-tab gallery — "CORE EXPERIENCE FLOWS". */
   coreFlows?: { heading: string; body: string; views: CaseStudyGalleryView[] }
-  /** Maroon callout — "EMPOWERING…" (image + headline + body). */
-  advocate?: { heading: string; body: string; image?: string }
+  /** Maroon callout — "EMPOWERING…" (video/image + headline + body). */
+  advocate?: {
+    heading: string
+    body: string
+    image?: string
+    video?: string
+    embeds?: string[]
+  }
+  /** Peach band — "PRODUCT DEMO" (Figma 1099:14362): device-framed demo video.
+   *  `video` may be a local mp4 path or a YouTube/Vimeo embed URL. */
+  productDemo?: {
+    heading: string
+    body: string
+    video?: string
+    image?: string
+    embeds?: string[]
+  }
   /** Periwinkle grid — "RESEARCH OUTPUTS". */
   researchOutputs?: { heading: string; body: string; images: string[] }
   /** White stat band (count-up). */
   stats?: CaseStudyStat[]
   /** Black "REFLECTIONS & IMPACT" prose (paragraphs split on blank lines). */
   reflections?: string
-  /** White "NEXT STEPS" bullet list. */
+  /** Override for the reflections band label (e.g. "Short & Long-term Impact"). */
+  reflectionsHeading?: string
+  /** White "NEXT STEPS" — bullets, or prose paragraphs when live has no <li>s. */
   nextSteps?: string[]
   /** Any extra titled image sections from the live page that don't map to a
    *  named block (e.g. "Marketing & Brand", "Supporting Design Streams"). Kept
    *  so nothing on the original page is lost; rendered as labelled grids. */
-  extraGalleries?: { heading?: string; body?: string; images: string[] }[]
+  extraGalleries?: {
+    heading?: string
+    body?: string
+    images: string[]
+    /** 'mockups' renders the Figma 1099:14538 layout: a dark-teal band with the
+     *  intro copy top-left and the framed website mockups laid out as an offset
+     *  two-column masonry on sage-green panels. */
+    variant?: 'mockups'
+  }[]
 }
 
 export interface WorkProject {
@@ -807,209 +842,6 @@ const baseWorkProjects: WorkProject[] = [
     accent: '#ff5a3c',
     span: 'md',
     image: '/work/coral-health.png',
-    caseStudy: {
-      hero: {
-        // Figma-composed hero (1262:17742): logo + couple in the curved cutout
-        // with the caption baked in, sized to fill the popup hero. Caption is
-        // omitted here so the code overlay doesn't duplicate the baked one.
-        image: '/work/coral-health/ch_hero_figma.png',
-        imageMobile: '/work/coral-health/ch_mv_hero.jpg.png',
-      },
-      overview: {
-        body: "Early cancer detection saves lives, but for Black and Latinx communities, the pathways to care are often broken. The systems intended to help are frequently fragmented, culturally disconnected, or simply inaccessible due to deep-seated medical mistrust and operational complexity. Many employees in these demographics delay care not because they lack awareness, but because the system wasn't designed with their lived experiences or time constraints in mind. Coral Health addresses this by reimagining the screening experience as a guided, culturally competent journey rather than a series of disjointed medical tasks. We partnered with employers to offer a platform that connects users to personalized assessments, home-based testing modalities, and providers who actually understand their background. As the sole founding product designer and strategist, I worked alongside the founding clinical team to architect the entire ecosystem—from the assessment logic and testing flows to the results interpretation and longitudinal task management. Our goal wasn't just to ship an app; it was to build a predictable, modular system that targeted early drop-off rates, increased trust, and made life-saving screenings achievable for the communities that need them most.",
-        disciplines:
-          'Mixed-Methods User Research · Platform Design (UX) · Branding · Cultural Competency Frameworks · Platform Architecture · Journey Mapping · Screening Workflow Modeling · Assessment Design',
-        duration: 'March 2022–February 2023',
-        team: 'Fas Lebbie (Design + Strategy), Patrick Wesonga (Product), Dr. Fatima Cody Stanford (Clinical Lead), Dr. Chris T. Pernell (Clinical & Equity Lead)',
-        // Figma-composed teal decorative panel (1099:12528) — sits on the RIGHT
-        // of the overview; text/meta on the left.
-        image: '/work/coral-health/ch_overview_panel.png',
-        visitSite: 'https://www.coralhealth.io/',
-        note: "Confidentiality: This case study's insights and design process reflect my perspective and design approach. Specific details have been modified to protect sensitive information from Coral Health while showcasing my design approach.",
-      },
-      brought: [
-        {
-          title: 'Design Leadership & Direction',
-          paras: [
-            'I established a Design KPI Framework that shifted the organization\u2019s focus from vanity metrics to preventative health outcomes. By defining how UX signals (like clarity and task success) laddered up to clinical success and employer ROI, I aligned engineering and clinical operations around a shared vision of "trust as a metric".',
-          ],
-        },
-        {
-          title: 'Research & Insight Leadership',
-          paras: [
-            'I led a mixed-methods research program targeting Black, Latinx, and immigrant populations to uncover the specific friction points driving screening avoidance. I synthesized these signals to reframe the opportunity: we weren\u2019t just solving for access, but for psychological safety and "Time to Relevant Match".',
-          ],
-        },
-        {
-          title: 'Experience/Systems/Product Design Leadership',
-          paras: [
-            'I architected the end-to-end modular system, moving beyond linear flows to a "lane choice" model based on risk. This included designing the logic for assessments, home-kit logistics, and video consultation usage to ensure a cohesive, non-fragmented journey.',
-          ],
-        },
-        {
-          title: 'Organizational Influence & Cross-Functional Partnership',
-          paras: [
-            'Working directly with clinical leads and engineers, I translated complex medical guidelines into an operational design strategy. This collaboration ensured that our digital interventions, such as the "Cora" chatbot guide, were clinically accurate while reducing users\u2019 cognitive load.',
-          ],
-        },
-      ],
-      problem:
-        'In the U.S., 83% of health outcomes show worse results for Black patients compared to White patients, and Black women face 3× higher pregnancy-related mortality. Yet, the system often treats these disparities as inevitable. We found that 65% of Black adults and 54% of Latinx adults struggle to find providers who understand their cultural backgrounds. This creates a cycle of mistrust: patients delay care, avoid screenings, and disengage until it is too late. The existing landscape offered them fragmented directories and cold clinical portals, forcing them to act as their own case managers in a system that didn\u2019t seem to see them. For Coral Health, the challenge wasn\u2019t just technical; it was systemic and economic. We had to intervene upstream. Traditional primary care dependency was a major barrier because many employees of color didn\u2019t see PCPs regularly or faced \u201csurprise costs\u201d that eroded trust. We needed a design intervention that could bypass these systemic failures, offering a direct, transparent, and efficient pathway to early detection.',
-      approach: {
-        blurb:
-          'I applied a user-centered, culturally sensitive design process, starting with in-depth interviews across patients and providers to surface lived experiences of inequity. Through iterative prototyping and continuous feedback loops, the design directly addressed both cultural gaps (trust, representation, empathy) and practical barriers (insurance navigation, appointment access).',
-        process: [
-          {
-            title: 'Baseline Information',
-            paras: [
-              'Before we drew a single screen, the baseline picture was chaotic. Our initial investigation revealed that patients were navigating a \u201cfragmented and exhausting search process,\u201d bouncing between insurance directories, reviews, and outdated websites just to find a doctor they might trust. The \u201cTime to Top Candidate\u201d was days, sometimes weeks. The friction was palpable. Despite 77% of participants saying they were somewhat satisfied with their current providers, deep dives revealed that many felt unheard, rushed, or culturally misunderstood. They relied heavily on visual cues—photos and community recommendations—to assess safety, but the existing tools gave them almost no signal to work with. Additionally, the data showed that low trust was delaying preventive care. People weren\u2019t avoiding health; they were avoiding the system. We realized our starting line wasn\u2019t zero; it was negative, defined by a deficit of trust and an abundance of cognitive overhead.',
-            ],
-          },
-          {
-            title: 'Research & Strategy',
-            paras: [
-              'To understand the nuance of this mistrust, I led a triangulated research involving patient interviews across Black, Latinx, and immigrant backgrounds, alongside provider interviews with MDs and care navigators. We asked about their lives and their fears regarding the healthcare system. We used frameworks such as the Theory of Change to map how specific design interventions—such as cultural matching—could, in theory, lead to earlier detection. We also utilized Value Proposition Canvas mapping to align patient pains (fear of judgment, cost confusion) with our proposed solutions. The insights forced us to pivot our strategy. We initially thought the problem was access to appointments. But the research revealed that trust is non-linear and deeply tied to representation. Users needed to \u201csee themselves\u201d in the experience before engaging. We also learned that families make collective care decisions in these communities, suggesting our platform needed to support more than just the individual employee. This shaped a strategy focused on \u201cCultural Safety,\u201d prioritizing transparency and representation over speed. We decided to strip away the clinical jargon and build a \u201cmodular lane\u201d system in which the assessment determines the journey, reducing decision fatigue.',
-            ],
-          },
-          {
-            title: 'Summary of Findings',
-            paras: [
-              'Through our research, several critical themes emerged that directly informed the product architecture and our metrics strategy:',
-            ],
-            bullets: [
-              'Cultural competence is a core trust signal. Patients repeatedly told us they scanned for cultural alignment before clinical credentials. They needed to know a provider \u201cgot it.\u201d Meaning: We couldn\u2019t just list doctors; we had to surface cultural competence credentials and deeper profile data. Implication: We designed \u201cSmart Matching\u201d algorithms to reduce \u201cTime to Relevant Match,\u201d prioritizing cultural and communication preferences over zip codes.',
-              'The search process is exhausting. Users were switching between 5–7 sources to validate a single doctor. This cognitive load was a primary cause of early drop-off. Meaning: The platform had to be a \u201csingle source of truth\u201d that integrated benefits, booking, and profiles. Implication: We centralized the ecosystem, removing the need to leave the app to check insurance eligibility or read reviews.',
-              'Transparency reduces anxiety. Fear of the unknown, especially regarding test results and costs, paralyzed users. Meaning: Ambiguity is a barrier to care. Implication: We designed \u201cPlain Language\u201d results screens and transparent pricing banners to eliminate the fear of \u201csurprise billing\u201d that disproportionately affects underserved groups.',
-              'Practical barriers are as lethal as cultural ones. Even with trust, logistical issues like transportation and childcare disrupted screenings. Meaning: Convenience is an equity issue. Implication: We prioritized at-home test kits and in-home phlebotomy options to meet users where they physically are.',
-            ],
-          },
-          {
-            title: "Defining Design KPI's",
-            paras: [
-              'We knew that for Coral Health to succeed, we couldn\u2019t just measure \u201cclicks.\u201d We needed a framework that connected the user\u2019s emotional reality (trust, anxiety) to the business\u2019s bottom line (retention, cost savings). Before beginning design, I worked with stakeholders to establish UX KPIs and impact goals to ensure the experience design would ladder up to a health outcome.',
-            ],
-            bullets: [
-              'Goal 1: Improve UX Quality to Build Trust. In a high-stakes health journey, confusion looks like incompetence. Any friction in the UI would be interpreted as a lack of care. The Goal: We aimed to optimize for Content Clarity and Task Success Rate. By measuring and minimizing the \u201cError Rate\u201d on kit-ordering flows, we intended to remove the micro-failures that cause users to abandon care.',
-              'Goal 2: Accelerate Time-to-Value. Our baseline data showed users spending days fragmenting their search across different sites. The Goal: We set a target to reduce \u201cTime to Relevant Match drastically.\u201d The design needed to filter providers and present a \u201ctop candidate\u201d faster than the user could do on their own, proving the platform\u2019s worth in the first session.',
-              'Goal 3: Drive Business Impact through Behavioral Change. Engagement means nothing if users don\u2019t complete the screening. The Goal: We focused our downstream metrics on Screening Completion (Revenue) and Appointment Attendance (Cost Efficiency). If we solved the upstream UX quality issues (clarity, trust), these lagging business indicators would naturally improve.',
-            ],
-          },
-          {
-            title: 'Prototyping & Implementation Strategy',
-            paras: [
-              'We adopted a \u201cdesign by accretion\u201d approach, starting with low-fidelity prototypes to validate the core mechanics before adding the layer of visual trust. I began by mapping the modular flows, moving from assessment to \u201clane choice,\u201d to ensure the logic held up across different risk profiles. In the early stages, we tested wireframes to see if users understood why they were being recommended a specific screening. We measured \u201cContent Clarity\u201d closely here. We quickly realized that without clear \u201cwhy\u201d messaging, users felt targeted rather than cared for. This feedback loop allowed us to refine the content strategy significantly before engineering began.',
-              'As we moved to high-fidelity, the focus shifted to emotional resonance. We prototyped the \u201cCora\u201d assessment guide to test tone and approachability. We iterated heavily on the Results Interpretation screens, moving away from scary red text to supportive, clear data visualizations.',
-              'Implementation was phased. We launched with a \u201cFoundation\u201d phase focused on the match and dashboard, followed by the complex \u201cGuided Screening\u201d workflows involving test kit logistics. This phasing allowed us to validate the matching KPIs (NPS and Match Success) before incurring the operational costs of physical kits. We worked closely with clinical ops to ensure our digital flows aligned with the physical reality of lab processing.',
-            ],
-          },
-        ],
-      },
-      designInterventions: {
-        body: 'The core intervention was shifting the mental model from a "directory of doctors" to a "guided care pathway". We didn\'t just build a search bar; we built a modular system that takes a user by the hand. The platform uses a culturally competent assessment to triage users into specific "lanes" (screening, vaccination, or education) that directly impact "Time to Top Candidate/Action". This worked because it directly addressed the "fragmentation" finding. By integrating eligibility checks, kit ordering, and results interpretation into one flow, we removed the friction points where users typically drop off. The design used plain language and representations, specifically the "Cora" guide, to bridge the trust gap, turning a clinical transaction into a relational interaction. Effectiveness was measured by our UX KPIs: by reducing "Time to Decision" and cognitive load, we saw trust signals increase. The intervention succeeded because it acknowledged that for this population, the barrier wasn\'t just logistical, but also emotional. We designed for the anxiety, not just the appointment.',
-        video: '/work/coral-health/coral-health_new-1.mp4',
-      },
-      coreFlows: {
-        heading: 'Core Experience Flows',
-        body: 'The experience design is built around eight interconnected modules that guide the user from uncertainty to action. These flows were designed to be non-linear, allowing users to enter and exit while always being re-oriented toward their next best health action.',
-        views: [
-          {
-            id: 'mobile',
-            label: 'Mobile View',
-            images: Array.from(
-              { length: 9 },
-              (_, i) => `/work/coral-health/ch_di_slider_${i + 1}.jpg-2.png`,
-            ),
-          },
-          {
-            id: 'ipad',
-            label: 'iPad View',
-            images: Array.from(
-              { length: 9 },
-              (_, i) => `/work/coral-health/ch_di_slider_${i + 1}.jpg-1-1-scaled.png`,
-            ),
-          },
-          {
-            id: 'desktop',
-            label: 'Desktop View',
-            images: Array.from(
-              { length: 9 },
-              (_, i) => `/work/coral-health/ch_di_slider_${i + 1}.jpg-3-scaled.png`,
-            ),
-          },
-        ],
-      },
-      advocate: {
-        heading: 'Empowering You to Truly be Their Advocate',
-        body: "Coral Health is an actionable way to support your organization's diversity, equity, and inclusion commitment by helping culturally diverse people within your organization feel a sense of safety, understanding, and belonging in healthcare situations.",
-        image: '/work/coral-health/ch_bi.jpg-scaled.png',
-      },
-      researchOutputs: {
-        heading: 'Research Outputs (Tools, Methods & Frameworks)',
-        body: 'Here are some artifacts during the design-led research process where I produce a library of strategic artifacts. These weren\u2019t just deliverables; they were the tools we used to align the organization around the reality of the patient experience and our success metrics.',
-        images: [
-          '/work/coral-health/ch_ai_slider_2.jpg.png',
-          '/work/coral-health/ch_ai_slider_3.jpg.png',
-          '/work/coral-health/ch_ai_slider_1.jpg-1.png',
-          '/work/coral-health/ch_ai_slider_7.jpg.png',
-          '/work/coral-health/ch_ai_slider_1.jpg.png',
-          '/work/coral-health/ch_ai_slider_5.jpg-1.png',
-        ],
-      },
-      stats: [
-        {
-          value: 75,
-          suffix: '%',
-          label: 'Provider Match Retention',
-          note: 'Users found and stuck with culturally competent providers',
-        },
-        {
-          value: 30,
-          suffix: '%',
-          label: 'Screening Follow-Through',
-          note: 'Increase in users completing recommended screenings',
-        },
-        {
-          value: 4,
-          suffix: 'M',
-          label: 'Funding Influenced',
-          note: 'Experience strategy helped secure funding, demonstrating engagement and scalability',
-        },
-      ],
-      reflections:
-        'Coral Health was founded on the vision of advancing healthcare equity, led by pioneers Dr. Fatima Cody Stanford and Dr. Chris T. Pernell. To translate their expertise into a scalable digital experience, we realized that traditional metrics like \u201cclicks\u201d were insufficient. We needed to measure behavioral change. By anchoring our decisions in the UX KPI Impact assessment, we connected specific design decisions directly to the organization\u2019s business objectives.\n\nWe tracked success across three connected layers. First, we monitored UX Quality (specifically \u201cError Rate\u201d and \u201cContent Clarity\u201d) to ensure we eliminated the friction that leads to permanent abandonment in kit ordering. Second, we measured Experience Performance using \u201cTime to Relevant Match\u201d and \u201cSupport Demand Reduction\u201d to demonstrate that the design was reducing anxiety and doing the heavy lifting. Finally, we mapped these signals to Business Impact, specifically Screening Completion (Revenue Realization) and Appointment Attendance (Cost Efficiency). This rigor shifted the internal conversation from \u201cfeatures\u201d to \u201coutcomes.\u201d The results, including a 75% retention rate over a 6-month pilot period, show users actively engaging the platform for ongoing screening recommendations. By demonstrating that equity-centered design lowers cost-to-serve and directly influences the \u201cTime to Purchase\u201d, we positioned Coral Health as a leader in the space, securing the capital and partnerships necessary to scale this impact to more lives.',
-      nextSteps: [
-        'Expand screening pathways by leveraging the validated modular framework to address other high-disparity conditions, such as diabetes and hypertension.',
-        'Deepen matching models by incorporating richer variables, such as communication style, into the algorithm to drive down further \u201cTime to Relevant Match.\u201d',
-        'Enhance navigation to automate \u201chuman-in-the-loop\u201d reminders to sustain gains in at-home drop-off rates.',
-        'Build dashboards for employer analytics that visualize the ROI of equity for B2B partners, proving the \u201cBusiness Objective\u201d connection directly to their bottom line.',
-      ],
-      // Two named galleries the live page shows between "Core Experience Flows"
-      // and "Empowering…" (Israel 07/04 — "you don't have this marketing and
-      // brand experience design section… or the supporting design streams").
-      extraGalleries: [
-        {
-          heading: 'Marketing & Brand Experience Designs',
-          body: 'I also contributed to the design of the marketing site and brand identity. We knew that for underserved communities, the platform\u2019s "vibe" had to feel different from traditional corporate healthcare.',
-          images: [
-            '/work/coral-health/ch_bi.jpg-scaled.png',
-            '/work/coral-health/ch_mv_hero.jpg.png',
-            '/work/coral-health/slc_hero.jpg-scaled.png',
-            '/work/coral-health/slc_mv_hero.jpg.png',
-          ],
-        },
-        {
-          heading: 'Supporting Design Streams',
-          body: 'We developed a visual identity rooted in community warmth and representation, moving away from sterile medical blues to a more human, vibrant palette. The marketing site served a dual purpose: it validated the platform for potential users by showing people who looked like them, and it articulated the value of \u201cculturally competent care\u201d to employer partners. This top-of-funnel work was critical for adoption, as it framed the product as a place of safety and understanding, directly impacting our customer acquisition costs (CAC) and conversion rates.',
-          images: [
-            '/work/coral-health/coral_health_desktop.png',
-            '/work/coral-health/coral_health_desktop_2.png',
-            '/work/coral-health/coral_health_desktop_3.png',
-            '/work/coral-health/coral_health_desktop_4.png',
-            '/work/coral-health/coral_health_desktop_5.png',
-          ],
-        },
-      ],
-    },
   },
   {
     slug: 'snapback-lifestyle',
@@ -1155,10 +987,9 @@ const baseWorkProjects: WorkProject[] = [
   },
 ]
 
-// Attach the faithfully-extracted live-site case study to each project. Coral
-// Health keeps its hand-authored study (richer); every other project uses the
-// auto-generated one from scripts/extract-case-studies.mjs. Card art uses the
-// exact live works-wall thumbnail (scripts/fetch-card-thumbs.mjs →
+// Attach the faithfully-extracted live-site case study to each project
+// (scripts/extract-case-studies.mjs → case-studies.generated.ts). Card art uses
+// the exact live works-wall thumbnail (scripts/fetch-card-thumbs.mjs →
 // /work/cards/<slug>.png), falling back to the study hero if ever missing.
 // The extractor captured WordPress's post navigation ("Previous"/"Next"
 // project links) as single-image galleries. They aren't case-study content
@@ -1172,42 +1003,10 @@ function stripNavGalleries(cs: CaseStudy | undefined): CaseStudy | undefined {
   return { ...cs, extraGalleries: galleries.length ? galleries : undefined }
 }
 
-// Hand-authored patches merged onto the auto-generated studies. The extractor
-// only recognises sections by their live heading, so Galderma's "My Role" block
-// (its equivalent of "What I Brought", titled differently on the live page) was
-// dropped — Israel 07/06: "something's wrong… it's not showing". Restore it here
-// and label the section "My Role" to match faslebbie.com/case-studies/galderma.
-const caseStudyOverrides: Record<string, Partial<CaseStudy>> = {
-  galderma: {
-    broughtHeading: 'My Role',
-    brought: [
-      {
-        title: 'Design Leadership & PLG Strategy',
-        paras: [
-          'I introduced the User Engagement State framework to Galderma, moving stakeholders from a "content library" mindset to a "growth funnel" mindset. I defined the critical thresholds for Setup, Aha!, and Habit moments, aligning the design roadmap to optimize for "Activation" rather than just "Registration".',
-        ],
-      },
-      {
-        title: 'Research & Insight Leadership',
-        paras: [
-          'I led the ethnographic inquiry into the "mouth-to-mouth" system to identify what constituted a true "Aha! Moment" for a doctor. I synthesized these findings to define the "Habit Moment" as the specific point where an HCP is paired with a supervisor for their first patient interaction, shifting the focus from "content consumption" to "verified capability".',
-        ],
-      },
-      {
-        title: 'Experience / Systems / Product Design Leadership',
-        paras: [
-          'I architected the HCP Flow to function as a retention engine. This involved designing "Resurrection" loops in which failed accreditation assessments automatically triggered reactivation flows, and structuring "Power" user features such as Clinic Management and Resources to drive long-term engagement loops.',
-        ],
-      },
-      {
-        title: 'Organizational Influence & Cross-Functional Partnership',
-        paras: [
-          'I navigated the friction between Brand Strategy (Jennifer Younes) and Digital Aesthetics (Pierre Geiger) by using the PLG framework as a neutral source of truth. By defining "Activated" and "Power" states, I aligned distinct business units on shared KPIs, helping the team prioritize an "Innovation Viable Product" (IVP) for the Brazil pilot that specifically tested the Time-to-Aha.',
-        ],
-      },
-    ],
-  },
-}
+// Hand patches on top of generatedCaseStudies. Currently empty — the
+// extractor now captures Galderma "My Role", cover-flow sliders, productDemo
+// bands, and Supporting Design Streams mockups from the live HTML.
+const caseStudyOverrides: Record<string, Partial<CaseStudy>> = {}
 
 export const workProjects: WorkProject[] = baseWorkProjects.map((p) => {
   const generated = p.caseStudy ?? generatedCaseStudies[p.slug]

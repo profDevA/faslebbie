@@ -107,18 +107,53 @@ body {
   transform: translateY(0);
 }
 
-/* Israel 07/06: inside the popup, every case-study section fills the modal
-   viewport ("first section and all sections should take full height" — one
-   section per screen). Scoped to `.cs-fullheight` (the overlay root only) so the
-   standalone page keeps natural document flow. `container-type: size` makes the
-   scroll container a size query container so `100cqh` resolves to its height
-   reliably (percentage min-height doesn't resolve through the flex/scroll box). */
+/* Like the live site, every section (EXCEPT the hero) fills the modal viewport
+   with its content vertically centred — generous top/bottom breathing room, one
+   section per screen. `container-type: size` makes the scroll container a size
+   container so `100cqh` = the modal's own height. The hero (first section) keeps
+   its natural image height. Grid/panel sections (overview, my-approach) opt out
+   of the flex-centering via `data-cs-stretch` so their columns stretch to fill
+   the section height instead of collapsing to content height. */
 .cs-fullheight {
   container-type: size;
 }
 
-.cs-fullheight > section {
+.cs-fullheight > section:not(:first-of-type) {
   min-height: 100cqh;
+}
+
+.cs-fullheight > section:not(:first-of-type):not([data-cs-stretch]) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Live `#case_footer` — full viewport height. In the modal popup, fill the
+   modal's own height (100cqh); on the standalone page, fill the window. */
+.cs-next-up {
+  min-height: 100vh;
+}
+.cs-fullheight > .cs-next-up {
+  min-height: 100cqh;
+}
+
+/* Galderma cover-flow: when a slide becomes center, pan object-position
+   top → bottom after 1s over 4s (live `.slick-center img` behaviour). */
+@keyframes cs-center-pan {
+  from {
+    object-position: top;
+  }
+  to {
+    object-position: bottom;
+  }
+}
+.cs-center-pan {
+  animation: cs-center-pan 4s ease-in-out 1s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs-center-pan {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
