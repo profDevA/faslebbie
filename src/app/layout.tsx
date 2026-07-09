@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Poppins } from "next/font/google";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
 
@@ -17,10 +16,12 @@ const reckless = localFont({
   display: "swap",
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: "700",
+// Poppins 700 (logo) — self-hosted from Google Fonts (latin subset) so the
+// build never depends on a network fetch to fonts.googleapis.com.
+const poppins = localFont({
+  src: [{ path: "./fonts/Poppins-Bold.woff2", weight: "700", style: "normal" }],
   variable: "--font-poppins",
+  display: "swap",
 });
 
 // Neue Haas Grotesk — used for the big background wordmark in the v2 hero.
