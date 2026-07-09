@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import CaseStudy from "@/components/CaseStudy";
-import { findWorkProject, workProjects } from "@/lib/content";
+import CaseStudyView from "@/components/CaseStudyView";
+import { findStudy, getStudySlugs } from "@/sanity/fetch";
 
 // Standalone, shareable case-study page at /work/<slug> — renders on a direct
 // visit / refresh / share. Inside the works page itself, clicking a project opens
 // the same study as a client-side popup (see WorkBody), so no navigation happens.
-export function generateStaticParams() {
-  return workProjects.map((p) => ({ slug: p.slug }));
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const slugs = await getStudySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -16,12 +19,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const found = findWorkProject(slug);
+  const found = await findStudy(slug);
   if (!found) return {};
   const { project } = found;
   return {
-    title: `${project.name} — Fas Lebbie`,
-    description: project.tagline,
+    title: project.seo?.title ?? `${project.name} — Fas Lebbie`,
+    description: project.seo?.description ?? project.tagline,
   };
 }
 
@@ -31,11 +34,11 @@ export default async function CaseStudyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const found = findWorkProject(slug);
+  const found = await findStudy(slug);
   if (!found) notFound();
 
   return (
-    <CaseStudy
+    <CaseStudyView
       project={found.project}
       prev={found.prev}
       next={found.next}

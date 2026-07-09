@@ -58,22 +58,23 @@ export interface PanelContent {
 // so they take the SAME colour as the wordmark (near-black at the top, fading
 // to grey as it recedes). `w`/`h` are each glyph's native Figma size in px — we
 // keep those exact proportions and per-icon heights instead of forcing them all
-// to one height. TODO: swap for named brand SVGs once Fas confirms the list.
-export const toolStackLogos: { src: string; w: number; h: number }[] = [
-  { src: '/tools/stack/logo-01.png', w: 28.75, h: 28.0 },
-  { src: '/tools/stack/logo-02.png', w: 18.75, h: 28.75 },
-  { src: '/tools/stack/logo-03.png', w: 29.75, h: 29.75 },
-  { src: '/tools/stack/logo-04.png', w: 29.5, h: 19.0 },
-  { src: '/tools/stack/logo-05.png', w: 32.25, h: 32.25 },
-  { src: '/tools/stack/logo-06.png', w: 25.5, h: 26.25 },
-  { src: '/tools/stack/logo-07.png', w: 24.0, h: 24.25 },
-  { src: '/tools/stack/logo-08.png', w: 28.0, h: 28.0 },
-  { src: '/tools/stack/logo-09.png', w: 31.0, h: 30.5 },
-  { src: '/tools/stack/logo-10.png', w: 28.75, h: 29.5 },
-  { src: '/tools/stack/logo-11.png', w: 33.75, h: 32.25 },
-  { src: '/tools/stack/logo-12.png', w: 28.75, h: 24.0 },
-  { src: '/tools/stack/logo-13.png', w: 29.75, h: 29.75 },
-  { src: '/tools/stack/logo-14.png', w: 32.25, h: 28.0 },
+// to one height. `name` is the tool label shown in the hover tooltip (Figma
+// 1111:30779). NOTE: positions 1-4 and 9 are best-guess pending Fas's confirm.
+export const toolStackLogos: { src: string; w: number; h: number; name: string }[] = [
+  { src: '/tools/stack/logo-01.png', w: 28.75, h: 28.0, name: 'Paper' },
+  { src: '/tools/stack/logo-02.png', w: 18.75, h: 28.75, name: 'Figma' },
+  { src: '/tools/stack/logo-03.png', w: 29.75, h: 29.75, name: 'Linear' },
+  { src: '/tools/stack/logo-04.png', w: 29.5, h: 19.0, name: 'Claude Code' },
+  { src: '/tools/stack/logo-05.png', w: 32.25, h: 32.25, name: 'ChatGPT' },
+  { src: '/tools/stack/logo-06.png', w: 25.5, h: 26.25, name: 'Supabase' },
+  { src: '/tools/stack/logo-07.png', w: 24.0, h: 24.25, name: 'Lovable' },
+  { src: '/tools/stack/logo-08.png', w: 28.0, h: 28.0, name: 'Next.js' },
+  { src: '/tools/stack/logo-09.png', w: 31.0, h: 30.5, name: 'Spline' },
+  { src: '/tools/stack/logo-10.png', w: 28.75, h: 29.5, name: 'Notion' },
+  { src: '/tools/stack/logo-11.png', w: 33.75, h: 32.25, name: 'GitHub' },
+  { src: '/tools/stack/logo-12.png', w: 28.75, h: 24.0, name: 'Vercel' },
+  { src: '/tools/stack/logo-13.png', w: 29.75, h: 29.75, name: 'Floral AI' },
+  { src: '/tools/stack/logo-14.png', w: 32.25, h: 28.0, name: 'Weavy' },
 ]
 
 export const panels: Record<SectionId, PanelContent> = {

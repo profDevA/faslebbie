@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PIN_VH } from "@/lib/reveal";
-import { toolStackLogos } from "@/lib/content";
+import ToolStack from "@/components/ToolStack";
 
 /**
  * Big "Design Work" watermark (Figma 807:2979) — the desktop page heading, the
@@ -92,26 +92,7 @@ export default function WorkWatermark({
           <span className="font-serif text-[20px] tracking-[0.06em] xl:text-[26px]">
             Stack:
           </span>
-          <span className="flex flex-wrap items-center gap-x-[30px] gap-y-3">
-            {toolStackLogos.map((logo) => (
-              <span
-                key={logo.src}
-                className="inline-block shrink-0 bg-current"
-                style={{
-                  width: `${logo.w}px`,
-                  height: `${logo.h}px`,
-                  WebkitMaskImage: `url(${logo.src})`,
-                  maskImage: `url(${logo.src})`,
-                  WebkitMaskRepeat: "no-repeat",
-                  maskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center",
-                  maskPosition: "center",
-                  WebkitMaskSize: "contain",
-                  maskSize: "contain",
-                }}
-              />
-            ))}
-          </span>
+          <ToolStack className="gap-x-[30px]" />
         </div>
       </div>
     </div>

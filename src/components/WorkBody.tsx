@@ -3,16 +3,13 @@
 import Image from "next/image";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
-  type WorkCategory,
   type WorkToken,
   WORK_CREDIT,
-  findWorkProject,
-  toolStackLogos,
-  workCategories,
   workNarrative,
-  workProjects,
 } from "@/lib/content";
-import CaseStudy from "@/components/CaseStudy";
+import CaseStudyView from "@/components/CaseStudyView";
+import ToolStack from "@/components/ToolStack";
+import type { Study } from "@/sanity/types";
 import {
   contentDrift,
   portraitDrift,
@@ -23,11 +20,11 @@ import { useReveal } from "@/lib/useReveal";
 import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
-type Filter = WorkCategory | "All";
+type Filter = string;
 
 // Masonry card image heights per span tier (desktop) so the grid varies like
 // Figma 823:65046.
-const SPAN_H: Record<WorkProject["span"], string> = {
+const SPAN_H: Record<"sm" | "md" | "lg", string> = {
   sm: "h-[220px]",
   md: "h-[300px]",
   lg: "h-[380px]",
@@ -46,9 +43,23 @@ const WALL_WHEEL_SCALE = 0.65; // how strongly the wheel scrolls the wall
 // centred gap for the menu (Figma 1111:4653 / 1111:6992).
 const WALL_MENU_W = 220;
 
-type WorkProject = (typeof workProjects)[number];
+type WorkProject = Study;
 
-export default function WorkBody() {
+// Wrap-around previous/next for the in-page popup + Next-up band.
+function neighbors(list: WorkProject[], slug: string) {
+  const i = list.findIndex((p) => p.slug === slug);
+  if (i === -1) return null;
+  const n = list.length;
+  return { project: list[i], prev: list[(i - 1 + n) % n], next: list[(i + 1) % n] };
+}
+
+export default function WorkBody({
+  projects,
+  categories,
+}: {
+  projects: Study[];
+  categories: string[];
+}) {
   // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
   // popup, don't create a new path"). No route change — `openSlug` drives the
   // overlay, so there's no full-page fallback and no intercepting-route flakiness.
@@ -149,18 +160,18 @@ export default function WorkBody() {
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { All: workProjects.length };
-    for (const cat of workCategories)
-      c[cat] = workProjects.filter((p) => p.categories.includes(cat)).length;
+    const c: Record<string, number> = { All: projects.length };
+    for (const cat of categories)
+      c[cat] = projects.filter((p) => p.categories.includes(cat)).length;
     return c;
-  }, []);
+  }, [projects, categories]);
 
   const visible = useMemo(
     () =>
       filter === "All"
-        ? workProjects
-        : workProjects.filter((p) => p.categories.includes(filter)),
-    [filter],
+        ? projects
+        : projects.filter((p) => p.categories.includes(filter)),
+    [filter, projects],
   );
 
   // Round-robin the visible projects into 4 columns for the auto-scroll wall.
@@ -301,26 +312,7 @@ export default function WorkBody() {
                     <span className="font-serif text-[18px] tracking-[0.06em] text-black">
                       Stack:
                     </span>
-                    <span className="flex flex-wrap items-center gap-x-[26px] gap-y-3 text-black">
-                      {toolStackLogos.map((logo) => (
-                        <span
-                          key={logo.src}
-                          className="inline-block shrink-0 bg-current"
-                          style={{
-                            width: `${logo.w * 0.75}px`,
-                            height: `${logo.h * 0.75}px`,
-                            WebkitMaskImage: `url(${logo.src})`,
-                            maskImage: `url(${logo.src})`,
-                            WebkitMaskRepeat: "no-repeat",
-                            maskRepeat: "no-repeat",
-                            WebkitMaskPosition: "center",
-                            maskPosition: "center",
-                            WebkitMaskSize: "contain",
-                            maskSize: "contain",
-                          }}
-                        />
-                      ))}
-                    </span>
+                    <ToolStack scale={0.75} className="gap-x-[26px] text-black" />
                   </div>
                 </div>
                 <Image
@@ -428,7 +420,7 @@ export default function WorkBody() {
                   className="work-filter-expand pointer-events-auto relative flex flex-col gap-3"
                   style={{ width: WALL_MENU_W }}
                 >
-                  {(["All", ...workCategories] as Filter[]).map((cat) => {
+                  {(["All", ...categories] as Filter[]).map((cat) => {
                     const active = filter === cat;
                     return (
                       <button
@@ -478,7 +470,7 @@ export default function WorkBody() {
             </button>
             {filterOpen && (
               <div className="mb-8 flex flex-col gap-2 border-l-2 border-accent bg-close px-5 py-4">
-                {(["All", ...workCategories] as Filter[]).map((cat) => {
+                {(["All", ...categories] as Filter[]).map((cat) => {
                   const active = filter === cat;
                   return (
                     <button
@@ -522,10 +514,10 @@ export default function WorkBody() {
           modals and × always closes back to the works page. */}
       {openSlug &&
         (() => {
-          const found = findWorkProject(openSlug);
+          const found = neighbors(projects, openSlug);
           if (!found) return null;
           return (
-            <CaseStudy
+            <CaseStudyView
               project={found.project}
               prev={found.prev}
               next={found.next}
@@ -579,6 +571,7 @@ function ProjectCard({
   // continuous drift is the animation, so no scroll-reveal is applied.
   reveal?: boolean;
 }) {
+  const accent = project.accent?.hex ?? "#999999";
   return (
     <button
       type="button"
@@ -603,9 +596,9 @@ function ProjectCard({
       ) : (
         // Branded colour placeholder until real art lands.
         <div
-          className={`relative w-full overflow-hidden ${SPAN_H[project.span]}`}
+          className={`relative w-full overflow-hidden ${SPAN_H[project.span ?? "md"]}`}
           style={{
-            backgroundImage: `radial-gradient(130% 130% at 30% 20%, ${project.accent} 0%, ${project.accent}cc 55%, ${project.accent}66 100%)`,
+            backgroundImage: `radial-gradient(130% 130% at 30% 20%, ${accent} 0%, ${accent}cc 55%, ${accent}66 100%)`,
           }}
         >
           <span className="flex h-full w-full items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -627,3 +620,4 @@ function ProjectCard({
     </button>
   );
 }
+

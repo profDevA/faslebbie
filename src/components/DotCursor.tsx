@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 // Custom dot cursor: black dot that trails the pointer and turns red + grows
 // over interactive elements (Emily-Campbell style, per Fas 06/12).
 export default function DotCursor() {
   const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  // The embedded Sanity Studio needs its native cursor.
+  const disabled = pathname?.startsWith("/studio") ?? false;
 
   useEffect(() => {
+    if (disabled) return;
     const el = ref.current;
     if (!el) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
@@ -53,7 +58,9 @@ export default function DotCursor() {
       cancelAnimationFrame(raf);
       document.documentElement.classList.remove("has-dot-cursor");
     };
-  }, []);
+  }, [disabled]);
+
+  if (disabled) return null;
 
   return (
     <div
