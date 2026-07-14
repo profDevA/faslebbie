@@ -137,6 +137,7 @@ export interface StudyCard {
   tagline?: string;
   categories: string[];
   image?: string;
+  imageLqip?: string;
   heroImage?: string;
   accent?: SanityColor;
   span?: "sm" | "md" | "lg";
@@ -152,4 +153,5 @@ export interface WorkPageConfig {
   enableTextView?: boolean;
   enableImageView?: boolean;
   loadMoreLabel?: string;
+  appearance?: Appearance;
 }

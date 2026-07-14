@@ -57,6 +57,7 @@ const cardProj = `
   tagline,
   "categories": coalesce(categories[]->title, []),
   "image": cardThumbnail.asset->url,
+  "imageLqip": cardThumbnail.asset->metadata.lqip,
   "heroImage": sections[_type == "heroSection"][0].image.asset->url,
   accent,
   span
@@ -78,7 +79,8 @@ export const STUDY_CARDS_QUERY = defineQuery(`*[_type == "caseStudy"] | order(or
 export const CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(orderRank asc).title`);
 
 export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
-  sectionTitle, enableTextView, enableImageView, loadMoreLabel
+  sectionTitle, enableTextView, enableImageView, loadMoreLabel,
+  ${appearanceProj}
 }`);
 
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);

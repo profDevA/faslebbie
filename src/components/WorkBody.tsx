@@ -9,7 +9,7 @@ import {
 } from "@/lib/content";
 import CaseStudyView from "@/components/CaseStudyView";
 import ToolStack from "@/components/ToolStack";
-import type { Study } from "@/sanity/types";
+import type { Study, WorkPageConfig } from "@/sanity/types";
 import {
   contentDrift,
   portraitDrift,
@@ -38,12 +38,35 @@ const WALL_FACTORS = [0.75, 0.55, 0.65, 0.5];
 const WALL_AUTO_SPEED = 0.9; // base px added to the shared offset each frame
 const WALL_WHEEL_SCALE = 0.65; // how strongly the wheel scrolls the wall
 
-// Width (px) of the expanded FILTER WORK menu. On open, the left column pair
-// slides left by half this and the right pair slides right by half, opening a
-// centred gap for the menu (Figma 1111:4653 / 1111:6992).
-const WALL_MENU_W = 220;
+// Size (px) of the expanded FILTER WORK menu. On open, the left column pair
+// slides left by half WALL_MENU_W and the right pair slides right by half,
+// opening a centred gap; WALL_MENU_INNER_W is the actual menu width so the gap
+// keeps a little breathing room on each side (Figma 1111:4653 / 1111:6992,
+// category list 1251:6335 — 207px wide, ~44px row pitch).
+const WALL_MENU_W = 480;
+const WALL_MENU_INNER_W = 207;
+// Closed state widens the centre gutter (on top of the existing 20px column
+// gap) into a clear lane so the vertical "FILTER WORK" tab sits in empty space
+// instead of overlapping the adjacent column (each pair shifts out by half).
+const WALL_TAB_LANE = 24;
 
 type WorkProject = Study;
+
+// Card thumbnails come back as the full-resolution original asset URL. Serve a
+// resized, auto-format (webp/avif) variant off the Sanity CDN so the `.img`
+// wall paints fast instead of downloading multi-MB originals, and pull the
+// intrinsic WxH (Sanity encodes it in the filename) so each card reserves its
+// aspect-ratio and never collapses to a text-only row while the image loads.
+function cardImage(url: string | undefined, width: number) {
+  if (!url) return { src: undefined, w: undefined, h: undefined };
+  const m = /-(\d+)x(\d+)\.\w+$/.exec(url);
+  const w = m ? Number(m[1]) : undefined;
+  const h = m ? Number(m[2]) : undefined;
+  const src = url.includes("cdn.sanity.io")
+    ? `${url}?w=${width}&auto=format&fit=max&q=75`
+    : url;
+  return { src, w, h };
+}
 
 // Wrap-around previous/next for the in-page popup + Next-up band.
 function neighbors(list: WorkProject[], slug: string) {
@@ -56,15 +79,25 @@ function neighbors(list: WorkProject[], slug: string) {
 export default function WorkBody({
   projects,
   categories,
+  config,
 }: {
   projects: Study[];
   categories: string[];
+  config?: WorkPageConfig | null;
 }) {
+  // View availability from the Work Page singleton (defaults to both on). When
+  // only one view is enabled the toggle is hidden and that view is forced —
+  // "Hide toggle if only one view is enabled" (Figma backend spec 1260:890).
+  const textOn = config?.enableTextView !== false;
+  const imgOn = config?.enableImageView !== false;
+  const showToggle = textOn && imgOn;
+  const bgColor = config?.appearance?.backgroundColor?.hex;
+
   // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
   // popup, don't create a new path"). No route change — `openSlug` drives the
   // overlay, so there's no full-page fallback and no intercepting-route flakiness.
   const [openSlug, setOpenSlug] = useState<string | null>(null);
-  const [view, setView] = useState<View>("txt");
+  const [view, setView] = useState<View>(textOn ? "txt" : "img");
   // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
   // on first completion so scrolling back up never replays it (Israel 07/02);
   // re-arms when toggling back to `.txt` (which scrolls to top).
@@ -275,7 +308,7 @@ export default function WorkBody({
   );
 
   return (
-    <div className="relative">
+    <div className="relative" style={bgColor ? { backgroundColor: bgColor } : undefined}>
       {/* "Design Work" wordmark. In ".txt" it does the front→back reveal on scroll;
           in ".img" it's forced to its receded (faint grey, behind) state so the grid
           always sits over a backdropped wordmark — like Figma — instead of snapping
@@ -291,16 +324,18 @@ export default function WorkBody({
             {/* The toggle is part of the dim back layer too: at the very top it's
                 grayed out + blurred behind the wordmark and not clickable, then it
                 brightens and goes live alongside the content (~70% revealed). */}
-            <div
-              style={{
-                opacity,
-                filter: blur,
-                pointerEvents: r < 0.7 ? "none" : undefined,
-              }}
-              className="will-change-[opacity,filter]"
-            >
-              {viewToggle}
-            </div>
+            {showToggle && (
+              <div
+                style={{
+                  opacity,
+                  filter: blur,
+                  pointerEvents: r < 0.7 ? "none" : undefined,
+                }}
+                className="will-change-[opacity,filter]"
+              >
+                {viewToggle}
+              </div>
+            )}
             <main className="relative z-10 mx-auto grid w-full max-w-[1288px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,853px)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
               <div className="flex flex-col gap-6 lg:sticky lg:top-[150px] lg:self-start">
                 {/* Mobile heading + Stack (desktop uses the watermark block). */}
@@ -356,7 +391,7 @@ export default function WorkBody({
         </>
       ) : (
         <>
-          {viewToggle}
+          {showToggle && viewToggle}
           <main ref={gridRef} className="relative z-10 w-full pb-24 pt-10 lg:pb-0 lg:pt-4">
           {/* Desktop: 4 full-width auto-scroll columns (~25% each). FILTER WORK
               is a centred tab; on open the left pair slides left and the right
@@ -371,7 +406,7 @@ export default function WorkBody({
               <div
                 className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
                 style={{
-                  transform: filterOpen ? `translateX(-${WALL_MENU_W / 2}px)` : undefined,
+                  transform: `translateX(-${(filterOpen ? WALL_MENU_W : WALL_TAB_LANE) / 2}px)`,
                 }}
               >
                 {[0, 1].map((ci) => (
@@ -388,7 +423,7 @@ export default function WorkBody({
               <div
                 className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
                 style={{
-                  transform: filterOpen ? `translateX(${WALL_MENU_W / 2}px)` : undefined,
+                  transform: `translateX(${(filterOpen ? WALL_MENU_W : WALL_TAB_LANE) / 2}px)`,
                 }}
               >
                 {[2, 3].map((ci) => (
@@ -405,8 +440,12 @@ export default function WorkBody({
             </div>
 
             {/* Centred FILTER WORK — vertical tab (closed) / category list
-                (open). When open a transparent backdrop closes on click. */}
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                (open). When open a transparent backdrop closes on click. The
+                open menu sits in the upper third (Figma), not vertically
+                centred; the closed tab stays centred. Hidden entirely when no
+                categories exist (Figma backend spec 1260:895). */}
+            {categories.length > 0 && (
+            <div className="pointer-events-none absolute inset-0 z-20">
               {filterOpen && (
                 <button
                   type="button"
@@ -417,8 +456,8 @@ export default function WorkBody({
               )}
               {filterOpen ? (
                 <div
-                  className="work-filter-expand pointer-events-auto relative flex flex-col gap-3"
-                  style={{ width: WALL_MENU_W }}
+                  className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col gap-[22px]"
+                  style={{ width: WALL_MENU_INNER_W }}
                 >
                   {(["All", ...categories] as Filter[]).map((cat) => {
                     const active = filter === cat;
@@ -428,13 +467,13 @@ export default function WorkBody({
                         type="button"
                         data-cursor="hover"
                         onClick={() => setFilter(cat)}
-                        className={`flex items-baseline justify-between gap-6 font-grotesk transition-all ${
+                        className={`flex items-baseline justify-between gap-6 font-grotesk text-[20px] font-medium leading-none transition-colors ${
                           active
-                            ? "text-[24px] font-semibold text-accent"
-                            : "text-[16px] text-black hover:text-accent"
+                            ? "text-accent"
+                            : "text-black hover:text-accent"
                         }`}
                       >
-                        <span>{cat}</span>
+                        <span>{cat === "All" ? "ALL" : cat}</span>
                         <span className={active ? "text-accent" : "text-black/45"}>
                           {counts[cat]}
                         </span>
@@ -448,17 +487,19 @@ export default function WorkBody({
                   onClick={() => setFilterOpen(true)}
                   data-cursor="hover"
                   aria-expanded={false}
-                  className="pointer-events-auto font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
-                  style={{ transform: "rotate(180deg)" }}
+                  className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
                 >
                   Filter Work
                 </button>
               )}
             </div>
+            )}
           </div>
 
           {/* Mobile / tablet: horizontal filter + single masonry. */}
           <div className="px-6 lg:hidden">
+            {categories.length > 0 && (
+            <>
             <button
               type="button"
               onClick={() => setFilterOpen((o) => !o)}
@@ -493,6 +534,8 @@ export default function WorkBody({
                   );
                 })}
               </div>
+            )}
+            </>
             )}
             <div className="gap-x-5 [column-fill:balance] columns-1 sm:columns-2 *:mb-7 *:break-inside-avoid">
               {visible.map((p, i) => (
@@ -572,6 +615,9 @@ function ProjectCard({
   reveal?: boolean;
 }) {
   const accent = project.accent?.hex ?? "#999999";
+  // The wall (reveal=false) is the first paint when `.img` opens, so load its
+  // art eagerly; the mobile masonry (reveal=true) can lazy-load below the fold.
+  const { src, w, h } = cardImage(project.image, 760);
   return (
     <button
       type="button"
@@ -584,14 +630,28 @@ function ProjectCard({
       // faslebbie.com/works.
       style={reveal ? { transitionDelay: `${(index % 6) * 70}ms` } : undefined}
     >
-      {project.image ? (
+      {src ? (
         // Real card art (Figma 823:65046) at its natural aspect — true masonry.
+        // width/height reserve the aspect-ratio box; the base64 LQIP is painted
+        // as the element background so a blurred preview shows on the very first
+        // frame (it ships inline with the page data — no request), then the sharp
+        // image renders on top. The wall (reveal=false) is the first paint on
+        // `.img`, so it loads eagerly at high priority.
         // eslint-disable-next-line @next/next/no-img-element -- static design asset
         <img
-          src={project.image}
+          src={src}
+          width={w}
+          height={h}
           alt={project.name}
-          loading="lazy"
-          className="w-full"
+          loading={reveal ? "lazy" : "eager"}
+          fetchPriority={reveal ? "auto" : "high"}
+          decoding="async"
+          className="h-auto w-full bg-[#f0f0f0] bg-cover bg-center"
+          style={
+            project.imageLqip
+              ? { backgroundImage: `url(${project.imageLqip})` }
+              : undefined
+          }
         />
       ) : (
         // Branded colour placeholder until real art lands.
