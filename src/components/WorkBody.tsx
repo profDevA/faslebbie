@@ -336,7 +336,7 @@ export default function WorkBody({
                 {viewToggle}
               </div>
             )}
-            <main className="relative z-10 mx-auto grid w-full max-w-[1288px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,853px)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
               <div className="flex flex-col gap-6 lg:sticky lg:top-[150px] lg:self-start">
                 {/* Mobile heading + Stack (desktop uses the watermark block). */}
                 <div className="lg:hidden">
@@ -669,13 +669,13 @@ function ProjectCard({
         </div>
       )}
       {/* Figma 1111:4653 + Israel 07/06: the project name is MEDIUM weight (not
-          bold) and turns red on hover. Under it is the CREDIT line (not a
-          description) — "It's credits and tags… no description". */}
-      <p className="mt-2 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
+          bold) and turns red on hover. A rule sits under the title, then the
+          CREDIT line — italic, may wrap to two lines (card design 1251:6829). */}
+      <p className="mt-2 w-fit border-b border-black pb-1 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
         {project.name}
       </p>
-      <p className="mt-1 font-grotesk text-[13px] leading-snug text-black/55">
-        {WORK_CREDIT}
+      <p className="mt-2 whitespace-pre-line font-grotesk text-[16px] italic leading-snug text-black/55">
+        {project.credit || WORK_CREDIT}
       </p>
     </button>
   );

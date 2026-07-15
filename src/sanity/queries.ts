@@ -59,6 +59,8 @@ const cardProj = `
   "image": cardThumbnail.asset->url,
   "imageLqip": cardThumbnail.asset->metadata.lqip,
   "heroImage": sections[_type == "heroSection"][0].image.asset->url,
+  "credit": cardCredits,
+  "tags": cardTags,
   accent,
   span
 `;
@@ -84,3 +86,13 @@ export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
 }`);
 
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);
+
+export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
+  areas[]{ kicker, body },
+  closing,
+  paradigms{ label, intro, items[]{ title, body } },
+  principles{ label, intro, items[]{ title, body }, conclusionKicker, conclusionBody },
+  modalities{ kicker, statement, items, groups[]{ title, items }, footnote },
+  manifesto,
+  fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url }
+}`);

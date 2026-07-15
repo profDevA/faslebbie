@@ -10,6 +10,14 @@ import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
 import { mediaItem } from "./objects/mediaItem";
 import { designRef } from "./objects/designRef";
+import { researchProse } from "./objects/researchProse";
+import { researchArea } from "./objects/researchArea";
+import { researchNumberedItem } from "./objects/researchNumberedItem";
+import { researchModalityGroup } from "./objects/researchModalityGroup";
+import { researchFieldNote } from "./objects/researchFieldNote";
+import { researchParadigms } from "./objects/researchParadigms";
+import { researchPrinciples } from "./objects/researchPrinciples";
+import { researchModalities } from "./objects/researchModalities";
 
 // sections
 import { heroSection } from "./sections/heroSection";
@@ -26,12 +34,14 @@ import { bulletSection } from "./sections/bulletSection";
 import { caseStudy } from "./documents/caseStudy";
 import { category } from "./documents/category";
 import { workPage } from "./documents/workPage";
+import { researchPage } from "./documents/researchPage";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // documents
   caseStudy,
   category,
   workPage,
+  researchPage,
   // sections
   heroSection,
   overviewSection,
@@ -52,4 +62,12 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   showcaseItem,
   mediaItem,
   designRef,
+  researchProse,
+  researchArea,
+  researchNumberedItem,
+  researchModalityGroup,
+  researchFieldNote,
+  researchParadigms,
+  researchPrinciples,
+  researchModalities,
 ];

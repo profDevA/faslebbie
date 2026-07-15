@@ -12,11 +12,25 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import type { ResearchSectionId } from "@/lib/research";
+import {
+  researchAreas,
+  researchClosing,
+  researchSections,
+} from "@/lib/research";
+import type { ResearchContentData } from "@/lib/researchFromSanity";
 
 // Research page shell (Figma 1-40936 → 1-41067). Same pinned reveal as About /
 // Leadership: the "Research" watermark starts in front and recedes as the
 // portrait + prose brighten forward. Red words in the prose open a paged modal.
-export default function ResearchBody() {
+export default function ResearchBody({
+  content,
+}: {
+  content?: ResearchContentData;
+}) {
+  const areas = content?.areas ?? researchAreas;
+  const closing = content?.closing ?? researchClosing;
+  const sections = content?.sections ?? researchSections;
+
   const { r, pin } = useReveal(true);
   const [openId, setOpenId] = useState<ResearchSectionId | null>(null);
 
@@ -27,12 +41,10 @@ export default function ResearchBody() {
   return (
     <div className="relative">
       <div className="lg:sticky lg:top-[52px]">
-        <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,853px)] lg:gap-16 lg:py-16">
+        <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
           <div className="flex flex-col lg:sticky lg:top-[116px] lg:self-start">
-            {/* Mobile heading (desktop uses the watermark). */}
-            <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px] lg:hidden">
-              Research
-            </h1>
+            {/* Mobile: portrait sits above the heading (Figma 1-42031); desktop
+                uses the watermark and shows only the portrait in this column. */}
             <Image
               src="/portrait-about.png"
               alt="Portrait of Fas Lebbie"
@@ -40,8 +52,11 @@ export default function ResearchBody() {
               height={684}
               priority
               style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-              className="mt-[72px] h-[299px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[286px] lg:w-[260px]"
+              className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[286px] lg:w-[260px]"
             />
+            <h1 className="mt-10 font-grotesk text-[42px] font-bold leading-[1.1] text-black sm:text-[50px] lg:hidden">
+              Research
+            </h1>
           </div>
 
           <div
@@ -53,7 +68,12 @@ export default function ResearchBody() {
             }}
             className="will-change-[opacity,filter,transform]"
           >
-            <ResearchContent className="pb-24" onOpen={setOpenId} />
+            <ResearchContent
+              className="pb-24"
+              onOpen={setOpenId}
+              areas={areas}
+              closing={closing}
+            />
           </div>
         </main>
       </div>
@@ -64,6 +84,7 @@ export default function ResearchBody() {
         openId={openId}
         onNavigate={setOpenId}
         onClose={() => setOpenId(null)}
+        sections={sections}
       />
     </div>
   );

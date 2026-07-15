@@ -42,7 +42,7 @@ export default function LeadershipBody({
       {/* Desktop pin: sticks under the nav (h-13 = 52px) for `pin` px of scroll
           so the content brightens in place before the page scrolls. */}
       <div className="lg:sticky lg:top-[52px]">
-        <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:py-16">
+        <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
           {/* Stick the portrait where it starts so it never floats up on
               release: pin wrapper top (52) + main top padding (py-16 = 64) =
               116px. Keeps the photo fixed from the very top to the end. */}

@@ -139,6 +139,8 @@ export interface StudyCard {
   image?: string;
   imageLqip?: string;
   heroImage?: string;
+  credit?: string;
+  tags?: string[];
   accent?: SanityColor;
   span?: "sm" | "md" | "lg";
 }
@@ -154,4 +156,51 @@ export interface WorkPageConfig {
   enableImageView?: boolean;
   loadMoreLabel?: string;
   appearance?: Appearance;
+}
+
+// --- Research page (raw Sanity shape) -------------------------------------
+// Hero prose / closing / manifesto come back as Portable Text blocks; the
+// interactive marks (highlight / sectionLink / link) live in each block's
+// markDefs. `src/lib/researchFromSanity.ts` maps this into the render shapes.
+export interface SanityResearchArea {
+  kicker?: string;
+  body?: PortableTextBlock[];
+}
+
+export interface SanityNumberedItem {
+  title?: string;
+  body?: string;
+}
+
+export interface SanityResearchPage {
+  areas?: SanityResearchArea[];
+  closing?: PortableTextBlock[];
+  paradigms?: {
+    label?: string;
+    intro?: string;
+    items?: SanityNumberedItem[];
+  };
+  principles?: {
+    label?: string;
+    intro?: string;
+    items?: SanityNumberedItem[];
+    conclusionKicker?: string;
+    conclusionBody?: string;
+  };
+  modalities?: {
+    kicker?: string;
+    statement?: string;
+    items?: string[];
+    groups?: { title?: string; items?: string[] }[];
+    footnote?: string;
+  };
+  manifesto?: PortableTextBlock[];
+  fieldNotes?: {
+    place?: string;
+    quote?: string;
+    methodology?: string;
+    themes?: string;
+    insight?: string;
+    image?: string;
+  }[];
 }

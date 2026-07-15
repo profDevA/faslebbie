@@ -826,9 +826,10 @@ export interface WorkProject {
   caseStudy?: CaseStudy
 }
 
-// Credit line shown under every grid card (Figma 823:65046 placeholder names —
-// real per-project credits pending from Fas).
-export const WORK_CREDIT = 'Credit: Jane Doe, Sabrina Fessler, John Doe'
+// Fallback credit line for grid cards that don't yet have a per-project credit
+// in Sanity (caseStudy.cardCredits). Placeholder names from Figma 823:65046 —
+// real per-project credits pending from Fas, editable per study in the Studio.
+export const WORK_CREDIT = 'Credit: Jane Doe,\nSabrina Fessler, John Doe'
 
 // The 17 projects (taglines verbatim from faslebbie.com/works). Category tags
 // mirror the live site's `cs_category` taxonomy exactly, so the FILTER WORK

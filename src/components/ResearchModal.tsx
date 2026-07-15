@@ -12,6 +12,7 @@ import {
   type ModalitiesContent,
   type ParadigmsContent,
   type PrinciplesContent,
+  type ResearchSectionContent,
   type ResearchSectionId,
 } from "@/lib/research";
 
@@ -51,8 +52,8 @@ function NumberedList({
 function ParadigmsView({ c }: { c: ParadigmsContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
-      <div className="hidden lg:block">
-        <div className="sticky top-0 aspect-square w-[200px] bg-white" />
+      <div>
+        <div className="aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:w-[200px]" />
       </div>
       <div>
         <p className="font-grotesk text-[20px] font-medium text-black">
@@ -72,8 +73,8 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
 function PrinciplesView({ c }: { c: PrinciplesContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
-      <div className="hidden lg:block">
-        <div className="sticky top-0 aspect-square w-[200px] bg-white" />
+      <div>
+        <div className="aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:w-[200px]" />
       </div>
       <div>
         <p className="font-grotesk text-[20px] font-medium text-black">
@@ -101,6 +102,7 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
 function ModalitiesView({ c }: { c: ModalitiesContent }) {
   return (
     <div>
+      <div className="mb-8 aspect-square w-[232px] max-w-full bg-white lg:hidden" />
       <div className="border-b border-black pb-10">
         <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token">
           {c.kicker}
@@ -230,8 +232,7 @@ function FieldNotesView({ c }: { c: FieldNotesContent }) {
   );
 }
 
-function SectionView({ id }: { id: ResearchSectionId }) {
-  const content = researchSections[id];
+function SectionView({ content }: { content: ResearchSectionContent }) {
   switch (content.kind) {
     case "paradigms":
       return <ParadigmsView c={content} />;
@@ -250,10 +251,12 @@ export default function ResearchModal({
   openId,
   onNavigate,
   onClose,
+  sections = researchSections,
 }: {
   openId: ResearchSectionId | null;
   onNavigate: (id: ResearchSectionId) => void;
   onClose: () => void;
+  sections?: Record<ResearchSectionId, ResearchSectionContent>;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -289,22 +292,22 @@ export default function ResearchModal({
   if (!mounted || !openId) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-8">
+    <div className="fixed inset-0 z-100 flex sm:items-center sm:justify-center sm:p-8">
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
         className="absolute inset-0 cursor-pointer bg-black/30"
       />
-      <div className="relative flex h-[min(880px,92vh)] w-[min(1100px,96vw)] flex-col overflow-hidden bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+      <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:w-[min(1100px,96vw)]">
         {/* Header */}
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-black bg-white px-6 sm:px-8">
-          <div className="flex items-center gap-1.5 font-grotesk text-[15px] font-light text-black sm:text-[18px]">
-            <span>Research</span>
-            <span>/</span>
-            <span className="hidden sm:inline">{researchBreadcrumbRoot}</span>
+          <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[15px] font-light text-black sm:text-[18px]">
+            <span className="hidden sm:inline">Research</span>
             <span className="hidden sm:inline">/</span>
-            <span className="underline underline-offset-2">
+            <span className="truncate">{researchBreadcrumbRoot}</span>
+            <span>/</span>
+            <span className="shrink-0 underline underline-offset-2">
               {researchSectionLabel[openId]}
             </span>
           </div>
@@ -321,7 +324,7 @@ export default function ResearchModal({
 
         {/* Body */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14">
-          <SectionView id={openId} />
+          <SectionView content={sections[openId]} />
         </div>
 
         {/* Footer / pager */}

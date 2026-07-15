@@ -23,4 +23,10 @@ export const structure: StructureResolver = (S, context) =>
         .title("Work Page")
         .id("workPage")
         .child(S.document().schemaType("workPage").documentId("workPage")),
+      S.listItem()
+        .title("Research Page")
+        .id("researchPage")
+        .child(
+          S.document().schemaType("researchPage").documentId("researchPage"),
+        ),
     ]);

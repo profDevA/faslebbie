@@ -46,7 +46,7 @@ export default function AboutBody({
       {/* Desktop pin: sticks under the nav (h-13 = 52px) for `pin` px of scroll
           so the content brightens in place before the page scrolls. */}
       <div className="lg:sticky lg:top-[52px]">
-        <main className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
+        <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
         {/* Stick the portrait exactly where it starts so it never floats up on
             release: pin wrapper top (52) + main top padding (pt-32 = 128) =
             180px. Keeps the photo fixed from the very top to the end. */}
