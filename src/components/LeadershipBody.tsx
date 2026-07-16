@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
+import MobileRecedeHeading from "@/components/MobileRecedeHeading";
 import LeadershipContent from "@/components/LeadershipContent";
+import LeadershipGallery from "@/components/LeadershipGallery";
+import LeadershipMomentPopup from "@/components/LeadershipMomentPopup";
+import LeadershipWatermark from "@/components/LeadershipWatermark";
+import { leadershipGallery } from "@/lib/content";
 import {
   contentDrift,
   portraitDrift,
@@ -10,77 +16,128 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 
-/**
- * Desktop reveal (Figma 504:3182 → 504:3254, "like home") — same pinned
- * transition as About: at the top only the "Leadership" watermark is sharp and
- * in front, the portrait + prose sit dim + blurred behind it. As you start
- * scrolling the content is PINNED (held in place) and simply brightens +
- * de-blurs + drifts forward while the watermark fades grey and drops behind;
- * only then does the page scroll and the portrait stick under the nav. Mobile:
- * no watermark / pin / reveal — content sits settled at full opacity.
- *
- * The pin is a sticky wrapper + spacer; opacity/blur/drift are applied PER-LEAF
- * (portrait <img> + prose column), never on the wrapper / <main> / portrait
- * column, so no transform containing-block breaks the nested sticky.
- */
+type View = "txt" | "img";
 
-export default function LeadershipBody({
-  logoSvgs,
-}: {
-  logoSvgs: Record<string, string>;
-}) {
-  // Reveal progress + pin distance. Latches at 1 on first completion so
-  // scrolling back up never replays the entrance (Israel 07/02).
-  const { r, pin } = useReveal(true);
+/**
+ * Holistic Leadership page (Figma 1-44995 / 1-45057 / 1-45118) — same ".txt" /
+ * ".img" architecture as Work. ".txt" is the pinned reveal (the "Leadership"
+ * watermark starts in front, the portrait + prose brighten forward), with a red
+ * "Explore my leadership moments" link that flips to ".img": a masonry of moment
+ * cards that each open the unified image / name / role / testimonial popup.
+ * Mobile: no watermark / pin / reveal — content sits settled.
+ */
+export default function LeadershipBody() {
+  const [view, setView] = useState<View>("txt");
+  const [openId, setOpenId] = useState<string | null>(null);
+  // Reveal/pin (txt view only). Re-arms when toggling back to ".txt".
+  const { r, pin } = useReveal(view === "txt");
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
 
+  const switchView = (next: View) => {
+    if (next === view) return;
+    setView(next);
+    window.scrollTo({ top: 0 });
+  };
+
+  // ".txt / .img" toggle — centred near the top, always the same colour, hover
+  // adds the underline, the active view stays underlined (Israel 07/02).
+  const viewToggle = (
+    <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
+      {(["txt", "img"] as const).map((v) => (
+        <button
+          key={v}
+          type="button"
+          onClick={() => switchView(v)}
+          data-cursor="hover"
+          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
+            view === v ? "underline" : "no-underline"
+          }`}
+        >
+          .{v}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="relative">
-      {/* Desktop pin: sticks under the nav (h-13 = 52px) for `pin` px of scroll
-          so the content brightens in place before the page scrolls. */}
-      <div className="lg:sticky lg:top-[52px]">
-        <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
-          {/* Stick the portrait where it starts so it never floats up on
-              release: pin wrapper top (52) + main top padding (py-16 = 64) =
-              116px. Keeps the photo fixed from the very top to the end. */}
-          <div className="flex flex-col lg:sticky lg:top-[116px] lg:self-start">
-            {/* Mobile (Figma 394:2194): small left-aligned heading + full-width
-                portrait. Desktop: the watermark is the heading, so hide this one
-                and keep just the sticky portrait rail. */}
-            <h1 className="font-helvetica text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px] lg:hidden">
-              Leadership
-            </h1>
-            <Image
-              src="/portrait.png"
-              alt="Portrait of Fas Lebbie"
-              width={360}
-              height={299}
-              priority
-              style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-              className="mt-[72px] h-[299px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[286px] lg:w-[260px]"
-            />
-          </div>
+      {/* Watermark: front→back reveal in ".txt", forced receded behind ".img". */}
+      <LeadershipWatermark receded={view === "img"} />
 
-          <div
-            style={{
-              opacity,
-              filter: blur,
-              transform: contentDrift(r),
-              // While it's still the dim/blurred BACK layer, it must not catch
-              // hovers/clicks — only interactive once it has settled in front.
-              pointerEvents: r < 1 ? "none" : undefined,
-            }}
-            className="will-change-[opacity,filter,transform]"
-          >
-            <LeadershipContent className="pb-24" logoSvgs={logoSvgs} />
+      {view === "txt" ? (
+        <>
+          {/* Desktop pin: sticks under the nav so the content brightens in place
+              before the page scrolls (same as About/Work). The toggle sits inside
+              the dim back layer and only goes live once ~70% revealed. */}
+          <div className="lg:sticky lg:top-[52px]">
+            <div
+              style={{
+                opacity,
+                filter: blur,
+                pointerEvents: r < 0.7 ? "none" : undefined,
+              }}
+              className="will-change-[opacity,filter]"
+            >
+              {viewToggle}
+            </div>
+            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+              <div className="flex flex-col lg:sticky lg:top-[150px] lg:self-start">
+                {/* Mobile (Figma 1-45348): portrait first, then the "Leadership"
+                    heading that recedes on scroll. Desktop (Figma 1-44995 →
+                    1-45057): the portrait sits top-left beside the wordmark and
+                    stays clear in BOTH the top and reading states — so it's
+                    exempt from the reveal fade/blur (only the subtle forward
+                    drift applies); the prose still brightens in. */}
+                <Image
+                  src="/portrait.png"
+                  alt="Portrait of Fas Lebbie"
+                  width={360}
+                  height={299}
+                  priority
+                  style={{ transform: portraitDrift(r) }}
+                  className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-transform lg:h-[286px] lg:w-[260px]"
+                />
+                <MobileRecedeHeading className="mt-10 font-logo text-[42px] font-bold leading-[1.1] sm:text-[50px]">
+                  Leadership
+                </MobileRecedeHeading>
+              </div>
+
+              <div
+                style={{
+                  opacity,
+                  filter: blur,
+                  transform: contentDrift(r),
+                  pointerEvents: r < 0.7 ? "none" : undefined,
+                }}
+                className="will-change-[opacity,filter,transform]"
+              >
+                <LeadershipContent
+                  className="pb-24"
+                  onExplore={() => switchView("img")}
+                />
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
-      {/* Pin scroll distance (desktop only). */}
-      <div aria-hidden className="hidden lg:block" style={{ height: pin }} />
+          <div aria-hidden className="hidden lg:block" style={{ height: pin }} />
+        </>
+      ) : (
+        <>
+          {viewToggle}
+          <main className="relative z-10 w-full pb-24 pt-6 lg:pt-10">
+            <LeadershipGallery items={leadershipGallery} onOpen={setOpenId} />
+          </main>
+        </>
+      )}
+
+      <LeadershipMomentPopup
+        items={leadershipGallery}
+        openId={openId}
+        onNavigate={setOpenId}
+        onClose={() => setOpenId(null)}
+      />
     </div>
   );
 }

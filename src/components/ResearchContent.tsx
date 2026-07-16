@@ -164,11 +164,16 @@ export default function ResearchContent({
     if (!openKey) return;
     const close = (e: Event) => {
       const t = e.target as Element | null;
-      if (t?.closest?.("[data-research-key]")) return;
+      // Keep the reveal open while interacting with (and closing) a section
+      // modal it launched — only an outside click on the page itself closes it.
+      if (t?.closest?.("[data-research-key], [data-research-modal]")) return;
       setOpenKey(null);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenKey(null);
+      // Escape closes the modal first; don't also collapse the reveal when a
+      // modal is open (let the reveal persist so the user returns to it).
+      if (e.key === "Escape" && !document.querySelector("[data-research-modal]"))
+        setOpenKey(null);
     };
     document.addEventListener("pointerdown", close);
     document.addEventListener("keydown", onKey);

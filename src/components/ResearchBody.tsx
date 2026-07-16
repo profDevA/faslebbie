@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import MobileRecedeHeading from "@/components/MobileRecedeHeading";
 import ResearchContent from "@/components/ResearchContent";
 import ResearchModal from "@/components/ResearchModal";
 import {
@@ -54,9 +55,9 @@ export default function ResearchBody({
               style={{ opacity, filter: blur, transform: portraitDrift(r) }}
               className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[286px] lg:w-[260px]"
             />
-            <h1 className="mt-10 font-grotesk text-[42px] font-bold leading-[1.1] text-black sm:text-[50px] lg:hidden">
+            <MobileRecedeHeading className="mt-10 font-grotesk text-[42px] font-bold leading-[1.1] sm:text-[50px]">
               Research
-            </h1>
+            </MobileRecedeHeading>
           </div>
 
           <div

@@ -548,64 +548,89 @@ export const testimonials = [
 // panels) plus a "Leadership Moments" accordion list. Gray pills here are
 // highlights only — no inline expansion copy was designed (unlike About).
 
-// Intro paragraph (gray pills: digital products / enterprise software / civic
-// systems). "View portfolio" is a separate red panel line below it.
+// Intro paragraph (gray pills: digital products / enterprise software / AI /
+// civic systems). Figma 1-45057 — the holistic ".txt" view.
 export const leadershipIntro: AboutToken[] = [
   { t: 'text', text: 'I design and build ' },
   { t: 'key', text: 'digital products', tone: 'gray' },
   { t: 'text', text: ' at the intersection of ' },
   { t: 'key', text: 'enterprise software', tone: 'gray' },
-  { t: 'text', text: ', AI, and ' },
+  { t: 'text', text: ', ' },
+  { t: 'key', text: 'AI', tone: 'gray' },
+  { t: 'text', text: ', and ' },
   { t: 'key', text: 'civic systems', tone: 'gray' },
   {
     t: 'text',
-    text: ' — always with the belief that a well-crafted experience is the catalyst to evolve an entire workflow. A decade of work across Meta, Consumer Reports, PTC, and MIT GOV/LAB.',
+    text: ', always with the belief that a well-crafted experience is the catalyst to evolve an entire workflow. A decade of work across Meta, Consumer Reports, PTC, and MIT GOV/LAB has shown me how design can shape organizations, influence decision making, and create meaningful change at scale.',
   },
 ]
 
-// Second paragraph (gray pills: strategic driver + the four orgs).
+// Lead paragraph — plain prose (no pills in the holistic design). It ends on the
+// red "Explore my leadership moments" link (renders separately, opens ".img").
 export const leadershipLead: AboutToken[] = [
   {
     t: 'text',
-    text: 'I lead by designing the conditions for other people to do their best work — moving design from a service function to a ',
+    text: 'I lead by designing the conditions for other people to do their best work, moving design from a service function to a strategic driver. At Meta that meant repositioning design across 14 product portfolios. At Consumer Reports it meant unifying six research teams into one coherent system. At PTC it meant advancing AR and AI products used across more than 40 industrial sites. At MIT GOV/LAB it meant helping civic institutions use design to address public challenges across continents. Together, these experiences represent some of my leadership moments, where design became organizational infrastructure, research leadership, and civic innovation.',
   },
-  { t: 'key', text: 'strategic driver', tone: 'gray' },
-  { t: 'text', text: '. At ' },
-  { t: 'key', text: 'Meta', tone: 'gray' },
-  {
-    t: 'text',
-    text: ' that meant repositioning design across 14 product portfolios. At ',
-  },
-  { t: 'key', text: 'Consumer Reports', tone: 'gray' },
-  {
-    t: 'text',
-    text: ' it meant unifying six research teams into one coherent system. At ',
-  },
-  { t: 'key', text: 'PTC', tone: 'gray' },
-  { t: 'text', text: ' it meant field research across 40 industrial sites. At ' },
-  { t: 'key', text: 'MIT GOV/LAB', tone: 'gray' },
-  { t: 'text', text: ' it meant civic design across two continents.' },
 ]
 
-// Closing "What People Say" paragraph (gray pills: speak and present / consult /
-// free mentorship). "Get in touch" is a red panel line below it.
+// Closing paragraph — plain prose. Ends on the red "Get in touch" link.
 export const leadershipClosing: AboutToken[] = [
-  { t: 'text', text: 'Beyond organizational roles, I ' },
-  { t: 'key', text: 'speak and present', tone: 'gray' },
   {
     t: 'text',
-    text: ' on design leadership, AI, and sustainable futures — and I ',
+    text: 'Beyond organizational roles, I speak and present on design leadership, AI, and sustainable futures — and I consult with organizations navigating design transformation. I also offer free mentorship to underrepresented communities in design, research, and entrepreneurship.',
   },
-  { t: 'key', text: 'consult', tone: 'gray' },
-  {
-    t: 'text',
-    text: ' with organizations navigating design transformation. I also offer ',
-  },
-  { t: 'key', text: 'free mentorship', tone: 'gray' },
-  {
-    t: 'text',
-    text: ' to underrepresented communities in design, research, and entrepreneurship.',
-  },
+]
+
+// Inline expansions for the gray keyword pills in the ".txt" view (same
+// interaction as About/Research: click a pill to reveal a short continuation,
+// click again / elsewhere / Escape to close). Copy is placeholder until Fas
+// finalizes it.
+export const leadershipExpansions: Record<string, string> = {
+  'digital products':
+    'from enterprise dashboards to consumer apps — products that ship, scale, and hold up under real-world use,',
+  'enterprise software':
+    'complex internal systems where the users are experts and the stakes are operational, not cosmetic,',
+  AI: 'not as a feature bolted on, but as a design material that reshapes how products get made and used,',
+  'civic systems':
+    'public-sector platforms where design has to earn trust across governments, institutions, and communities,',
+}
+
+// "My leadership moments" ".img" gallery (Figma 1-45118). A masonry of moment
+// cards; clicking one opens the unified popup (image / name / role /
+// testimonial). Copy + art are placeholders until Fas finalizes them.
+export interface LeadershipGalleryItem {
+  id: string
+  /** Caption under the card. */
+  label: string
+  /** Card height tier for the masonry rhythm. */
+  span: 'sm' | 'md' | 'lg'
+  /** The single light-blue emphasized card in the Figma. */
+  highlight?: boolean
+  popup: {
+    image?: string
+    name: string
+    role: string
+    testimonial: string
+  }
+}
+
+const LEAD_LOREM =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+
+export const leadershipGallery: LeadershipGalleryItem[] = [
+  { id: 'm1', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Group Design Manager', testimonial: LEAD_LOREM } },
+  { id: 'm2', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Research Director', testimonial: LEAD_LOREM } },
+  { id: 'm3', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Senior Product Designer', testimonial: LEAD_LOREM } },
+  { id: 'm4', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Advisor', testimonial: LEAD_LOREM } },
+  { id: 'm5', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Lead', testimonial: LEAD_LOREM } },
+  { id: 'm6', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Principal Designer', testimonial: LEAD_LOREM } },
+  { id: 'm7', label: 'Lorem Ipsum', span: 'sm', popup: { name: 'Lorem Ipsum', role: 'Head of Design', testimonial: LEAD_LOREM } },
+  { id: 'm8', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Manager', testimonial: LEAD_LOREM } },
+  { id: 'm9', label: 'Nudge', span: 'md', popup: { name: 'Nudge', role: 'Case Study', testimonial: LEAD_LOREM } },
+  { id: 'm10', label: 'Lorem Ipsum', span: 'sm', popup: { name: 'Lorem Ipsum', role: 'Design Director', testimonial: LEAD_LOREM } },
+  { id: 'm11', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Staff Designer', testimonial: LEAD_LOREM } },
+  { id: 'm12', label: 'Lorem Ipsum', span: 'lg', highlight: true, popup: { name: 'Lorem Ipsum', role: 'VP of Design', testimonial: LEAD_LOREM } },
 ]
 
 // Red boxed panels (same chrome as aboutPanels). "Get in touch" copy is a

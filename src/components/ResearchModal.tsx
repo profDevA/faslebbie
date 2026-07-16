@@ -53,7 +53,7 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
       <div>
-        <div className="aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:w-[200px]" />
+        <div className="mx-auto aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:mx-0 lg:w-[200px]" />
       </div>
       <div>
         <p className="font-grotesk text-[20px] font-medium text-black">
@@ -74,7 +74,7 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
       <div>
-        <div className="aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:w-[200px]" />
+        <div className="mx-auto aspect-square w-[232px] max-w-full bg-white lg:sticky lg:top-0 lg:mx-0 lg:w-[200px]" />
       </div>
       <div>
         <p className="font-grotesk text-[20px] font-medium text-black">
@@ -99,19 +99,90 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
   );
 }
 
+// Organic "pebble" positions for the two channel clusters (Figma 1-40666).
+// Percentages inside a fixed-height relative stage; blobs overlap loosely so
+// they read as a spread-out, centred cluster rather than a stacked list.
+const NODE_LAYOUT: { top: string; left: string }[][] = [
+  [
+    { top: "30%", left: "1%" }, // semi-structured interviews
+    { top: "0%", left: "26%" }, // elder oral history
+    { top: "30%", left: "48%" }, // participant observation
+    { top: "60%", left: "6%" }, // community mapping
+    { top: "58%", left: "42%" }, // co-design sessions
+  ],
+  [
+    { top: "4%", left: "14%" }, // archival research
+    { top: "26%", left: "52%" }, // field photography
+    { top: "42%", left: "4%" }, // autoethnographic journaling
+    { top: "64%", left: "44%" }, // q-methodology
+  ],
+];
+
+// A few organic border-radius presets so the blobs don't look identical.
+const NODE_RADII = [
+  "46% 54% 62% 38% / 55% 42% 58% 45%",
+  "58% 42% 45% 55% / 48% 58% 42% 52%",
+  "40% 60% 52% 48% / 60% 45% 55% 40%",
+  "55% 45% 60% 40% / 42% 55% 45% 58%",
+  "48% 52% 40% 60% / 55% 48% 52% 45%",
+];
+
+function NodeCluster({
+  items,
+  groupIndex,
+}: {
+  items: string[];
+  groupIndex: number;
+}) {
+  const layout = groupIndex === 1 ? NODE_LAYOUT[1] : NODE_LAYOUT[0];
+  return (
+    <>
+      {/* Desktop: loosely-placed organic pebbles. */}
+      <div className="relative mx-auto hidden h-[340px] w-full max-w-[380px] sm:block">
+        {items.map((label, i) => (
+          <div
+            key={label}
+            style={{
+              top: layout[i]?.top ?? "0%",
+              left: layout[i]?.left ?? "0%",
+              borderRadius: NODE_RADII[i % NODE_RADII.length],
+            }}
+            className="absolute flex h-[132px] w-[152px] items-center justify-center border border-black px-4 text-center font-grotesk text-[15px] leading-[1.3] text-black"
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+      {/* Mobile: pebbles wrap instead of overlapping. */}
+      <div className="flex flex-wrap justify-center gap-3 sm:hidden">
+        {items.map((label, i) => (
+          <div
+            key={label}
+            style={{ borderRadius: NODE_RADII[i % NODE_RADII.length] }}
+            className="flex h-[112px] w-[132px] items-center justify-center border border-black px-3 text-center font-grotesk text-[14px] leading-[1.3] text-black"
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 function ModalitiesView({ c }: { c: ModalitiesContent }) {
   return (
     <div>
-      <div className="mb-8 aspect-square w-[232px] max-w-full bg-white lg:hidden" />
+      <div className="mx-auto mb-8 aspect-square w-[232px] max-w-full bg-white lg:hidden" />
       <div className="border-b border-black pb-10">
         <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token">
           {c.kicker}
         </p>
-        <p className="mt-8 max-w-[900px] font-grotesk text-[34px] font-medium leading-[1.35] text-black text-shadow-token">
+        <p className="mt-8 font-grotesk text-[34px] font-medium leading-[1.35] text-balance text-black text-shadow-token">
           {c.statement}
         </p>
       </div>
-      <div className="mx-auto mt-4 max-w-[640px]">
+      {/* Figma indents the numbered channels to the right of the panel. */}
+      <div className="ml-auto mt-4 max-w-[640px]">
         {c.items.map((it) => (
           <div
             key={it.n}
@@ -124,26 +195,17 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
           </div>
         ))}
       </div>
-      <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-2">
-        {c.groups.map((g) => (
-          <div key={g.title}>
-            <p className="mb-5 inline-block font-grotesk text-[24px] font-medium capitalize text-black underline underline-offset-4 text-shadow-token">
+      <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2">
+        {c.groups.map((g, gi) => (
+          <div key={g.title} className="flex flex-col">
+            <p className="mx-auto mb-6 inline-block font-grotesk text-[24px] font-medium capitalize text-black underline underline-offset-4 text-shadow-token">
               {g.title}
             </p>
-            <ul className="flex flex-col gap-3">
-              {g.items.map((label) => (
-                <li
-                  key={label}
-                  className="w-fit rounded-full bg-black/6 px-5 py-2 font-grotesk text-[16px] text-black"
-                >
-                  {label}
-                </li>
-              ))}
-            </ul>
+            <NodeCluster items={g.items} groupIndex={gi} />
           </div>
         ))}
       </div>
-      <p className="mt-8 text-center font-grotesk text-[16px] text-black/70">
+      <p className="mt-4 text-center font-grotesk text-[16px] text-black/70">
         {c.footnote}
       </p>
     </div>
@@ -292,14 +354,19 @@ export default function ResearchModal({
   if (!mounted || !openId) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex sm:items-center sm:justify-center sm:p-8">
+    // Mobile: a contained popup that sits BELOW the sticky nav (nav stays
+    // visible) with a margin on all sides. Desktop: full-screen centered card.
+    <div
+      data-research-modal
+      className="fixed inset-0 z-100 flex flex-col px-3 pb-3 pt-16 sm:flex-row sm:items-center sm:justify-center sm:px-8 sm:pb-8 sm:pt-8"
+    >
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 cursor-pointer bg-black/30"
+        className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-black/30 sm:inset-0"
       />
-      <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:w-[min(1100px,96vw)]">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1100px,96vw)] sm:flex-none">
         {/* Header */}
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-black bg-white px-6 sm:px-8">
           <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[15px] font-light text-black sm:text-[18px]">

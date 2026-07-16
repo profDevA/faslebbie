@@ -1,20 +1,16 @@
 import Nav from "@/components/Nav";
 import LeadershipBody from "@/components/LeadershipBody";
-import LeadershipWatermark from "@/components/LeadershipWatermark";
-import { getAboutLogoSvgs } from "@/lib/logoSvgs";
 
-const logoSvgs = getAboutLogoSvgs();
-
-// Leadership page (Figma 354:747 / 504:3226) — two-column shell: portrait on the
-// left, interactive prose + "Leadership Moments" on the right. On desktop the
-// heading is the big "Leadership" watermark behind the content, which starts on
-// top and recedes as the dimmed content brightens forward on scroll.
+// Leadership page (Figma 1-44995 / 1-45057 / 1-45118) — holistic ".txt" / ".img"
+// design mirroring Work: a pinned "Leadership" watermark reveal over the prose
+// (".txt"), and a masonry of moment cards (".img") that open the unified
+// image / name / role / testimonial popup. The watermark is rendered inside
+// LeadershipBody so it can force its receded state in the ".img" view.
 export default function LeadershipPage() {
   return (
     <>
       <Nav dark />
-      <LeadershipWatermark />
-      <LeadershipBody logoSvgs={logoSvgs} />
+      <LeadershipBody />
     </>
   );
 }
