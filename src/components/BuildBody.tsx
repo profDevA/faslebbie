@@ -7,7 +7,8 @@ import BuildContent from "@/components/BuildContent";
 import BuildGallery from "@/components/BuildGallery";
 import BuildProjectModal from "@/components/BuildProjectModal";
 import BuildWatermark from "@/components/BuildWatermark";
-import { buildProjects } from "@/lib/build";
+import { buildIntro, buildProjects as fallbackProjects } from "@/lib/build";
+import type { BuildContentData } from "@/lib/buildFromSanity";
 import { contentDrift, portraitDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 
@@ -21,7 +22,14 @@ type View = "txt" | "img";
  * the prose links and the cards open the paged project modal. Mobile: no
  * watermark / pin / reveal — content sits settled.
  */
-export default function BuildBody() {
+export default function BuildBody({
+  content,
+}: {
+  content?: BuildContentData;
+} = {}) {
+  const intro = content?.intro ?? buildIntro;
+  const buildProjects = content?.projects ?? fallbackProjects;
+
   const [view, setView] = useState<View>("txt");
   const [openId, setOpenId] = useState<string | null>(null);
   const { r, pin } = useReveal(view === "txt");
@@ -100,7 +108,11 @@ export default function BuildBody() {
                 }}
                 className="will-change-[opacity,filter,transform]"
               >
-                <BuildContent className="pb-24" onOpenProject={setOpenId} />
+                <BuildContent
+                  className="pb-24"
+                  intro={intro}
+                  onOpenProject={setOpenId}
+                />
               </div>
             </main>
           </div>

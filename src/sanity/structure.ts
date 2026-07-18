@@ -29,4 +29,22 @@ export const structure: StructureResolver = (S, context) =>
         .child(
           S.document().schemaType("researchPage").documentId("researchPage"),
         ),
+      S.listItem()
+        .title("Teaching Page")
+        .id("teachingPage")
+        .child(
+          S.document().schemaType("teachingPage").documentId("teachingPage"),
+        ),
+      S.listItem()
+        .title("Build Page")
+        .id("buildPage")
+        .child(S.document().schemaType("buildPage").documentId("buildPage")),
+      S.listItem()
+        .title("Leadership Page")
+        .id("leadershipPage")
+        .child(
+          S.document()
+            .schemaType("leadershipPage")
+            .documentId("leadershipPage"),
+        ),
     ]);

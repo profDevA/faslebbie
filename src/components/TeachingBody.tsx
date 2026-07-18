@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { useState } from "react";
 import MobileRecedeHeading from "@/components/MobileRecedeHeading";
-import LeadershipContent from "@/components/LeadershipContent";
-import LeadershipGallery from "@/components/LeadershipGallery";
-import LeadershipMomentPopup from "@/components/LeadershipMomentPopup";
-import LeadershipWatermark from "@/components/LeadershipWatermark";
-import { leadershipGallery } from "@/lib/content";
-import type { LeadershipContentData } from "@/lib/leadershipFromSanity";
+import TeachingContent from "@/components/TeachingContent";
+import TeachingGallery from "@/components/TeachingGallery";
+import TeachingWatermark from "@/components/TeachingWatermark";
+import StudentModal from "@/components/StudentModal";
+import ExhibitionOverlay from "@/components/ExhibitionOverlay";
+import { students as fallbackStudents, teachingIntro, teachingSections } from "@/lib/teaching";
+import type { TeachingContentData } from "@/lib/teachingFromSanity";
 import {
   contentDrift,
   portraitDrift,
@@ -20,23 +21,27 @@ import { useReveal } from "@/lib/useReveal";
 type View = "txt" | "img";
 
 /**
- * Holistic Leadership page (Figma 1-44995 / 1-45057 / 1-45118) — same ".txt" /
- * ".img" architecture as Work. ".txt" is the pinned reveal (the "Leadership"
- * watermark starts in front, the portrait + prose brighten forward), with a red
- * "Explore my leadership moments" link that flips to ".img": a masonry of moment
- * cards that each open the unified image / name / role / testimonial popup.
- * Mobile: no watermark / pin / reveal — content sits settled.
+ * Teaching / Pedagogy page (Figma 16-19731 / 16-22597 / 16-19360) — same
+ * ".txt" / ".img" architecture as Work / Leadership / Build. ".txt" is the
+ * pinned reveal (the "Teaching" watermark starts in front, portrait + prose
+ * brighten forward) with red student links + two actions: "See all student
+ * works" (→ ".img") and "Explore my student exhibitions" (→ the SFK Beijing
+ * overlay). ".img" is a Student Works masonry + an SFK Exhibition masonry.
+ * Student links / cards open the paged student modal. Mobile: no watermark /
+ * pin / reveal — content sits settled.
  */
-export default function LeadershipBody({
+export default function TeachingBody({
   content,
 }: {
-  content?: LeadershipContentData;
+  content?: TeachingContentData;
 } = {}) {
-  const moments = content?.moments ?? leadershipGallery;
+  const intro = content?.intro ?? teachingIntro;
+  const sections = content?.sections ?? teachingSections;
+  const students = content?.students ?? fallbackStudents;
 
   const [view, setView] = useState<View>("txt");
-  const [openId, setOpenId] = useState<string | null>(null);
-  // Reveal/pin (txt view only). Re-arms when toggling back to ".txt".
+  const [openStudent, setOpenStudent] = useState<string | null>(null);
+  const [exhibitionOpen, setExhibitionOpen] = useState(false);
   const { r, pin } = useReveal(view === "txt");
 
   const opacity = revealOpacity(r);
@@ -49,8 +54,6 @@ export default function LeadershipBody({
     window.scrollTo({ top: 0 });
   };
 
-  // ".txt / .img" toggle — centred near the top, always the same colour, hover
-  // adds the underline, the active view stays underlined (Israel 07/02).
   const viewToggle = (
     <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
       {(["txt", "img"] as const).map((v) => (
@@ -72,13 +75,10 @@ export default function LeadershipBody({
   return (
     <div className="relative">
       {/* Watermark: front→back reveal in ".txt", forced receded behind ".img". */}
-      <LeadershipWatermark receded={view === "img"} />
+      <TeachingWatermark receded={view === "img"} />
 
       {view === "txt" ? (
         <>
-          {/* Desktop pin: sticks under the nav so the content brightens in place
-              before the page scrolls (same as About/Work). The toggle sits inside
-              the dim back layer and only goes live once ~70% revealed. */}
           <div className="lg:sticky lg:top-[52px]">
             <div
               style={{
@@ -92,12 +92,9 @@ export default function LeadershipBody({
             </div>
             <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
               <div className="flex flex-col lg:sticky lg:top-[150px] lg:self-start">
-                {/* Mobile (Figma 1-45348): portrait first, then the "Leadership"
-                    heading that recedes on scroll. Desktop (Figma 1-44995 →
-                    1-45057): the portrait sits top-left beside the wordmark and
-                    stays clear in BOTH the top and reading states — so it's
-                    exempt from the reveal fade/blur (only the subtle forward
-                    drift applies); the prose still brightens in. */}
+                {/* Portrait sits top-left beside the wordmark and stays clear in
+                    BOTH states (exempt from the reveal fade/blur; only the
+                    subtle drift applies), matching Leadership / Build. */}
                 <Image
                   src="/portrait.png"
                   alt="Portrait of Fas Lebbie"
@@ -107,8 +104,8 @@ export default function LeadershipBody({
                   style={{ transform: portraitDrift(r) }}
                   className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-transform lg:h-[286px] lg:w-[260px]"
                 />
-                <MobileRecedeHeading className="mt-10 font-logo text-[42px] font-bold leading-[1.1] sm:text-[50px]">
-                  Leadership
+                <MobileRecedeHeading className="mt-10 font-logo text-[42px] font-bold leading-[1.05] sm:text-[50px]">
+                  Teaching
                 </MobileRecedeHeading>
               </div>
 
@@ -121,16 +118,13 @@ export default function LeadershipBody({
                 }}
                 className="will-change-[opacity,filter,transform]"
               >
-                <LeadershipContent
+                <TeachingContent
                   className="pb-24"
-                  intro={content?.intro}
-                  lead={content?.lead}
-                  closing={content?.closing}
-                  expansions={content?.expansions}
-                  momentsHeading={content?.momentsHeading}
-                  exploreText={content?.exploreText}
-                  contactText={content?.contactText}
-                  onExplore={() => switchView("img")}
+                  intro={intro}
+                  sections={sections}
+                  onOpenStudent={setOpenStudent}
+                  onSeeAllStudents={() => switchView("img")}
+                  onOpenExhibition={() => setExhibitionOpen(true)}
                 />
               </div>
             </main>
@@ -140,17 +134,30 @@ export default function LeadershipBody({
       ) : (
         <>
           {viewToggle}
-          <main className="relative z-10 w-full pb-24 pt-6 lg:pt-10">
-            <LeadershipGallery items={moments} onOpen={setOpenId} />
+          <main className="relative z-10 w-full pb-24 pt-8 lg:pt-12">
+            <TeachingGallery
+              students={students}
+              onOpenStudent={setOpenStudent}
+              onOpenExhibition={() => setExhibitionOpen(true)}
+            />
           </main>
         </>
       )}
 
-      <LeadershipMomentPopup
-        items={moments}
-        openId={openId}
-        onNavigate={setOpenId}
-        onClose={() => setOpenId(null)}
+      <StudentModal
+        projects={students}
+        openId={openStudent}
+        onNavigate={setOpenStudent}
+        onClose={() => setOpenStudent(null)}
+      />
+
+      <ExhibitionOverlay
+        open={exhibitionOpen}
+        onClose={() => setExhibitionOpen(false)}
+        onViewStudents={() => {
+          setExhibitionOpen(false);
+          switchView("img");
+        }}
       />
     </div>
   );

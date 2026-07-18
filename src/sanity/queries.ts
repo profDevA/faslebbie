@@ -96,3 +96,26 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   manifesto,
   fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url }
 }`);
+
+export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
+  intro,
+  sections[]{ kicker, body, actionKind, actionText },
+  students[]{
+    id, title, headline, description, span, tint, lightArt,
+    "images": images[].asset->url
+  }
+}`);
+
+export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
+  intro,
+  projects[]{
+    id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
+    description, howItWorks, note, supportedTools,
+    "images": images[].asset->url
+  }
+}`);
+
+export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0]{
+  intro, lead, closing, momentsHeading, exploreText, contactText,
+  moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url }
+}`);

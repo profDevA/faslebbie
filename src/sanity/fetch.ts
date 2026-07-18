@@ -3,12 +3,22 @@ import "server-only";
 import { client } from "./client";
 import {
   ALL_STUDIES_QUERY,
+  BUILD_PAGE_QUERY,
   CATEGORIES_QUERY,
+  LEADERSHIP_PAGE_QUERY,
   RESEARCH_PAGE_QUERY,
   STUDY_SLUGS_QUERY,
+  TEACHING_PAGE_QUERY,
   WORK_PAGE_QUERY,
 } from "./queries";
-import type { SanityResearchPage, Study, WorkPageConfig } from "./types";
+import type {
+  SanityBuildPage,
+  SanityLeadershipPage,
+  SanityResearchPage,
+  SanityTeachingPage,
+  Study,
+  WorkPageConfig,
+} from "./types";
 
 const options = { next: { revalidate: 60, tags: ["caseStudy"] } };
 
@@ -34,6 +44,30 @@ export async function getResearchPage(): Promise<SanityResearchPage | null> {
     {},
     { next: { revalidate: 60, tags: ["researchPage"] } },
   ) as Promise<SanityResearchPage | null>;
+}
+
+export async function getTeachingPage(): Promise<SanityTeachingPage | null> {
+  return client.fetch(
+    TEACHING_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["teachingPage"] } },
+  ) as Promise<SanityTeachingPage | null>;
+}
+
+export async function getBuildPage(): Promise<SanityBuildPage | null> {
+  return client.fetch(
+    BUILD_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["buildPage"] } },
+  ) as Promise<SanityBuildPage | null>;
+}
+
+export async function getLeadershipPage(): Promise<SanityLeadershipPage | null> {
+  return client.fetch(
+    LEADERSHIP_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["leadershipPage"] } },
+  ) as Promise<SanityLeadershipPage | null>;
 }
 
 /** Resolve a study + its wrap-around previous/next neighbours by slug. */

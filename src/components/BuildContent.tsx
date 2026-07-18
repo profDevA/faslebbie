@@ -52,16 +52,18 @@ function renderTokens(
 
 export default function BuildContent({
   className = "",
+  intro = buildIntro,
   onOpenProject,
 }: {
   className?: string;
+  intro?: BuildToken[][];
   onOpenProject: (id: string) => void;
 }) {
   return (
     <section
       className={`font-serif text-[28px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal ${className}`}
     >
-      {buildIntro.map((para, i) => (
+      {intro.map((para, i) => (
         <p key={i} className="mb-8 last:mb-0">
           {renderTokens(para, `p${i}`, onOpenProject)}
         </p>

@@ -204,3 +204,77 @@ export interface SanityResearchPage {
     image?: string;
   }[];
 }
+
+// --- Teaching / Build / Leadership (raw Sanity shapes) ---------------------
+// Prose fields come back as Portable Text; the interactive marks (pill /
+// expandPill / term / ref / action / link) live in each block's markDefs. The
+// `lib/*FromSanity.ts` mappers turn these into each page's token dialect and
+// fall back to the in-code copy when a field is empty.
+export type SpanTier = "sm" | "md" | "lg";
+
+export interface SanityStudentProject {
+  id?: string;
+  title?: string;
+  headline?: string;
+  description?: string;
+  span?: SpanTier;
+  tint?: string;
+  lightArt?: boolean;
+  images?: string[];
+}
+
+export interface SanityTeachingSection {
+  kicker?: string;
+  body?: PortableTextBlock[];
+  actionKind?: "students" | "exhibition";
+  actionText?: string;
+}
+
+export interface SanityTeachingPage {
+  intro?: PortableTextBlock[];
+  sections?: SanityTeachingSection[];
+  students?: SanityStudentProject[];
+}
+
+export interface SanityBuildProject {
+  id?: string;
+  title?: string;
+  tech?: string[];
+  span?: SpanTier;
+  tint?: string;
+  lightArt?: boolean;
+  kicker?: string;
+  subtitle?: string;
+  blurb?: string;
+  description?: string;
+  howItWorks?: string[];
+  note?: string;
+  supportedTools?: string[];
+  images?: string[];
+}
+
+export interface SanityBuildPage {
+  intro?: PortableTextBlock[];
+  projects?: SanityBuildProject[];
+}
+
+export interface SanityLeadershipMoment {
+  id?: string;
+  label?: string;
+  span?: SpanTier;
+  highlight?: boolean;
+  name?: string;
+  role?: string;
+  testimonial?: string;
+  image?: string;
+}
+
+export interface SanityLeadershipPage {
+  intro?: PortableTextBlock[];
+  lead?: PortableTextBlock[];
+  closing?: PortableTextBlock[];
+  momentsHeading?: string;
+  exploreText?: string;
+  contactText?: string;
+  moments?: SanityLeadershipMoment[];
+}

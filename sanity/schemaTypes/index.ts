@@ -18,6 +18,11 @@ import { researchFieldNote } from "./objects/researchFieldNote";
 import { researchParadigms } from "./objects/researchParadigms";
 import { researchPrinciples } from "./objects/researchPrinciples";
 import { researchModalities } from "./objects/researchModalities";
+import { interactiveProse } from "./objects/interactiveProse";
+import { studentProject } from "./objects/studentProject";
+import { teachingSection } from "./objects/teachingSection";
+import { buildProjectItem } from "./objects/buildProjectItem";
+import { leadershipMoment } from "./objects/leadershipMoment";
 
 // sections
 import { heroSection } from "./sections/heroSection";
@@ -35,6 +40,9 @@ import { caseStudy } from "./documents/caseStudy";
 import { category } from "./documents/category";
 import { workPage } from "./documents/workPage";
 import { researchPage } from "./documents/researchPage";
+import { teachingPage } from "./documents/teachingPage";
+import { buildPage } from "./documents/buildPage";
+import { leadershipPage } from "./documents/leadershipPage";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // documents
@@ -42,6 +50,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   category,
   workPage,
   researchPage,
+  teachingPage,
+  buildPage,
+  leadershipPage,
   // sections
   heroSection,
   overviewSection,
@@ -70,4 +81,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   researchParadigms,
   researchPrinciples,
   researchModalities,
+  interactiveProse,
+  studentProject,
+  teachingSection,
+  buildProjectItem,
+  leadershipMoment,
 ];

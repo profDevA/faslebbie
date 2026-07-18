@@ -52,12 +52,13 @@ function renderProse(
   prefix: string,
   openKey: string | null,
   toggle: (key: string) => void,
+  expansions: Record<string, string>,
 ) {
   return tokens.map((tok, j) => {
     const key = `${prefix}-${j}`
     if (tok.t === 'key' && tok.tone === 'gray') {
       const isOpen = openKey === tok.text
-      const expansion = leadershipExpansions[tok.text]
+      const expansion = expansions[tok.text]
       return (
         <Fragment key={key}>
           <GrayPill text={tok.text} open={isOpen} onToggle={() => toggle(tok.text)} />
@@ -84,9 +85,23 @@ function renderProse(
 // expand inline on click.
 export default function LeadershipContent({
   className = '',
+  intro = leadershipIntro,
+  lead = leadershipLead,
+  closing = leadershipClosing,
+  expansions = leadershipExpansions,
+  momentsHeading = 'My leadership moments',
+  exploreText = 'Explore my leadership moments',
+  contactText = 'Get in touch',
   onExplore,
 }: {
   className?: string
+  intro?: AboutToken[]
+  lead?: AboutToken[]
+  closing?: AboutToken[]
+  expansions?: Record<string, string>
+  momentsHeading?: string
+  exploreText?: string
+  contactText?: string
   onExplore: () => void
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
@@ -118,14 +133,14 @@ export default function LeadershipContent({
       className={`font-serif text-[28px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal ${className}`}
     >
       <p className="mb-10">
-        {renderProse(leadershipIntro, 'intro', openKey, toggle)}
+        {renderProse(intro, 'intro', openKey, toggle, expansions)}
       </p>
 
       <p className="mb-6 font-serif text-[20px] font-bold capitalize leading-[1.6] tracking-[0.5px] text-black lg:text-[24px]">
-        My leadership moments
+        {momentsHeading}
       </p>
 
-      <p className="mb-2">{renderProse(leadershipLead, 'lead', openKey, toggle)}</p>
+      <p className="mb-2">{renderProse(lead, 'lead', openKey, toggle, expansions)}</p>
       <p className="mb-10">
         <span
           role="button"
@@ -140,12 +155,12 @@ export default function LeadershipContent({
           }}
           className="cursor-pointer text-accent underline decoration-from-font underline-offset-2"
         >
-          Explore my leadership moments
+          {exploreText}
         </span>
       </p>
 
       <p className="mb-2">
-        {renderProse(leadershipClosing, 'closing', openKey, toggle)}
+        {renderProse(closing, 'closing', openKey, toggle, expansions)}
       </p>
       <p>
         <Link
@@ -153,7 +168,7 @@ export default function LeadershipContent({
           data-cursor="hover"
           className="text-accent underline decoration-from-font underline-offset-2"
         >
-          Get in touch
+          {contactText}
         </Link>
       </p>
     </section>
