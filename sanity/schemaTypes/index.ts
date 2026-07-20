@@ -43,6 +43,7 @@ import { researchPage } from "./documents/researchPage";
 import { teachingPage } from "./documents/teachingPage";
 import { buildPage } from "./documents/buildPage";
 import { leadershipPage } from "./documents/leadershipPage";
+import { testimonial } from "./documents/testimonial";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // documents
@@ -53,6 +54,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   teachingPage,
   buildPage,
   leadershipPage,
+  testimonial,
   // sections
   heroSection,
   overviewSection,

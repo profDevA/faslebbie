@@ -52,6 +52,16 @@ body {
   }
 }
 
+/* Contact drawer slides in from the right (deepsocal-style). */
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 /* Hard on/off caret blink for the typing tags (Israel 06/25: "it should blink
    so they know they can type" — a real text caret, not a soft fade). */
 @keyframes caret-blink {

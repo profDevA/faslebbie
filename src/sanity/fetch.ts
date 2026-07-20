@@ -9,6 +9,7 @@ import {
   RESEARCH_PAGE_QUERY,
   STUDY_SLUGS_QUERY,
   TEACHING_PAGE_QUERY,
+  TESTIMONIALS_QUERY,
   WORK_PAGE_QUERY,
 } from "./queries";
 import type {
@@ -16,6 +17,7 @@ import type {
   SanityLeadershipPage,
   SanityResearchPage,
   SanityTeachingPage,
+  SanityTestimonial,
   Study,
   WorkPageConfig,
 } from "./types";
@@ -68,6 +70,14 @@ export async function getLeadershipPage(): Promise<SanityLeadershipPage | null> 
     {},
     { next: { revalidate: 60, tags: ["leadershipPage"] } },
   ) as Promise<SanityLeadershipPage | null>;
+}
+
+export async function getTestimonials(): Promise<SanityTestimonial[]> {
+  return client.fetch(
+    TESTIMONIALS_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["testimonial"] } },
+  ) as Promise<SanityTestimonial[]>;
 }
 
 /** Resolve a study + its wrap-around previous/next neighbours by slug. */

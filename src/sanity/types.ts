@@ -278,3 +278,10 @@ export interface SanityLeadershipPage {
   contactText?: string;
   moments?: SanityLeadershipMoment[];
 }
+
+export interface SanityTestimonial {
+  name: string;
+  role: string | null;
+  quote: string;
+  avatar: string | null;
+}

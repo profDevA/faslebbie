@@ -100,32 +100,41 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
 }
 
 // Organic "pebble" positions for the two channel clusters (Figma 1-40666).
-// Percentages inside a fixed-height relative stage; blobs overlap loosely so
-// they read as a spread-out, centred cluster rather than a stacked list.
-const NODE_LAYOUT: { top: string; left: string }[][] = [
+// Percentages inside a fixed-height relative stage; blobs sit close so their
+// borders overlap and read as one connected, organic cluster (not a list).
+// Each preset carries its own lopsided border-radius so no two blobs match.
+type Blob = { top: string; left: string; r: string };
+const NODE_LAYOUT: Blob[][] = [
+  // human & oral (5)
   [
-    { top: "30%", left: "1%" }, // semi-structured interviews
-    { top: "0%", left: "26%" }, // elder oral history
-    { top: "30%", left: "48%" }, // participant observation
-    { top: "60%", left: "6%" }, // community mapping
-    { top: "58%", left: "42%" }, // co-design sessions
+    { top: "0%", left: "27%", r: "52% 48% 46% 54% / 54% 46% 52% 48%" }, // elder oral / history
+    { top: "33%", left: "0%", r: "48% 52% 55% 45% / 45% 56% 44% 52%" }, // semi-structured / interviews
+    { top: "38%", left: "43%", r: "55% 45% 47% 53% / 52% 48% 53% 47%" }, // participant / observation
+    { top: "66%", left: "7%", r: "47% 53% 52% 48% / 50% 50% 46% 54%" }, // community / mapping
+    { top: "68%", left: "40%", r: "54% 46% 50% 50% / 48% 52% 45% 55%" }, // co-design / sessions
   ],
+  // documentary & recorded (4)
   [
-    { top: "4%", left: "14%" }, // archival research
-    { top: "26%", left: "52%" }, // field photography
-    { top: "42%", left: "4%" }, // autoethnographic journaling
-    { top: "64%", left: "44%" }, // q-methodology
+    { top: "2%", left: "22%", r: "52% 48% 48% 52% / 53% 47% 51% 49%" }, // archival / research
+    { top: "26%", left: "52%", r: "48% 52% 54% 46% / 46% 55% 45% 53%" }, // field / photography
+    { top: "45%", left: "4%", r: "55% 45% 46% 54% / 51% 49% 54% 46%" }, // autoethnographic / journaling
+    { top: "66%", left: "46%", r: "50% 50% 52% 48% / 49% 51% 46% 54%" }, // q-methodology
   ],
 ];
 
-// A few organic border-radius presets so the blobs don't look identical.
-const NODE_RADII = [
-  "46% 54% 62% 38% / 55% 42% 58% 45%",
-  "58% 42% 45% 55% / 48% 58% 42% 52%",
-  "40% 60% 52% 48% / 60% 45% 55% 40%",
-  "55% 45% 60% 40% / 42% 55% 45% 58%",
-  "48% 52% 40% 60% / 55% 48% 52% 45%",
-];
+// Figma splits each channel into a bold head + a lighter tail on a second line
+// (the last word is the descriptor). Single-word labels stay on one bold line.
+function PebbleLabel({ label }: { label: string }) {
+  const i = label.lastIndexOf(" ");
+  if (i === -1) return <span className="font-bold">{label}</span>;
+  return (
+    <span className="leading-tight">
+      <span className="font-bold">{label.slice(0, i)}</span>
+      <br />
+      <span className="font-light">{label.slice(i + 1)}</span>
+    </span>
+  );
+}
 
 function NodeCluster({
   items,
@@ -134,22 +143,22 @@ function NodeCluster({
   items: string[];
   groupIndex: number;
 }) {
-  const layout = groupIndex === 1 ? NODE_LAYOUT[1] : NODE_LAYOUT[0];
+  const layout = NODE_LAYOUT[groupIndex] ?? NODE_LAYOUT[0];
   return (
     <>
-      {/* Desktop: loosely-placed organic pebbles. */}
-      <div className="relative mx-auto hidden h-[340px] w-full max-w-[380px] sm:block">
+      {/* Desktop: organic pebbles whose borders overlap into one cluster. */}
+      <div className="relative mx-auto hidden h-[360px] w-full max-w-[400px] sm:block">
         {items.map((label, i) => (
           <div
             key={label}
             style={{
               top: layout[i]?.top ?? "0%",
               left: layout[i]?.left ?? "0%",
-              borderRadius: NODE_RADII[i % NODE_RADII.length],
+              borderRadius: layout[i]?.r,
             }}
-            className="absolute flex h-[132px] w-[152px] items-center justify-center border border-black px-4 text-center font-grotesk text-[15px] leading-[1.3] text-black"
+            className="absolute flex h-[146px] w-[152px] items-center justify-center border border-black px-4 text-center font-grotesk text-[15px] text-black"
           >
-            {label}
+            <PebbleLabel label={label} />
           </div>
         ))}
       </div>
@@ -158,10 +167,10 @@ function NodeCluster({
         {items.map((label, i) => (
           <div
             key={label}
-            style={{ borderRadius: NODE_RADII[i % NODE_RADII.length] }}
-            className="flex h-[112px] w-[132px] items-center justify-center border border-black px-3 text-center font-grotesk text-[14px] leading-[1.3] text-black"
+            style={{ borderRadius: layout[i]?.r }}
+            className="flex h-[116px] w-[136px] items-center justify-center border border-black px-3 text-center font-grotesk text-[14px] text-black"
           >
-            {label}
+            <PebbleLabel label={label} />
           </div>
         ))}
       </div>
@@ -172,40 +181,41 @@ function NodeCluster({
 function ModalitiesView({ c }: { c: ModalitiesContent }) {
   return (
     <div>
-      <div className="mx-auto mb-8 aspect-square w-[232px] max-w-full bg-white lg:hidden" />
       <div className="border-b border-black pb-10">
-        <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token">
+        <p className="font-grotesk text-[18px] font-bold text-black text-shadow-token">
           {c.kicker}
         </p>
-        <p className="mt-8 font-grotesk text-[34px] font-medium leading-[1.35] text-balance text-black text-shadow-token">
+        <p className="mt-6 font-grotesk text-[30px] font-bold leading-[1.3] text-balance text-black text-shadow-token lg:text-[34px]">
           {c.statement}
         </p>
       </div>
-      {/* Figma indents the numbered channels to the right of the panel. */}
-      <div className="ml-auto mt-4 max-w-[640px]">
+      {/* Numbered channels — a single centred column (Figma 1-40666): small
+          light numbers, bold labels, thin rules. */}
+      <div className="mx-auto mt-2 max-w-[520px]">
         {c.items.map((it) => (
           <div
             key={it.n}
-            className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-x-4 border-b border-black py-5"
+            className="grid grid-cols-[40px_minmax(0,1fr)] items-center gap-x-4 border-b border-black py-4"
           >
-            <span className="font-grotesk text-[22px] text-black">{it.n}</span>
-            <span className="font-grotesk text-[26px] font-medium leading-[1.28] text-black">
+            <span className="font-grotesk text-[15px] text-black/55">{it.n}</span>
+            <span className="font-grotesk text-[18px] font-bold leading-[1.3] text-black">
               {it.label}
             </span>
           </div>
         ))}
       </div>
-      <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2">
+      {/* Two labelled channel clusters. */}
+      <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-2">
         {c.groups.map((g, gi) => (
           <div key={g.title} className="flex flex-col">
-            <p className="mx-auto mb-6 inline-block font-grotesk text-[24px] font-medium capitalize text-black underline underline-offset-4 text-shadow-token">
+            <p className="mx-auto mb-4 inline-block font-grotesk text-[22px] font-bold lowercase text-black underline underline-offset-4 text-shadow-token">
               {g.title}
             </p>
             <NodeCluster items={g.items} groupIndex={gi} />
           </div>
         ))}
       </div>
-      <p className="mt-4 text-center font-grotesk text-[16px] text-black/70">
+      <p className="-mt-2 text-center font-grotesk text-[15px] text-black/70">
         {c.footnote}
       </p>
     </div>
@@ -238,10 +248,16 @@ function ManifestoView({ c }: { c: ManifestoContent }) {
 }
 
 function FieldNotesView({ c }: { c: FieldNotesContent }) {
-  const note = c.notes[0];
+  const [i, setI] = useState(0);
+  const n = c.notes.length;
+  const note = c.notes[Math.min(i, n - 1)];
+  const go = (d: 1 | -1) => setI((p) => (p + d + n) % n);
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_441px]">
-      <div className="flex items-center">
+    <div>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_441px]">
+      {/* Image + left/right arrows to move between field notes (Israel 07/17:
+          "on the left you have arrows to change the image"). */}
+      <div className="relative flex items-center">
         {note.image ? (
           // eslint-disable-next-line @next/next/no-img-element -- static design asset
           <img
@@ -251,6 +267,28 @@ function FieldNotesView({ c }: { c: FieldNotesContent }) {
           />
         ) : (
           <div className="aspect-4/3 w-full bg-white" />
+        )}
+        {n > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous field note"
+              onClick={() => go(-1)}
+              data-cursor="hover"
+              className="absolute left-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
+            >
+              {"\u2039"}
+            </button>
+            <button
+              type="button"
+              aria-label="Next field note"
+              onClick={() => go(1)}
+              data-cursor="hover"
+              className="absolute right-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
+            >
+              {"\u203a"}
+            </button>
+          </>
         )}
       </div>
       <div className="flex flex-col">
@@ -290,6 +328,43 @@ function FieldNotesView({ c }: { c: FieldNotesContent }) {
           </p>
         </div>
       </div>
+      </div>
+
+      {/* Previous / dots / Next between field notes (testimonial-style pager). */}
+      {n > 1 && (
+        <div className="mt-10 flex items-center justify-between border-t border-black pt-6">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            data-cursor="hover"
+            className="font-grotesk text-[18px] font-medium text-accent transition-opacity hover:opacity-70"
+          >
+            {"< Previous"}
+          </button>
+          <div className="flex items-center gap-2.5">
+            {c.notes.map((nt, k) => (
+              <button
+                key={nt.n}
+                type="button"
+                aria-label={`Field note ${nt.n}`}
+                onClick={() => setI(k)}
+                data-cursor="hover"
+                className={`size-2 rounded-full transition-colors ${
+                  k === i ? "bg-accent" : "bg-black/25 hover:bg-black/40"
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            data-cursor="hover"
+            className="font-grotesk text-[18px] font-medium text-accent transition-opacity hover:opacity-70"
+          >
+            {"Next >"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -366,10 +441,10 @@ export default function ResearchModal({
         onClick={onClose}
         className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-black/30 sm:inset-0"
       />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1100px,96vw)] sm:flex-none">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1100px,96vw)] sm:flex-none">
         {/* Header */}
-        <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-black bg-white px-6 sm:px-8">
-          <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[15px] font-light text-black sm:text-[18px]">
+        <div className="flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-black bg-white px-5 sm:h-[72px] sm:px-8">
+          <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[18px]">
             <span className="hidden sm:inline">Research</span>
             <span className="hidden sm:inline">/</span>
             <span className="truncate">{researchBreadcrumbRoot}</span>
@@ -392,42 +467,6 @@ export default function ResearchModal({
         {/* Body */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14">
           <SectionView content={sections[openId]} />
-        </div>
-
-        {/* Footer / pager */}
-        <div className="flex h-[72px] shrink-0 items-center justify-center border-t border-black border-b-[6px] bg-white px-6">
-          <div className="flex w-full max-w-[560px] items-center justify-between">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              data-cursor="hover"
-              className="font-grotesk text-[20px] font-medium text-accent transition-opacity hover:opacity-70"
-            >
-              {"< Previous"}
-            </button>
-            <div className="flex items-center gap-2.5">
-              {researchSectionOrder.map((id, i) => (
-                <button
-                  key={id}
-                  type="button"
-                  aria-label={researchSectionLabel[id]}
-                  onClick={() => onNavigate(id)}
-                  data-cursor="hover"
-                  className={`size-2 rounded-full transition-colors ${
-                    i === index ? "bg-accent" : "bg-black/25 hover:bg-black/40"
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              data-cursor="hover"
-              className="font-grotesk text-[20px] font-medium text-accent transition-opacity hover:opacity-70"
-            >
-              {"Next >"}
-            </button>
-          </div>
         </div>
       </div>
     </div>,

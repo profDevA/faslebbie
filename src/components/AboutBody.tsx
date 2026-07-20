@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import AboutContent from "@/components/AboutContent";
-import { aboutLogos } from "@/lib/content";
+import { aboutLogos, type Testimonial } from "@/lib/content";
 import {
   contentDrift,
   portraitDrift,
@@ -29,8 +29,10 @@ import { useReveal } from "@/lib/useReveal";
 
 export default function AboutBody({
   logoSvgs,
+  testimonials,
 }: {
   logoSvgs: Record<keyof typeof aboutLogos, string>;
+  testimonials?: Testimonial[];
 }) {
   // Reveal progress (0 = behind + dim + blurred, 1 = settled/clear) + pin
   // distance. Latches at 1 on first completion so scrolling back up never
@@ -79,7 +81,11 @@ export default function AboutBody({
           }}
           className="will-change-[opacity,filter,transform]"
         >
-          <AboutContent className="pb-24" logoSvgs={logoSvgs} />
+          <AboutContent
+            className="pb-24"
+            logoSvgs={logoSvgs}
+            testimonials={testimonials}
+          />
         </div>
         </main>
       </div>

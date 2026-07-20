@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
-import Link from 'next/link'
+import { openContactDrawer } from '@/lib/contactDrawer'
 import type { AboutToken } from '@/lib/content'
 import {
   leadershipClosing,
@@ -163,13 +163,14 @@ export default function LeadershipContent({
         {renderProse(closing, 'closing', openKey, toggle, expansions)}
       </p>
       <p>
-        <Link
-          href="/contact"
+        <button
+          type="button"
+          onClick={openContactDrawer}
           data-cursor="hover"
           className="text-accent underline decoration-from-font underline-offset-2"
         >
           {contactText}
-        </Link>
+        </button>
       </p>
     </section>
   )

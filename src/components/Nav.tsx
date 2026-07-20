@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems, mobileNavItems } from "@/lib/content";
+import ContactDrawer from "@/components/ContactDrawer";
+import { OPEN_CONTACT_EVENT } from "@/lib/contactDrawer";
 
 // Whether a nav href is the current section (WIP3 1111:4384 — the active page,
 // e.g. "Work", is highlighted stronger than the rest).
@@ -12,9 +14,6 @@ function useIsActive() {
   return (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 }
-
-const contactItem = { label: "Contact", href: "/contact" };
-const contactEmail = "dr.faslebbie@gmail.com";
 
 // Wordmark "Fas lebbie, Ph.D." — the surname is intentionally lowercase per the
 // desktop nav (Figma 402:2899, an uppercase base with the surname lowercased).
@@ -54,6 +53,7 @@ function NavLink({ label, href, active }: { label: string; href: string; active?
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const isActive = useIsActive();
 
   // Lock body scroll while the full-screen mobile menu is open.
@@ -63,6 +63,13 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Any "contact" trigger elsewhere in the app can open the drawer.
+  useEffect(() => {
+    const openDrawer = () => setContactOpen(true);
+    window.addEventListener(OPEN_CONTACT_EVENT, openDrawer);
+    return () => window.removeEventListener(OPEN_CONTACT_EVENT, openDrawer);
+  }, []);
 
   return (
     <header
@@ -80,18 +87,15 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
             <NavLink key={item.href} {...item} active={isActive(item.href)} />
           ))}
         </nav>
-        <Link
-          href="/contact"
+        {/* Contact opens a slide-in drawer (Figma 1:227), not a page. */}
+        <button
+          type="button"
+          onClick={() => setContactOpen(true)}
           data-cursor="hover"
-          aria-current={isActive("/contact") ? "page" : undefined}
-          className={`hidden font-grotesk text-[15px] capitalize underline-offset-[6px] transition-opacity lg:block xl:text-[18px] ${
-            isActive("/contact")
-              ? "font-medium underline decoration-2"
-              : "font-normal opacity-70 hover:opacity-100"
-          }`}
+          className="hidden font-grotesk text-[15px] font-normal capitalize underline-offset-[6px] opacity-70 transition-opacity hover:opacity-100 lg:block xl:text-[18px]"
         >
           Contact
-        </Link>
+        </button>
         {/* Mobile/tablet: MENU toggle */}
         <button
           type="button"
@@ -103,46 +107,55 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
         </button>
       </div>
 
-      {/* Mobile/tablet: full-screen menu overlay. Slides down on open and matches
-          the light page treatment (Figma 187:3325): #e5e5de bg, black text,
-          Neue Haas Grotesk links, CLOSE label, email footer. */}
+      {/* Mobile/tablet: full-screen dropdown overlay (Figma 1-128). Dark panel,
+          "Fas lebbie, Ph.D." + ✕ in a divided header, then a large left-aligned
+          Title-Case list (About → Contact). Fades/slides in on open. */}
       {open && (
-        <div className="fixed inset-0 z-50 flex animate-[menu-in_0.3s_ease-out] flex-col overflow-y-auto bg-bg text-black lg:hidden">
-          <div className="sticky top-0 flex h-13 shrink-0 items-center justify-between bg-bg px-6 shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
+        <div className="fixed inset-0 z-50 flex animate-[menu-in_0.3s_ease-out] flex-col overflow-y-auto bg-[#141414] text-bg lg:hidden">
+          <div className="flex h-13 shrink-0 items-center justify-between border-b border-white/20 px-6">
             <Logo onClick={() => setOpen(false)} />
             <button
               type="button"
+              aria-label="Close menu"
               onClick={() => setOpen(false)}
               data-cursor="hover"
-              className="font-grotesk text-[16px] uppercase tracking-[0.02em]"
+              className="text-[22px] leading-none transition-opacity hover:opacity-70"
             >
-              Close
+              ✕
             </button>
           </div>
-          <nav className="flex flex-1 flex-col gap-[31px] px-5 pt-16 font-grotesk text-[36px] font-normal uppercase leading-none">
-            {[...mobileNavItems, contactItem].map((item) => (
+          <nav className="flex flex-1 flex-col justify-center gap-7 px-6 pb-16 font-grotesk text-[34px] font-normal leading-none sm:text-[40px]">
+            {mobileNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
                 data-cursor="hover"
                 aria-current={isActive(item.href) ? "page" : undefined}
-                className={isActive(item.href) ? "underline decoration-2 underline-offset-[6px]" : ""}
+                className={`w-fit underline-offset-8 transition-opacity hover:opacity-70 ${
+                  isActive(item.href) ? "underline decoration-2" : ""
+                }`}
               >
-                {/* ZWSP after "/" lets long labels wrap at the slash (Figma 21:30) */}
-                {item.label.replace("/", "/​")}
+                {item.label}
               </Link>
             ))}
+            {/* Contact opens the drawer (closes the menu first). */}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setContactOpen(true);
+              }}
+              data-cursor="hover"
+              className="w-fit text-left underline-offset-8 transition-opacity hover:opacity-70"
+            >
+              Contact
+            </button>
           </nav>
-          <a
-            href={`mailto:${contactEmail}`}
-            data-cursor="hover"
-            className="px-5 pb-10 pt-6 font-grotesk text-[14px] uppercase tracking-wide text-black/70"
-          >
-            [ {contactEmail} ]
-          </a>
         </div>
       )}
+
+      <ContactDrawer open={contactOpen} onClose={() => setContactOpen(false)} />
     </header>
   );
 }

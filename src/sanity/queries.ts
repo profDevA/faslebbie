@@ -119,3 +119,8 @@ export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0
   intro, lead, closing, momentsHeading, exploreText, contactText,
   moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url }
 }`);
+
+// "What people are saying" testimonials, ordered — powers the About modal.
+export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order(orderRank asc){
+  name, role, quote, "avatar": photo.asset->url
+}`);

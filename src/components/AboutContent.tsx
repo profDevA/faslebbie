@@ -10,14 +10,14 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import type { AboutToken } from '@/lib/content'
+import type { AboutToken, Testimonial } from '@/lib/content'
 import {
   aboutExpansions,
   aboutLinks,
   aboutLogos,
   aboutPanels,
   aboutParagraphs,
-  testimonials,
+  testimonials as fallbackTestimonials,
 } from '@/lib/content'
 
 const TESTIMONIAL_KEY = 'what people are saying'
@@ -221,13 +221,19 @@ function AboutPanel({
   )
 }
 
-// "What people are saying" — a centered MODAL pop-up (Israel 06/23: "there's a
-// pop-up in the middle, and you can go next and previous… the red link opens the
-// pop-up, it doesn't open [inline] anymore"; Figma 840:78434 / 187:1800). One
-// testimonial at a time: quote mark, avatar + name/role, quote, Previous/Next.
-// Portaled to <body> so it's centred on the viewport and sits above (and is not
-// dimmed by) the page content's scroll-fade.
-function TestimonialsModal({ onClose }: { onClose: () => void }) {
+// "What people are saying" — a full-screen MODAL pop-up (Figma 41:1539). The
+// red link opens a large split card: an "About / Testimonials" breadcrumb bar
+// on top, a two-tone body (light grey panel with the avatar + name + role on
+// the left, dark panel with the quote on the right), and a footer with
+// "< Previous" · dots · "Next >" in red. Portaled to <body> so it centres on
+// the viewport above the page content's scroll-fade.
+function TestimonialsModal({
+  testimonials,
+  onClose,
+}: {
+  testimonials: Testimonial[]
+  onClose: () => void
+}) {
   const [i, setI] = useState(0)
   const max = testimonials.length - 1
   const go = (d: number) => setI(c => Math.min(max, Math.max(0, c + d)))
@@ -244,6 +250,9 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
 
   if (typeof document === 'undefined') return null
   const t = testimonials[i]
+  // The data keeps a leading "- " on the role for the old layout; the split
+  // card shows it clean ("Service Delivery Manager, Meta").
+  const role = t.role.replace(/^[-–\s]+/, '')
 
   return createPortal(
     <div
@@ -252,63 +261,74 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
       aria-modal="true"
       aria-label={TESTIMONIAL_KEY}
       onClick={onClose}
-      // Israel 07/02: the pop-up backdrop is NOT black — it uses the WIP3
-      // pop-up tint (light cream, 80%) so it matches the case-study pop-up
-      // system rather than a dark dim.
-      className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.8)] p-4 animate-[panel-in_0.2s_ease-out]"
+      // The pop-up backdrop is the WIP3 cream tint (80%), matching the
+      // case-study pop-up system rather than a dark dim.
+      className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.85)] p-4 animate-[panel-in_0.2s_ease-out] lg:p-8"
     >
       <div
         onClick={e => e.stopPropagation()}
-        // Israel 07/02: fixed height so paging through testimonials of
-        // different quote lengths doesn't resize the box and make it "bounce"
-        // (the quote area scrolls instead). Falls back to 88vh on short screens.
-        className="relative flex h-[600px] max-h-[88vh] w-full max-w-[620px] flex-col gap-4 bg-close px-6 py-7 lg:px-9 lg:py-9"
+        // Fixed height so paging through quotes of different lengths doesn't
+        // resize the card (the quote panel scrolls instead).
+        className="relative flex h-[92vh] max-h-[820px] w-full max-w-[1100px] flex-col overflow-hidden bg-close shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          data-cursor="hover"
-          className="absolute right-4 top-3 z-10 font-grotesk text-[30px] leading-none text-black/70 transition-colors hover:text-black"
-        >
-          ×
-        </button>
-        {/* Sharp blocky quote mark (Figma 187:1825). */}
-        <svg
-          aria-hidden
-          viewBox="0 0 25.4908 19.075"
-          className="h-[28px] w-auto shrink-0 self-start lg:h-[34px]"
-          fill="#2C2B2B"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M10.0868 8.83804H6.47909C5.89008 5.0673 9.57138 3.97735 11.4857 3.90372L10.6021 0.000409149C2.35603 -0.0585084 0.098168 6.2604 0 9.42721V19.075H10.0868V8.83804Z" />
-          <path d="M24.0919 8.83805H20.4842C19.8952 5.06731 23.5765 3.97736 25.4908 3.90373L24.6072 0.00041858C16.3611 -0.0584989 14.1033 6.2604 14.0051 9.42722V19.075H24.0919V8.83805Z" />
-        </svg>
-        <div className="flex shrink-0 items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={t.avatar}
-            alt=""
-            className="size-[59px] shrink-0 rounded-full object-cover"
-          />
-          <div className="min-w-0">
-            <p className="font-grotesk text-[20px] font-bold leading-tight tracking-wider text-black">
-              {t.name}
-            </p>
-            <p className="font-grotesk text-[20px] leading-tight tracking-wider text-black">
-              {t.role}
+        {/* Breadcrumb bar (Figma 41:1599): "About / Testimonials" + × close. */}
+        <div className="flex shrink-0 items-center justify-between border-b border-black/10 px-6 py-4 lg:px-9 lg:py-5">
+          <p className="font-grotesk text-[15px] tracking-wider">
+            <span className="text-black/45">About</span>
+            <span className="mx-1.5 text-black/35">/</span>
+            <span className="text-black underline underline-offset-4">
+              Testimonials
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            data-cursor="hover"
+            className="text-[26px] leading-none text-black/70 transition-colors hover:text-black"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Two-tone body: grey identity panel + dark quote panel. Stacks on
+            small screens. */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
+          <div className="flex flex-col items-center justify-center gap-5 bg-[#c9c9c4] px-6 py-8 text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={t.avatar}
+              alt={t.name}
+              className="h-[120px] w-[108px] shrink-0 bg-black/5 object-cover"
+            />
+            <div>
+              <p className="font-grotesk text-[36px] font-normal leading-tight tracking-[0.5px] text-[#1a1a1a] lg:text-[44px]">
+                {t.name}
+              </p>
+              <p className="mt-1 font-grotesk text-[14px] tracking-wider text-black/60">
+                {role}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center overflow-y-auto bg-[#1c1c1c] px-6 py-8 lg:px-12">
+            <p className="max-w-[420px] text-center font-grotesk text-[14px] font-normal capitalize leading-[1.55] tracking-wider text-white/85 lg:text-[15px]">
+              “{t.quote}”
             </p>
           </div>
         </div>
-        {/* Quote scrolls if long; the nav + dots below stay pinned & visible. */}
-        <p className="min-h-0 flex-1 overflow-y-auto font-grotesk text-[16px] font-normal leading-[1.45] tracking-wider text-black">
-          “{t.quote}”
-        </p>
-        {/* Navigation (Figma 807:19371): a row of pagination DOTS (one per
-            testimonial — click to jump) above "< Previous" / "Next >" in BLACK,
-            underline on hover. */}
-        <div className="flex shrink-0 flex-col items-center gap-4 pt-2">
-          <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
+
+        {/* Footer (Figma 41:1604): "< Previous" · dots · "Next >" in red. */}
+        <div className="flex shrink-0 items-center justify-between gap-4 border-t border-black/10 px-6 py-4 lg:px-16 lg:py-5">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            disabled={i === 0}
+            data-cursor="hover"
+            className="font-grotesk text-[16px] font-bold text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+          >
+            {'< Previous'}
+          </button>
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
             {testimonials.map((tItem, idx) => (
               <button
                 key={tItem.name}
@@ -317,32 +337,21 @@ function TestimonialsModal({ onClose }: { onClose: () => void }) {
                 aria-label={`Show testimonial ${idx + 1}: ${tItem.name}`}
                 aria-current={idx === i}
                 data-cursor="hover"
-                className={`size-2.5 shrink-0 rounded-full transition-colors ${
-                  idx === i ? 'bg-accent' : 'bg-black/25 hover:bg-black/50'
+                className={`size-2 shrink-0 rounded-full transition-colors ${
+                  idx === i ? 'bg-accent' : 'bg-black/20 hover:bg-black/40'
                 }`}
               />
             ))}
           </div>
-          <div className="flex items-center justify-center gap-8">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              disabled={i === 0}
-              data-cursor="hover"
-              className="font-grotesk text-[16px] font-medium text-black underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-            >
-              {'< Previous'}
-            </button>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              disabled={i === max}
-              data-cursor="hover"
-              className="font-grotesk text-[16px] font-medium text-black underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-            >
-              {'Next >'}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            disabled={i === max}
+            data-cursor="hover"
+            className="font-grotesk text-[16px] font-bold text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
+          >
+            {'Next >'}
+          </button>
         </div>
       </div>
     </div>,
@@ -751,9 +760,11 @@ function MeasuredParagraph({
 export default function AboutContent({
   className = '',
   logoSvgs,
+  testimonials = fallbackTestimonials,
 }: {
   className?: string
   logoSvgs: Record<keyof typeof aboutLogos, string>
+  testimonials?: Testimonial[]
 }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set())
   const [activePanel, setActivePanel] = useState<string | null>(null)
@@ -861,7 +872,10 @@ export default function AboutContent({
 
       {/* "what people are saying" → centred modal pop-up (Israel 06/23). */}
       {activePanel === TESTIMONIAL_KEY && (
-        <TestimonialsModal onClose={() => setActivePanel(null)} />
+        <TestimonialsModal
+          testimonials={testimonials}
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {/* External links (Figma 807:19215–19234): red text + ↗, underline on
