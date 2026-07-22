@@ -37,11 +37,13 @@ export default function ContactDrawer({
       aria-label="Contact"
       className="fixed inset-0 z-100 flex animate-[panel-in_0.3s_ease-out] justify-end"
     >
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#e0e0d8] shadow-[-8px_0_28px_rgba(0,0,0,0.18)]">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      {/* Black panel (Fas 07/21) — unified with the dark nav header so the two
+          no longer visually converge the way the old white panel did. */}
+      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#141414] text-bg shadow-[-8px_0_28px_rgba(0,0,0,0.35)]">
         {/* Top bar: "Contact" (underlined) + × close. */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-black bg-white px-6">
-          <span className="font-grotesk text-[18px] text-black underline underline-offset-4">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/15 px-6">
+          <span className="font-grotesk text-[18px] text-bg underline underline-offset-4">
             Contact
           </span>
           <button
@@ -49,7 +51,7 @@ export default function ContactDrawer({
             onClick={onClose}
             aria-label="Close"
             data-cursor="hover"
-            className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            className="text-[22px] leading-none text-bg transition-opacity hover:opacity-60"
           >
             ✕
           </button>

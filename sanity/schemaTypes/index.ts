@@ -23,6 +23,8 @@ import { studentProject } from "./objects/studentProject";
 import { teachingSection } from "./objects/teachingSection";
 import { buildProjectItem } from "./objects/buildProjectItem";
 import { leadershipMoment } from "./objects/leadershipMoment";
+import { blogPostItem } from "./objects/blogPostItem";
+import { mediaEntry } from "./objects/mediaEntry";
 
 // sections
 import { heroSection } from "./sections/heroSection";
@@ -44,6 +46,7 @@ import { teachingPage } from "./documents/teachingPage";
 import { buildPage } from "./documents/buildPage";
 import { leadershipPage } from "./documents/leadershipPage";
 import { testimonial } from "./documents/testimonial";
+import { blogsPage } from "./documents/blogsPage";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // documents
@@ -55,6 +58,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   buildPage,
   leadershipPage,
   testimonial,
+  blogsPage,
   // sections
   heroSection,
   overviewSection,
@@ -88,4 +92,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   teachingSection,
   buildProjectItem,
   leadershipMoment,
+  blogPostItem,
+  mediaEntry,
 ];

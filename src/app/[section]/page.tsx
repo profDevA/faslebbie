@@ -3,11 +3,10 @@ import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 
 // Placeholder pages for sections that come after the homepage (Phase 2+).
-// NOTE: "work", "research", "leadership", "build", and "teaching" are
+// NOTE: "work", "research", "leadership", "build", "teaching", and "blogs" are
 // intentionally omitted — they have their own static routes. "contact" is a
 // slide-in drawer (see ContactDrawer / Nav), not a page.
 const sections: Record<string, string> = {
-  blogs: "Blogs & Media",
   story: "My Story",
 };
 

@@ -3,6 +3,7 @@ import "server-only";
 import { client } from "./client";
 import {
   ALL_STUDIES_QUERY,
+  BLOGS_PAGE_QUERY,
   BUILD_PAGE_QUERY,
   CATEGORIES_QUERY,
   LEADERSHIP_PAGE_QUERY,
@@ -13,6 +14,7 @@ import {
   WORK_PAGE_QUERY,
 } from "./queries";
 import type {
+  SanityBlogsPage,
   SanityBuildPage,
   SanityLeadershipPage,
   SanityResearchPage,
@@ -70,6 +72,14 @@ export async function getLeadershipPage(): Promise<SanityLeadershipPage | null> 
     {},
     { next: { revalidate: 60, tags: ["leadershipPage"] } },
   ) as Promise<SanityLeadershipPage | null>;
+}
+
+export async function getBlogsPage(): Promise<SanityBlogsPage | null> {
+  return client.fetch(
+    BLOGS_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["blogsPage"] } },
+  ) as Promise<SanityBlogsPage | null>;
 }
 
 export async function getTestimonials(): Promise<SanityTestimonial[]> {

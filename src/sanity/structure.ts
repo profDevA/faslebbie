@@ -53,4 +53,8 @@ export const structure: StructureResolver = (S, context) =>
             .schemaType("leadershipPage")
             .documentId("leadershipPage"),
         ),
+      S.listItem()
+        .title("Blogs & Media Page")
+        .id("blogsPage")
+        .child(S.document().schemaType("blogsPage").documentId("blogsPage")),
     ]);

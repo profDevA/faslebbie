@@ -140,7 +140,9 @@ export const panels: Record<SectionId, PanelContent> = {
       'Advising organizations navigating AI transitions, design transformation, and systems change.',
       'Working across enterprise, civic innovation, and sustainable futures.',
     ],
-    cta: { label: 'Continue to Advisory', href: '/leadership' },
+    // "advise" opens the Advisory content, which lives on the About page
+    // (Fas 07/21 — "advice leads to this page… it's already in the About page").
+    cta: { label: 'Continue to Advisory', href: '/about' },
   },
 }
 
@@ -1176,8 +1178,11 @@ export const workNarrative: WorkToken[][] = [
 ]
 
 // Desktop bar order + labels per the new Figma nav (854:79638): About, Work,
-// Build, Leadership, Research, Teaching, Blogs / Media.
+// Build, Leadership, Research, Teaching, Blogs / Media. A "Home" link leads the
+// list (Fas 07/21 — "we should put it Home… when you click it, it should go
+// straight to Home, not replay the animation").
 export const navItems = [
+  { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Work', href: '/work' },
   { label: 'Build', href: '/build' },
@@ -1190,6 +1195,7 @@ export const navItems = [
 // The mobile dropdown lists items in a different order than the desktop bar
 // (Figma 187:3325): About, Work, Research, Build, Teaching, Leadership, Blogs.
 export const mobileNavItems = [
+  { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Work', href: '/work' },
   { label: 'Research', href: '/research' },

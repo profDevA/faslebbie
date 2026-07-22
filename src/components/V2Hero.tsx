@@ -1,9 +1,19 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import HeroParagraph from '@/components/HeroParagraph'
 import { contentDrift, revealProgress } from '@/lib/reveal'
+
+// The wordmark→content dissolve should only play the FIRST time Home is opened
+// in a session. Returning Home (e.g. via the nav "Home" link) must jump straight
+// to the revealed content, not replay the intro (Fas 07/21). We latch that in
+// sessionStorage once the reveal completes. useLayoutEffect on the client (and a
+// no-op on the server) applies the latched state before paint, so there's no
+// flash of the intro on return.
+const REVEAL_KEY = 'home-revealed'
+const useIsoLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 /**
  * aidesign-os-style shell hero (Fas 06/14 ask — reference: aidesign-os.com).
@@ -51,6 +61,18 @@ export default function V2Hero() {
   const fadeMax = useRef(0)
   const rMax = useRef(0)
 
+  // If Home has already been revealed this session, start fully revealed so the
+  // content shows immediately (no scroll-to-reveal, no intro replay).
+  useIsoLayoutEffect(() => {
+    if (sessionStorage.getItem(REVEAL_KEY)) {
+      fadeMax.current = 1
+      rMax.current = 1
+      setP(1)
+      setFade(1)
+      setREff(1)
+    }
+  }, [])
+
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -66,6 +88,9 @@ export default function V2Hero() {
       const nextFade = Math.max(fadeMax.current, ramp(0.04, 0.72, pv))
       fadeMax.current = nextFade
       setFade(nextFade)
+      // Latch "revealed" once the dissolve is essentially complete, so future
+      // returns to Home skip the intro.
+      if (nextFade >= 0.99) sessionStorage.setItem(REVEAL_KEY, '1')
       const nextR = Math.max(
         rMax.current,
         revealProgress(window.scrollY, window.innerHeight),

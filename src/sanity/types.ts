@@ -285,3 +285,37 @@ export interface SanityTestimonial {
   quote: string;
   avatar: string | null;
 }
+
+export interface SanityBlogPostItem {
+  slug?: string;
+  category?: string;
+  meta?: string;
+  title?: string;
+  kicker?: string;
+  description?: string;
+  body?: (PortableTextBlock | { _type: "image"; url?: string | null })[];
+  url?: string;
+  cover?: string | null;
+  coverBg?: string;
+  panelBg?: string;
+  panelText?: string;
+}
+
+export interface SanityMediaEntry {
+  slug?: string;
+  format?: string;
+  title?: string;
+  platform?: string;
+  year?: string;
+  source?: string;
+  detail?: string;
+  description?: string;
+  themes?: string[];
+  video?: string | null;
+  thumb?: string | null;
+}
+
+export interface SanityBlogsPage {
+  posts?: SanityBlogPostItem[];
+  media?: SanityMediaEntry[];
+}

@@ -124,3 +124,8 @@ export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0
 export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order(orderRank asc){
   name, role, quote, "avatar": photo.asset->url
 }`);
+
+export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
+  posts[]{ slug, category, meta, title, kicker, description, body[]{ ..., _type == "image" => { "url": asset->url } }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
+  media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "thumb": thumb.asset->url }
+}`);

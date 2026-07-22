@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Sanity-hosted assets (covers, in-article diagrams, thumbnails) are served
+  // from the CDN and rendered through next/image.
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.sanity.io" },
+    ],
+  },
   // Keep `public/` out of the serverless function bundles. `getAboutLogoSvgs()`
   // reads logo SVGs via `readFileSync(process.cwd()/public/<dynamic>)`, which the
   // file tracer can't resolve statically — so it copies ALL of `public/` (the
