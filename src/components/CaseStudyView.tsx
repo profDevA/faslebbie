@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { PortableText, type PortableTextComponents } from "@portabletext/react";
-import type { PortableTextBlock } from "@portabletext/types";
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { PortableText, type PortableTextComponents } from '@portabletext/react'
+import type { PortableTextBlock } from '@portabletext/types'
 
 import type {
   AccordionEntry,
@@ -12,13 +12,14 @@ import type {
   DeviceTab,
   GalleryImage,
   MediaItem,
+  MotionRow,
   PaddingToken,
   SanityColor,
   Section,
   StatItem,
   Study,
   StudyCard,
-} from "@/sanity/types";
+} from '@/sanity/types'
 
 /**
  * Sanity-driven case-study renderer. Iterates `project.sections` (a page
@@ -29,86 +30,100 @@ import type {
  * hard-coded template.
  */
 
-const SANS = "Helvetica, Arial, sans-serif";
-const RED = "#e06164";
-const SAGE = "#99B29D66";
-const TEAL = "#52747e";
-const TILE = "#4f6b76";
+const SANS = 'Helvetica, Arial, sans-serif'
+const RED = '#e06164'
+const SAGE = '#99B29D66'
+const TEAL = '#52747e'
+const TILE = '#4f6b76'
 
 // ── appearance helpers ───────────────────────────────────────────────────────
 function hexToRgb(hex: string) {
-  const h = hex.replace("#", "");
-  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
-  const int = parseInt(full.slice(0, 6), 16);
-  return { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 };
+  const h = hex.replace('#', '')
+  const full =
+    h.length === 3
+      ? h
+          .split('')
+          .map(c => c + c)
+          .join('')
+      : h
+  const int = parseInt(full.slice(0, 6), 16)
+  return { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 }
 }
 
 function colorToCss(c?: SanityColor): string | undefined {
-  if (!c?.hex) return undefined;
-  const a = c.alpha ?? 1;
-  if (a >= 1) return c.hex;
-  const { r, g, b } = hexToRgb(c.hex);
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
+  if (!c?.hex) return undefined
+  const a = c.alpha ?? 1
+  if (a >= 1) return c.hex
+  const { r, g, b } = hexToRgb(c.hex)
+  return `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
 const PAD_T: Record<PaddingToken, string> = {
-  none: "pt-0",
-  sm: "pt-8",
-  md: "pt-[60px] xl:pt-[5vw]",
-  lg: "pt-24 xl:pt-[7vw]",
-  xl: "pt-32 xl:pt-[9vw]",
-};
+  none: 'pt-0',
+  sm: 'pt-8',
+  md: 'pt-[60px] xl:pt-[5vw]',
+  lg: 'pt-24 xl:pt-[7vw]',
+  xl: 'pt-32 xl:pt-[9vw]',
+}
 const PAD_B: Record<PaddingToken, string> = {
-  none: "pb-0",
-  sm: "pb-8",
-  md: "pb-[60px] xl:pb-[5vw]",
-  lg: "pb-24 xl:pb-[7vw]",
-  xl: "pb-32 xl:pb-[9vw]",
-};
+  none: 'pb-0',
+  sm: 'pb-8',
+  md: 'pb-[60px] xl:pb-[5vw]',
+  lg: 'pb-24 xl:pb-[7vw]',
+  xl: 'pb-32 xl:pb-[9vw]',
+}
 const MAXW = {
-  narrow: "max-w-[640px]",
-  default: "max-w-[1140px]",
-  wide: "max-w-[1440px]",
-  full: "max-w-none",
-};
-const ALIGN = { left: "text-left", center: "text-center", right: "text-right" };
+  narrow: 'max-w-160',
+  default: 'max-w-285',
+  wide: 'max-w-[1440px]',
+  full: 'max-w-none',
+}
+const ALIGN = { left: 'text-left', center: 'text-center', right: 'text-right' }
 
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
-  const style: React.CSSProperties = {};
-  const bg = colorToCss(a?.backgroundColor) ?? defaultBg;
-  if (bg) style.backgroundColor = bg;
-  const tc = colorToCss(a?.textColor) ?? (defaultLight ? "#ffffff" : undefined);
-  if (tc) style.color = tc;
-  return style;
+  const style: React.CSSProperties = {}
+  const bg = colorToCss(a?.backgroundColor) ?? defaultBg
+  if (bg) style.backgroundColor = bg
+  const tc = colorToCss(a?.textColor) ?? (defaultLight ? '#ffffff' : undefined)
+  if (tc) style.color = tc
+  return style
 }
 
-function padClasses(a?: Appearance, natural: PaddingToken = "md") {
-  return `${PAD_T[a?.paddingTop ?? natural]} ${PAD_B[a?.paddingBottom ?? natural]}`;
+function padClasses(a?: Appearance, natural: PaddingToken = 'md') {
+  return `${PAD_T[a?.paddingTop ?? natural]} ${PAD_B[a?.paddingBottom ?? natural]}`
 }
 
 /** True when a band should treat its text as light (for default label colour). */
 function isLight(a?: Appearance, defaultLight?: boolean) {
-  if (a?.textColor?.hex) return hexToRgb(a.textColor.hex).r < 140;
-  const bg = a?.backgroundColor;
+  if (a?.textColor?.hex) return hexToRgb(a.textColor.hex).r < 140
+  const bg = a?.backgroundColor
   if (bg?.hex && (bg.alpha ?? 1) > 0.5) {
-    const { r, g, b } = hexToRgb(bg.hex);
-    return (r * 299 + g * 587 + b * 114) / 1000 < 140;
+    const { r, g, b } = hexToRgb(bg.hex)
+    return (r * 299 + g * 587 + b * 114) / 1000 < 140
   }
-  return !!defaultLight;
+  return !!defaultLight
 }
 
 // ── Portable Text ────────────────────────────────────────────────────────────
 const ptComponents: PortableTextComponents = {
   block: {
     normal: ({ children }) => <p>{children}</p>,
-    h3: ({ children }) => <h3 className="text-[1.1em] font-semibold">{children}</h3>,
+    h3: ({ children }) => (
+      <h3 className="text-[1.1em] font-semibold">{children}</h3>
+    ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-2 border-current/40 pl-4 italic">{children}</blockquote>
+      <blockquote className="border-l-2 border-current/40 pl-4 italic">
+        {children}
+      </blockquote>
     ),
   },
   list: {
-    bullet: ({ children }) => <ul className="list-disc space-y-3 pl-5">{children}</ul>,
-    number: ({ children }) => <ol className="list-decimal space-y-3 pl-5">{children}</ol>,
+    bullet: ({ children }) => (
+      <ul className="list-disc space-y-3 pl-5">{children}</ul>
+    ),
+    number: ({ children }) => (
+      <ol className="list-decimal space-y-3 pl-5">{children}</ol>
+    ),
   },
   listItem: {
     bullet: ({ children }) => <li>{children}</li>,
@@ -129,21 +144,21 @@ const ptComponents: PortableTextComponents = {
       </a>
     ),
   },
-};
+}
 
 function Prose({
   value,
-  className = "",
+  className = '',
 }: {
-  value?: PortableTextBlock[];
-  className?: string;
+  value?: PortableTextBlock[]
+  className?: string
 }) {
-  if (!value?.length) return null;
+  if (!value?.length) return null
   return (
     <div className={`space-y-5 ${className}`}>
       <PortableText value={value} components={ptComponents} />
     </div>
-  );
+  )
 }
 
 // ── main component ────────────────────────────────────────────────────────────
@@ -155,378 +170,675 @@ export default function CaseStudyView({
   onClose,
   onNavigate,
 }: {
-  project: Study;
-  prev: StudyCard;
-  next: StudyCard;
-  variant: "page" | "overlay";
-  onClose?: () => void;
-  onNavigate?: (slug: string) => void;
+  project: Study
+  prev: StudyCard
+  next: StudyCard
+  variant: 'page' | 'overlay'
+  onClose?: () => void
+  onNavigate?: (slug: string) => void
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const overlay = variant === "overlay";
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const overlay = variant === 'overlay'
 
   useEffect(() => {
-    if (!overlay) return;
-    scrollRef.current?.scrollTo({ top: 0 });
+    if (!overlay) return
+    scrollRef.current?.scrollTo({ top: 0 })
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
-    };
-    document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+      if (e.key === 'Escape') onClose?.()
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [overlay, onClose, p.slug]);
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [overlay, onClose, p.slug])
 
   // Scroll-reveal: tag each <section> once it enters view.
   useEffect(() => {
-    const root = scrollRef.current;
-    if (!root) return;
-    const sections = Array.from(root.querySelectorAll("section"));
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      sections.forEach((s) => s.classList.add("cs-active"));
-      return;
+    const root = scrollRef.current
+    if (!root) return
+    const sections = Array.from(root.querySelectorAll('section'))
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      sections.forEach(s => s.classList.add('cs-active'))
+      return
     }
-    const reveal = (s: Element) => s.classList.add("cs-active");
+    const reveal = (s: Element) => s.classList.add('cs-active')
     const io = new IntersectionObserver(
-      (entries) => {
+      entries => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            reveal(entry.target);
-            io.unobserve(entry.target);
+            reveal(entry.target)
+            io.unobserve(entry.target)
           }
         }
       },
-      { threshold: 0, rootMargin: "0px 0px -10% 0px", root: overlay ? root : null },
-    );
-    sections.forEach((s) => io.observe(s));
+      {
+        threshold: 0,
+        rootMargin: '0px 0px -10% 0px',
+        root: overlay ? root : null,
+      },
+    )
+    sections.forEach(s => io.observe(s))
 
-    const scroller: HTMLElement | Window = overlay ? root : window;
+    const scroller: HTMLElement | Window = overlay ? root : window
     const onScroll = () => {
-      const vh = overlay ? root.clientHeight : window.innerHeight;
-      const rootTop = overlay ? root.getBoundingClientRect().top : 0;
+      const vh = overlay ? root.clientHeight : window.innerHeight
+      const rootTop = overlay ? root.getBoundingClientRect().top : 0
       for (const s of sections) {
-        if (s.classList.contains("cs-active")) continue;
-        const top = s.getBoundingClientRect().top - rootTop;
-        if (top < vh * 0.9) reveal(s);
+        if (s.classList.contains('cs-active')) continue
+        const top = s.getBoundingClientRect().top - rootTop
+        if (top < vh * 0.9) reveal(s)
       }
-    };
-    scroller.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    }
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
     return () => {
-      io.disconnect();
-      scroller.removeEventListener("scroll", onScroll);
-    };
-  }, [p.slug, overlay]);
-
-  const nextImg = next.heroImage ?? next.image;
+      io.disconnect()
+      scroller.removeEventListener('scroll', onScroll)
+    }
+  }, [p.slug, overlay])
 
   const goTo = (slug: string) => (e: React.MouseEvent) => {
     if (onNavigate) {
-      e.preventDefault();
-      onNavigate(slug);
+      e.preventDefault()
+      onNavigate(slug)
     }
-  };
+  }
 
   const inner = (
     <>
       <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]"
+        >
           {overlay ? (
-            <button type="button" onClick={onClose} data-cursor="hover" className="text-black/55 transition-colors hover:text-black">
+            <button
+              type="button"
+              onClick={onClose}
+              data-cursor="hover"
+              className="text-black/55 transition-colors hover:text-black"
+            >
               Work
             </button>
           ) : (
-            <Link href="/work" data-cursor="hover" className="text-black/55 transition-colors hover:text-black">
+            <Link
+              href="/work"
+              data-cursor="hover"
+              className="text-black/55 transition-colors hover:text-black"
+            >
               Work
             </Link>
           )}
-          <span aria-hidden className="text-black/35">/</span>
-          <span aria-current="page" className="underline underline-offset-4">{p.name}</span>
+          <span aria-hidden className="text-black/35">
+            /
+          </span>
+          <span aria-current="page" className="underline underline-offset-4">
+            {p.name}
+          </span>
         </nav>
         {overlay ? (
-          <button type="button" onClick={onClose} aria-label="Close" data-cursor="hover" className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            data-cursor="hover"
+            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
+          >
             ×
           </button>
         ) : (
-          <Link href="/work" aria-label="Close" data-cursor="hover" className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110">
+          <Link
+            href="/work"
+            aria-label="Close"
+            data-cursor="hover"
+            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
+          >
             ×
           </Link>
         )}
       </div>
 
-      {p.sections?.map((section) => (
-        <SectionBlock key={section._key} section={section} project={p} />
-      ))}
-
-      <NextUp next={next} image={nextImg} onNavigate={onNavigate} scrollRoot={overlay ? scrollRef : undefined} />
+      {groupSections(p.sections ?? []).map(group =>
+        group.length > 1 ? (
+          <ProseGroupBlock
+            key={group[0]._key}
+            sections={group as (Of<'proseSection'> | Of<'bulletSection'>)[]}
+          />
+        ) : (
+          <SectionBlock
+            key={group[0]._key}
+            section={group[0]}
+            project={p}
+            scrollRoot={overlay ? scrollRef : undefined}
+          />
+        ),
+      )}
 
       <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-5">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]" style={{ color: RED }}>
-          <Link href={`/work/${prev.slug}`} onClick={goTo(prev.slug)} data-cursor="hover" className="transition-opacity hover:opacity-70">
+        <div
+          className="mx-auto flex max-w-225 items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]"
+          style={{ color: RED }}
+        >
+          <Link
+            href={`/work/${prev.slug}`}
+            onClick={goTo(prev.slug)}
+            data-cursor="hover"
+            className="transition-opacity hover:opacity-70"
+          >
             &lt; Previous
           </Link>
-          <Link href={`/work/${next.slug}`} onClick={goTo(next.slug)} data-cursor="hover" className="transition-opacity hover:opacity-70">
+          <Link
+            href={`/work/${next.slug}`}
+            onClick={goTo(next.slug)}
+            data-cursor="hover"
+            className="transition-opacity hover:opacity-70"
+          >
             Next &gt;
           </Link>
         </div>
       </div>
     </>
-  );
+  )
 
   if (overlay) {
-    if (typeof document === "undefined") return null;
+    if (typeof document === 'undefined') return null
     return createPortal(
       <div
         role="dialog"
         aria-modal="true"
         aria-label={p.name}
         onClick={onClose}
-        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] px-4 pb-8 pt-8 sm:px-6 lg:pt-[30px] animate-[panel-in_0.2s_ease-out]"
+        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] px-4 pb-8 pt-8 sm:px-6 lg:pt-7.5 animate-[panel-in_0.2s_ease-out]"
       >
         <div
           ref={scrollRef}
-          onClick={(e) => e.stopPropagation()}
-          className="cs-root cs-fullheight relative h-full max-h-[814px] w-full max-w-[1098px] overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-serif text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
+          onClick={e => e.stopPropagation()}
+          className="cs-root cs-fullheight relative h-full max-h-203.5 w-full max-w-274.5 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
         >
           {inner}
         </div>
       </div>,
       document.body,
-    );
+    )
   }
 
   return (
-    <div ref={scrollRef} className="cs-root min-h-screen bg-white font-serif text-black">
+    <div
+      ref={scrollRef}
+      className="cs-root min-h-screen bg-white font-grotesk text-black"
+    >
       {inner}
     </div>
-  );
+  )
 }
 
 // ── per-section dispatch ──────────────────────────────────────────────────────
-function SectionBlock({ section, project }: { section: Section; project: Study }) {
+function SectionBlock({
+  section,
+  project,
+  scrollRoot,
+}: {
+  section: Section
+  project: Study
+  scrollRoot?: React.RefObject<HTMLDivElement | null>
+}) {
   switch (section._type) {
-    case "heroSection":
-      return <HeroBlock section={section} project={project} />;
-    case "overviewSection":
-      return <OverviewBlock section={section} />;
-    case "accordionSection":
-      return <AccordionBlock section={section} />;
-    case "proseSection":
-      return <ProseBlock section={section} />;
-    case "mediaSection":
-      return <MediaBlock section={section} />;
-    case "gallerySection":
-      return <GalleryBlock section={section} />;
-    case "showcaseGallery":
-      return <ShowcaseBlock section={section} />;
-    case "statsSection":
-      return <StatsBlock section={section} />;
-    case "bulletSection":
-      return <BulletBlock section={section} />;
+    case 'heroSection':
+      return <HeroBlock section={section} project={project} />
+    case 'overviewSection':
+      return <OverviewBlock section={section} />
+    case 'accordionSection':
+      return <AccordionBlock section={section} />
+    case 'proseSection':
+      return <ProseBlock section={section} />
+    case 'mediaSection':
+      return <MediaBlock section={section} />
+    case 'gallerySection':
+      return <GalleryBlock section={section} />
+    case 'showcaseGallery':
+      return <ShowcaseBlock section={section} scrollRoot={scrollRoot} />
+    case 'motionShowcase':
+      return <MotionShowcaseBlock section={section} />
+    case 'highlightReel':
+      return <HighlightReelBlock section={section} />
+    case 'statsSection':
+      return <StatsBlock section={section} />
+    case 'bulletSection':
+      return <BulletBlock section={section} />
     default:
-      return null;
+      return null
   }
 }
 
-type Of<T extends Section["_type"]> = Extract<Section, { _type: T }>;
+type Of<T extends Section['_type']> = Extract<Section, { _type: T }>
 
-function HeroBlock({ section: s, project: p }: { section: Of<"heroSection">; project: Study }) {
-  if (!s.image) return null;
+/**
+ * Coalesce consecutive text bands that share the same background into a single
+ * group. In the modal every section is forced to its own full-height screen
+ * (`.cs-fullheight`), so separate bands land on separate screens. Figma shows
+ * "Problem Context" + "What I Brought" (600:12516) and "Reflections" + "Next
+ * Steps" (600:14126) each together on one band, so we render such runs inside
+ * ONE <section>.
+ *
+ * `proseSection`s group on matching background (incl. none). A `bulletSection`
+ * (Next Steps) joins a run only when it shares an *explicit* background with it
+ * — scoping the merge to Coral's black Reflection band without pulling in other
+ * studies' background-less Next Steps. A lone section is untouched.
+ */
+function groupSections(sections: Section[]): Section[][] {
+  const groups: Section[][] = []
+  const groupable = (t: Section['_type']) =>
+    t === 'proseSection' || t === 'bulletSection'
+  const bgOf = (s: Section) =>
+    colorToCss((s as { appearance?: Appearance }).appearance?.backgroundColor)
+  for (const s of sections) {
+    const prev = groups[groups.length - 1]
+    const prevSec = prev?.[prev.length - 1]
+    const withBullet =
+      s._type === 'bulletSection' || prevSec?._type === 'bulletSection'
+    const bg = bgOf(s)
+    const sameBand =
+      !!prevSec &&
+      groupable(s._type) &&
+      groupable(prevSec._type) &&
+      bg === bgOf(prevSec) &&
+      (!withBullet || !!bg)
+    if (sameBand) prev.push(s)
+    else groups.push([s])
+  }
+  return groups
+}
+
+/** Renders a run of text bands as one full-height band (Figma ~46px gap). */
+function ProseGroupBlock({
+  sections,
+}: {
+  sections: (Of<'proseSection'> | Of<'bulletSection'>)[]
+}) {
+  const first = sections[0]
+  const light = isLight(first.appearance)
+  const align = first.appearance?.contentAlignment ?? 'center'
+  const width = MAXW[first.appearance?.maxWidth ?? 'default']
+  const body = 'text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw]'
+  return (
+    <section
+      className={`${padClasses(first.appearance, 'md')} ${ALIGN[align]}`}
+      style={bandStyle(first.appearance)}
+    >
+      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div
+          className={`mx-auto flex flex-col gap-11 ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
+        >
+          {sections.map(s => (
+            <div key={s._key}>
+              {s.sectionTitle && (
+                <h2
+                  className={`mb-5 text-[24px] font-medium capitalize leading-tight ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+                >
+                  {s.sectionTitle}
+                </h2>
+              )}
+              {s._type === 'bulletSection' ? (
+                // Figma 600:14134 renders Next Steps as centered flowing copy
+                // (no disc markers) — each seeded step is its own line.
+                <ul className={body}>
+                  {(s.items ?? []).map((it, i) => (
+                    <li key={i}>{it}</li>
+                  ))}
+                </ul>
+              ) : (
+                <Prose value={s.body} className={body} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function HeroBlock({
+  section: s,
+  project: p,
+}: {
+  section: Of<'heroSection'>
+  project: Study
+}) {
+  if (!s.image) return null
   return (
     <section className="relative">
       {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-      <img src={s.image} alt={p.name} className="block h-auto w-full object-cover object-left" />
+      <img
+        src={s.image}
+        alt={p.name}
+        className="block h-auto w-full object-cover object-left"
+      />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
-      <div className="absolute bottom-4 left-7.5 p-[10px] text-white">
+      <div className="absolute bottom-4 left-7.5 p-2.5 text-white">
         <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
-          <strong className="font-bold">{s.headingOverride ?? p.name}</strong> · {s.caption ?? p.tagline}
+          <strong className="font-bold">{s.headingOverride ?? p.name}</strong> ·{' '}
+          {s.caption ?? p.tagline}
         </p>
       </div>
     </section>
-  );
+  )
 }
 
-function OverviewBlock({ section: s }: { section: Of<"overviewSection"> }) {
+function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
+  const light = isLight(s.appearance)
+  const dark = light ? 'text-white' : ''
   return (
-    <section data-cs-stretch className="grid grid-cols-1 lg:grid-cols-2" style={bandStyle(s.appearance)}>
+    <section
+      data-cs-stretch
+      className="grid grid-cols-1 lg:grid-cols-2"
+      style={bandStyle(s.appearance)}
+    >
       <div className="flex flex-col justify-between gap-10 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
         <div>
-          <Label>{s.sectionTitle ?? "Overview"}</Label>
-          <Prose value={s.body} className="mt-[1em] text-[17px] leading-normal lg:leading-[1.3] xl:text-[1.15vw]" />
+          {/* Figma 600:12509 — Neue Haas 55 Roman 24px, capitalize. */}
+          <h2 className={`text-[24px] font-normal capitalize leading-tight xl:text-[1.5vw] ${dark}`}>
+            {s.sectionTitle ?? 'Overview'}
+          </h2>
+          {/* Figma 600:12510 — body 35 Thin 18px / lh 160% / +0.382px tracking
+             (Thin cut not shipped; font-light stands in). */}
+          <Prose
+            value={s.body}
+            className={`mt-[1em] text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.2vw] ${dark}`}
+          />
           {s.ctaUrl && (
+            // Figma 600:12511 — Neue Haas 55 Roman 18px, capitalize (not caps), underlined.
             <a
               href={s.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              style={{ fontFamily: SANS }}
-              className="mt-6 inline-block text-[13px] uppercase tracking-wide underline underline-offset-4 transition-colors hover:text-accent xl:text-[0.85vw]"
+              className={`mt-6 inline-block text-[18px] font-normal capitalize underline underline-offset-4 transition-colors hover:text-accent xl:text-[1.15vw] ${dark}`}
             >
-              {s.ctaLabel ?? "Visit Site"}
+              {s.ctaLabel ?? 'Visit Site'}
             </a>
           )}
         </div>
         <div className="flex flex-col gap-5">
           {(s.serviceCategoryLabel || s.serviceList) && (
-            <div className="max-w-[340px]">
-              <Label>{s.serviceCategoryLabel ?? "Research & Design"}</Label>
-              <p className="mt-2 text-[13px] font-light leading-[1.35] xl:text-[0.95vw]">{s.serviceList}</p>
+            <div className="max-w-85">
+              {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
+              <h3 className={`text-[18px] font-light capitalize leading-tight xl:text-[1.15vw] ${dark}`}>
+                {s.serviceCategoryLabel ?? 'Research & Design'}
+              </h3>
+              {s.serviceList && (
+                <p className={`mt-2 text-[14px] font-light leading-[1.6] xl:text-[0.95vw] ${dark}`}>
+                  {s.serviceList}
+                </p>
+              )}
             </div>
           )}
-          <div className="max-w-[340px] space-y-1 text-[13px] font-light leading-[1.35] xl:text-[0.95vw]">
-            {s.duration && <p><span className="font-normal">Duration</span>: {s.duration}</p>}
-            {s.team && <p><span className="font-normal">Team</span>: {s.team}</p>}
+          {/* Figma 600:12514 — 45 Light 14px, labels 55 Roman. */}
+          <div className={`max-w-85 space-y-1 text-[14px] font-light leading-[1.6] xl:text-[0.95vw] ${dark}`}>
+            {s.duration && (
+              <p>
+                <span className="font-normal">Duration</span>: {s.duration}
+              </p>
+            )}
+            {s.team && (
+              <p>
+                <span className="font-normal">Team</span>: {s.team}
+              </p>
+            )}
           </div>
+          {/* Figma 600:12515 — 36 Thin Italic 12px / +1px tracking. */}
           {s.confidentialityNote && (
-            <p className="mt-4 max-w-[400px] text-[11px] italic leading-[1.4] text-black/55 xl:text-[0.78vw]">{s.confidentialityNote}</p>
+            <p className={`mt-4 max-w-100 text-[12px] font-light italic leading-4.25 tracking-[1px] xl:text-[0.82vw] ${light ? 'text-white/70' : 'text-black/70'}`}>
+              {s.confidentialityNote}
+            </p>
           )}
         </div>
       </div>
-      <div className="relative min-h-[70vw] lg:min-h-full" style={{ backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL }}>
-        {s.sideImage && (
-          // eslint-disable-next-line @next/next/no-img-element -- case-study art
-          <img src={s.sideImage} alt="" className="absolute inset-0 h-full w-full object-contain object-center" />
-        )}
-      </div>
+      {s.sideVideo ? (
+        // Jitter flow exports ship on a white backdrop with the device centred, so
+        // we contain + pad it (phone floats with generous margin, per Figma 600:12450)
+        // rather than cover-cropping it edge-to-edge.
+        <div className="relative flex min-h-[70vw] items-center justify-center bg-white p-6 sm:p-10 lg:min-h-full lg:p-12 xl:p-[3vw]">
+          <video
+            src={s.sideVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]"
+          />
+        </div>
+      ) : (
+        <div
+          className="relative min-h-[70vw] lg:min-h-full"
+          style={{
+            backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
+          }}
+        >
+          {s.sideImage && (
+            // eslint-disable-next-line @next/next/no-img-element -- case-study art
+            <img
+              src={s.sideImage}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+          )}
+        </div>
+      )}
     </section>
-  );
+  )
 }
 
-function AccordionBlock({ section: s }: { section: Of<"accordionSection"> }) {
-  const light = isLight(s.appearance);
-  const items = s.items ?? [];
-  if (s.variant === "split") {
+function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
+  const light = isLight(s.appearance)
+  const items = s.items ?? []
+  if (s.variant === 'split') {
     return (
       <section
         data-cs-stretch
-        className={`grid grid-cols-1 gap-10 px-6 sm:px-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] xl:px-[3.5vw] ${padClasses(s.appearance, "md")}`}
+        className={`grid grid-cols-1 gap-10 px-6 sm:px-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] xl:px-[3.5vw] ${padClasses(s.appearance, 'md')}`}
         style={bandStyle(s.appearance, SAGE)}
       >
         <div className="flex flex-col justify-end">
-          <div className="max-w-[445px]">
-            <Label light={light}>{s.sideTitle ?? "My Approach"}</Label>
-            <Prose value={s.sideBody} className="mt-3 text-[18px] leading-normal xl:text-[1.25vw]" />
+          <div className="max-w-111.25">
+            {/* Figma "My Approach": Neue Haas 18px / 500 / lh 160% / +0.382px / capitalize */}
+            <h2
+              className={`mb-4 text-[18px] font-medium capitalize leading-[1.6] tracking-[0.382px] xl:text-[1.15vw] ${light ? 'text-white' : ''}`}
+            >
+              {s.sideTitle ?? 'My Approach'}
+            </h2>
+            <Prose
+              value={s.sideBody}
+              className="mt-3 text-[18px] leading-normal xl:text-[1.25vw]"
+            />
           </div>
         </div>
-        <div className="self-stretch p-[10vw_5vw] xl:p-[2vw]" style={{ backgroundColor: colorToCss(s.accordionBackgroundColor) }}>
-          {s.sectionTitle && <Label center>{s.sectionTitle}</Label>}
+        <div
+          className="self-stretch p-[10vw_5vw] xl:p-[2vw]"
+          style={{ backgroundColor: colorToCss(s.accordionBackgroundColor) }}
+        >
+          {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
+          {s.sectionTitle && (
+            <h2 className="mb-5 text-center text-[20px] font-medium capitalize leading-[14.64px] text-black xl:text-[1.15vw]">
+              {s.sectionTitle}
+            </h2>
+          )}
           <div className="mt-4">
             <Accordion items={items} variant="process" />
           </div>
         </div>
       </section>
-    );
+    )
   }
   return (
-    <section className={padClasses(s.appearance, "md")} style={bandStyle(s.appearance, SAGE)}>
-      <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
-        <div className="mx-auto max-w-[480px]">
-          {s.sectionTitle && <Label center light={light}>{s.sectionTitle}</Label>}
+    <section
+      className={padClasses(s.appearance, 'md')}
+      style={bandStyle(s.appearance, SAGE)}
+    >
+      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div className="mx-auto max-w-120">
+          {s.sectionTitle && (
+            <Label center light={light}>
+              {s.sectionTitle}
+            </Label>
+          )}
           <div className="mt-6">
             <Accordion items={items} variant="brought" />
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-function ProseBlock({ section: s }: { section: Of<"proseSection"> }) {
-  const light = isLight(s.appearance);
-  const align = s.appearance?.contentAlignment ?? "center";
-  const width = MAXW[s.appearance?.maxWidth ?? "default"];
+function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
+  const light = isLight(s.appearance)
+  const align = s.appearance?.contentAlignment ?? 'center'
+  const width = MAXW[s.appearance?.maxWidth ?? 'default']
   return (
-    <section className={`${padClasses(s.appearance, "md")} ${ALIGN[align]}`} style={bandStyle(s.appearance)}>
-      <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
-        <div className={`mx-auto ${align === "center" ? "lg:max-w-[60%]" : width}`}>
-          {s.sectionTitle && <Label center={align === "center"} light={light}>{s.sectionTitle}</Label>}
-          <Prose value={s.body} className="mt-6 text-[18px] leading-[1.4] xl:text-[1.25vw]" />
+    <section
+      className={`${padClasses(s.appearance, 'md')} ${ALIGN[align]}`}
+      style={bandStyle(s.appearance)}
+    >
+      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div
+          className={`mx-auto ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
+        >
+          {s.sectionTitle && (
+            // Figma spec (600:12520): Neue Haas 24px / weight 500 / Title-case
+            // (inherits font-grotesk from cs-root — no Helvetica override).
+            <h2
+              className={`mb-5 text-[24px] font-medium capitalize leading-tight ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+            >
+              {s.sectionTitle}
+            </h2>
+          )}
+          <Prose
+            value={s.body}
+            className="mt-5 text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw]"
+          />
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-function MediaBlock({ section: s }: { section: Of<"mediaSection"> }) {
-  const light = isLight(s.appearance);
-  const items = s.items ?? [];
-  const multi = items.length > 1;
+function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
+  const light = isLight(s.appearance)
+  const items = s.items ?? []
+  const multi = items.length > 1
   return (
-    <section data-cs-stretch className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, "md")}`} style={bandStyle(s.appearance)}>
+    <section
+      data-cs-stretch
+      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
+      style={bandStyle(s.appearance)}
+    >
       {items.length > 0 && (
         <div
           className={
             multi
-              ? "mx-auto grid w-full max-w-[1140px] gap-6 px-6 sm:grid-cols-2 sm:px-10 xl:px-[3.5vw]"
-              : "mx-auto w-full max-w-[900px] px-6 sm:px-10 xl:px-[3.5vw]"
+              ? 'mx-auto grid w-full max-w-285 gap-6 px-6 sm:grid-cols-2 sm:px-10 xl:px-[3.5vw]'
+              : 'mx-auto w-full max-w-225 px-6 sm:px-10 xl:px-[3.5vw]'
           }
         >
-          {items.map((m) => (
+          {items.map(m => (
             <MediaUnit key={m._key} item={m} />
           ))}
         </div>
       )}
       {(s.sectionTitle || s.body) && (
-        <div className="ml-auto w-full max-w-[440px] px-6 sm:px-10 xl:px-[3.5vw]">
+        <div className="ml-auto w-full max-w-110 px-6 sm:px-10 xl:px-[3.5vw]">
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose value={s.body} className="mt-3 text-[12px] leading-[1.45] xl:text-[0.85vw]" />
+          <Prose
+            value={s.body}
+            className="mt-3 text-[12px] leading-[1.45] xl:text-[0.85vw]"
+          />
         </div>
       )}
     </section>
-  );
+  )
 }
 
 function MediaUnit({ item }: { item: MediaItem }) {
-  if (item.mediaType === "prototype" && item.embedUrl) {
+  if (item.mediaType === 'prototype' && item.embedUrl) {
     return (
       <div className="aspect-video w-full overflow-hidden bg-black/10">
-        <iframe src={item.embedUrl} title={item.caption || "Prototype"} className="h-full w-full" allowFullScreen />
+        <iframe
+          src={item.embedUrl}
+          title={item.caption || 'Prototype'}
+          className="h-full w-full"
+          allowFullScreen
+        />
       </div>
-    );
+    )
   }
-  if (item.mediaType === "video") {
+  if (item.mediaType === 'video') {
     if (item.videoUrl) {
       return (
         <div className="aspect-video w-full overflow-hidden bg-black/10">
           <iframe
             src={item.videoUrl}
-            title={item.caption || "Video"}
+            title={item.caption || 'Video'}
             className="h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         </div>
-      );
+      )
     }
     if (item.videoFile) {
-      return <video className="block h-auto w-full" src={item.videoFile} autoPlay loop muted playsInline />;
+      return (
+        <video
+          className="block h-auto w-full"
+          src={item.videoFile}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      )
     }
   }
   if (item.image) {
-    // eslint-disable-next-line @next/next/no-img-element -- case-study art
-    return <img src={item.image} alt={item.caption || ""} className="block h-auto w-full" />;
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- case-study art
+      <img
+        src={item.image}
+        alt={item.caption || ''}
+        className="block h-auto w-full"
+      />
+    )
   }
-  return null;
+  return null
 }
 
-function GalleryBlock({ section: s }: { section: Of<"gallerySection"> }) {
-  const light = isLight(s.appearance);
-  const initial = s.itemsBeforeViewMore ?? 6;
-  const tan = colorToCss(s.appearance?.backgroundColor);
-  const tile = !!s.useDeviceTabs; // device-tab flows use the framed tile style
+function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
+  const light = isLight(s.appearance)
+  const initial = s.itemsBeforeViewMore ?? 6
+  const tan = colorToCss(s.appearance?.backgroundColor)
+  const tile = !!s.useDeviceTabs // device-tab flows use the framed tile style
   return (
-    <section className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, "md")}`} style={bandStyle(s.appearance)}>
+    <section
+      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'md')}`}
+      style={bandStyle(s.appearance)}
+    >
       {(s.sectionTitle || s.body) && (
         <div className="mb-2">
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose value={s.body} className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]" />
+          <Prose
+            value={s.body}
+            className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]"
+          />
         </div>
       )}
       {s.useDeviceTabs && s.tabs?.length ? (
-        <DeviceGallery tabs={s.tabs} initial={initial} loadMore={s.loadMoreLabel} />
+        <DeviceGallery
+          tabs={s.tabs}
+          initial={initial}
+          loadMore={s.loadMoreLabel}
+        />
       ) : (
         <ImageGrid
           images={imgUrls(s.items)}
@@ -538,47 +850,321 @@ function GalleryBlock({ section: s }: { section: Of<"gallerySection"> }) {
         />
       )}
     </section>
-  );
+  )
 }
 
-function ShowcaseBlock({ section: s }: { section: Of<"showcaseGallery"> }) {
-  const images = imgUrls(s.items);
+function ShowcaseBlock({
+  section: s,
+  scrollRoot,
+}: {
+  section: Of<'showcaseGallery'>
+  scrollRoot?: React.RefObject<HTMLDivElement | null>
+}) {
+  const items = s.items ?? []
+  const images = imgUrls(items)
+  const light = isLight(s.appearance, true)
+  // Lightbox art defaults to the slide art when no hi-res variant is authored.
+  const expandImages = s.expandable
+    ? items.map(i => i.expandImage ?? i.image).filter((u): u is string => !!u)
+    : undefined
+
+  // Redesigned Research Artifacts (Figma 600:12544): 3-up landscape slider on
+  // top, title + body BELOW it (left-aligned). Only the expandable variant.
+  if (s.expandable) {
+    return (
+      <section
+        data-cs-stretch
+        className={`flex flex-col justify-center gap-12 ${padClasses(s.appearance, 'md')}`}
+        style={bandStyle(s.appearance, '#000000', true)}
+      >
+        {images.length > 0 && (
+          <ArtifactSlider
+            images={expandImages ?? images}
+            scrollRoot={scrollRoot}
+          />
+        )}
+        {(s.sectionTitle || s.introBody) && (
+          <div className="w-full max-w-160 px-6 sm:px-10 xl:px-[3.5vw]">
+            {s.sectionTitle && (
+              // Figma "Research Artifacts": Neue Haas 24px / 500 / capitalize.
+              <h2
+                className={`text-[24px] font-medium capitalize leading-tight xl:text-[1.5vw] ${light ? 'text-white' : ''}`}
+              >
+                {s.sectionTitle}
+              </h2>
+            )}
+            <Prose
+              value={s.introBody}
+              className="mt-4 text-[16px] font-light leading-[1.6] xl:text-[1.05vw]"
+            />
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  // Galderma coverflow (unchanged): title above, 5-up center slider below.
   return (
-    <section data-cs-stretch className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, "md")}`} style={bandStyle(s.appearance, "#000000", true)}>
-      {images.length > 0 && <CenterSlider images={images} />}
+    <section
+      data-cs-stretch
+      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
+      style={bandStyle(s.appearance, '#000000', true)}
+    >
       {(s.sectionTitle || s.introBody) && (
-        <div className="w-full max-w-[50%] px-[5vw] text-justify">
-          {s.sectionTitle && <Label light>{s.sectionTitle}</Label>}
-          <Prose value={s.introBody} className="mt-3 text-[13px] leading-normal xl:text-[0.9vw]" />
+        <div className="w-full max-w-160 px-6 sm:px-10 xl:px-[3.5vw]">
+          {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
+          <Prose
+            value={s.introBody}
+            className="mt-3 text-[15px] leading-normal xl:text-[1vw]"
+          />
         </div>
       )}
+      {images.length > 0 && (
+        <CenterSlider images={images} expandImages={expandImages} />
+      )}
     </section>
-  );
+  )
 }
 
-function StatsBlock({ section: s }: { section: Of<"statsSection"> }) {
-  const items = s.items ?? [];
-  if (!items.length) return null;
+// Motion Showcase ("Key Product Experiences"): stacked labelled device rows.
+// Each frame is a looping video (Jitter export) or a static placeholder frame.
+const MOTION_BG = '#a4856e'
+function MotionShowcaseBlock({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const rows = s.rows ?? []
+  if (!rows.length) return null
   return (
-    <section className={`px-6 text-center sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, "md")}`} style={bandStyle(s.appearance)}>
-      {s.sectionTitle && <div className="mb-10"><Label center light={isLight(s.appearance)}>{s.sectionTitle}</Label></div>}
-      <div className="mx-auto grid max-w-[1140px] grid-cols-1 gap-12 sm:grid-cols-3">
-        {items.map((st) => (
+    <section
+      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
+      style={bandStyle(s.appearance, MOTION_BG)}
+    >
+      {/* Figma 600:12946 — centered, Neue Haas 55 Roman 24px, capitalize, black. */}
+      {s.sectionTitle && (
+        <h2 className="mb-14 text-center text-[24px] font-normal capitalize leading-tight xl:mb-[4.5vw] xl:text-[1.5vw]">
+          {s.sectionTitle}
+        </h2>
+      )}
+      {s.intro && (
+        <div className="mx-auto mb-10 max-w-160 text-center">
+          <Prose
+            value={s.intro}
+            className="text-[15px] leading-normal xl:text-[1vw]"
+          />
+        </div>
+      )}
+      {/* Staggered (Figma 600:12632): mobile group hugs left, tablet group hugs
+          right; each group's label/caption sits left-aligned beneath it. */}
+      <div className="mx-auto flex max-w-247 flex-col gap-16 xl:gap-[6vw]">
+        {rows.map(row => (
+          <MotionRowView key={row._key} row={row} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function MotionRowView({ row }: { row: MotionRow }) {
+  const items = row.items ?? []
+  const device = row.device ?? 'mobile'
+  const alignRight = device === 'tablet'
+  // Card aspect ≈ the Figma device slot (phones 170/367, iPads ~3/4, desktop
+  // ~7/5). White card + object-cover: the Jitter exports are device mockups on
+  // white, so the mockup's white margin blends into the card and the device
+  // fills it — matching Figma's tall, framed devices.
+  const aspect =
+    device === 'mobile'
+      ? 'aspect-[170/367]'
+      : device === 'tablet'
+        ? 'aspect-[3/4]'
+        : 'aspect-[7/5]'
+  const radius =
+    device === 'mobile'
+      ? 'rounded-[14px]'
+      : device === 'tablet'
+        ? 'rounded-[12px]'
+        : 'rounded-[10px]'
+  return (
+    <div className={`flex ${alignRight ? 'justify-end' : 'justify-start'}`}>
+      <div className="w-full max-w-full sm:max-w-[54%]">
+        <div className="flex gap-[3%] drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]">
+          {items.map(it => (
+            <div
+              key={it._key}
+              className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5 bg-white`}
+            >
+              <DeviceMedia item={it} />
+            </div>
+          ))}
+        </div>
+        {(row.label || row.caption) && (
+          <div className="mt-7 max-w-111.25 text-left tracking-[0.382px] text-black xl:mt-[2.2vw]">
+            {row.label && (
+              <p className="text-[18px] font-light capitalize leading-[1.6] xl:text-[1.15vw]">
+                {row.label}
+              </p>
+            )}
+            {row.caption && (
+              <p className="mt-2.5 text-[14px] font-thin leading-[1.6] xl:text-[0.95vw]">
+                {row.caption}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function DeviceMedia({ item }: { item: MediaItem }) {
+  if (item.mediaType === 'video' && item.videoFile) {
+    return (
+      <video
+        className="h-full w-full object-cover"
+        src={item.videoFile}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+    )
+  }
+  if (item.mediaType === 'video' && item.videoUrl) {
+    return (
+      <iframe
+        src={item.videoUrl}
+        title={item.caption || 'Animation'}
+        className="h-full w-full"
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    )
+  }
+  if (item.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- case-study art
+      <img
+        src={item.image}
+        alt={item.caption || ''}
+        className="h-full w-full object-cover"
+      />
+    )
+  }
+  return null
+}
+
+// Project Highlights: 3×2 grid of mint-framed cells over deep teal; each cell
+// cross-fades through its own frame set on a staggered loop.
+const REEL_BG = '#0f3b42'
+function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
+  const cells = s.cells ?? []
+  if (!cells.length) return null
+  return (
+    <section
+      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
+      style={bandStyle(s.appearance, REEL_BG, true)}
+    >
+      {/* Figma 612:45542 — Neue Haas 45 Light 24px, capitalize, white on teal. */}
+      {s.sectionTitle && (
+        <h2 className="mb-12 text-center text-[24px] font-light capitalize leading-tight xl:mb-[3.5vw] xl:text-[1.5vw]">
+          {s.sectionTitle}
+        </h2>
+      )}
+      <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
+        {cells.map((c, i) => (
+          <HighlightCellView
+            key={c._key}
+            frames={c.frames ?? []}
+            delay={i * 900}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function HighlightCellView({
+  frames,
+  delay,
+}: {
+  frames: string[]
+  delay: number
+}) {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (frames.length < 2) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    let id = 0
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => setI(v => (v + 1) % frames.length), 3600)
+    }, delay)
+    return () => {
+      window.clearTimeout(start)
+      window.clearInterval(id)
+    }
+  }, [frames.length, delay])
+  if (!frames.length) return null
+  // Figma 612:44828 — mint (Algae 300) matte frame with the graphic inset
+  // ~10.5% × 14% (303×203 cell holding a 238×146 inner image). The inner frame
+  // is absolutely inset (not h-full) so it resolves against the aspect-ratio box.
+  return (
+    <div className="relative aspect-303/203 w-full rounded-md bg-[#d4e9d7]">
+      <div className="absolute inset-[14%_10.5%] overflow-hidden rounded-[3px]">
+        {frames.map((src, idx) => (
+          // eslint-disable-next-line @next/next/no-img-element -- highlight art
+          <img
+            key={idx}
+            src={src}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
+            style={{ opacity: idx === i ? 1 : 0 }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const IMPACT_BG = 'rgba(214,224,216,0.6)'
+function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
+  const items = s.items ?? []
+  if (!items.length) return null
+  return (
+    <section
+      className={`px-6 text-center sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
+      style={bandStyle(s.appearance, IMPACT_BG)}
+    >
+      {/* Figma 600:13127 — Neue Haas 45 Light 24px, capitalize, black. */}
+      {s.sectionTitle && (
+        <h2 className="mb-16 text-[24px] font-light capitalize leading-tight xl:mb-[4.2vw] xl:text-[1.5vw]">
+          {s.sectionTitle}
+        </h2>
+      )}
+      <div className="mx-auto grid max-w-240 grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 xl:gap-[2.6vw]">
+        {items.map(st => (
           <Stat key={st._key} stat={st} />
         ))}
       </div>
     </section>
-  );
+  )
 }
 
-function BulletBlock({ section: s }: { section: Of<"bulletSection"> }) {
-  const items = s.items ?? [];
-  if (!items.length) return null;
+function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
+  const items = s.items ?? []
+  if (!items.length) return null
   return (
-    <section className={padClasses(s.appearance, "md")} style={bandStyle(s.appearance)}>
-      <div className="mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
-        <div className="mx-auto max-w-[640px]">
-          <Label light={isLight(s.appearance)}>{s.sectionTitle ?? "Next Steps"}</Label>
+    <section
+      className={padClasses(s.appearance, 'md')}
+      style={bandStyle(s.appearance)}
+    >
+      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div className="mx-auto max-w-160">
+          <Label light={isLight(s.appearance)}>
+            {s.sectionTitle ?? 'Next Steps'}
+          </Label>
           <ul className="mt-5 list-disc space-y-3 pl-5 text-[18px] leading-[1.6] xl:text-[1.1vw]">
             {items.map((it, i) => (
               <li key={i}>{it}</li>
@@ -587,15 +1173,15 @@ function BulletBlock({ section: s }: { section: Of<"bulletSection"> }) {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 // ── shared bits ───────────────────────────────────────────────────────────────
 function imgUrls(items?: GalleryImage[]): string[] {
-  return (items ?? []).map((i) => i.image).filter((u): u is string => !!u);
+  return (items ?? []).map(i => i.image).filter((u): u is string => !!u)
 }
 function capList(items?: GalleryImage[]): (string | undefined)[] {
-  return (items ?? []).map((i) => i.caption);
+  return (items ?? []).map(i => i.caption)
 }
 
 function Label({
@@ -603,160 +1189,379 @@ function Label({
   center,
   light,
 }: {
-  children: React.ReactNode;
-  center?: boolean;
-  light?: boolean;
+  children: React.ReactNode
+  center?: boolean
+  light?: boolean
 }) {
   return (
     <h2
       style={{ fontFamily: SANS }}
-      className={`mb-[20px] text-[20px] font-normal uppercase leading-tight xl:mb-[0.5vw] xl:text-[1vw] ${light ? "text-white" : ""} ${center ? "text-center" : ""}`}
+      className={`mb-5 text-[20px] font-normal capitalize leading-tight xl:mb-[0.5vw] xl:text-[1vw] ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
-  );
+  )
 }
 
-function Accordion({ items, variant = "process" }: { items: AccordionEntry[]; variant?: "brought" | "process" }) {
-  const initial = Math.max(0, items.findIndex((i) => i.defaultOpen));
-  const [open, setOpen] = useState(initial === -1 ? 0 : initial);
-  const headSize = variant === "brought" ? "text-[18px] xl:text-[1.4vw]" : "text-[18px] xl:text-[1.05vw]";
-  const bodySize = variant === "brought" ? "text-[16px] xl:text-[1.25vw]" : "text-[16px] xl:text-[0.9vw]";
+function Accordion({
+  items,
+  variant = 'process',
+}: {
+  items: AccordionEntry[]
+  variant?: 'brought' | 'process'
+}) {
+  const initial = Math.max(
+    0,
+    items.findIndex(i => i.defaultOpen),
+  )
+  const [open, setOpen] = useState(initial === -1 ? 0 : initial)
+  const headSize =
+    variant === 'brought'
+      ? 'text-[18px] xl:text-[1.4vw]'
+      : 'text-[18px] xl:text-[1.05vw]'
+  const bodySize =
+    variant === 'brought'
+      ? 'text-[16px] xl:text-[1.25vw]'
+      : 'text-[16px] xl:text-[0.9vw]'
   return (
     <div>
       {items.map((it, i) => {
-        const isOpen = open === i;
+        const isOpen = open === i
         return (
           <div key={it._key} className="border-b-[0.4px] border-current">
             <button
               type="button"
               onClick={() => setOpen(isOpen ? -1 : i)}
               data-cursor="hover"
-              className={`flex w-full items-center justify-between gap-6 py-[25px] text-left font-normal xl:py-[0.9vw] ${headSize}`}
+              className={`flex w-full items-center justify-between gap-6 py-6.25 text-left font-normal xl:py-[0.9vw] ${headSize}`}
             >
               <span>{it.title}</span>
-              <span className="shrink-0 text-[35px] font-semibold leading-none xl:text-[2.5vw]">{isOpen ? "−" : "+"}</span>
+              {/* Thin hairline +/− per Figma (stroke 0.7625 on a 12u grid). */}
+              <svg
+                aria-hidden
+                viewBox="0 0 12 12"
+                fill="none"
+                className="shrink-0 w-4 xl:w-[1.15vw]"
+                style={{ height: 'auto' }}
+              >
+                <path
+                  d={
+                    isOpen
+                      ? 'M11.0563 5.71876H0.381348'
+                      : 'M5.71885 11.0563V0.381256M11.0563 5.71876H0.381348'
+                  }
+                  stroke="currentColor"
+                  strokeWidth="0.7625"
+                  strokeLinecap="round"
+                />
+              </svg>
             </button>
-            {isOpen && it.body && <Prose value={it.body} className={`pb-6 leading-normal ${bodySize}`} />}
+            {isOpen && it.body && (
+              <Prose
+                value={it.body}
+                className={`pb-6 font-light leading-normal ${bodySize}`}
+              />
+            )}
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
+}
+
+/** Research-Artifacts slider (Coral redesign — Figma 600:12544): 3-up equal
+ *  landscape cards on black, arrows top-right, infinite loop, tap-to-expand.
+ *  No coverflow scaling/dimming — every card is shown at full opacity/size. */
+function ArtifactSlider({
+  images,
+  scrollRoot,
+}: {
+  images: string[]
+  scrollRoot?: React.RefObject<HTMLDivElement | null>
+}) {
+  const n = images.length
+  const [visible, setVisible] = useState(3)
+  const [index, setIndex] = useState(n) // start in the middle copy
+  const [noAnim, setNoAnim] = useState(false)
+  const [lightbox, setLightbox] = useState<number | null>(null)
+  const locked = useRef(false)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const [viewportW, setViewportW] = useState(0)
+  const GAP = 20
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      setVisible(w < 640 ? 1 : w < 1024 ? 2 : 3)
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  useEffect(() => {
+    if (!viewportRef.current) return
+    const ro = new ResizeObserver(() => {
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
+    })
+    ro.observe(viewportRef.current)
+    return () => ro.disconnect()
+  }, [])
+
+  const go = (dir: 1 | -1) => {
+    if (locked.current || n <= visible) return
+    locked.current = true
+    setIndex(i => i + dir)
+    window.setTimeout(() => {
+      locked.current = false
+    }, 620)
+  }
+
+  // Snap back into the middle copy once a transition lands in an edge copy.
+  useEffect(() => {
+    if (n < 1) return
+    if (index >= 2 * n || index < n) {
+      const t = window.setTimeout(() => {
+        setNoAnim(true)
+        setIndex(i => (i >= 2 * n ? i - n : i + n))
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => setNoAnim(false)),
+        )
+      }, 600)
+      return () => window.clearTimeout(t)
+    }
+  }, [index, n])
+
+  const loop = n > 0 ? [...images, ...images, ...images] : []
+  const itemW = viewportW > 0 ? (viewportW - (visible - 1) * GAP) / visible : 0
+  const step = itemW + GAP
+  const translateX = -index * step
+  const fallbackW = `calc((100% - ${(visible - 1) * GAP}px) / ${visible})`
+  const canPage = n > visible
+
+  return (
+    <div className="relative w-full px-6 sm:px-10 xl:px-[3.5vw]">
+      {canPage && (
+        // Figma 600:12626: text chevrons, Neue Haas 21px / 500 / +0.44px, 29px gap.
+        <div className="mb-5 flex items-center justify-end gap-7.25 text-[21px] font-medium leading-none tracking-[0.44px] text-white xl:text-[1.35vw]">
+          <button
+            type="button"
+            aria-label="Previous slide"
+            data-cursor="hover"
+            onClick={() => go(-1)}
+            className="bg-transparent transition-opacity hover:opacity-70"
+          >
+            &lt;
+          </button>
+          <button
+            type="button"
+            aria-label="Next slide"
+            data-cursor="hover"
+            onClick={() => go(1)}
+            className="bg-transparent transition-opacity hover:opacity-70"
+          >
+            &gt;
+          </button>
+        </div>
+      )}
+      <div ref={viewportRef} className="overflow-hidden">
+        <div
+          className="flex"
+          style={{
+            gap: GAP,
+            transform: `translateX(${translateX}px)`,
+            transition: noAnim ? 'none' : 'transform 600ms ease',
+            willChange: 'transform',
+          }}
+        >
+          {loop.map((src, i) => {
+            const real = ((i % n) + n) % n
+            return (
+              <button
+                key={`${src}-${i}`}
+                type="button"
+                aria-label={`Expand artifact ${real + 1}`}
+                onClick={() => setLightbox(real)}
+                data-cursor="hover"
+                className="group shrink-0 overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+                style={{ width: itemW > 0 ? `${itemW}px` : fallbackW }}
+              >
+                <div className="aspect-1800/1098 w-full overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                  <img
+                    src={src}
+                    alt=""
+                    className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      {lightbox !== null && (
+        <ArtifactLightbox
+          images={images}
+          index={lightbox}
+          onIndex={setLightbox}
+          onClose={() => setLightbox(null)}
+          container={scrollRoot?.current ?? null}
+        />
+      )}
+    </div>
+  )
 }
 
 /** Cover-flow slider (Galderma showcase): 5-up centered carousel, autoplay,
  *  infinite loop, white prev/next arrows. */
-function CenterSlider({ images }: { images: string[] }) {
-  const n = images.length;
-  const [visible, setVisible] = useState(5);
-  const [index, setIndex] = useState(() => Math.max(n, 0));
-  const [noAnim, setNoAnim] = useState(false);
-  const locked = useRef(false);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const [viewportW, setViewportW] = useState(0);
+function CenterSlider({
+  images,
+  expandImages,
+}: {
+  images: string[]
+  expandImages?: string[]
+}) {
+  const n = images.length
+  const [visible, setVisible] = useState(5)
+  const [index, setIndex] = useState(() => Math.max(n, 0))
+  const [noAnim, setNoAnim] = useState(false)
+  const [lightbox, setLightbox] = useState<number | null>(null)
+  const locked = useRef(false)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const [viewportW, setViewportW] = useState(0)
+  const expandable = !!expandImages?.length
 
   useEffect(() => {
     const update = () => {
-      const w = window.innerWidth;
-      setVisible(w < 575 ? 1 : w < 992 ? 3 : 5);
-      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth);
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+      const w = window.innerWidth
+      setVisible(w < 575 ? 1 : w < 992 ? 3 : 5)
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   useEffect(() => {
-    if (!viewportRef.current) return;
-    setViewportW(viewportRef.current.clientWidth);
+    if (!viewportRef.current) return
+    setViewportW(viewportRef.current.clientWidth)
     const ro = new ResizeObserver(() => {
-      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth);
-    });
-    ro.observe(viewportRef.current);
-    return () => ro.disconnect();
-  }, []);
+      if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
+    })
+    ro.observe(viewportRef.current)
+    return () => ro.disconnect()
+  }, [])
 
   const go = (dir: 1 | -1) => {
-    if (locked.current || n < 2) return;
-    locked.current = true;
-    setIndex((i) => i + dir);
+    if (locked.current || n < 2) return
+    locked.current = true
+    setIndex(i => i + dir)
     window.setTimeout(() => {
-      locked.current = false;
-    }, 820);
-  };
+      locked.current = false
+    }, 820)
+  }
 
   useEffect(() => {
-    if (n < 1) return;
+    if (n < 1) return
     if (index >= 2 * n || index < n) {
       const t = window.setTimeout(() => {
-        setNoAnim(true);
-        setIndex((i) => (i >= 2 * n ? i - n : i < n ? i + n : i));
+        setNoAnim(true)
+        setIndex(i => (i >= 2 * n ? i - n : i < n ? i + n : i))
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => setNoAnim(false));
-        });
-      }, 800);
-      return () => window.clearTimeout(t);
+          requestAnimationFrame(() => setNoAnim(false))
+        })
+      }, 800)
+      return () => window.clearTimeout(t)
     }
-  }, [index, n]);
+  }, [index, n])
 
   useEffect(() => {
-    if (n < 2) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (n < 2) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
     const id = window.setInterval(() => {
-      if (locked.current) return;
-      locked.current = true;
-      setIndex((i) => i + 1);
+      if (locked.current) return
+      locked.current = true
+      setIndex(i => i + 1)
       window.setTimeout(() => {
-        locked.current = false;
-      }, 820);
-    }, 6000);
-    return () => window.clearInterval(id);
-  }, [n]);
+        locked.current = false
+      }, 820)
+    }, 6000)
+    return () => window.clearInterval(id)
+  }, [n])
 
-  const loop = n > 0 ? [...images, ...images, ...images] : [];
-  const gapPx = viewportW > 0 ? viewportW * 0.015 : 0;
-  const slideW = viewportW > 0 ? viewportW / visible : 0;
-  const translateX = viewportW > 0 ? viewportW / 2 - (index + 0.5) * slideW : 0;
-  const realIdx = n > 0 ? ((index % n) + n) % n : 0;
+  const loop = n > 0 ? [...images, ...images, ...images] : []
+  const gapPx = viewportW > 0 ? viewportW * 0.015 : 0
+  const slideW = viewportW > 0 ? viewportW / visible : 0
+  const translateX = viewportW > 0 ? viewportW / 2 - (index + 0.5) * slideW : 0
+  const realIdx = n > 0 ? ((index % n) + n) % n : 0
 
   return (
     <div className="cs-center-slider relative w-full pt-[3.5vw] pb-[3vw]">
       <div className="pointer-events-none absolute top-0 right-[3vw] z-10 flex items-center gap-[1.5vw]">
-        <button type="button" aria-label="Previous slide" data-cursor="hover" onClick={() => go(-1)} className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100">
+        <button
+          type="button"
+          aria-label="Previous slide"
+          data-cursor="hover"
+          onClick={() => go(-1)}
+          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
-          <img src="/work/slider-arrows.svg" alt="" className="h-[0.85vw] min-h-[8px] w-[2vw] min-w-[19px] -scale-x-100 brightness-0 invert" />
+          <img
+            src="/work/slider-arrows.svg"
+            alt=""
+            className="h-[0.85vw] min-h-2 w-[2vw] min-w-4.75 -scale-x-100 brightness-0 invert"
+          />
         </button>
-        <button type="button" aria-label="Next slide" data-cursor="hover" onClick={() => go(1)} className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100">
+        <button
+          type="button"
+          aria-label="Next slide"
+          data-cursor="hover"
+          onClick={() => go(1)}
+          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
-          <img src="/work/slider-arrows.svg" alt="" className="h-[0.85vw] min-h-[8px] w-[2vw] min-w-[19px] brightness-0 invert" />
+          <img
+            src="/work/slider-arrows.svg"
+            alt=""
+            className="h-[0.85vw] min-h-2 w-[2vw] min-w-4.75 brightness-0 invert"
+          />
         </button>
       </div>
-      <div ref={viewportRef} className="overflow-x-hidden overflow-y-visible py-[2vw]">
+      <div
+        ref={viewportRef}
+        className="overflow-x-hidden overflow-y-visible py-[2vw]"
+      >
         <div
           className="flex items-center"
           style={{
             transform: `translateX(${translateX}px)`,
-            transition: noAnim ? "none" : "transform 800ms ease-in-out",
-            willChange: "transform",
+            transition: noAnim ? 'none' : 'transform 800ms ease-in-out',
+            willChange: 'transform',
           }}
         >
           {loop.map((src, i) => {
-            const isCtr = i === index;
+            const isCtr = i === index
             return (
               <button
                 key={`${src}-${i}`}
                 type="button"
                 aria-label={`Slide ${(i % n) + 1}`}
-                aria-current={isCtr ? "true" : undefined}
+                aria-current={isCtr ? 'true' : undefined}
                 onClick={() => {
-                  if (i === index || locked.current || n < 1) return;
-                  const target = Math.floor(index / n) * n + (i % n);
-                  locked.current = true;
-                  setIndex(target);
+                  // Clicking the centered artifact opens the full-screen
+                  // lightbox; clicking a side slide just centers it.
+                  if (i === index) {
+                    if (expandable) setLightbox(realIdx)
+                    return
+                  }
+                  if (locked.current || n < 1) return
+                  const target = Math.floor(index / n) * n + (i % n)
+                  locked.current = true
+                  setIndex(target)
                   window.setTimeout(() => {
-                    locked.current = false;
-                  }, 820);
+                    locked.current = false
+                  }, 820)
                 }}
                 data-cursor="hover"
                 className="relative shrink-0 overflow-visible bg-transparent p-0"
@@ -767,23 +1572,140 @@ function CenterSlider({ images }: { images: string[] }) {
                   zIndex: isCtr ? 2 : 1,
                 }}
               >
-                <div className="relative w-full overflow-hidden pt-[150%] transition-transform duration-800 ease-in-out" style={{ transform: isCtr ? "scale(1.15)" : "scale(1)" }}>
+                <div
+                  className="relative w-full overflow-hidden pt-[150%] transition-transform duration-800 ease-in-out"
+                  style={{ transform: isCtr ? 'scale(1.15)' : 'scale(1)' }}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                   <img
                     key={isCtr ? `c-${realIdx}` : `s-${i}`}
                     src={src}
                     alt=""
-                    className={`absolute inset-0 h-full w-full object-cover object-top ${isCtr ? "cs-center-pan" : ""}`}
+                    className={`absolute inset-0 h-full w-full object-cover object-top ${isCtr ? 'cs-center-pan' : ''}`}
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-500" style={{ opacity: isCtr ? 0 : 0.85 }} aria-hidden />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-500"
+                    style={{ opacity: isCtr ? 0 : 0.85 }}
+                    aria-hidden
+                  />
                 </div>
               </button>
-            );
+            )
           })}
         </div>
       </div>
+      {expandable && lightbox !== null && expandImages && (
+        <ArtifactLightbox
+          images={expandImages}
+          index={lightbox}
+          onIndex={setLightbox}
+          onClose={() => setLightbox(null)}
+        />
+      )}
     </div>
-  );
+  )
+}
+
+/** Artifact viewer (Fas 07/23 — "when you tap on it… it expands").
+ *  In the case-study modal it's scoped INSIDE the modal (Figma 359:13865): black
+ *  fills the modal's content area and the card is smaller than the modal. On the
+ *  standalone page it falls back to a full-screen overlay. ←/→ move, Esc/✕ close. */
+function ArtifactLightbox({
+  images,
+  index,
+  onIndex,
+  onClose,
+  container,
+}: {
+  images: string[]
+  index: number
+  onIndex: (i: number) => void
+  onClose: () => void
+  container?: HTMLElement | null
+}) {
+  const n = images.length
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowRight') onIndex((index + 1) % n)
+      else if (e.key === 'ArrowLeft') onIndex((index - 1 + n) % n)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [index, n, onIndex, onClose])
+
+  // While open, block wheel/touch scroll on the host so the scoped (absolute)
+  // overlay stays pinned over the modal's visible area.
+  useEffect(() => {
+    const el = container
+    if (!el) return
+    const block = (e: Event) => e.preventDefault()
+    el.addEventListener('wheel', block, { passive: false })
+    el.addEventListener('touchmove', block, { passive: false })
+    return () => {
+      el.removeEventListener('wheel', block)
+      el.removeEventListener('touchmove', block)
+    }
+  }, [container])
+
+  if (typeof document === 'undefined') return null
+  const scoped = !!container
+  const target = container ?? document.body
+  // Cover the modal's *visible* area (it's a scroll container); scroll is frozen above.
+  const scopedStyle = scoped
+    ? {
+        position: 'absolute' as const,
+        top: container!.scrollTop,
+        left: 0,
+        right: 0,
+        height: container!.clientHeight,
+      }
+    : undefined
+  // Definite width so every artifact renders at the SAME display size — even the
+  // low-res one (it upscales) — instead of shrinking to its natural width.
+  const cardW = scoped ? 'w-[90%]' : 'w-[90vw] max-w-[1100px]'
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Research artifact"
+      onClick={onClose}
+      style={scopedStyle}
+      className={`${scoped ? 'absolute z-40' : 'fixed inset-0 z-120'} flex items-center justify-center bg-black px-4 py-10 animate-[panel-in_0.2s_ease-out]`}
+    >
+      {/* Card + close ✕ move together; ✕ sits on the card's top-right (Figma 359:13865). */}
+      <div
+        className={`relative ${cardW}`}
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          data-cursor="hover"
+          className="absolute right-3 top-3 z-10 text-black transition-transform hover:scale-110"
+        >
+          {/* Figma close glyph: plain ✕, 19u grid, stroke 2.46 rounded (rendered smaller). */}
+          <svg width="13" height="13" viewBox="0 0 19 19" fill="none" aria-hidden>
+            <path
+              d="M1.23071 17.2308L9.23071 9.23077L17.2307 1.23077M9.23071 9.23077L1.23071 1.23077L17.2307 17.2308"
+              stroke="currentColor"
+              strokeWidth="2.46154"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element -- artifact art */}
+        <img
+          src={images[index]}
+          alt=""
+          className="block h-auto w-full max-h-[82vh] bg-white object-contain"
+        />
+      </div>
+    </div>,
+    target,
+  )
 }
 
 function DeviceGallery({
@@ -791,12 +1713,12 @@ function DeviceGallery({
   initial,
   loadMore,
 }: {
-  tabs: DeviceTab[];
-  initial: number;
-  loadMore?: string;
+  tabs: DeviceTab[]
+  initial: number
+  loadMore?: string
 }) {
-  const [active, setActive] = useState(0);
-  const tab = tabs[active];
+  const [active, setActive] = useState(0)
+  const tab = tabs[active]
   return (
     <div className="mt-8">
       <div className="mx-auto flex max-w-full flex-wrap justify-center gap-8 xl:gap-[6vw]">
@@ -808,50 +1730,75 @@ function DeviceGallery({
             data-cursor="hover"
             style={{ fontFamily: SANS }}
             className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 xl:text-[1vw] ${
-              active === i ? "after:w-full" : "after:w-0 hover:after:w-full"
+              active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
             }`}
           >
             {v.label}
           </button>
         ))}
       </div>
-      <ImageGrid key={tab?._key} images={imgUrls(tab?.items)} initial={initial} loadMore={loadMore} tile light />
+      <ImageGrid
+        key={tab?._key}
+        images={imgUrls(tab?.items)}
+        initial={initial}
+        loadMore={loadMore}
+        tile
+        light
+      />
     </div>
-  );
+  )
 }
 
 function ImageGrid({
   images,
   captions,
   initial = 6,
-  loadMore = "Load More",
+  loadMore = 'Load More',
   tile,
   light,
 }: {
-  images: string[];
-  captions?: (string | undefined)[];
-  initial?: number;
-  loadMore?: string;
-  tile?: boolean;
-  light?: boolean;
+  images: string[]
+  captions?: (string | undefined)[]
+  initial?: number
+  loadMore?: string
+  tile?: boolean
+  light?: boolean
 }) {
-  const STEP = 4;
-  const [shown, setShown] = useState(initial);
-  const visible = images.slice(0, shown);
+  const STEP = 4
+  const [shown, setShown] = useState(initial)
+  const visible = images.slice(0, shown)
   return (
     <>
       <div className="mt-8 grid grid-cols-1 gap-x-[5vw] gap-y-10 sm:grid-cols-2">
         {visible.map((src, i) =>
           tile ? (
-            <div key={i} className="shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]" style={{ backgroundColor: TILE }}>
+            <div
+              key={i}
+              className="shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]"
+              style={{ backgroundColor: TILE }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-              <img src={src} alt="" loading="lazy" className="h-[40vw] w-full object-contain xl:h-[20vw]" />
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                className="h-[40vw] w-full object-contain xl:h-[20vw]"
+              />
             </div>
           ) : (
             <figure key={i}>
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-              <img src={src} alt="" loading="lazy" className="block h-auto w-full object-cover" />
-              {captions?.[i] && <figcaption className="mt-2 text-[13px] opacity-70">{captions[i]}</figcaption>}
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                className="block h-auto w-full object-cover"
+              />
+              {captions?.[i] && (
+                <figcaption className="mt-2 text-[13px] opacity-70">
+                  {captions[i]}
+                </figcaption>
+              )}
             </figure>
           ),
         )}
@@ -860,148 +1807,67 @@ function ImageGrid({
         <div className="mt-10 flex justify-center">
           <button
             type="button"
-            onClick={() => setShown((n) => n + STEP)}
+            onClick={() => setShown(n => n + STEP)}
             data-cursor="hover"
             style={{ fontFamily: SANS }}
-            className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current xl:text-[1vw] ${light ? "text-white" : ""}`}
+            className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current xl:text-[1vw] ${light ? 'text-white' : ''}`}
           >
             {loadMore}
           </button>
         </div>
       )}
     </>
-  );
+  )
 }
 
 function Stat({ stat }: { stat: StatItem }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [n, setN] = useState(0);
+  const ref = useRef<HTMLDivElement>(null)
+  const [n, setN] = useState(0)
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let raf = 0;
+    const el = ref.current
+    if (!el) return
+    let raf = 0
     const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting) return;
-        io.disconnect();
-        const start = performance.now();
-        const dur = 1500;
+      entries => {
+        if (!entries[0].isIntersecting) return
+        io.disconnect()
+        const start = performance.now()
+        const dur = 1500
         const tick = (t: number) => {
-          const k = Math.min(1, (t - start) / dur);
-          setN(Math.floor(k * stat.value));
-          if (k < 1) raf = requestAnimationFrame(tick);
-          else setN(stat.value);
-        };
-        raf = requestAnimationFrame(tick);
+          const k = Math.min(1, (t - start) / dur)
+          setN(Math.floor(k * stat.value))
+          if (k < 1) raf = requestAnimationFrame(tick)
+          else setN(stat.value)
+        }
+        raf = requestAnimationFrame(tick)
       },
       { threshold: 0.5 },
-    );
-    io.observe(el);
+    )
+    io.observe(el)
     return () => {
-      io.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [stat.value]);
+      io.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [stat.value])
   return (
-    <div ref={ref} className="text-[16px] xl:text-[1.2vw]">
-      <p className="flex justify-center text-[64px] leading-none xl:text-[8.5vw]">
+    <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center tracking-[-0.214px]">
+      {/* Figma 600:13130-13132 uses Neue Haas Grotesk *Display* Pro 55 Roman —
+          that's our weight 400 (font-normal). font-medium (500) would load the
+          Text-Pro cut, a different family. Note is 35 Thin in Figma; we only
+          ship the Display 55 Roman, so it falls back to that weight. */}
+      <p className="text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]">
         {n}
         {stat.suffix}
       </p>
-      <p className="mt-4 block text-[20px] font-bold xl:text-[1.8vw]">{stat.label}</p>
-      {stat.note && <p className="mt-2 leading-normal opacity-70">{stat.note}</p>}
+      <p className="mt-5 text-[18px] font-normal leading-[1.245] xl:text-[1.15vw]">
+        {stat.label}
+      </p>
+      {stat.note && (
+        <p className="mt-2.5 max-w-64 text-[18px] font-light leading-[1.245] xl:text-[1.15vw]">
+          {stat.note}
+        </p>
+      )}
     </div>
-  );
+  )
 }
 
-function NextUp({
-  next,
-  image,
-  onNavigate,
-  scrollRoot,
-}: {
-  next: StudyCard;
-  image?: string;
-  onNavigate?: (slug: string) => void;
-  scrollRoot?: React.RefObject<HTMLDivElement | null>;
-}) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
-  const label = `Next up- ${next.name}`;
-  useEffect(() => {
-    const section = sectionRef.current;
-    const textEl = textRef.current;
-    if (!section || !textEl) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      textEl.textContent = label;
-      textEl.style.color = "#ffffff";
-      return;
-    }
-    const FILL_MS = 3000;
-    let timers: ReturnType<typeof setTimeout>[] = [];
-    const reset = () => {
-      timers.forEach(clearTimeout);
-      timers = [];
-      textEl.textContent = label;
-      textEl.style.color = "";
-    };
-    const fill = () => {
-      reset();
-      textEl.innerHTML = "";
-      const chars = label.split("");
-      const step = FILL_MS / Math.max(chars.length, 1);
-      chars.forEach((ch, i) => {
-        const span = document.createElement("span");
-        span.textContent = ch;
-        span.style.color = "rgba(255,255,255,0.2)";
-        span.style.transition = "color 0.5s ease";
-        textEl.appendChild(span);
-        timers.push(setTimeout(() => (span.style.color = "#ffffff"), i * step));
-      });
-    };
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) fill();
-          else reset();
-        }
-      },
-      { threshold: 0.3, root: scrollRoot?.current ?? null },
-    );
-    io.observe(section);
-    return () => {
-      io.disconnect();
-      timers.forEach(clearTimeout);
-    };
-  }, [label, scrollRoot, next.slug]);
-  const go = (e: React.MouseEvent) => {
-    if (onNavigate) {
-      e.preventDefault();
-      onNavigate(next.slug);
-    }
-  };
-  return (
-    <section ref={sectionRef} data-cs-stretch className="cs-next-up relative flex items-center overflow-hidden text-left">
-      {image && (
-        // eslint-disable-next-line @next/next/no-img-element -- next-up art
-        <img src={image} alt="" className="absolute inset-0 z-0 h-full w-full object-cover" />
-      )}
-      <div className="absolute inset-0 z-1 bg-black/75" aria-hidden />
-      <div className="relative z-2 mx-auto w-full max-w-[1140px] px-6 sm:px-10 xl:px-[3.5vw]">
-        <Link
-          href={`/work/${next.slug}`}
-          onClick={go}
-          data-cursor="hover"
-          className="group relative inline-block max-w-full font-serif text-[34px] font-thin leading-[1.3] text-white/50 no-underline transition-[padding] duration-400 ease-in-out hover:pl-[2.5vw] xl:text-[5vw]"
-        >
-          <span
-            aria-hidden
-            className="pointer-events-none absolute top-[0.55em] left-[2.5vw] z-[-1] size-[1.8vw] min-h-[18px] min-w-[18px] rounded-full opacity-0 transition-all duration-400 ease-in-out group-hover:left-0 group-hover:opacity-100"
-            style={{ backgroundColor: RED }}
-          />
-          <span ref={textRef} className="relative">{label}</span>
-        </Link>
-      </div>
-    </section>
-  );
-}

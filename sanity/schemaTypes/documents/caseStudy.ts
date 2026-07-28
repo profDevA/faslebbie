@@ -44,6 +44,8 @@ export const caseStudy = defineType({
         { type: "mediaSection" },
         { type: "gallerySection" },
         { type: "showcaseGallery" },
+        { type: "motionShowcase" },
+        { type: "highlightReel" },
         { type: "statsSection" },
         { type: "bulletSection" },
       ],

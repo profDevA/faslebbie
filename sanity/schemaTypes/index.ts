@@ -9,6 +9,8 @@ import { deviceTab } from "./objects/deviceTab";
 import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
 import { mediaItem } from "./objects/mediaItem";
+import { highlightCell } from "./objects/highlightCell";
+import { motionRow } from "./objects/motionRow";
 import { designRef } from "./objects/designRef";
 import { researchProse } from "./objects/researchProse";
 import { researchArea } from "./objects/researchArea";
@@ -34,6 +36,8 @@ import { proseSection } from "./sections/proseSection";
 import { mediaSection } from "./sections/mediaSection";
 import { gallerySection } from "./sections/gallerySection";
 import { showcaseGallery } from "./sections/showcaseGallery";
+import { motionShowcase } from "./sections/motionShowcase";
+import { highlightReel } from "./sections/highlightReel";
 import { statsSection } from "./sections/statsSection";
 import { bulletSection } from "./sections/bulletSection";
 
@@ -67,6 +71,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   mediaSection,
   gallerySection,
   showcaseGallery,
+  motionShowcase,
+  highlightReel,
   statsSection,
   bulletSection,
   // objects
@@ -78,6 +84,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   statItem,
   showcaseItem,
   mediaItem,
+  highlightCell,
+  motionRow,
   designRef,
   researchProse,
   researchArea,

@@ -22,6 +22,20 @@ export interface GalleryImage {
   _key: string;
   image?: string;
   caption?: string;
+  expandImage?: string;
+}
+
+export interface MotionRow {
+  _key: string;
+  device?: "mobile" | "tablet" | "desktop";
+  label?: string;
+  caption?: string;
+  items?: MediaItem[];
+}
+
+export interface HighlightCell {
+  _key: string;
+  frames?: string[];
 }
 
 export interface DeviceTab {
@@ -80,6 +94,7 @@ export type Section =
       ctaLabel?: string;
       ctaUrl?: string;
       sideImage?: string;
+      sideVideo?: string;
       sideImageBackgroundColor?: SanityColor;
     })
   | (Base & {
@@ -117,7 +132,19 @@ export type Section =
       _type: "showcaseGallery";
       sectionTitle?: string;
       introBody?: PortableTextBlock[];
+      expandable?: boolean;
       items?: GalleryImage[];
+    })
+  | (Base & {
+      _type: "motionShowcase";
+      sectionTitle?: string;
+      intro?: PortableTextBlock[];
+      rows?: MotionRow[];
+    })
+  | (Base & {
+      _type: "highlightReel";
+      sectionTitle?: string;
+      cells?: HighlightCell[];
     })
   | (Base & {
       _type: "statsSection";

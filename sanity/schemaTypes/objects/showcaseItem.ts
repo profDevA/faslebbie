@@ -14,6 +14,14 @@ export const showcaseItem = defineType({
       validation: (r) => r.required(),
     }),
     defineField({ name: "caption", title: "Caption", type: "string" }),
+    defineField({
+      name: "expandImage",
+      title: "Expanded image",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Optional higher-resolution version shown in the lightbox. Falls back to the slide image.",
+    }),
     defineField({ name: "order", title: "Display order", type: "number" }),
   ],
   preview: {

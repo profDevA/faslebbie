@@ -20,6 +20,7 @@ const sectionsProj = `sections[]{
     sectionTitle, body, serviceCategoryLabel, serviceList, duration, team,
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage.asset->url,
+    "sideVideo": sideVideo.asset->url,
     sideImageBackgroundColor
   },
   _type == "accordionSection" => {
@@ -42,8 +43,24 @@ const sectionsProj = `sections[]{
     items[]{ _key, "image": image.asset->url, caption }
   },
   _type == "showcaseGallery" => {
-    sectionTitle, introBody,
-    items[]{ _key, "image": image.asset->url, caption }
+    sectionTitle, introBody, expandable,
+    items[]{ _key, "image": image.asset->url, caption, "expandImage": expandImage.asset->url }
+  },
+  _type == "motionShowcase" => {
+    sectionTitle, intro,
+    rows[]{
+      _key, device, label, caption,
+      items[]{
+        _key, mediaType, videoUrl,
+        "videoFile": videoFile.asset->url,
+        "image": image.asset->url,
+        embedUrl, caption
+      }
+    }
+  },
+  _type == "highlightReel" => {
+    sectionTitle,
+    cells[]{ _key, "frames": frames[].asset->url }
   },
   _type == "statsSection" => {
     sectionTitle, body, items[]{ _key, value, suffix, label, note }

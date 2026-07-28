@@ -10,6 +10,14 @@ export const showcaseGallery = defineType({
     defineField({ name: "sectionTitle", title: "Section title", type: "string" }),
     defineField({ name: "introBody", title: "Intro body", type: "portableText" }),
     defineField({
+      name: "expandable",
+      title: "Tap to expand",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "When on, clicking the centered slide opens a full-screen lightbox (used for the Research Artifacts). Otherwise clicking a side slide just centers it.",
+    }),
+    defineField({
       name: "items",
       title: "Showcase items",
       type: "array",

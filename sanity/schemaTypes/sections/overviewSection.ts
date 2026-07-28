@@ -38,6 +38,14 @@ export const overviewSection = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "sideVideo",
+      title: "Side feature video (looping)",
+      type: "file",
+      options: { accept: "video/*" },
+      description:
+        "Optional looping animation (e.g. the phone Jitter export). Plays in place of the side image when set.",
+    }),
+    defineField({
       name: "sideImageBackgroundColor",
       title: "Side feature image background color",
       type: "color",
