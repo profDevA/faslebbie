@@ -14,14 +14,17 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },
-  // Keep `public/` out of the serverless function bundles. `getAboutLogoSvgs()`
-  // reads logo SVGs via `readFileSync(process.cwd()/public/<dynamic>)`, which the
-  // file tracer can't resolve statically — so it copies ALL of `public/` (the
-  // ~350MB of case-study videos/images) into the function and blows past
-  // Vercel's 250MB limit. Public assets are CDN-served and never needed inside a
-  // function; the SVG reads run at build time during static prerender.
+  // Keep the huge case-study media out of serverless bundles (Vercel 250MB
+  // limit). Do NOT exclude all of `public/` — About logo SVGs are read via
+  // `getAboutLogoSvgs()` → `readFileSync(public/about-logos/…)`, and excluding
+  // them made the chips blank on Vercel while still working locally (Fas 07/30).
   outputFileTracingExcludes: {
-    "/**": ["./public/**/*"],
+    "/**": ["./public/work/**/*"],
+  },
+  // Explicit include so the tracer always packs the About brand chips even if
+  // the dynamic `readFileSync(join(…, src))` path isn't statically visible.
+  outputFileTracingIncludes: {
+    "/**": ["./public/about-logos/**/*"],
   },
 };
 

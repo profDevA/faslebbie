@@ -768,9 +768,26 @@ export default function AboutContent({
         />
       )}
 
-      {/* External links (Figma 807:19215–19234): red text + ↗, underline on
-          hover. CV/Resume open files; LinkedIn/Email leave the site. */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-10 gap-y-3">
+      {/* Footer row (Figma 807:19215–19234): Testimonials + CV / Resume /
+          LinkedIn / Email. Fas 07/30 — always expose Testimonials here (same
+          style as the other links) so readers don't have to find the in-bio
+          "what people are saying" keyword. Opens the same modal. */}
+      {/* Single row, tight gaps — keep body font size (Fas 07/30). */}
+      <div className="mt-2 flex flex-nowrap items-center gap-x-3 sm:gap-x-4 lg:gap-x-5">
+        {testimonials.length > 0 && (
+          <button
+            type="button"
+            data-about-key
+            onClick={() => openPanel(TESTIMONIAL_KEY)}
+            data-cursor="hover"
+            className="group inline-flex shrink-0 items-center gap-0 text-accent text-shadow-token"
+          >
+            <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
+              Testimonials
+            </span>
+            <ArrowUpRight className="h-[1em] w-[1em] shrink-0 translate-y-[0.04em] transition-transform duration-200 group-hover:translate-x-[0.06em] group-hover:translate-y-[-0.06em]" />
+          </button>
+        )}
         {links.map(link => (
           <a
             key={link.label}
@@ -778,7 +795,7 @@ export default function AboutContent({
             target={link.href.startsWith('http') ? '_blank' : undefined}
             rel={link.href.startsWith('http') ? 'noreferrer' : undefined}
             data-cursor="hover"
-            className="group inline-flex items-center gap-0 text-accent text-shadow-token"
+            className="group inline-flex shrink-0 items-center gap-0 text-accent text-shadow-token"
           >
             {/* Underline is a border (not text-decoration) so the token's
                 drop-shadow lands on the letters only, not the line (Figma). */}
