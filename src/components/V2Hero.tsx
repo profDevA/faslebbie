@@ -1,20 +1,27 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import HeroParagraph from '@/components/HeroParagraph'
 import type { HomeContentData } from '@/lib/homeFromSanity'
-import { contentDrift, INTRO_REVEAL, revealProgress } from '@/lib/reveal'
+import { HOME_INTRO_REVEAL } from '@/lib/reveal'
 
-// The wordmark→content dissolve should only play the FIRST time Home is opened
-// in a session. Returning Home (e.g. via the nav "Home" link) must jump straight
-// to the revealed content, not replay the intro (Fas 07/21). We latch that in
-// sessionStorage once the reveal completes. useLayoutEffect on the client (and a
-// no-op on the server) applies the latched state before paint, so there's no
-// flash of the intro on return.
+// Returning to Home from another page must NOT replay the intro (Fas 07/21), so
+// completing it latches a flag in sessionStorage.
 const REVEAL_KEY = 'home-revealed'
-const useIsoLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+// False again on every full document load, but survives client-side navigation.
+// This is what tells the two cases apart:
+//
+//  - Full page load. The server has ALREADY rendered (and the browser is about
+//    to paint) the intro's first frame — wordmark in front, paragraph dim behind.
+//    Nothing we do after hydration can un-paint that, so honouring the latch
+//    here is exactly what made the wordmark "show for about 0.1s and disappear"
+//    (Fas 07/30). So a full load always plays the intro, from its first frame.
+//  - Client-side navigation back to Home. React renders on the client with no
+//    server HTML involved, so the latch can be applied in the very first render
+//    and the settled page is the only thing ever painted.
+let documentPainted = false
 
 /**
  * aidesign-os-style shell hero (Fas 06/14 ask — reference: aidesign-os.com).
@@ -26,6 +33,15 @@ const useIsoLayoutEffect =
  *  - It is slightly soft (tiny ~2px text-shadow), not sharp.
  *  - On scroll its colour fades from near-black toward the page grey; the real
  *    content (the clickable paragraph, then the About copy) reads on top.
+ *
+ * Fas 07/30: the dissolve is restored on HOME ONLY (section pages stay settled —
+ * see INTRO_REVEAL). It is driven by real vertical page scroll, so the hero has
+ * to be tall enough to scroll through — the `h-[200vh]` below is what makes Home
+ * scrollable at all — but that scroll is spent ENTIRELY on the dissolve: both
+ * layers are fixed to the viewport, so nothing on screen ever travels. The "no
+ * phantom up/down scroll" fix stays in place for every state where the intro
+ * ISN'T playing: coming back to Home from another page gives a single screen with
+ * no scrollbar.
  */
 
 // smoothstep ramp: 0 below `a`, 1 above `b`, eased in between.
@@ -48,16 +64,25 @@ function mix(t: number) {
 }
 
 /**
- * Starting point for every progress value. With INTRO_REVEAL off this is 1
- * (fully settled) from the FIRST render — server included — so the wordmark is
- * never painted in front, not even for a frame. Fas 07/30: "it appears in front
- * about 0.1s on first load… it should be behind from the first moment."
+ * Starting point for every progress value: 0 = wordmark in front / paragraph dim
+ * behind it (the intro's first frame), 1 = fully settled.
+ *
+ * Whatever this returns is what gets PAINTED first, so it must already be the
+ * final answer — never "intro" followed by a correction (Fas 07/30: "it appears
+ * in front about 0.1s… it should be behind from the first moment"). During SSR
+ * and the hydration pass it therefore has to return the same thing, and the
+ * session latch only gets a say once we're past that.
  */
-const SETTLED = INTRO_REVEAL ? 0 : 1
+function startProgress() {
+  if (!HOME_INTRO_REVEAL) return 1
+  if (typeof window === 'undefined' || !documentPainted) return 0
+  return sessionStorage.getItem(REVEAL_KEY) ? 1 : 0
+}
 
 export default function V2Hero({ content }: { content?: HomeContentData }) {
   const ref = useRef<HTMLElement>(null)
-  const [p, setP] = useState(SETTLED) // 0 = top, 1 = past the hero scroll range
+  const [start] = useState(startProgress)
+  const [p, setP] = useState(start) // 0 = top, 1 = past the hero scroll range
   // The dissolve plays ONCE. `fade`/`rEff` RATCHET — they can only ever
   // increase, never decrease — so once the wordmark has receded and the content
   // is clear, scrolling back up (even all the way to the top) never brings it
@@ -65,26 +90,22 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
   // first time"). A boolean latch wasn't enough because the wordmark drops
   // behind at ~50% but only "completed" near 100%. Computed in the scroll
   // handler (refs can't be touched during render).
-  const [fade, setFade] = useState(SETTLED) // 0 = wordmark in front, 1 = receded
-  const [rEff, setREff] = useState(SETTLED) // ratcheted content drift progress
-  const fadeMax = useRef(SETTLED)
-  const rMax = useRef(SETTLED)
-
-  // If Home has already been revealed this session, start fully revealed so the
-  // content shows immediately (no scroll-to-reveal, no intro replay).
-  useIsoLayoutEffect(() => {
-    if (!INTRO_REVEAL) return // already settled from the first render
-    if (sessionStorage.getItem(REVEAL_KEY)) {
-      fadeMax.current = 1
-      rMax.current = 1
-      setP(1)
-      setFade(1)
-      setREff(1)
-    }
-  }, [])
+  const [fade, setFade] = useState(start) // 0 = wordmark in front, 1 = receded
+  const fadeMax = useRef(start)
 
   useEffect(() => {
-    if (!INTRO_REVEAL) return // no dissolve to drive; see INTRO_REVEAL in lib/reveal
+    documentPainted = true
+  }, [])
+
+  // The intro is "live" — and Home is therefore scrollable — whenever the page
+  // opened on the intro's first frame. Decided at the first render and never
+  // changed afterwards: the hero's height depends on it, and shrinking the page
+  // mid-gesture would clamp the scroll position and yank the visitor back to the
+  // top halfway through the dissolve.
+  const introActive = start === 0
+
+  useEffect(() => {
+    if (!introActive) return // no dissolve to drive; see INTRO_REVEAL in lib/reveal
     const el = ref.current
     if (!el) return
     const onScroll = () => {
@@ -96,19 +117,20 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
       const pv = total > 0 ? scrolled / total : 0
       setP(pv)
       // Wide, gentle ramp so the transition "dissolves" in softly (Israel 06/23).
-      const nextFade = Math.max(fadeMax.current, ramp(0.04, 0.72, pv))
+      // It finishes at the BOTTOM of the pin (pv 1) rather than at 72%, so the
+      // scroll the visitor is given is exactly the scroll the dissolve needs —
+      // no leftover stretch that scrolls with nothing happening in it. The pin
+      // was shortened to match, so the pacing per scrolled pixel is unchanged.
+      const nextFade = Math.max(fadeMax.current, ramp(0.06, 1, pv))
       fadeMax.current = nextFade
       setFade(nextFade)
       // Latch "revealed" once the dissolve is essentially complete, so future
       // returns to Home skip the intro.
       if (nextFade >= 0.99) sessionStorage.setItem(REVEAL_KEY, '1')
-      const nextR = Math.max(
-        rMax.current,
-        revealProgress(window.scrollY, window.innerHeight),
-      )
-      rMax.current = nextR
-      setREff(nextR)
     }
+    // A reload keeps the browser's old scroll position, which would hand the
+    // intro to the scroll handler already finished. Start it from the top.
+    if (window.scrollY) window.scrollTo(0, 0)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
@@ -116,7 +138,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [])
+  }, [introActive])
 
   const nameColor = mix(fade)
   // Tiny softening only (Israel 06/22: "very small, about 1–2px"), not the heavy
@@ -143,16 +165,18 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
   const paraBlur = (1 - fade) * START_BLUR
   const paraFront = fade >= 0.4
 
-  // 240vh gives the dissolve room to play out. With the intro off that extra
-  // ~140vh is scroll with nothing in it — the Home "goes up and down but
-  // there's nothing to go down to" Fas flagged — so it collapses to a single
-  // screen.
+  // THIS is what gives Home its vertical scroll: 200vh = one screen of content
+  // plus one screen of scroll for the dissolve to play through, which now ends
+  // exactly at the bottom of it.
   //
-  // NOT `h-screen`: the nav is `sticky`, which still occupies flow space, so a
-  // 100vh hero under a 52px nav makes the page 52px taller than the viewport
+  // Once the intro has played (or on any later visit this session) the extra
+  // screen would be scroll with nothing in it — the Home that "goes up and down
+  // but there's nothing to go down to" Fas flagged — so it collapses to a single
+  // screen. NOT `h-screen`: the nav is `sticky`, which still occupies flow space,
+  // so a 100vh hero under a 52px nav makes the page 52px taller than the viewport
   // and you get a scrollbar with nothing behind it. Subtract the nav (h-13 =
-  // 3.25rem) so Home fits exactly one screen with no vertical scroll at all.
-  const heroHeight = INTRO_REVEAL ? 'h-[240vh]' : 'h-[calc(100vh-3.25rem)]'
+  // 3.25rem) so a settled Home fits exactly one screen, no scrollbar.
+  const heroHeight = introActive ? 'h-[200vh]' : 'h-[calc(100vh-3.25rem)]'
 
   return (
     <section ref={ref} className={`relative shrink-0 ${heroHeight}`}>
@@ -204,7 +228,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
 
       {/* (1) → (2) counter (fixed, subtle) — tracks the intro's two stages, so
           it's meaningless (and stuck on "2 / 2") once the intro is off. */}
-      {INTRO_REVEAL && (
+      {introActive && (
         <div
           aria-hidden
           className="pointer-events-none fixed right-6 top-6 z-30 font-grotesk text-[14px] tabular-nums tracking-[0.15em] text-black/40"
@@ -213,22 +237,23 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
         </div>
       )}
 
-      {/* Interactive paragraph — fades to the foreground (opacity only). The
-          block is CENTRED in the viewport (equal margins); the text inside stays
-          left-aligned to match Figma (Israel 06/23 — "justify to the left"). */}
+      {/* Interactive paragraph — it ONLY brightens and de-blurs. The text never
+          moves: not a slide, not a rise, not a pixel, from the first frame
+          onwards (Fas 07/30 — "text should not move from start to forever").
+          While the intro is scrolling it is therefore FIXED to the viewport, not
+          `sticky` (sticky still slides up by the height of the nav before it
+          latches). The box is the exact area a settled Home lays the paragraph
+          out in — under the nav, down to the bottom — so both states centre it
+          identically; the text inside stays left-aligned to match Figma (Israel
+          06/23 — "justify to the left"). */}
       <div
         style={{
           opacity: paraOpacity,
           filter: paraBlur ? `blur(${paraBlur}px)` : undefined,
-          transform: contentDrift(rEff),
           pointerEvents: paraFront ? 'auto' : 'none',
         }}
-        className={`flex items-center justify-center px-6 will-change-[opacity,filter,transform] lg:px-[5vw] ${
-          // With the intro on, the paragraph pins for the length of the
-          // dissolve. With it off there's nothing to pin against, and a 100vh
-          // child inside a shorter section would push the page over one screen
-          // again — so it just fills the hero.
-          INTRO_REVEAL ? 'sticky top-0 h-screen' : 'h-full'
+        className={`flex items-center justify-center px-6 will-change-[opacity,filter] lg:px-[5vw] ${
+          introActive ? 'fixed inset-x-0 bottom-0 top-13' : 'h-full'
         }`}
       >
         <div className="w-full max-w-272 text-left">
