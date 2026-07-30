@@ -1,14 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import {
-  type WorkToken,
-  WORK_CREDIT,
-  workNarrative,
-} from "@/lib/content";
+import { type Testimonial, type WorkToken, WORK_CREDIT } from "@/lib/content";
+import { workFromSanity } from "@/lib/workFromSanity";
 import CaseStudyView from "@/components/CaseStudyView";
-import ToolStack from "@/components/ToolStack";
+import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
 import {
   contentDrift,
@@ -17,6 +14,7 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import ViewToggle from "@/components/ViewToggle";
 import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
@@ -80,18 +78,21 @@ export default function WorkBody({
   projects,
   categories,
   config,
+  testimonials = [],
 }: {
   projects: Study[];
   categories: string[];
   config?: WorkPageConfig | null;
+  testimonials?: Testimonial[];
 }) {
-  // View availability from the Work Page singleton (defaults to both on). When
-  // only one view is enabled the toggle is hidden and that view is forced —
-  // "Hide toggle if only one view is enabled" (Figma backend spec 1260:890).
-  const textOn = config?.enableTextView !== false;
-  const imgOn = config?.enableImageView !== false;
+  // View availability + ".txt" narrative from the Work Page singleton (defaults
+  // to both views on + in-code narrative when Sanity is empty).
+  const work = workFromSanity(config);
+  const textOn = work.enableTextView;
+  const imgOn = work.enableImageView;
   const showToggle = textOn && imgOn;
-  const bgColor = config?.appearance?.backgroundColor?.hex;
+  const bgColor = work.appearance?.backgroundColor?.hex;
+  const narrative = work.narrative;
 
   // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
   // popup, don't create a new path"). No route change — `openSlug` drives the
@@ -288,23 +289,7 @@ export default function WorkBody({
   // engages right under the nav like About: the content is held in place and only
   // brightens until the watermark has fully receded, then the page scrolls.
   const viewToggle = (
-    <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
-      {(["txt", "img"] as const).map((v) => (
-        <button
-          key={v}
-          type="button"
-          onClick={() => switchView(v)}
-          data-cursor="hover"
-          // Israel 07/02 link system: same colour throughout (no dimming),
-          // hover just adds the underline, the active view stays underlined.
-          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
-            view === v ? "underline" : "no-underline"
-          }`}
-        >
-          .{v}
-        </button>
-      ))}
-    </div>
+    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
   );
 
   return (
@@ -337,27 +322,16 @@ export default function WorkBody({
               </div>
             )}
             <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
-              <div className="flex flex-col gap-6 lg:sticky lg:top-[150px] lg:self-start">
-                {/* Mobile heading + Stack (desktop uses the watermark block). */}
-                <div className="lg:hidden">
-                  <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px]">
-                    Design Work
-                  </h1>
-                  <div className="mt-3 flex items-center gap-[30px]">
-                    <span className="font-serif text-[18px] tracking-[0.06em] text-black">
-                      Stack:
-                    </span>
-                    <ToolStack scale={0.75} className="gap-x-[26px] text-black" />
-                  </div>
-                </div>
-                <Image
-                  src="/portrait-about.png"
-                  alt="Portrait of Fas Lebbie"
-                  width={620}
-                  height={684}
-                  priority
+              <div
+                className={`flex flex-col gap-6 lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
+              >
+                {/* Mobile: no foreground "Design Work" heading — the wordmark +
+                    Stack live in WorkWatermark behind the portrait (Figma
+                    1:44550 / Fas 07/30), same as desktop. */}
+                <h1 className="sr-only">Design Work</h1>
+                <PagePortrait
                   style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-                  className="h-[299px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:h-[299px] lg:w-[271px]"
+                  className="relative z-10 will-change-[opacity,filter,transform]"
                 />
               </div>
 
@@ -371,10 +345,10 @@ export default function WorkBody({
                   // fully settle — so links like "Coral Health" work a touch early.
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="will-change-[opacity,filter,transform]"
+                className="relative z-10 will-change-[opacity,filter,transform]"
               >
                 <section className="pb-24 font-grotesk text-[26px] font-medium leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[42px]">
-                  {workNarrative.map((para, i) => (
+                  {narrative.map((para, i) => (
                     // Figma separates paragraphs by a full blank line (~1 line-height,
                     // ~63px at 42px/1.5) — scale the gap with the responsive font size.
                     <p key={i} className="mb-[39px] md:mb-[48px] lg:mb-[63px]">
@@ -383,6 +357,12 @@ export default function WorkBody({
                       ))}
                     </p>
                   ))}
+                  {/* Fas 07/28: testimonials link at the bottom (same as About CV). */}
+                  <TestimonialsFooterLink
+                    testimonials={testimonials}
+                    section="Work"
+                    className="mt-4"
+                  />
                 </section>
               </div>
             </main>
@@ -459,6 +439,22 @@ export default function WorkBody({
                   className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col gap-[22px]"
                   style={{ width: WALL_MENU_INNER_W }}
                 >
+                  {/* Visible way out. Fas 07/28: the filter applies on click but
+                      the only way to dismiss it was an invisible backdrop —
+                      "how do I go back out? Maybe we can put a close bar in
+                      here, because the user won't know." */}
+                  <button
+                    type="button"
+                    onClick={() => setFilterOpen(false)}
+                    data-cursor="hover"
+                    aria-label="Close filter"
+                    className="flex items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black"
+                  >
+                    <span>Close</span>
+                    <span aria-hidden className="text-[16px] leading-none">
+                      ×
+                    </span>
+                  </button>
                   {(["All", ...categories] as Filter[]).map((cat) => {
                     const active = filter === cat;
                     return (

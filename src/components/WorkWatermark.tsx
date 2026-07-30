@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
 import ToolStack from "@/components/ToolStack";
+import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
- * Big "Design Work" watermark (Figma 807:2979) — the desktop page heading, the
- * same treatment as the About watermark: Neue Haas Grotesk 75 Bold, ~200px @1440
- * (~14vw), near-black (#171717) with a soft grey drop-shadow. It lives in a
- * FIXED parallax layer: at the top it sits ON TOP of the content (sharp, dark);
- * as the page scrolls its colour fades toward the page grey and it drops behind
- * every section as a faint watermark. Desktop only — mobile keeps a small
- * heading. Only renders behind the ".txt" view (the grid view passes `show`
- * false) so it doesn't sit over the masonry grid.
+ * Big "Design Work" watermark (Figma 807:2979 desktop / 1:14815 mobile).
+ * Fixed parallax layer: fades to page grey and sits behind content.
+ *
+ * Mobile (Fas 07/30 / Figma 1:14815): no foreground heading — wordmark + Stack
+ * sit just under the portrait (background), same idea as desktop. With
+ * INTRO_REVEAL off it starts fully receded on both breakpoints.
  */
 
 function ramp(a: number, b: number, t: number) {
@@ -36,13 +35,12 @@ export default function WorkWatermark({
    *  used by the ".img" grid, where the wordmark always sits in the back. */
   receded?: boolean;
 }) {
-  // `fade` RATCHETS (never decreases): the reveal plays ONCE, so once "Design
-  // Work" has receded it stays behind — scrolling back to the top never brings
-  // it forward again (Israel 07/04). The `.img` view forces it fully receded.
-  const [fade, setFade] = useState(0);
+  const [fade, setFade] = useState(INTRO_REVEAL ? 0 : 1);
   const fadeMax = useRef(0);
 
   useEffect(() => {
+    if (!INTRO_REVEAL) return;
+
     const onScroll = () => {
       const range = window.innerHeight * PIN_VH;
       const p = range > 0 ? Math.min(1, window.scrollY / range) : 0;
@@ -59,8 +57,6 @@ export default function WorkWatermark({
     };
   }, []);
 
-  // Once forced-receded (switching to `.img`), keep the ratchet pinned so it
-  // stays behind after toggling back to `.txt`.
   useEffect(() => {
     if (receded) {
       fadeMax.current = 1;
@@ -80,19 +76,22 @@ export default function WorkWatermark({
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none fixed inset-0 hidden select-none flex-col items-start justify-center overflow-hidden px-[5.6vw] will-change-[color,opacity] lg:flex"
+      className={`pointer-events-none fixed inset-0 flex select-none flex-col items-start overflow-hidden px-5 will-change-[color,opacity] sm:px-6 lg:px-[5.6vw] pt-[430px] sm:pt-[450px] ${WORDMARK_TOP}`}
     >
-      {/* Heading + Stack are ONE block (Figma 807:2976): "Design Work" with the
-          tech-stack row flush beneath it; the whole block recedes together. */}
-      <div className="translate-y-[6vh]">
-        <span className="block whitespace-nowrap font-grotesk text-[clamp(48px,13vw,200px)] font-bold capitalize leading-[0.88] tracking-[-0.021em]">
+      {/* Mobile pt ~430 clears nav + .txt/.img + portrait so the block lands
+          at the bottom of the photo (Figma 1:14815 — wordmark @ ~643 / photo
+          ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on desktop. */}
+      <div>
+        <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
           Design Work
         </span>
-        <div className="mt-[1.4vw] flex items-center gap-[31px] pl-[0.4vw]">
-          <span className="font-serif text-[20px] tracking-[0.06em] xl:text-[26px]">
+        <div className="mt-3 flex items-center gap-5 pl-0.5 lg:mt-[1.4vw] lg:gap-[31px] lg:pl-[0.4vw]">
+          <span className="shrink-0 font-serif text-[16px] tracking-[0.06em] lg:text-[20px] xl:text-[26px]">
             Stack:
           </span>
-          <ToolStack className="gap-x-[30px]" />
+          <div className="origin-left scale-[0.58] lg:scale-100">
+            <ToolStack className="gap-x-[18px] lg:gap-x-[30px]" />
+          </div>
         </div>
       </div>
     </div>

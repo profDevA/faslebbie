@@ -11,6 +11,8 @@ export interface ProseMark {
   targetId?: string;
   kind?: string;
   href?: string;
+  /** Work narrative project mark — case-study slug. */
+  slug?: string;
 }
 
 export interface ProseRun {

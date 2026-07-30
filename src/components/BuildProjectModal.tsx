@@ -4,15 +4,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { BuildProject } from "@/lib/build";
 
-// Stylised placeholder for a concept mockup (real screenshots pending). A light
-// "browser" frame with a tinted canvas + the project name.
+// Concept mockup frame. Shows the first Sanity image when present; otherwise a
+// tinted title placeholder (same look the .img cards use).
 function ConceptFrame({
   project,
   className = "",
+  src,
 }: {
   project: BuildProject;
   className?: string;
+  /** Override which image to show (defaults to images[0]). */
+  src?: string;
 }) {
+  const image = src ?? project.images?.[0];
   return (
     <div
       className={`w-full overflow-hidden rounded-lg bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)] ${className}`}
@@ -23,16 +27,25 @@ function ConceptFrame({
         <span className="size-2 rounded-full bg-black/15" />
       </div>
       <div
-        style={{ backgroundColor: project.tint }}
-        className="flex aspect-16/10 items-center justify-center"
+        style={image ? undefined : { backgroundColor: project.tint }}
+        className="relative flex aspect-16/10 items-center justify-center overflow-hidden"
       >
-        <span
-          className={`font-logo text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
-            project.lightArt ? "text-black/25" : "text-white/90"
-          }`}
-        >
-          {project.title}
-        </span>
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
+          <img
+            src={image}
+            alt={project.title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <span
+            className={`font-logo text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
+              project.lightArt ? "text-black/25" : "text-white/90"
+            }`}
+          >
+            {project.title}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -66,8 +79,17 @@ function ConceptPreview({
           ✕
         </button>
       </div>
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto p-6 sm:p-12">
-        <ConceptFrame project={project} className="max-w-[900px]" />
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 overflow-y-auto p-6 sm:p-12">
+        {(project.images?.length ? project.images : [undefined]).map(
+          (src, i) => (
+            <ConceptFrame
+              key={src ?? i}
+              project={project}
+              src={src}
+              className="max-w-[900px]"
+            />
+          ),
+        )}
       </div>
     </div>
   );
@@ -138,14 +160,14 @@ export default function BuildProjectModal({
   const project = projects[index];
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex flex-col px-0 pt-13 sm:items-center sm:justify-center sm:p-6 sm:pt-6">
+    <div className="fixed inset-0 z-100 flex flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16">
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
         className="absolute inset-0 hidden cursor-pointer bg-[rgba(226,226,218,0.82)] sm:block"
       />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1120px,96vw)] sm:flex-none">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
         {/* Header / breadcrumb */}
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">

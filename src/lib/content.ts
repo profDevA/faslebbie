@@ -265,15 +265,44 @@ export const aboutExpansions: Record<string, AboutToken[]> = {
     { t: 'key', text: 'academic work', tone: 'gray' },
     { t: 'text', text: '.' },
   ],
-  // Top-level keywords (lorem until finalized)
-  'recognized and awarded': lorem(),
-  Product: lorem(),
+  // Ported verbatim from Fas's own live About page (faslebbie.com/about), whose
+  // "Awards" section this keyword replaces.
+  // TODO: the award MARKS (`aboutAwards` below) are still not rendered anywhere
+  // — see the note on that constant.
+  'recognized and awarded': [
+    {
+      t: 'text',
+      text: 'recognized across product design, innovation, and industry with honors including the Utah Entrepreneurship Challenge, Carnegie Mellon Teaching Fellowship, #NewMacy Cybernetics Prize, Strategic Design Excellence Award at Parsons, and an industry Webby Award for user experience. These recognitions span entrepreneurship, teaching excellence, systems thinking, and professional design practice, reflecting contributions across both academic and industry contexts.',
+    },
+  ],
+  // Live-site "As a design leader" paragraph.
+  Product: [
+    {
+      t: 'text',
+      text: "product design and design leadership — creating systems of design that link products, stakeholders, and users toward meaningful experiences. With over a decade of industry experience, I've designed and scaled products and services that have impacted millions and pushed the boundaries of user experience innovation. At Meta, I led and coached a team of designers across enterprise infrastructure and AI, operating as a player-coach: elevating craft, setting vision, mentoring execution, and building hands-on systems that scale.",
+    },
+  ],
+  // Live-site "Leadership Approach" section.
+  'Scalar Design Leadership': [
+    {
+      t: 'text',
+      text: "Scalar Design Leadership — I view leadership as an interactive system focused on resonant relationships through quality interactions. Founded on six years of applied research, my approach emphasizes design leadership across three levels of scale: scale deep (people as interconnected systems), scale wide (transdisciplinary problem-solving), and scale up (organizations as designable systems) — applied across personal, product, team, strategy, and company dimensions. This integrated perspective drives my commitment and ask of the design teams I've led, aiming to drive meaningful change through innovation, collaboration, and growth.",
+    },
+  ],
+  // Live-site "In Academia" paragraph, trimmed to the CMU half (the MIT GOV/LAB
+  // half is already spelled out in the surrounding sentence).
+  'Carnegie Mellon University': [
+    {
+      t: 'text',
+      text: 'Carnegie Mellon University, where I teach undergraduate design courses that explore systems thinking, product design, sustainability, and design futures.',
+    },
+  ],
+  // TODO(Fas): these four have no equivalent on the live site — he needs to
+  // write them. They are the only top-level keywords still showing placeholder.
   'Transition design': lorem(),
   'AI as material': lorem(),
-  'Scalar Design Leadership': lorem(),
   reader: lorem(),
   fan: lorem(),
-  'Carnegie Mellon University': lorem(),
   // Nested keywords inside the research passage (lorem until finalized)
   'design decisions': lorem(),
   'mineral systems': lorem(),
@@ -287,10 +316,17 @@ export const aboutExpansions: Record<string, AboutToken[]> = {
   'academic work': lorem(),
 }
 
-// Award marks shown in the "recognized and awarded" panel (Figma 187:2004).
-// Each SVG is an isolated export with the panel-colour background baked in, so
-// it sits flush on the panel. `h` is the Figma render height in px (widths vary,
-// so we size by height and let width follow the aspect ratio).
+// Award marks for the "recognized and awarded" keyword (Figma 187:2004).
+//
+// ⚠️ CURRENTLY ORPHANED — these render only from `panel.awards`, but
+// `aboutPanels` is `{}` since that keyword moved from a boxed panel to an
+// inline expansion, so the 5 SVGs in /public/about-awards never display.
+// Deliberately left unwired pending Fas's call on whether the marks belong in
+// the expansion (see docs/meetings/2026-07-28-actions.md).
+//
+// Each SVG is an isolated export with the background colour baked in, so it
+// sits flush. `h` is the Figma render height in px (widths vary, so we size by
+// height and let width follow the aspect ratio).
 export const aboutAwards = [
   {
     src: '/about-awards/new-macy.svg',

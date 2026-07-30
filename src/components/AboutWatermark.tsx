@@ -1,19 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
+import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
- * Big "About Me" watermark (Figma 807:19241) — the desktop page heading. Neue
- * Haas Grotesk 75 Bold, 200px @1440 (~14vw), near-black (#171717) with a soft
- * grey drop-shadow. It lives in a FIXED, parallax background layer: at the top
- * it sits ON TOP of the content (sharp, dark); as the page scrolls its colour
- * fades toward the page grey and it drops behind every section as a faint
- * watermark, letting the real bio read in front (same behaviour as the homepage
- * wordmark). Desktop only — mobile keeps the small heading.
+ * Big "About Me" watermark (Figma 807:19241). Fixed parallax layer — fades to
+ * page grey behind content. Mobile (Fas 07/30): same background treatment as
+ * Work/Teaching — sits at the bottom of the portrait, not a foreground heading.
  */
 
-// smoothstep ramp: 0 below `a`, 1 above `b`, eased between.
 function ramp(a: number, b: number, t: number) {
   const x = Math.min(1, Math.max(0, (t - a) / (b - a)));
   return x * x * (3 - 2 * x);
@@ -27,16 +23,13 @@ function mix(t: number) {
 }
 
 export default function AboutWatermark() {
-  // `fade` RATCHETS (never decreases): the reveal plays ONCE, so once the word
-  // has receded it stays behind even when you scroll back to the very top
-  // (Israel 07/04 — "why does the wordmark come up in front again?").
-  const [fade, setFade] = useState(0);
+  const [fade, setFade] = useState(INTRO_REVEAL ? 0 : 1);
   const fadeMax = useRef(0);
 
   useEffect(() => {
+    if (!INTRO_REVEAL) return;
+
     const onScroll = () => {
-      // Match AboutBody's pin distance so the word recedes over exactly the
-      // scroll where the bio brightens in place, then settles behind it.
       const range = window.innerHeight * PIN_VH;
       const p = range > 0 ? Math.min(1, window.scrollY / range) : 0;
       const next = Math.max(fadeMax.current, ramp(0.05, 0.85, p));
@@ -53,26 +46,18 @@ export default function AboutWatermark() {
   }, []);
 
   const color = mix(fade);
-  // Soft grey drop-shadow (Figma #b1afac) that dissolves as the word recedes.
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
-  // Fade the word down to ~30% once it recedes so it's only barely perceptible
-  // behind the bio (Fas 06/23).
   const opacity = 1 - fade * 0.7;
-  // On top at the start (the dim bio reads as the back layer behind it); drops
-  // behind once it fades (pointer-events stay off).
   const z = fade < 0.5 ? 30 : -10;
 
   return (
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none fixed inset-0 hidden select-none items-center overflow-hidden px-[6.4vw] font-grotesk font-bold capitalize leading-[0.88] tracking-[-0.021em] will-change-[color,opacity] lg:flex"
+      className={`pointer-events-none fixed inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[400px] sm:pt-[420px] ${WORDMARK_TOP}`}
     >
-      {/* Sits in the lower third (Figma 807:19241 ~63% down), like the Home
-          wordmark — pushed below centre rather than vertically centred. Nudged
-          a touch lower to match the Home wordmark (Israel 06/24 — "bring the
-          About down a bit… do the same on the home page"). */}
-      <span className="translate-y-[20vh] text-[clamp(48px,14vw,200px)]">
+      {/* About has no .txt/.img toggle — slightly lower pt than Work/Teaching. */}
+      <span className="text-[58px] lg:text-[clamp(48px,14vw,200px)]">
         About Me
       </span>
     </div>

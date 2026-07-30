@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import WorkBody from "@/components/WorkBody";
+import { loadTestimonials } from "@/lib/testimonials";
 import { getAllStudies, getCategories, getWorkPage } from "@/sanity/fetch";
 
 // Work / "Design Work" page (Figma 807:2954 / 823:65046 / 840:74764). Mirrors
@@ -9,17 +10,23 @@ import { getAllStudies, getCategories, getWorkPage } from "@/sanity/fetch";
 export const revalidate = 60;
 
 export default async function WorkPage() {
-  const [projects, categories, config] = await Promise.all([
+  const [projects, categories, config, testimonials] = await Promise.all([
     getAllStudies(),
     getCategories(),
     getWorkPage(),
+    loadTestimonials(),
   ]);
   return (
     <>
       <Nav dark />
       {/* WorkWatermark now lives inside WorkBody so it only renders in the ".txt"
           view (the ".img" grid must never show the "Design Work" wordmark). */}
-      <WorkBody projects={projects} categories={categories} config={config} />
+      <WorkBody
+        projects={projects}
+        categories={categories}
+        config={config}
+        testimonials={testimonials}
+      />
     </>
   );
 }

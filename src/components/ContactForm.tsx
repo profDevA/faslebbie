@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 
+import { useSite } from "@/components/SiteProvider";
+
 // "Drop Me a Line" contact form (Figma 16:45157). Centered portrait + heading,
 // Name / Email* / Message* fields on translucent white inputs, and a black
 // pill "Send Message" button. Posts to /api/contact (Resend).
@@ -14,6 +16,7 @@ const inputClass =
   "w-full rounded-[7px] border border-white/15 bg-white/10 px-[15px] font-grotesk text-[16px] text-bg outline-none transition-colors placeholder:font-light placeholder:text-white/40 focus:border-white/45";
 
 export default function ContactForm() {
+  const { contact } = useSite();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -49,7 +52,7 @@ export default function ContactForm() {
       {/* Portrait */}
       <div className="relative mx-auto h-[190px] w-[210px] overflow-hidden">
         <Image
-          src="/contact-portrait.png"
+          src={contact.portraitSrc}
           alt="Fas Lebbie"
           fill
           sizes="210px"
@@ -59,16 +62,16 @@ export default function ContactForm() {
       </div>
 
       <h1 className="mt-8 text-center font-grotesk text-[38px] font-bold leading-none tracking-[0.5px] text-bg sm:text-[44px]">
-        Drop Me a Line
+        {contact.heading}
       </h1>
 
       {status === "success" ? (
         <div className="mt-10 rounded-[7px] border border-white/15 bg-white/5 px-5 py-8 text-center">
           <p className="font-grotesk text-[20px] font-medium text-bg">
-            Thanks — your message is on its way.
+            {contact.successTitle}
           </p>
           <p className="mt-2 font-grotesk text-[15px] text-bg/60">
-            Fas will get back to you at the email you provided.
+            {contact.successBody}
           </p>
           <button
             type="button"
@@ -76,7 +79,7 @@ export default function ContactForm() {
             data-cursor="hover"
             className="mt-6 font-grotesk text-[15px] font-medium text-accent underline underline-offset-2"
           >
-            Send another
+            {contact.sendAnotherLabel}
           </button>
         </div>
       ) : (
@@ -132,7 +135,7 @@ export default function ContactForm() {
             data-cursor="hover"
             className="mt-1 h-[42px] w-fit rounded-[39px] bg-bg px-7 font-grotesk text-[16px] font-light text-black transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {status === "submitting" ? "Sending…" : "Send Message"}
+            {status === "submitting" ? "Sending…" : contact.submitLabel}
           </button>
         </form>
       )}

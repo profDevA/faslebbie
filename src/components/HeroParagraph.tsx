@@ -2,21 +2,33 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { heroSegments, panels, type HeroSegment, type SectionId } from "@/lib/content";
+
+import {
+  defaultHomeSegments,
+  type HomeHeroSegment,
+} from "@/lib/homeFromSanity";
 
 type Token =
   | { kind: "word"; text: string }
   | { kind: "space"; text: string }
-  | { kind: "keyword"; id: SectionId; text: string }
-  | { kind: "story"; text: string };
+  | { kind: "keyword"; href: string; text: string }
+  | { kind: "story"; text: string; href: string };
 
-function tokenize(segments: HeroSegment[]): Token[] {
+function tokenize(segments: HomeHeroSegment[], storyHref: string): Token[] {
   const tokens: Token[] = [];
   for (const segment of segments) {
     if (segment.type === "keyword") {
-      tokens.push({ kind: "keyword", id: segment.id, text: segment.text });
+      tokens.push({
+        kind: "keyword",
+        href: segment.href,
+        text: segment.text,
+      });
     } else if (segment.type === "story") {
-      tokens.push({ kind: "story", text: segment.text });
+      tokens.push({
+        kind: "story",
+        text: segment.text,
+        href: segment.href ?? storyHref,
+      });
     } else {
       for (const part of segment.text.split(/(\s+)/)) {
         if (!part) continue;
@@ -37,12 +49,18 @@ function tokenize(segments: HeroSegment[]): Token[] {
 export default function HeroParagraph({
   className = "",
   storyHref = "/about",
+  segments,
 }: {
   className?: string;
-  /** Where "And there's more to my story+." links. v2 passes "#about". */
+  /** Where "And there's more to my story+." links when a mark has no href. */
   storyHref?: string;
+  /** Sanity-driven segments; falls back to in-code home copy. */
+  segments?: HomeHeroSegment[];
 }) {
-  const tokens = useMemo(() => tokenize(heroSegments), []);
+  const tokens = useMemo(
+    () => tokenize(segments ?? defaultHomeSegments(), storyHref),
+    [segments, storyHref],
+  );
 
   // Figma "Component Interaction" legend (823:70182) → "Navigate to internal
   // page": red text on a light-grey rounded pill that fills to BLACK with white
@@ -60,7 +78,7 @@ export default function HeroParagraph({
         if (token.kind === "word") return <span key={i}>{token.text}</span>;
         if (token.kind === "story") {
           return (
-            <Link key={i} href={storyHref} data-cursor="hover" className={pillClass}>
+            <Link key={i} href={token.href} data-cursor="hover" className={pillClass}>
               {token.text}
             </Link>
           );
@@ -68,7 +86,7 @@ export default function HeroParagraph({
         return (
           <Link
             key={i}
-            href={panels[token.id].cta.href}
+            href={token.href}
             data-cursor="hover"
             className={pillClass}
           >

@@ -12,6 +12,8 @@ import { randomUUID } from "node:crypto";
 import { getCliClient } from "sanity/cli";
 
 import {
+  exhibitionTiles,
+  exhibitionTitle,
   students,
   teachingIntro,
   teachingSections,
@@ -95,6 +97,17 @@ async function seedTeaching() {
       span: p.span,
       tint: p.tint,
       ...(p.lightArt ? { lightArt: true } : {}),
+    })),
+    exhibitionTitle,
+    exhibitionTiles: exhibitionTiles.map((t) => ({
+      _type: "exhibitionTile",
+      _key: key(),
+      tint: t.tint,
+      span: t.span,
+      posTop: t.pos.top,
+      posLeft: t.pos.left,
+      posW: t.pos.w,
+      ...(t.label ? { label: t.label } : {}),
     })),
   };
   await client.createOrReplace(doc);

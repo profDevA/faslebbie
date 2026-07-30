@@ -22,11 +22,10 @@ export const researchProse = defineType({
             fields: [
               {
                 name: "expansion",
-                type: "text",
-                rows: 3,
+                type: "researchExpandProse",
                 title: "Reveal copy",
                 description:
-                  "Optional continuation text revealed inline when the pill is clicked.",
+                  "Optional continuation revealed inline when the pill is clicked. Can include red modal-section links.",
               },
             ],
           },

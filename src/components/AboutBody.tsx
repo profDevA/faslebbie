@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import AboutContent from "@/components/AboutContent";
+import type { AboutContentData } from "@/lib/aboutFromSanity";
 import { aboutLogos, type Testimonial } from "@/lib/content";
 import {
   contentDrift,
@@ -30,9 +31,12 @@ import { useReveal } from "@/lib/useReveal";
 export default function AboutBody({
   logoSvgs,
   testimonials,
+  content,
 }: {
   logoSvgs: Record<keyof typeof aboutLogos, string>;
   testimonials?: Testimonial[];
+  /** Bio / expansions / links from Sanity (see lib/aboutFromSanity). */
+  content?: AboutContentData;
 }) {
   // Reveal progress (0 = behind + dim + blurred, 1 = settled/clear) + pin
   // distance. Latches at 1 on first completion so scrolling back up never
@@ -49,24 +53,14 @@ export default function AboutBody({
           so the content brightens in place before the page scrolls. */}
       <div className="lg:sticky lg:top-[52px]">
         <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
-        {/* Stick the portrait exactly where it starts so it never floats up on
-            release: pin wrapper top (52) + main top padding (pt-32 = 128) =
-            180px. Keeps the photo fixed from the very top to the end. */}
-        <div className="flex flex-col lg:sticky lg:top-[180px] lg:self-start">
-          {/* Mobile: small left-aligned heading (desktop uses the watermark). */}
-          <h1 className="font-grotesk text-[42px] font-bold uppercase leading-[1.1] text-black sm:text-[50px] lg:hidden">
-            About me
-          </h1>
-          {/* Tight head-and-shoulders crop to match Figma 807:19125 (the source
-              portrait is a wide shot; this is cropped to the 271:299 frame). */}
-          <Image
-            src="/portrait-about.png"
-            alt="Portrait of Fas Lebbie"
-            width={620}
-            height={684}
-            priority
+        {/* Portrait column — shared sticky offset so the photo rests at the same
+            height as every other page (Fas 07/28). */}
+        <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
+          {/* Wordmark is AboutWatermark (background, mobile + desktop). */}
+          <h1 className="sr-only">About Me</h1>
+          <PagePortrait
             style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-            className="mt-[72px] h-[299px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[299px] lg:w-[271px]"
+            className="relative z-10 will-change-[opacity,filter,transform]"
           />
         </div>
 
@@ -79,12 +73,15 @@ export default function AboutBody({
             // hovers/clicks — only interactive once it has settled in front.
             pointerEvents: r < 1 ? "none" : undefined,
           }}
-          className="will-change-[opacity,filter,transform]"
+          className="relative z-10 will-change-[opacity,filter,transform]"
         >
           <AboutContent
             className="pb-24"
             logoSvgs={logoSvgs}
             testimonials={testimonials}
+            paragraphs={content?.paragraphs}
+            expansions={content?.expansions}
+            links={content?.links}
           />
         </div>
         </main>

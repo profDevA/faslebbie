@@ -265,6 +265,10 @@ export const teachingSections: TeachSection[] = [
 // render as a neat masonry in the ".img" view.
 export interface ExhibitionTile {
   tint: string;
+  /** Optional real photo URL (Sanity CDN); tint shows when empty. */
+  image?: string;
+  /** Optional caption under the tile in the .img grid. */
+  label?: string;
   /** Scattered-collage placement (desktop overlay), as viewport percentages. */
   pos: { top: number; left: number; w: number };
   /** Masonry height tier for the ".img" grid. */

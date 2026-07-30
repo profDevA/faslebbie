@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
+import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { useState } from "react";
-import MobileRecedeHeading from "@/components/MobileRecedeHeading";
 import LeadershipContent from "@/components/LeadershipContent";
 import LeadershipGallery from "@/components/LeadershipGallery";
 import LeadershipMomentPopup from "@/components/LeadershipMomentPopup";
 import LeadershipWatermark from "@/components/LeadershipWatermark";
-import { leadershipGallery } from "@/lib/content";
+import ViewToggle from "@/components/ViewToggle";
+import { leadershipGallery, type Testimonial } from "@/lib/content";
 import type { LeadershipContentData } from "@/lib/leadershipFromSanity";
 import {
   contentDrift,
@@ -29,8 +29,10 @@ type View = "txt" | "img";
  */
 export default function LeadershipBody({
   content,
+  testimonials = [],
 }: {
   content?: LeadershipContentData;
+  testimonials?: Testimonial[];
 } = {}) {
   const moments = content?.moments ?? leadershipGallery;
 
@@ -49,24 +51,8 @@ export default function LeadershipBody({
     window.scrollTo({ top: 0 });
   };
 
-  // ".txt / .img" toggle — centred near the top, always the same colour, hover
-  // adds the underline, the active view stays underlined (Israel 07/02).
   const viewToggle = (
-    <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
-      {(["txt", "img"] as const).map((v) => (
-        <button
-          key={v}
-          type="button"
-          onClick={() => switchView(v)}
-          data-cursor="hover"
-          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
-            view === v ? "underline" : "no-underline"
-          }`}
-        >
-          .{v}
-        </button>
-      ))}
-    </div>
+    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
   );
 
   return (
@@ -91,25 +77,18 @@ export default function LeadershipBody({
               {viewToggle}
             </div>
             <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
-              <div className="flex flex-col lg:sticky lg:top-[150px] lg:self-start">
+              <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
                 {/* Mobile (Figma 1-45348): portrait first, then the "Leadership"
                     heading that recedes on scroll. Desktop (Figma 1-44995 →
                     1-45057): the portrait sits top-left beside the wordmark and
                     stays clear in BOTH the top and reading states — so it's
                     exempt from the reveal fade/blur (only the subtle forward
                     drift applies); the prose still brightens in. */}
-                <Image
-                  src="/portrait.png"
-                  alt="Portrait of Fas Lebbie"
-                  width={360}
-                  height={299}
-                  priority
+                <h1 className="sr-only">Leadership</h1>
+                <PagePortrait
                   style={{ transform: portraitDrift(r) }}
-                  className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-transform lg:h-[286px] lg:w-[260px]"
+                  className="relative z-10 will-change-transform"
                 />
-                <MobileRecedeHeading className="mt-10 font-logo text-[42px] font-bold leading-[1.1] sm:text-[50px]">
-                  Leadership
-                </MobileRecedeHeading>
               </div>
 
               <div
@@ -119,7 +98,7 @@ export default function LeadershipBody({
                   transform: contentDrift(r),
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="will-change-[opacity,filter,transform]"
+                className="relative z-10 will-change-[opacity,filter,transform]"
               >
                 <LeadershipContent
                   className="pb-24"
@@ -130,6 +109,7 @@ export default function LeadershipBody({
                   momentsHeading={content?.momentsHeading}
                   exploreText={content?.exploreText}
                   contactText={content?.contactText}
+                  testimonials={testimonials}
                   onExplore={() => switchView("img")}
                 />
               </div>

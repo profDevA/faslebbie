@@ -5,11 +5,12 @@ import {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import TestimonialsModal from '@/components/TestimonialsModal'
 import type { AboutToken, Testimonial } from '@/lib/content'
 import {
   aboutExpansions,
@@ -95,31 +96,45 @@ function ArrowUpRight({ className = '' }: { className?: string }) {
 // We allow only one expansion open per level: opening a keyword collapses its
 // siblings but keeps its ancestor chain open (so nested keywords stay visible).
 
-// keyword -> gray keywords nested directly inside its expansion.
-const keywordChildren: Record<string, string[]> = Object.fromEntries(
-  Object.entries(aboutExpansions).map(([k, toks]) => [
-    k,
-    toks.flatMap(t => (t.t === 'key' ? [t.text] : [])),
-  ]),
-)
+// keyword -> gray keywords nested directly inside its expansion. Derived from
+// whichever expansion set is in play (Sanity's, or the in-code fallback), so
+// the nesting rules follow the content rather than being fixed at build time.
+type KeywordTree = Record<string, string[]>
 
-function descendantsOf(key: string, acc = new Set<string>()): Set<string> {
-  for (const child of keywordChildren[key] ?? []) {
+function keywordTree(expansions: Record<string, AboutToken[]>): KeywordTree {
+  return Object.fromEntries(
+    Object.entries(expansions).map(([k, toks]) => [
+      k,
+      toks.flatMap(t => (t.t === 'key' ? [t.text] : [])),
+    ]),
+  )
+}
+
+function descendantsOf(
+  tree: KeywordTree,
+  key: string,
+  acc = new Set<string>(),
+): Set<string> {
+  for (const child of tree[key] ?? []) {
     if (!acc.has(child)) {
       acc.add(child)
-      descendantsOf(child, acc)
+      descendantsOf(tree, child, acc)
     }
   }
   return acc
 }
 
-function ancestorsOf(key: string, seen = new Set<string>()): Set<string> {
+function ancestorsOf(
+  tree: KeywordTree,
+  key: string,
+  seen = new Set<string>(),
+): Set<string> {
   const result = new Set<string>()
-  for (const [parent, children] of Object.entries(keywordChildren)) {
+  for (const [parent, children] of Object.entries(tree)) {
     if (children.includes(key) && !seen.has(parent)) {
       seen.add(parent)
       result.add(parent)
-      for (const a of ancestorsOf(parent, seen)) result.add(a)
+      for (const a of ancestorsOf(tree, parent, seen)) result.add(a)
     }
   }
   return result
@@ -218,144 +233,6 @@ function AboutPanel({
           </Link>
         )}
     </PanelShell>
-  )
-}
-
-// "What people are saying" — a full-screen MODAL pop-up (Figma 41:1539). The
-// red link opens a large split card: an "About / Testimonials" breadcrumb bar
-// on top, a two-tone body (light grey panel with the avatar + name + role on
-// the left, dark panel with the quote on the right), and a footer with
-// "< Previous" · dots · "Next >" in red. Portaled to <body> so it centres on
-// the viewport above the page content's scroll-fade.
-function TestimonialsModal({
-  testimonials,
-  onClose,
-}: {
-  testimonials: Testimonial[]
-  onClose: () => void
-}) {
-  const [i, setI] = useState(0)
-  const max = testimonials.length - 1
-  const go = (d: number) => setI(c => Math.min(max, Math.max(0, c + d)))
-
-  // Arrow keys page through the testimonials (Escape is handled globally).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') setI(c => Math.max(0, c - 1))
-      if (e.key === 'ArrowRight') setI(c => Math.min(max, c + 1))
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [max])
-
-  if (typeof document === 'undefined') return null
-  const t = testimonials[i]
-  // The data keeps a leading "- " on the role for the old layout; the split
-  // card shows it clean ("Service Delivery Manager, Meta").
-  const role = t.role.replace(/^[-–\s]+/, '')
-
-  return createPortal(
-    <div
-      data-about-panel
-      role="dialog"
-      aria-modal="true"
-      aria-label={TESTIMONIAL_KEY}
-      onClick={onClose}
-      // The pop-up backdrop is the WIP3 cream tint (80%), matching the
-      // case-study pop-up system rather than a dark dim.
-      className="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(226,226,218,0.85)] p-4 animate-[panel-in_0.2s_ease-out] lg:p-8"
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        // Fixed height so paging through quotes of different lengths doesn't
-        // resize the card (the quote panel scrolls instead).
-        className="relative flex h-[92vh] max-h-[820px] w-full max-w-[1100px] flex-col overflow-hidden bg-close shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
-      >
-        {/* Breadcrumb bar (Figma 41:1599): "About / Testimonials" + × close. */}
-        <div className="flex shrink-0 items-center justify-between border-b border-black/10 px-6 py-4 lg:px-9 lg:py-5">
-          <p className="font-grotesk text-[15px] tracking-wider">
-            <span className="text-black/45">About</span>
-            <span className="mx-1.5 text-black/35">/</span>
-            <span className="text-black underline underline-offset-4">
-              Testimonials
-            </span>
-          </p>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            data-cursor="hover"
-            className="text-[26px] leading-none text-black/70 transition-colors hover:text-black"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Two-tone body: grey identity panel + dark quote panel. Stacks on
-            small screens. */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
-          <div className="flex flex-col items-center justify-center gap-5 bg-[#c9c9c4] px-6 py-8 text-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={t.avatar}
-              alt={t.name}
-              className="h-[120px] w-[108px] shrink-0 bg-black/5 object-cover"
-            />
-            <div>
-              <p className="font-grotesk text-[36px] font-normal leading-tight tracking-[0.5px] text-[#1a1a1a] lg:text-[44px]">
-                {t.name}
-              </p>
-              <p className="mt-1 font-grotesk text-[14px] tracking-wider text-black/60">
-                {role}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center overflow-y-auto bg-[#1c1c1c] px-6 py-8 lg:px-12">
-            <p className="max-w-[420px] text-center font-grotesk text-[14px] font-normal capitalize leading-[1.55] tracking-wider text-white/85 lg:text-[15px]">
-              “{t.quote}”
-            </p>
-          </div>
-        </div>
-
-        {/* Footer (Figma 41:1604): "< Previous" · dots · "Next >" in red. */}
-        <div className="flex shrink-0 items-center justify-between gap-4 border-t border-black/10 px-6 py-4 lg:px-16 lg:py-5">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            disabled={i === 0}
-            data-cursor="hover"
-            className="font-grotesk text-[16px] font-bold text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-          >
-            {'< Previous'}
-          </button>
-          <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
-            {testimonials.map((tItem, idx) => (
-              <button
-                key={tItem.name}
-                type="button"
-                onClick={() => setI(idx)}
-                aria-label={`Show testimonial ${idx + 1}: ${tItem.name}`}
-                aria-current={idx === i}
-                data-cursor="hover"
-                className={`size-2 shrink-0 rounded-full transition-colors ${
-                  idx === i ? 'bg-accent' : 'bg-black/20 hover:bg-black/40'
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            disabled={i === max}
-            data-cursor="hover"
-            className="font-grotesk text-[16px] font-bold text-accent underline-offset-2 transition-opacity enabled:hover:underline disabled:opacity-30"
-          >
-            {'Next >'}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
   )
 }
 
@@ -462,6 +339,7 @@ type RenderCtx = {
   activePanel: string | null // red keyword whose boxed panel is open
   setActivePanel: (key: string | null) => void
   logoSvgs: Record<keyof typeof aboutLogos, string> // inline SVG markup per logo
+  expansions: Record<string, AboutToken[]> // keyword -> reveal copy
   expanded?: boolean // true while rendering an inline gray-keyword expansion
 }
 
@@ -575,7 +453,7 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
       )
 
     const inlineOpen = ctx.open.has(tok.text)
-    const expansion = aboutExpansions[tok.text]
+    const expansion = ctx.expansions[tok.text]
 
     return (
       <Fragment key={key}>
@@ -706,7 +584,7 @@ function MeasuredParagraph({
           if (tok.t === 'key') {
             const part1 = tok.text.slice(0, placement.at).trim()
             const part2 = tok.text.slice(placement.at).trim()
-            const expansion = aboutExpansions[tok.text]
+            const expansion = ctx.expansions[tok.text]
             return (
               <Fragment key={j}>
                 {renderKeyPill(tok, ctx, part1, `${prefix}-${j}-a`)}
@@ -761,13 +639,23 @@ export default function AboutContent({
   className = '',
   logoSvgs,
   testimonials = fallbackTestimonials,
+  paragraphs = aboutParagraphs,
+  expansions = aboutExpansions,
+  links = aboutLinks.map(l => ({ label: l.label, href: l.href })),
 }: {
   className?: string
   logoSvgs: Record<keyof typeof aboutLogos, string>
   testimonials?: Testimonial[]
+  // Content comes from Sanity (see lib/aboutFromSanity). The in-code copy is
+  // the default so the page still renders if the dataset is empty.
+  paragraphs?: AboutToken[][]
+  expansions?: Record<string, AboutToken[]>
+  links?: { label: string; href: string }[]
 }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set())
   const [activePanel, setActivePanel] = useState<string | null>(null)
+
+  const tree = useMemo(() => keywordTree(expansions), [expansions])
 
   // Accordion: clicking an open keyword collapses it (and its descendants);
   // clicking a closed one opens it and keeps only its ancestor chain, so any
@@ -779,10 +667,10 @@ export default function AboutContent({
       if (prev.has(key)) {
         const next = new Set(prev)
         next.delete(key)
-        for (const d of descendantsOf(key)) next.delete(d)
+        for (const d of descendantsOf(tree, key)) next.delete(d)
         return next
       }
-      const next = ancestorsOf(key)
+      const next = ancestorsOf(tree, key)
       next.add(key)
       return next
     })
@@ -825,6 +713,7 @@ export default function AboutContent({
     activePanel,
     setActivePanel: openPanel,
     logoSvgs,
+    expansions,
   }
 
   return (
@@ -832,7 +721,7 @@ export default function AboutContent({
       id="about"
       className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
-      {aboutParagraphs.map((para, i) => {
+      {paragraphs.map((para, i) => {
         // A red keyword in this paragraph whose boxed panel expands inline.
         // "what people are saying" is excluded — it opens a centred modal
         // pop-up instead (rendered below), not an inline box (Israel 06/23).
@@ -874,6 +763,7 @@ export default function AboutContent({
       {activePanel === TESTIMONIAL_KEY && (
         <TestimonialsModal
           testimonials={testimonials}
+          section="About"
           onClose={() => setActivePanel(null)}
         />
       )}
@@ -881,7 +771,7 @@ export default function AboutContent({
       {/* External links (Figma 807:19215–19234): red text + ↗, underline on
           hover. CV/Resume open files; LinkedIn/Email leave the site. */}
       <div className="mt-2 flex flex-wrap items-center gap-x-10 gap-y-3">
-        {aboutLinks.map(link => (
+        {links.map(link => (
           <a
             key={link.label}
             href={link.href}

@@ -13,7 +13,13 @@ export const workPage = defineType({
       type: "string",
       initialValue: "Work",
     }),
-    defineField({ name: "intro", title: "Intro", type: "portableText" }),
+    defineField({
+      name: "intro",
+      title: ".txt narrative",
+      type: "workProse",
+      description:
+        "One paragraph per block. Mark project names with Project link (case-study slug) or Org name for non-clickable red orgs.",
+    }),
     defineField({
       name: "enableTextView",
       title: "Enable text (.txt) view",

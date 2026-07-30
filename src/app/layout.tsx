@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
+import { SiteProvider } from "@/components/SiteProvider";
+import { siteFromSanity } from "@/lib/siteFromSanity";
+import { getSiteSettings } from "@/sanity/fetch";
 
 // Reckless Neue (Displaay) — Fas's own licensed webfonts, migrated from
 // faslebbie.com. Weights: Regular 400, Medium 500, SemiBold 600, Bold 700.
@@ -45,19 +48,22 @@ export const metadata: Metadata = {
     "Designer, researcher, educator — using design as a force for systems transition at scale.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const site = siteFromSanity(await getSiteSettings());
   return (
     <html
       lang="en"
       className={`${reckless.variable} ${poppins.variable} ${nhaas.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <DotCursor />
-        {children}
+        <SiteProvider value={site}>
+          <DotCursor />
+          {children}
+        </SiteProvider>
       </body>
     </html>
   );

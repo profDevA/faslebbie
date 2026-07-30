@@ -95,14 +95,14 @@ export default function StudentModal({
   if (!mounted || !project) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex flex-col px-0 pt-13 sm:items-center sm:justify-center sm:p-6 sm:pt-6">
+    <div className="fixed inset-0 z-100 flex flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16">
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
         className="absolute inset-0 hidden cursor-pointer bg-[rgba(226,226,218,0.82)] sm:block"
       />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1180px,96vw)] sm:flex-none">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
         {/* Header / breadcrumb */}
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">

@@ -3,7 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import HeroParagraph from '@/components/HeroParagraph'
-import { contentDrift, revealProgress } from '@/lib/reveal'
+import type { HomeContentData } from '@/lib/homeFromSanity'
+import { contentDrift, INTRO_REVEAL, revealProgress } from '@/lib/reveal'
 
 // The wordmark→content dissolve should only play the FIRST time Home is opened
 // in a session. Returning Home (e.g. via the nav "Home" link) must jump straight
@@ -46,9 +47,17 @@ function mix(t: number) {
   return `rgb(${c[0]}, ${c[1]}, ${c[2]})`
 }
 
-export default function V2Hero() {
+/**
+ * Starting point for every progress value. With INTRO_REVEAL off this is 1
+ * (fully settled) from the FIRST render — server included — so the wordmark is
+ * never painted in front, not even for a frame. Fas 07/30: "it appears in front
+ * about 0.1s on first load… it should be behind from the first moment."
+ */
+const SETTLED = INTRO_REVEAL ? 0 : 1
+
+export default function V2Hero({ content }: { content?: HomeContentData }) {
   const ref = useRef<HTMLElement>(null)
-  const [p, setP] = useState(0) // 0 = top, 1 = past the hero scroll range
+  const [p, setP] = useState(SETTLED) // 0 = top, 1 = past the hero scroll range
   // The dissolve plays ONCE. `fade`/`rEff` RATCHET — they can only ever
   // increase, never decrease — so once the wordmark has receded and the content
   // is clear, scrolling back up (even all the way to the top) never brings it
@@ -56,14 +65,15 @@ export default function V2Hero() {
   // first time"). A boolean latch wasn't enough because the wordmark drops
   // behind at ~50% but only "completed" near 100%. Computed in the scroll
   // handler (refs can't be touched during render).
-  const [fade, setFade] = useState(0) // 0 = wordmark in front, 1 = fully receded
-  const [rEff, setREff] = useState(0) // ratcheted content drift progress
-  const fadeMax = useRef(0)
-  const rMax = useRef(0)
+  const [fade, setFade] = useState(SETTLED) // 0 = wordmark in front, 1 = receded
+  const [rEff, setREff] = useState(SETTLED) // ratcheted content drift progress
+  const fadeMax = useRef(SETTLED)
+  const rMax = useRef(SETTLED)
 
   // If Home has already been revealed this session, start fully revealed so the
   // content shows immediately (no scroll-to-reveal, no intro replay).
   useIsoLayoutEffect(() => {
+    if (!INTRO_REVEAL) return // already settled from the first render
     if (sessionStorage.getItem(REVEAL_KEY)) {
       fadeMax.current = 1
       rMax.current = 1
@@ -74,6 +84,7 @@ export default function V2Hero() {
   }, [])
 
   useEffect(() => {
+    if (!INTRO_REVEAL) return // no dissolve to drive; see INTRO_REVEAL in lib/reveal
     const el = ref.current
     if (!el) return
     const onScroll = () => {
@@ -132,8 +143,19 @@ export default function V2Hero() {
   const paraBlur = (1 - fade) * START_BLUR
   const paraFront = fade >= 0.4
 
+  // 240vh gives the dissolve room to play out. With the intro off that extra
+  // ~140vh is scroll with nothing in it — the Home "goes up and down but
+  // there's nothing to go down to" Fas flagged — so it collapses to a single
+  // screen.
+  //
+  // NOT `h-screen`: the nav is `sticky`, which still occupies flow space, so a
+  // 100vh hero under a 52px nav makes the page 52px taller than the viewport
+  // and you get a scrollbar with nothing behind it. Subtract the nav (h-13 =
+  // 3.25rem) so Home fits exactly one screen with no vertical scroll at all.
+  const heroHeight = INTRO_REVEAL ? 'h-[240vh]' : 'h-[calc(100vh-3.25rem)]'
+
   return (
-    <section ref={ref} className="relative h-[240vh] shrink-0">
+    <section ref={ref} className={`relative shrink-0 ${heroHeight}`}>
       {/* FIXED parallax background — stays behind every section of the page.
           Layout per Figma 224-747: "Fas lebbie" + portrait on one line, then
           "Ph.D." on the next line, right-aligned. No background words. */}
@@ -180,13 +202,16 @@ export default function V2Hero() {
         </div>
       </div>
 
-      {/* (1) → (2) counter (fixed, subtle) */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed right-6 top-6 z-30 font-grotesk text-[14px] tabular-nums tracking-[0.15em] text-black/40"
-      >
-        ({p < 0.5 ? 1 : 2})<span className="text-black/20"> / (2)</span>
-      </div>
+      {/* (1) → (2) counter (fixed, subtle) — tracks the intro's two stages, so
+          it's meaningless (and stuck on "2 / 2") once the intro is off. */}
+      {INTRO_REVEAL && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed right-6 top-6 z-30 font-grotesk text-[14px] tabular-nums tracking-[0.15em] text-black/40"
+        >
+          ({p < 0.5 ? 1 : 2})<span className="text-black/20"> / (2)</span>
+        </div>
+      )}
 
       {/* Interactive paragraph — fades to the foreground (opacity only). The
           block is CENTRED in the viewport (equal margins); the text inside stays
@@ -198,10 +223,19 @@ export default function V2Hero() {
           transform: contentDrift(rEff),
           pointerEvents: paraFront ? 'auto' : 'none',
         }}
-        className="sticky top-0 flex h-screen items-center justify-center px-6 will-change-[opacity,filter,transform] lg:px-[5vw]"
+        className={`flex items-center justify-center px-6 will-change-[opacity,filter,transform] lg:px-[5vw] ${
+          // With the intro on, the paragraph pins for the length of the
+          // dissolve. With it off there's nothing to pin against, and a 100vh
+          // child inside a shorter section would push the page over one screen
+          // again — so it just fills the hero.
+          INTRO_REVEAL ? 'sticky top-0 h-screen' : 'h-full'
+        }`}
       >
         <div className="w-full max-w-272 text-left">
-          <HeroParagraph storyHref="/about" />
+          <HeroParagraph
+            storyHref={content?.storyHref ?? '/about'}
+            segments={content?.segments}
+          />
         </div>
       </div>
     </section>

@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { useState } from "react";
-import MobileRecedeHeading from "@/components/MobileRecedeHeading";
 import TeachingContent from "@/components/TeachingContent";
 import TeachingGallery from "@/components/TeachingGallery";
 import TeachingWatermark from "@/components/TeachingWatermark";
+import ViewToggle from "@/components/ViewToggle";
 import StudentModal from "@/components/StudentModal";
 import ExhibitionOverlay from "@/components/ExhibitionOverlay";
 import { students as fallbackStudents, teachingIntro, teachingSections } from "@/lib/teaching";
@@ -38,6 +38,8 @@ export default function TeachingBody({
   const intro = content?.intro ?? teachingIntro;
   const sections = content?.sections ?? teachingSections;
   const students = content?.students ?? fallbackStudents;
+  const exhibitionTitle = content?.exhibitionTitle;
+  const exhibitionTiles = content?.exhibitionTiles;
 
   const [view, setView] = useState<View>("txt");
   const [openStudent, setOpenStudent] = useState<string | null>(null);
@@ -55,21 +57,7 @@ export default function TeachingBody({
   };
 
   const viewToggle = (
-    <div className="relative z-20 flex items-center justify-center gap-10 pt-9 lg:pt-12">
-      {(["txt", "img"] as const).map((v) => (
-        <button
-          key={v}
-          type="button"
-          onClick={() => switchView(v)}
-          data-cursor="hover"
-          className={`font-grotesk text-[22px] font-medium leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
-            view === v ? "underline" : "no-underline"
-          }`}
-        >
-          .{v}
-        </button>
-      ))}
-    </div>
+    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
   );
 
   return (
@@ -91,22 +79,15 @@ export default function TeachingBody({
               {viewToggle}
             </div>
             <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
-              <div className="flex flex-col lg:sticky lg:top-[150px] lg:self-start">
-                {/* Portrait sits top-left beside the wordmark and stays clear in
-                    BOTH states (exempt from the reveal fade/blur; only the
-                    subtle drift applies), matching Leadership / Build. */}
-                <Image
-                  src="/portrait.png"
-                  alt="Portrait of Fas Lebbie"
-                  width={360}
-                  height={299}
-                  priority
+              <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
+                {/* Portrait only — "Teaching" wordmark is the background layer
+                    (TeachingWatermark), sitting at the bottom of the photo on
+                    mobile too (Figma 1:44550 / Fas 07/30). */}
+                <h1 className="sr-only">Teaching</h1>
+                <PagePortrait
                   style={{ transform: portraitDrift(r) }}
-                  className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-transform lg:h-[286px] lg:w-[260px]"
+                  className="relative z-10 will-change-transform"
                 />
-                <MobileRecedeHeading className="mt-10 font-logo text-[42px] font-bold leading-[1.05] sm:text-[50px]">
-                  Teaching
-                </MobileRecedeHeading>
               </div>
 
               <div
@@ -116,7 +97,7 @@ export default function TeachingBody({
                   transform: contentDrift(r),
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="will-change-[opacity,filter,transform]"
+                className="relative z-10 will-change-[opacity,filter,transform]"
               >
                 <TeachingContent
                   className="pb-24"
@@ -137,6 +118,8 @@ export default function TeachingBody({
           <main className="relative z-10 w-full pb-24 pt-8 lg:pt-12">
             <TeachingGallery
               students={students}
+              exhibitionTitle={exhibitionTitle}
+              exhibitionTiles={exhibitionTiles}
               onOpenStudent={setOpenStudent}
               onOpenExhibition={() => setExhibitionOpen(true)}
             />
@@ -153,6 +136,8 @@ export default function TeachingBody({
 
       <ExhibitionOverlay
         open={exhibitionOpen}
+        title={exhibitionTitle}
+        tiles={exhibitionTiles}
         onClose={() => setExhibitionOpen(false)}
         onViewStudents={() => {
           setExhibitionOpen(false);

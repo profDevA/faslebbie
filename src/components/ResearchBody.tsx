@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import MobileRecedeHeading from "@/components/MobileRecedeHeading";
+import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import ResearchContent from "@/components/ResearchContent";
 import ResearchModal from "@/components/ResearchModal";
 import {
@@ -43,21 +42,12 @@ export default function ResearchBody({
     <div className="relative">
       <div className="lg:sticky lg:top-[52px]">
         <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
-          <div className="flex flex-col lg:sticky lg:top-[116px] lg:self-start">
-            {/* Mobile: portrait sits above the heading (Figma 1-42031); desktop
-                uses the watermark and shows only the portrait in this column. */}
-            <Image
-              src="/portrait-about.png"
-              alt="Portrait of Fas Lebbie"
-              width={620}
-              height={684}
-              priority
+          <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
+            <h1 className="sr-only">Research</h1>
+            <PagePortrait
               style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-              className="h-[360px] w-full bg-[#f0f0f0] object-cover object-top will-change-[opacity,filter,transform] lg:mt-6 lg:h-[286px] lg:w-[260px]"
+              className="relative z-10 will-change-[opacity,filter,transform]"
             />
-            <MobileRecedeHeading className="mt-10 font-grotesk text-[42px] font-bold leading-[1.1] sm:text-[50px]">
-              Research
-            </MobileRecedeHeading>
           </div>
 
           <div
@@ -67,7 +57,7 @@ export default function ResearchBody({
               transform: contentDrift(r),
               pointerEvents: r < 1 ? "none" : undefined,
             }}
-            className="will-change-[opacity,filter,transform]"
+            className="relative z-10 will-change-[opacity,filter,transform]"
           >
             <ResearchContent
               className="pb-24"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { pinPx, revealProgress } from "./reveal";
+import { INTRO_REVEAL, pinPx, revealProgress } from "./reveal";
 
 /**
  * Shared driver for the pinned scroll reveal (About / Work / Leadership).
@@ -28,6 +28,14 @@ export function useReveal(active: boolean = true) {
   const rMax = useRef(0);
 
   useEffect(() => {
+    // Intro reveal switched off: stay settled (r = 1) and drop the pin spacer so
+    // the page has no empty scroll height. See INTRO_REVEAL in ./reveal.
+    if (!INTRO_REVEAL) {
+      setR(1);
+      setPin(0);
+      return;
+    }
+
     rMax.current = 0; // re-arm the entrance each time it (re)activates.
 
     const onScroll = () => {

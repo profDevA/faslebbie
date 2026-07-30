@@ -433,7 +433,7 @@ export default function ResearchModal({
     // visible) with a margin on all sides. Desktop: full-screen centered card.
     <div
       data-research-modal
-      className="fixed inset-0 z-100 flex flex-col px-3 pb-3 pt-16 sm:flex-row sm:items-center sm:justify-center sm:px-8 sm:pb-8 sm:pt-8"
+      className="fixed inset-0 z-100 flex flex-col p-5 pt-16 sm:items-center sm:justify-center sm:p-10 lg:p-16"
     >
       <button
         type="button"
@@ -441,7 +441,7 @@ export default function ResearchModal({
         onClick={onClose}
         className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-black/30 sm:inset-0"
       />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:w-[min(1100px,96vw)] sm:flex-none">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
         {/* Header */}
         <div className="flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-black bg-white px-5 sm:h-[72px] sm:px-8">
           <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[18px]">

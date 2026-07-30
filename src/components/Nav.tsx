@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems, mobileNavItems } from "@/lib/content";
 import ContactDrawer from "@/components/ContactDrawer";
+import { useSite } from "@/components/SiteProvider";
 import { OPEN_CONTACT_EVENT } from "@/lib/contactDrawer";
 
 // Whether a nav href is the current section (WIP3 1111:4384 — the active page,
@@ -52,6 +52,7 @@ function NavLink({ label, href, active }: { label: string; href: string; active?
 }
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
+  const { navItems, mobileNavItems, contact } = useSite();
   const [open, setOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const isActive = useIsActive();
@@ -94,16 +95,21 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           data-cursor="hover"
           className="hidden font-grotesk text-[15px] font-normal capitalize underline-offset-[6px] opacity-70 transition-opacity hover:opacity-100 lg:block xl:text-[18px]"
         >
-          Contact
+          {contact.drawerTitle}
         </button>
-        {/* Mobile/tablet: MENU toggle */}
+        {/* Mobile/tablet: hamburger (3 bars) — Fas 07/30; replaces "MENU" text. */}
         <button
           type="button"
           onClick={() => setOpen(true)}
+          aria-label="Open menu"
           data-cursor="hover"
-          className="font-grotesk text-[16px] uppercase tracking-[0.02em] lg:hidden"
+          className="flex h-10 w-10 items-center justify-center lg:hidden"
         >
-          Menu
+          <span aria-hidden className="flex w-[22px] flex-col gap-[5px]">
+            <span className="h-[2px] w-full rounded-full bg-current" />
+            <span className="h-[2px] w-full rounded-full bg-current" />
+            <span className="h-[2px] w-full rounded-full bg-current" />
+          </span>
         </button>
       </div>
 
@@ -149,7 +155,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               data-cursor="hover"
               className="w-fit text-left underline-offset-8 transition-opacity hover:opacity-70"
             >
-              Contact
+              {contact.drawerTitle}
             </button>
           </nav>
         </div>

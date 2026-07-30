@@ -30,7 +30,6 @@ import type {
  * hard-coded template.
  */
 
-const SANS = 'Helvetica, Arial, sans-serif'
 const RED = '#e06164'
 const SAGE = '#99B29D66'
 const TEAL = '#52747e'
@@ -351,12 +350,15 @@ export default function CaseStudyView({
         aria-modal="true"
         aria-label={p.name}
         onClick={onClose}
-        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] px-4 pb-8 pt-8 sm:px-6 lg:pt-7.5 animate-[panel-in_0.2s_ease-out]"
+        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] p-5 sm:p-10 lg:p-16 animate-[panel-in_0.2s_ease-out]"
       >
         <div
           ref={scrollRef}
           onClick={e => e.stopPropagation()}
-          className="cs-root cs-fullheight relative h-full max-h-203.5 w-full max-w-274.5 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
+          // Fas 07/28: expand the pop-up. Gutter comes from the overlay padding
+          // above; the panel is w-full so it fills whatever's left — scales with
+          // the screen, no magic vw. Same shell as the other content modals.
+          className="cs-root cs-fullheight relative h-full w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
         >
           {inner}
         </div>
@@ -470,7 +472,7 @@ function ProseGroupBlock({
     >
       <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
         <div
-          className={`mx-auto flex flex-col gap-11 ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
+          className={`mx-auto flex flex-col gap-12 ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
         >
           {sections.map(s => (
             <div key={s._key}>
@@ -1195,7 +1197,6 @@ function Label({
 }) {
   return (
     <h2
-      style={{ fontFamily: SANS }}
       className={`mb-5 text-[20px] font-normal capitalize leading-tight xl:mb-[0.5vw] xl:text-[1vw] ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
@@ -1728,7 +1729,6 @@ function DeviceGallery({
             type="button"
             onClick={() => setActive(i)}
             data-cursor="hover"
-            style={{ fontFamily: SANS }}
             className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 xl:text-[1vw] ${
               active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
             }`}
@@ -1809,7 +1809,6 @@ function ImageGrid({
             type="button"
             onClick={() => setShown(n => n + STEP)}
             data-cursor="hover"
-            style={{ fontFamily: SANS }}
             className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current xl:text-[1vw] ${light ? 'text-white' : ''}`}
           >
             {loadMore}

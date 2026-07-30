@@ -2,22 +2,28 @@ import "server-only";
 
 import { client } from "./client";
 import {
+  ABOUT_PAGE_QUERY,
   ALL_STUDIES_QUERY,
   BLOGS_PAGE_QUERY,
   BUILD_PAGE_QUERY,
   CATEGORIES_QUERY,
+  HOME_PAGE_QUERY,
   LEADERSHIP_PAGE_QUERY,
   RESEARCH_PAGE_QUERY,
+  SITE_SETTINGS_QUERY,
   STUDY_SLUGS_QUERY,
   TEACHING_PAGE_QUERY,
   TESTIMONIALS_QUERY,
   WORK_PAGE_QUERY,
 } from "./queries";
 import type {
+  SanityAboutPage,
   SanityBlogsPage,
   SanityBuildPage,
+  SanityHomePage,
   SanityLeadershipPage,
   SanityResearchPage,
+  SanitySiteSettings,
   SanityTeachingPage,
   SanityTestimonial,
   Study,
@@ -66,6 +72,14 @@ export async function getBuildPage(): Promise<SanityBuildPage | null> {
   ) as Promise<SanityBuildPage | null>;
 }
 
+export async function getAboutPage(): Promise<SanityAboutPage | null> {
+  return client.fetch(
+    ABOUT_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["aboutPage"] } },
+  ) as Promise<SanityAboutPage | null>;
+}
+
 export async function getLeadershipPage(): Promise<SanityLeadershipPage | null> {
   return client.fetch(
     LEADERSHIP_PAGE_QUERY,
@@ -88,6 +102,22 @@ export async function getTestimonials(): Promise<SanityTestimonial[]> {
     {},
     { next: { revalidate: 60, tags: ["testimonial"] } },
   ) as Promise<SanityTestimonial[]>;
+}
+
+export async function getHomePage(): Promise<SanityHomePage | null> {
+  return client.fetch(
+    HOME_PAGE_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["homePage"] } },
+  ) as Promise<SanityHomePage | null>;
+}
+
+export async function getSiteSettings(): Promise<SanitySiteSettings | null> {
+  return client.fetch(
+    SITE_SETTINGS_QUERY,
+    {},
+    { next: { revalidate: 60, tags: ["siteSettings"] } },
+  ) as Promise<SanitySiteSettings | null>;
 }
 
 /** Resolve a study + its wrap-around previous/next neighbours by slug. */

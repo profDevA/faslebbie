@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
+import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
- * Big "Teaching" watermark (Figma 16-19731 → 16-22597) — the desktop page
- * header. Poppins Bold, near-black with a soft grey drop-shadow. It lives in a
- * FIXED, parallax background layer: at the top it sits ON TOP of the content
- * (sharp, dark); as the page scrolls its colour fades toward the page grey and
- * it drops behind every section as a faint watermark. Desktop only — mobile
- * keeps the small heading (Figma 16-19360 mobile / MobileRecedeHeading).
+ * Big "Teaching" watermark (Figma 16-19731 desktop / 1:44550 mobile).
+ * Fixed parallax layer — fades to page grey behind content.
+ *
+ * Mobile (Fas 07/30 / Figma 1:44550): same as Work — wordmark sits at the
+ * bottom of the portrait as a background layer, not a foreground heading.
  */
 
 function ramp(a: number, b: number, t: number) {
@@ -30,10 +30,12 @@ export default function TeachingWatermark({
   /** Force the fully-receded (faint grey, behind) state — used by ".img". */
   receded?: boolean;
 } = {}) {
-  const [fade, setFade] = useState(0);
+  const [fade, setFade] = useState(INTRO_REVEAL ? 0 : 1);
   const fadeMax = useRef(0);
 
   useEffect(() => {
+    if (!INTRO_REVEAL) return;
+
     const onScroll = () => {
       const range = window.innerHeight * PIN_VH;
       const p = range > 0 ? Math.min(1, window.scrollY / range) : 0;
@@ -67,9 +69,11 @@ export default function TeachingWatermark({
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none fixed inset-0 hidden select-none items-center overflow-hidden px-[5.6vw] font-logo font-bold capitalize leading-[0.88] tracking-[-0.022em] will-change-[color,opacity] lg:flex"
+      className={`pointer-events-none fixed inset-0 flex select-none items-start overflow-hidden px-5 font-logo font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:px-[5.6vw] lg:leading-[0.88] lg:tracking-[-0.022em] pt-[430px] sm:pt-[450px] ${WORDMARK_TOP}`}
     >
-      <span className="text-[clamp(48px,13vw,200px)]">Teaching</span>
+      <span className="text-[58px] lg:text-[clamp(48px,13vw,200px)]">
+        Teaching
+      </span>
     </div>
   );
 }

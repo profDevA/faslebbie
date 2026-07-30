@@ -1,9 +1,12 @@
 import type { SanityTeachingPage } from "@/sanity/types";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
 import {
+  exhibitionTiles as fallbackTiles,
+  exhibitionTitle as fallbackTitle,
   students as fallbackStudents,
   teachingIntro,
   teachingSections,
+  type ExhibitionTile,
   type StudentProject,
   type TeachSection,
   type TeachToken,
@@ -13,6 +16,8 @@ export interface TeachingContentData {
   intro: TeachToken[][];
   sections: TeachSection[];
   students: StudentProject[];
+  exhibitionTitle: string;
+  exhibitionTiles: ExhibitionTile[];
 }
 
 function runToToken(run: ProseRun): TeachToken {
@@ -38,6 +43,8 @@ export function teachingFromSanity(
     intro: teachingIntro,
     sections: teachingSections,
     students: fallbackStudents,
+    exhibitionTitle: fallbackTitle,
+    exhibitionTiles: fallbackTiles,
   };
   if (!data) return defaults;
 
@@ -69,5 +76,22 @@ export function teachingFromSanity(
       }))
     : defaults.students;
 
-  return { intro, sections, students };
+  const exhibitionTitle =
+    data.exhibitionTitle?.trim() || defaults.exhibitionTitle;
+
+  const exhibitionTiles: ExhibitionTile[] = data.exhibitionTiles?.length
+    ? data.exhibitionTiles.map((t) => ({
+        tint: t.tint ?? "#8f8a82",
+        image: t.image,
+        label: t.label,
+        span: t.span ?? "md",
+        pos: {
+          top: t.posTop ?? 10,
+          left: t.posLeft ?? 10,
+          w: t.posW ?? 11,
+        },
+      }))
+    : defaults.exhibitionTiles;
+
+  return { intro, sections, students, exhibitionTitle, exhibitionTiles };
 }

@@ -29,7 +29,8 @@ interface Span {
 interface MarkDef {
   _key?: string;
   _type?: string;
-  expansion?: string;
+  /** Plain string (legacy) or nested Portable Text reveal. */
+  expansion?: string | PortableTextBlock[];
   section?: ResearchSectionId;
   href?: string;
 }
@@ -50,7 +51,19 @@ function blocksToTokens(blocks?: PortableTextBlock[]): ResearchToken[] {
         .map((k) => markDefs.find((d) => d._key === k))
         .find(Boolean);
       if (def?._type === "highlight") {
-        tokens.push({ t: "hl", text, expansion: def.expansion });
+        const exp = def.expansion;
+        if (Array.isArray(exp) && exp.length) {
+          const nested = blocksToTokens(exp);
+          tokens.push(
+            nested.length
+              ? { t: "hl", text, expand: nested }
+              : { t: "hl", text },
+          );
+        } else if (typeof exp === "string" && exp) {
+          tokens.push({ t: "hl", text, expansion: exp });
+        } else {
+          tokens.push({ t: "hl", text });
+        }
       } else if (def?._type === "sectionLink" && def.section) {
         tokens.push({ t: "link", text, opens: def.section });
       } else if (def?._type === "link" && def.href) {
@@ -91,12 +104,13 @@ export function researchFromSanity(
   };
   if (!data) return defaults;
 
-  // The hero prose token structure — which word is a grey pill, which words are
-  // red links that open which modal, and the click-to-reveal run nested inside
-  // "African mining communities" (Figma 1-41001) — is presentation logic that
-  // Sanity's plain-text highlight expansion can't represent, so it stays
-  // code-driven. Sanity still owns the closing line and every modal section.
-  const areas = defaults.areas;
+  const areas: ResearchArea[] = data.areas?.length
+    ? data.areas.map((a) => ({
+        kicker: a.kicker ?? "",
+        body: blocksToTokens(a.body),
+      })).filter((a) => a.body.length > 0)
+    : [];
+  const resolvedAreas = areas.length ? areas : defaults.areas;
 
   const closingTokens = blocksToTokens(data.closing);
   const closing = closingTokens.length ? closingTokens : defaults.closing;
@@ -170,5 +184,5 @@ export function researchFromSanity(
     };
   }
 
-  return { areas, closing, sections };
+  return { areas: resolvedAreas, closing, sections };
 }

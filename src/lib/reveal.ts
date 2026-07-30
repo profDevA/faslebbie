@@ -18,6 +18,18 @@ export function ramp(a: number, b: number, t: number) {
   return x * x * (3 - 2 * x);
 }
 
+// MASTER SWITCH for the intro reveal (Fas 07/28). Set to `false` and every page
+// opens straight on its content: the big wordmark starts already receded (faint,
+// behind), the content is clear from the first paint, and the pin spacer
+// collapses to 0 so there is no empty scroll under short pages.
+//
+// Fas: "when you click About we skip this, we go straight to the text… just hide
+// it for now" — and separately, the pin spacer was the cause of the phantom
+// scroll he flagged ("it goes up and down… there's nothing to go down to").
+// Flip this back to `true` to restore the original entrance; nothing else needs
+// to change.
+export const INTRO_REVEAL = false;
+
 // Share of a viewport of scroll over which the layers settle to the front.
 // This is ALSO the "pin" distance (Israel 06/24): for this much scroll the
 // content is held in place and only brightens / comes forward (the page proper

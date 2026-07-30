@@ -2,8 +2,9 @@ import Nav from "@/components/Nav";
 import AboutBody from "@/components/AboutBody";
 import AboutWatermark from "@/components/AboutWatermark";
 import { getAboutLogoSvgs } from "@/lib/logoSvgs";
-import { getTestimonials } from "@/sanity/fetch";
-import { testimonials as fallbackTestimonials, type Testimonial } from "@/lib/content";
+import { getAboutPage } from "@/sanity/fetch";
+import { aboutFromSanity } from "@/lib/aboutFromSanity";
+import { loadTestimonials } from "@/lib/testimonials";
 
 const logoSvgs = getAboutLogoSvgs();
 
@@ -12,21 +13,14 @@ const logoSvgs = getAboutLogoSvgs();
 // the dimmed bio (left portrait + prose) brightens forward on scroll. Mobile
 // keeps a small left-aligned heading. Dark nav matches the new design.
 //
-// Testimonials come from Sanity ("what people are saying" modal); if the
-// dataset is empty (or unreachable) it falls back to the in-code list so the
-// page never breaks.
+// The bio and the testimonials both come from Sanity; if the dataset is empty
+// (or unreachable) each falls back to the in-code copy so the page never
+// breaks. The brand logos stay on disk — they're inlined as SVG markup for the
+// hover-wobble, which an <img> can't do.
 export default async function AboutPage() {
-  let testimonials: Testimonial[] = fallbackTestimonials;
+  let content = aboutFromSanity(null);
   try {
-    const fromSanity = await getTestimonials();
-    if (fromSanity.length) {
-      testimonials = fromSanity.map((t) => ({
-        name: t.name,
-        role: t.role ?? "",
-        quote: t.quote,
-        avatar: t.avatar ?? "/testimonials/avatar-1.png",
-      }));
-    }
+    content = aboutFromSanity(await getAboutPage());
   } catch {
     // keep the in-code fallback
   }
@@ -35,7 +29,11 @@ export default async function AboutPage() {
     <>
       <Nav dark />
       <AboutWatermark />
-      <AboutBody logoSvgs={logoSvgs} testimonials={testimonials} />
+      <AboutBody
+        logoSvgs={logoSvgs}
+        testimonials={await loadTestimonials()}
+        content={content}
+      />
     </>
   );
 }

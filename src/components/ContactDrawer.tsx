@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useSite } from "@/components/SiteProvider";
 import ContactForm from "./ContactForm";
 
 // Contact drawer (Figma 1:227 / 16:45157) — a right-side slide-in panel with a
@@ -14,6 +15,7 @@ export default function ContactDrawer({
   open: boolean;
   onClose: () => void;
 }) {
+  const { contact } = useSite();
   // Lock body scroll + close on Escape while open.
   useEffect(() => {
     if (!open) return;
@@ -34,7 +36,7 @@ export default function ContactDrawer({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Contact"
+      aria-label={contact.drawerTitle}
       className="fixed inset-0 z-100 flex animate-[panel-in_0.3s_ease-out] justify-end"
     >
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -44,7 +46,7 @@ export default function ContactDrawer({
         {/* Top bar: "Contact" (underlined) + × close. */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/15 px-6">
           <span className="font-grotesk text-[18px] text-bg underline underline-offset-4">
-            Contact
+            {contact.drawerTitle}
           </span>
           <button
             type="button"

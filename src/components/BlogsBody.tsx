@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import BlogModal from "@/components/BlogModal";
 import MediaModal from "@/components/MediaModal";
+import ViewToggle from "@/components/ViewToggle";
 import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import { blogPosts, mediaItems, type BlogPost, type MediaItem } from "@/lib/blogs";
@@ -61,32 +62,24 @@ export default function BlogsBody({
             }}
             className="will-change-[opacity,filter,transform]"
           >
-            {/* Tabs */}
-            <div className="flex items-center justify-center gap-10 font-grotesk text-[20px]">
-              {(["blog", "media"] as Tab[]).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTab(t)}
-                  data-cursor="hover"
-                  className={`underline-offset-8 transition-colors ${
-                    tab === t
-                      ? "font-medium text-black underline decoration-2"
-                      : "text-black/45 hover:text-black/70"
-                  }`}
-                >
-                  .{t}
-                </button>
-              ))}
-            </div>
+            {/* Tabs — shared switch so Blogs matches Work/Build/Leadership/
+                Teaching exactly (Fas 07/28). Sits in an already-padded wrapper,
+                so the component's own top padding is dropped. */}
+            <ViewToggle
+              views={["blog", "media"] as const}
+              value={tab}
+              onChange={setTab}
+              className="pt-0 lg:pt-0"
+            />
 
             {tab === "blog" ? (
               <div className="mx-auto mt-14 flex max-w-[720px] flex-col gap-16">
                 {groups.map((group) => (
                   <section key={group.category} className="flex flex-col gap-14">
-                    <h2 className="text-center font-grotesk text-[16px] font-semibold text-black">
-                      {group.category}
-                    </h2>
+                    {/* Category heading ("Design Muscle") removed — Fas 07/28:
+                        "I don't think we need this design muscle, I think we
+                        remove it." Grouping is kept so posts hold their order
+                        and the heading can be restored if he wants it back. */}
                     {group.items.map(({ post, index }) => (
                       <article key={post.slug} className="text-center">
                         <p className="font-grotesk text-[13px] text-black/55">

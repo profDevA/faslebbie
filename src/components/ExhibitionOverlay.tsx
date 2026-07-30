@@ -2,22 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { exhibitionTiles, exhibitionTitle } from "@/lib/teaching";
+import {
+  exhibitionTiles as fallbackTiles,
+  exhibitionTitle as fallbackTitle,
+  type ExhibitionTile,
+} from "@/lib/teaching";
 
 // SFK Beijing Exhibition overlay (Figma 280-4632 / live faslebbie.com/
 // sfk-beijeing-exhibition) — opened from the ".txt" "Explore my student
 // exhibitions" link and the ".img" exhibition grid. A scattered photo collage
 // (desktop) around the centred serif title + a "View Student Works" button that
 // jumps into the student grid. Mobile: title on top, then a simple grid.
-// Imagery is placeholder (tinted tiles) until the real exhibition photos land.
 export default function ExhibitionOverlay({
   open,
   onClose,
   onViewStudents,
+  title = fallbackTitle,
+  tiles = fallbackTiles,
 }: {
   open: boolean;
   onClose: () => void;
   onViewStudents: () => void;
+  title?: string;
+  tiles?: ExhibitionTile[];
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -38,12 +45,19 @@ export default function ExhibitionOverlay({
 
   if (!mounted || !open) return null;
 
+  // Title often comes as one line ("SFK Beijing Exhibition"); split for the
+  // two-line serif treatment when it has a natural break after "Beijing".
+  const titleLines = title.replace(/\s+Exhibition$/i, "\nExhibition").split("\n");
+
   const centre = (
     <div className="flex flex-col items-center gap-6 text-center">
       <h2 className="font-serif text-[clamp(36px,6vw,64px)] font-medium leading-[1.05] text-black">
-        SFK Beijing
-        <br />
-        Exhibition
+        {titleLines.map((line, i) => (
+          <span key={i}>
+            {i > 0 ? <br /> : null}
+            {line}
+          </span>
+        ))}
       </h2>
       <button
         type="button"
@@ -62,7 +76,7 @@ export default function ExhibitionOverlay({
       <div className="sticky top-0 z-20 flex h-13 items-center justify-between border-b border-black/10 bg-close/90 px-5 backdrop-blur-sm sm:px-8">
         <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">
           Teaching <span className="text-black/40">/</span>{" "}
-          <span className="underline underline-offset-2">{exhibitionTitle}</span>
+          <span className="underline underline-offset-2">{title}</span>
         </span>
         <button
           type="button"
@@ -77,7 +91,7 @@ export default function ExhibitionOverlay({
 
       {/* Desktop: scattered collage with the title centred over it */}
       <div className="relative hidden h-[calc(100vh-52px)] w-full lg:block">
-        {exhibitionTiles.map((tile, i) => (
+        {tiles.map((tile, i) => (
           <div
             key={i}
             style={{
@@ -85,6 +99,9 @@ export default function ExhibitionOverlay({
               left: `${tile.pos.left}%`,
               width: `${tile.pos.w}vw`,
               backgroundColor: tile.tint,
+              backgroundImage: tile.image ? `url(${tile.image})` : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
             className="absolute aspect-4/3 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
           />
@@ -98,10 +115,15 @@ export default function ExhibitionOverlay({
       <div className="lg:hidden">
         <div className="px-6 py-14">{centre}</div>
         <div className="grid grid-cols-2 gap-3 px-4 pb-16">
-          {exhibitionTiles.map((tile, i) => (
+          {tiles.map((tile, i) => (
             <div
               key={i}
-              style={{ backgroundColor: tile.tint }}
+              style={{
+                backgroundColor: tile.tint,
+                backgroundImage: tile.image ? `url(${tile.image})` : undefined,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
               className="aspect-4/3 w-full"
             />
           ))}

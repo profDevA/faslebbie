@@ -26,6 +26,20 @@ export const structure: StructureResolver = (S, context) =>
       }),
       S.divider(),
       S.listItem()
+        .title("Site Settings")
+        .id("siteSettings")
+        .child(
+          S.document().schemaType("siteSettings").documentId("siteSettings"),
+        ),
+      S.listItem()
+        .title("Home Page")
+        .id("homePage")
+        .child(S.document().schemaType("homePage").documentId("homePage")),
+      S.listItem()
+        .title("About Page")
+        .id("aboutPage")
+        .child(S.document().schemaType("aboutPage").documentId("aboutPage")),
+      S.listItem()
         .title("Work Page")
         .id("workPage")
         .child(S.document().schemaType("workPage").documentId("workPage")),

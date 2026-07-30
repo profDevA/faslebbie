@@ -1,7 +1,11 @@
 "use client";
 
-import type { StudentProject } from "@/lib/teaching";
-import { exhibitionTiles, students as fallbackStudents } from "@/lib/teaching";
+import type { ExhibitionTile, StudentProject } from "@/lib/teaching";
+import {
+  exhibitionTiles as fallbackTiles,
+  exhibitionTitle as fallbackTitle,
+  students as fallbackStudents,
+} from "@/lib/teaching";
 
 // ".img" view (Figma 16-19360 / 280-4434): a "Student Works" masonry (each card
 // opens the paged student modal) followed by an "SFK Exhibition" masonry (opens
@@ -44,10 +48,14 @@ function SeeAll({
 
 export default function TeachingGallery({
   students = fallbackStudents,
+  exhibitionTitle = fallbackTitle,
+  exhibitionTiles = fallbackTiles,
   onOpenStudent,
   onOpenExhibition,
 }: {
   students?: StudentProject[];
+  exhibitionTitle?: string;
+  exhibitionTiles?: ExhibitionTile[];
   onOpenStudent: (id: string) => void;
   onOpenExhibition: () => void;
 }) {
@@ -90,7 +98,7 @@ export default function TeachingGallery({
       <hr className="my-14 border-black/10" />
 
       {/* SFK Exhibition */}
-      <SectionHeading>SFK Exhibition</SectionHeading>
+      <SectionHeading>{exhibitionTitle}</SectionHeading>
       <div className="columns-2 gap-6 [column-fill:balance] lg:columns-4 *:mb-9 *:break-inside-avoid">
         {exhibitionTiles.map((tile, i) => (
           <button
@@ -101,11 +109,16 @@ export default function TeachingGallery({
             className="group block w-full text-left"
           >
             <div
-              style={{ backgroundColor: tile.tint }}
+              style={{
+                backgroundColor: tile.tint,
+                backgroundImage: tile.image ? `url(${tile.image})` : undefined,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
               className={`w-full overflow-hidden ${SPAN_H[tile.span]} transition-opacity group-hover:opacity-90`}
             />
             <p className="mt-3 font-grotesk text-[14px] font-medium text-black/70">
-              Lorem Ipsum
+              {tile.label || "Lorem Ipsum"}
             </p>
           </button>
         ))}

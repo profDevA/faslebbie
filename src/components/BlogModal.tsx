@@ -181,7 +181,7 @@ export default function BlogModal({
       role="dialog"
       aria-modal="true"
       aria-label={post.title}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center bg-black/40 p-3 lg:p-6"
+      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center bg-black/40 p-5 sm:p-10 lg:p-16"
     >
       <button
         type="button"
@@ -190,13 +190,12 @@ export default function BlogModal({
         className="absolute inset-0 -z-10 cursor-default"
         tabIndex={-1}
       />
-      <div className="relative flex max-h-[94vh] w-full max-w-[1000px] flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+      <div className="relative flex max-h-[min(880px,92vh)] w-full flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
         {/* Sticky header: breadcrumb + close */}
         <div className="flex shrink-0 items-center justify-between gap-4 border-b border-black/10 px-6 py-4 lg:px-8">
           <div className="min-w-0 truncate font-grotesk text-[14px] text-black/80 lg:text-[16px]">
+            {/* Category segment dropped with the index heading (Fas 07/28). */}
             <span className="text-black/50">Blogs</span>
-            <span className="mx-1.5 text-black/30">/</span>
-            <span className="text-black/50">{post.category}</span>
             <span className="mx-1.5 text-black/30">/</span>
             <span className="underline underline-offset-4">{post.title}</span>
           </div>

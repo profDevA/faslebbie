@@ -13,6 +13,7 @@ import { highlightCell } from "./objects/highlightCell";
 import { motionRow } from "./objects/motionRow";
 import { designRef } from "./objects/designRef";
 import { researchProse } from "./objects/researchProse";
+import { researchExpandProse } from "./objects/researchExpandProse";
 import { researchArea } from "./objects/researchArea";
 import { researchNumberedItem } from "./objects/researchNumberedItem";
 import { researchModalityGroup } from "./objects/researchModalityGroup";
@@ -21,6 +22,17 @@ import { researchParadigms } from "./objects/researchParadigms";
 import { researchPrinciples } from "./objects/researchPrinciples";
 import { researchModalities } from "./objects/researchModalities";
 import { interactiveProse } from "./objects/interactiveProse";
+import { workProse } from "./objects/workProse";
+import { homeProse } from "./objects/homeProse";
+import { navLink } from "./objects/navLink";
+import { exhibitionTile } from "./objects/exhibitionTile";
+import {
+  aboutLogo,
+  aboutPhoto,
+  aboutProse,
+  aboutTyper,
+} from "./objects/aboutProse";
+import { aboutExpansion } from "./objects/aboutExpansion";
 import { studentProject } from "./objects/studentProject";
 import { teachingSection } from "./objects/teachingSection";
 import { buildProjectItem } from "./objects/buildProjectItem";
@@ -51,11 +63,15 @@ import { buildPage } from "./documents/buildPage";
 import { leadershipPage } from "./documents/leadershipPage";
 import { testimonial } from "./documents/testimonial";
 import { blogsPage } from "./documents/blogsPage";
+import { aboutPage } from "./documents/aboutPage";
+import { homePage } from "./documents/homePage";
+import { siteSettings } from "./documents/siteSettings";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // documents
   caseStudy,
   category,
+  homePage,
   workPage,
   researchPage,
   teachingPage,
@@ -63,6 +79,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   leadershipPage,
   testimonial,
   blogsPage,
+  aboutPage,
+  siteSettings,
   // sections
   heroSection,
   overviewSection,
@@ -88,6 +106,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   motionRow,
   designRef,
   researchProse,
+  researchExpandProse,
   researchArea,
   researchNumberedItem,
   researchModalityGroup,
@@ -96,6 +115,15 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   researchPrinciples,
   researchModalities,
   interactiveProse,
+  workProse,
+  homeProse,
+  navLink,
+  exhibitionTile,
+  aboutProse,
+  aboutTyper,
+  aboutLogo,
+  aboutPhoto,
+  aboutExpansion,
   studentProject,
   teachingSection,
   buildProjectItem,

@@ -58,7 +58,7 @@ export default function MediaModal({
       role="dialog"
       aria-modal="true"
       aria-label={item.title}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-start justify-center overflow-y-auto bg-black/40 px-4 py-4 lg:py-[64px]"
+      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center overflow-y-auto bg-black/40 p-5 sm:p-10 lg:p-16"
     >
       <button
         type="button"
@@ -67,7 +67,7 @@ export default function MediaModal({
         className="absolute inset-0 -z-10 cursor-default"
         tabIndex={-1}
       />
-      <div className="flex w-full max-w-[1000px] flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+      <div className="flex max-h-[min(880px,92vh)] w-full flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
         {/* Header: breadcrumb + close */}
         <div className="flex items-center justify-between gap-4 border-b border-black/10 px-6 py-4 lg:px-8">
           <div className="min-w-0 truncate font-grotesk text-[14px] text-black/80 lg:text-[16px]">

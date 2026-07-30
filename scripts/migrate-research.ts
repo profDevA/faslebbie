@@ -30,15 +30,40 @@ const PUBLIC = join(process.cwd(), "public");
 
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
 
-// ── hero prose (tokens → Portable Text with interactive marks) ──────────────
-function proseBlock(tokens: ResearchToken[]) {
+// ── hero prose (tokens → PortableText with interactive marks) ──────────────
+// Nested `expand` token streams become researchExpandProse (array of blocks)
+// so red modal-section links inside a grey-pill reveal survive the round-trip.
+function proseBlock(tokens: ResearchToken[], allowNested = true) {
   const markDefs: Record<string, unknown>[] = [];
   const children = tokens.map((tok) => {
     const marks: string[] = [];
     if (tok.t === "hl") {
       const _key = key();
-      const expansion = tok.expansion ?? researchExpansions[tok.text];
-      markDefs.push({ _key, _type: "highlight", ...(expansion ? { expansion } : {}) });
+      const nested = allowNested && tok.expand?.length ? [proseBlock(tok.expand, false)] : undefined;
+      const plain =
+        !nested && (tok.expansion ?? researchExpansions[tok.text])
+          ? [
+              {
+                _type: "block",
+                _key: key(),
+                style: "normal",
+                markDefs: [],
+                children: [
+                  {
+                    _type: "span",
+                    _key: key(),
+                    text: tok.expansion ?? researchExpansions[tok.text],
+                    marks: [],
+                  },
+                ],
+              },
+            ]
+          : undefined;
+      markDefs.push({
+        _key,
+        _type: "highlight",
+        ...(nested || plain ? { expansion: nested ?? plain } : {}),
+      });
       marks.push(_key);
     } else if (tok.t === "link") {
       const _key = key();

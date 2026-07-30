@@ -1,8 +1,9 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
+import TestimonialsFooterLink from '@/components/TestimonialsFooterLink'
 import { openContactDrawer } from '@/lib/contactDrawer'
-import type { AboutToken } from '@/lib/content'
+import type { AboutToken, Testimonial } from '@/lib/content'
 import {
   leadershipClosing,
   leadershipExpansions,
@@ -93,6 +94,7 @@ export default function LeadershipContent({
   exploreText = 'Explore my leadership moments',
   contactText = 'Get in touch',
   onExplore,
+  testimonials = [],
 }: {
   className?: string
   intro?: AboutToken[]
@@ -103,6 +105,7 @@ export default function LeadershipContent({
   exploreText?: string
   contactText?: string
   onExplore: () => void
+  testimonials?: Testimonial[]
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) =>
@@ -162,7 +165,7 @@ export default function LeadershipContent({
       <p className="mb-2">
         {renderProse(closing, 'closing', openKey, toggle, expansions)}
       </p>
-      <p>
+      <p className="mb-10">
         <button
           type="button"
           onClick={openContactDrawer}
@@ -172,6 +175,12 @@ export default function LeadershipContent({
           {contactText}
         </button>
       </p>
+
+      {/* Fas 07/28: testimonials link at the bottom (same as About CV). */}
+      <TestimonialsFooterLink
+        testimonials={testimonials}
+        section="Leadership"
+      />
     </section>
   )
 }

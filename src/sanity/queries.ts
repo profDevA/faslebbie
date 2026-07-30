@@ -98,8 +98,20 @@ export const STUDY_CARDS_QUERY = defineQuery(`*[_type == "caseStudy"] | order(or
 export const CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(orderRank asc).title`);
 
 export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
-  sectionTitle, enableTextView, enableImageView, loadMoreLabel,
+  sectionTitle, intro, enableTextView, enableImageView, loadMoreLabel,
   ${appearanceProj}
+}`);
+
+export const HOME_PAGE_QUERY = defineQuery(`*[_type == "homePage"][0]{
+  hero, storyHref
+}`);
+
+export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
+  navItems[]{ label, href },
+  mobileNavItems[]{ label, href },
+  contactDrawerTitle, contactHeading, contactSubmitLabel,
+  contactSuccessTitle, contactSuccessBody, contactSendAnotherLabel,
+  "contactPortrait": contactPortrait.asset->url
 }`);
 
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);
@@ -120,6 +132,11 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
   students[]{
     id, title, headline, description, span, tint, lightArt,
     "images": images[].asset->url
+  },
+  exhibitionTitle,
+  exhibitionTiles[]{
+    tint, label, span, posTop, posLeft, posW,
+    "image": image.asset->url
   }
 }`);
 
@@ -135,6 +152,27 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
 export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0]{
   intro, lead, closing, momentsHeading, exploreText, contactText,
   moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url }
+}`);
+
+// About's bio is Portable Text carrying INLINE objects (logo chips, cycling
+// tags, a photo). Blocks come back raw, so the photo's asset ref has to be
+// resolved to a URL inside `children` — hence the projection into the block's
+// children rather than a flat field select.
+const aboutProseProj = `{
+  ...,
+  children[]{
+    ...,
+    _type == "aboutPhoto" => { "src": image.asset->url }
+  }
+}`;
+
+export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
+  "bio": bio[]${aboutProseProj},
+  expansions[]{
+    keyword,
+    "body": body[]${aboutProseProj}
+  },
+  links[]{ label, href }
 }`);
 
 // "What people are saying" testimonials, ordered — powers the About modal.

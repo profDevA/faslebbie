@@ -179,10 +179,34 @@ export interface Study extends StudyCard {
 
 export interface WorkPageConfig {
   sectionTitle?: string;
+  /** Work ".txt" narrative as Portable Text (workProse marks). */
+  intro?: PortableTextBlock[];
   enableTextView?: boolean;
   enableImageView?: boolean;
   loadMoreLabel?: string;
   appearance?: Appearance;
+}
+
+export interface SanityNavLink {
+  label?: string;
+  href?: string;
+}
+
+export interface SanityHomePage {
+  hero?: PortableTextBlock[];
+  storyHref?: string;
+}
+
+export interface SanitySiteSettings {
+  navItems?: SanityNavLink[];
+  mobileNavItems?: SanityNavLink[];
+  contactDrawerTitle?: string;
+  contactHeading?: string;
+  contactPortrait?: string;
+  contactSubmitLabel?: string;
+  contactSuccessTitle?: string;
+  contactSuccessBody?: string;
+  contactSendAnotherLabel?: string;
 }
 
 // --- Research page (raw Sanity shape) -------------------------------------
@@ -257,10 +281,22 @@ export interface SanityTeachingSection {
   actionText?: string;
 }
 
+export interface SanityExhibitionTile {
+  tint?: string;
+  image?: string;
+  label?: string;
+  span?: SpanTier;
+  posTop?: number;
+  posLeft?: number;
+  posW?: number;
+}
+
 export interface SanityTeachingPage {
   intro?: PortableTextBlock[];
   sections?: SanityTeachingSection[];
   students?: SanityStudentProject[];
+  exhibitionTitle?: string;
+  exhibitionTiles?: SanityExhibitionTile[];
 }
 
 export interface SanityBuildProject {
@@ -304,6 +340,22 @@ export interface SanityLeadershipPage {
   exploreText?: string;
   contactText?: string;
   moments?: SanityLeadershipMoment[];
+}
+
+export interface SanityAboutExpansion {
+  keyword?: string;
+  body?: PortableTextBlock[];
+}
+
+export interface SanityAboutLink {
+  label?: string;
+  href?: string;
+}
+
+export interface SanityAboutPage {
+  bio?: PortableTextBlock[];
+  expansions?: SanityAboutExpansion[];
+  links?: SanityAboutLink[];
 }
 
 export interface SanityTestimonial {

@@ -25,6 +25,12 @@ export interface BuildProject {
   tint: string;
   /** Whether the placeholder art is light (title/label goes dark). */
   lightArt?: boolean;
+  /**
+   * Project images from Sanity. First image is the `.img` card cover and the
+   * modal concept frame; further images feed the concept preview. Empty/absent
+   * → tinted title placeholder.
+   */
+  images?: string[];
   /** Modal hero kicker, e.g. "Design · 5 Min Read". */
   kicker: string;
   /** Modal hero subtitle. */

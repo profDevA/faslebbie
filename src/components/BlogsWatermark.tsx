@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
 
 /**
  * Big centered "Blogs/Media" watermark (Figma 318-5704 / 16-951). Same recede
@@ -24,10 +24,12 @@ function mix(t: number) {
 }
 
 export default function BlogsWatermark() {
-  const [fade, setFade] = useState(0);
+  const [fade, setFade] = useState(INTRO_REVEAL ? 0 : 1);
   const fadeMax = useRef(0);
 
   useEffect(() => {
+    if (!INTRO_REVEAL) return; // stays receded; see INTRO_REVEAL in lib/reveal
+
     const onScroll = () => {
       // Mobile settles faster (shorter viewport) so the wordmark clears sooner.
       const factor = window.innerWidth < 1024 ? 0.6 : PIN_VH;

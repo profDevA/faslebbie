@@ -40,6 +40,7 @@ export function buildFromSanity(
         span: p.span ?? "md",
         tint: p.tint ?? "#2f3b4a",
         lightArt: p.lightArt,
+        images: p.images?.filter((u): u is string => Boolean(u)),
         kicker: p.kicker ?? "Design · 5 Min Read",
         subtitle: p.subtitle ?? "",
         blurb: p.blurb ?? "",
