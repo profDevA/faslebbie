@@ -95,6 +95,7 @@ export type Section =
       ctaUrl?: string;
       sideImage?: string;
       sideVideo?: string;
+      sideImageFit?: "cover" | "contain";
       sideImageBackgroundColor?: SanityColor;
     })
   | (Base & {
@@ -144,6 +145,7 @@ export type Section =
   | (Base & {
       _type: "highlightReel";
       sectionTitle?: string;
+      layout?: "grid" | "single";
       cells?: HighlightCell[];
     })
   | (Base & {

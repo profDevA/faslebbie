@@ -509,6 +509,7 @@ function HeroBlock({
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
+  const contain = s.sideImageFit === 'contain'
   return (
     <section
       data-cs-stretch
@@ -592,7 +593,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
         </div>
       ) : (
         <div
-          className="relative min-h-[70vw] lg:min-h-full"
+          className={`relative lg:min-h-full ${contain ? '' : 'min-h-[70vw]'}`}
           style={{
             backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
           }}
@@ -602,7 +603,14 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             <img
               src={s.sideImage}
               alt=""
-              className="absolute inset-0 h-full w-full object-cover object-center"
+              // Device panels (Experian's phone) already carry their own margins
+              // in the export, so they flow at natural height on mobile and are
+              // contained on desktop instead of cover-cropping the device.
+              className={
+                contain
+                  ? 'block h-auto w-full lg:absolute lg:inset-0 lg:h-full lg:w-full lg:object-contain lg:object-center'
+                  : 'absolute inset-0 h-full w-full object-cover object-center'
+              }
             />
           )}
         </div>
@@ -935,21 +943,36 @@ function MotionShowcaseBlock({
           />
         </div>
       )}
-      {/* Staggered (Figma 600:12632): mobile group hugs left, tablet group hugs
-          right; each group's label/caption sits left-aligned beneath it. */}
+      {/* Staggered (Figma 600:12632 Coral, 600:31818 Experian): rows alternate,
+          the first hugging left; each group's label/caption sits left-aligned
+          beneath it. */}
       <div className="mx-auto flex max-w-247 flex-col gap-16 xl:gap-[6vw]">
-        {rows.map(row => (
-          <MotionRowView key={row._key} row={row} />
+        {rows.map((row, i) => (
+          <MotionRowView
+            key={row._key}
+            row={row}
+            alignRight={i % 2 === 1}
+            inheritTextColor={!!s.appearance?.textColor?.hex}
+          />
         ))}
       </div>
     </section>
   )
 }
 
-function MotionRowView({ row }: { row: MotionRow }) {
+function MotionRowView({
+  row,
+  alignRight,
+  // Bands that author a text colour (Experian's indigo) let the label inherit
+  // it; Coral's brown band keeps the black default.
+  inheritTextColor,
+}: {
+  row: MotionRow
+  alignRight: boolean
+  inheritTextColor: boolean
+}) {
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
-  const alignRight = device === 'tablet'
   // Card aspect ≈ the Figma device slot (phones 170/367, iPads ~3/4, desktop
   // ~7/5). White card + object-cover: the Jitter exports are device mockups on
   // white, so the mockup's white margin blends into the card and the device
@@ -980,7 +1003,9 @@ function MotionRowView({ row }: { row: MotionRow }) {
           ))}
         </div>
         {(row.label || row.caption) && (
-          <div className="mt-7 max-w-111.25 text-left tracking-[0.382px] text-black xl:mt-[2.2vw]">
+          <div
+            className={`mt-7 max-w-111.25 text-left tracking-[0.382px] xl:mt-[2.2vw] ${inheritTextColor ? '' : 'text-black'}`}
+          >
             {row.label && (
               <p className="text-[18px] font-light capitalize leading-[1.6] xl:text-[1.15vw]">
                 {row.label}
@@ -1035,12 +1060,15 @@ function DeviceMedia({ item }: { item: MediaItem }) {
   return null
 }
 
-// Project Highlights: 3×2 grid of mint-framed cells over deep teal; each cell
-// cross-fades through its own frame set on a staggered loop.
+// Project Highlights: either a 3×2 grid of mint-framed cells (Coral) or one
+// large card (Experian Boost 600:32123, Memory Tubes) over a coloured band.
+// Each cell cross-fades through its own frame set on a staggered loop; the
+// single-card layout rotates every authored frame through the one card.
 const REEL_BG = '#0f3b42'
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   const cells = s.cells ?? []
   if (!cells.length) return null
+  const single = s.layout === 'single'
   return (
     <section
       className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
@@ -1052,17 +1080,64 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
           {s.sectionTitle}
         </h2>
       )}
-      <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
-        {cells.map((c, i) => (
-          <HighlightCellView
-            key={c._key}
-            frames={c.frames ?? []}
-            delay={i * 900}
+      {single ? (
+        <HighlightCardView frames={cells.flatMap(c => c.frames ?? [])} />
+      ) : (
+        <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
+          {cells.map((c, i) => (
+            <HighlightCellView
+              key={c._key}
+              frames={c.frames ?? []}
+              delay={i * 900}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+// Single-card layout (Figma 600:32123): one 887×503 card, thin white matte,
+// centred on the band, cycling through every frame.
+function HighlightCardView({ frames }: { frames: string[] }) {
+  const i = useFrameCycle(frames.length, 0)
+  if (!frames.length) return null
+  return (
+    <div className="mx-auto w-full max-w-222 rounded-lg bg-white p-1 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+      <div className="relative aspect-887/503 overflow-hidden rounded-[5px]">
+        {frames.map((src, idx) => (
+          // eslint-disable-next-line @next/next/no-img-element -- highlight art
+          <img
+            key={idx}
+            src={src}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
+            style={{ opacity: idx === i ? 1 : 0 }}
           />
         ))}
       </div>
-    </section>
+    </div>
   )
+}
+
+// Cross-fade index for a frame set: holds on frame 0 for `delay` ms so grid
+// cells stagger, then advances every 3.6s. Static when reduced motion is on.
+function useFrameCycle(count: number, delay: number) {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (count < 2) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    let id = 0
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => setI(v => (v + 1) % count), 3600)
+    }, delay)
+    return () => {
+      window.clearTimeout(start)
+      window.clearInterval(id)
+    }
+  }, [count, delay])
+  return i
 }
 
 function HighlightCellView({
@@ -1072,19 +1147,7 @@ function HighlightCellView({
   frames: string[]
   delay: number
 }) {
-  const [i, setI] = useState(0)
-  useEffect(() => {
-    if (frames.length < 2) return
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    let id = 0
-    const start = window.setTimeout(() => {
-      id = window.setInterval(() => setI(v => (v + 1) % frames.length), 3600)
-    }, delay)
-    return () => {
-      window.clearTimeout(start)
-      window.clearInterval(id)
-    }
-  }, [frames.length, delay])
+  const i = useFrameCycle(frames.length, delay)
   if (!frames.length) return null
   // Figma 612:44828 — mint (Algae 300) matte frame with the graphic inset
   // ~10.5% × 14% (303×203 cell holding a 238×146 inner image). The inner frame

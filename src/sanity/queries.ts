@@ -21,7 +21,7 @@ const sectionsProj = `sections[]{
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage.asset->url,
     "sideVideo": sideVideo.asset->url,
-    sideImageBackgroundColor
+    sideImageFit, sideImageBackgroundColor
   },
   _type == "accordionSection" => {
     variant, sectionTitle, sideTitle, sideBody, accordionBackgroundColor,
@@ -59,7 +59,7 @@ const sectionsProj = `sections[]{
     }
   },
   _type == "highlightReel" => {
-    sectionTitle,
+    sectionTitle, layout,
     cells[]{ _key, "frames": frames[].asset->url }
   },
   _type == "statsSection" => {

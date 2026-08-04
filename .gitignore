@@ -16,6 +16,9 @@
 # dev screenshots (scripts/screenshot.mjs)
 /.dev-shots/
 
+# pre-migration Sanity document snapshots (Sanity keeps its own history)
+/.backup/
+
 # next.js
 /.next/
 /out/

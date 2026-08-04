@@ -1,8 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-// Project Highlights: a grid (3×2 on desktop) of mint-framed cells over a deep
-// teal band. Each cell loops through its own set of frames. Fas 07/23 —
-// "PROJECT HIGHLIGHTS … it rotates here … plays in a loop."
+// Project Highlights: either a grid (3×2 on desktop) of mint-framed cells or a
+// single large card, over a coloured band. Each cell loops through its own set
+// of frames. Fas 07/23 — "PROJECT HIGHLIGHTS … it rotates here … plays in a
+// loop."
 export const highlightReel = defineType({
   name: "highlightReel",
   title: "Project Highlights (rotating grid)",
@@ -13,6 +14,21 @@ export const highlightReel = defineType({
       title: "Section title",
       type: "string",
       initialValue: "Project Highlights",
+    }),
+    defineField({
+      name: "layout",
+      title: "Layout",
+      type: "string",
+      description:
+        "Grid: Coral's 3×2 mint-matted cells. Single card: one large card that rotates through every frame (Experian Boost, Memory Tubes).",
+      options: {
+        list: [
+          { title: "Grid (3×2 cells)", value: "grid" },
+          { title: "Single rotating card", value: "single" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "grid",
     }),
     defineField({
       name: "cells",

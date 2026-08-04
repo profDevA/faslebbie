@@ -46,6 +46,21 @@ export const overviewSection = defineType({
         "Optional looping animation (e.g. the phone Jitter export). Plays in place of the side image when set.",
     }),
     defineField({
+      name: "sideImageFit",
+      title: "Side image fit",
+      type: "string",
+      description:
+        "Cover fills the panel (photography). Contain floats the art on the panel colour with a margin — use it for device mockups so the phone isn't cropped.",
+      options: {
+        list: [
+          { title: "Cover (fill panel)", value: "cover" },
+          { title: "Contain (float on panel)", value: "contain" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "cover",
+    }),
+    defineField({
       name: "sideImageBackgroundColor",
       title: "Side feature image background color",
       type: "color",
