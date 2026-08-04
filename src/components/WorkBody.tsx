@@ -5,6 +5,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { type Testimonial, type WorkToken, WORK_CREDIT } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
 import CaseStudyView from "@/components/CaseStudyView";
+import { PopupTrigger } from "@/components/InlineToken";
 import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
 import {
@@ -254,33 +255,22 @@ export default function WorkBody({
   // --- token renderer for the .txt narrative ---
   const renderToken = (tok: WorkToken, key: string) => {
     if (tok.t === "text") return <span key={key}>{tok.text}</span>;
+    // Figma 838:74749 underlines the client names in red exactly like the
+    // projects, so they keep that look even though there's no case study to open.
     if (tok.t === "org")
       return (
         <span
           key={key}
-          className="text-accent text-shadow-token underline decoration-2 underline-offset-2"
+          className="text-accent text-shadow-token underline decoration-from-font underline-offset-2"
         >
           {tok.text}
         </span>
       );
-    // project → red underlined, opens the lightbox.
+    // project → red underlined, opens the case study over the page.
     return (
-      <span
-        key={key}
-        role="button"
-        tabIndex={0}
-        data-cursor="hover"
-        onClick={() => openProject(tok.slug)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openProject(tok.slug);
-          }
-        }}
-        className="cursor-pointer text-accent text-shadow-token underline decoration-2 underline-offset-2"
-      >
+      <PopupTrigger key={key} onClick={() => openProject(tok.slug)}>
         {tok.text}
-      </span>
+      </PopupTrigger>
     );
   };
 
@@ -345,7 +335,7 @@ export default function WorkBody({
                   // fully settle — so links like "Coral Health" work a touch early.
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="relative z-10 will-change-[opacity,filter,transform]"
+                className="relative z-10 mt-40 will-change-[opacity,filter,transform] lg:mt-0"
               >
                 <section className="pb-24 font-grotesk text-[26px] font-medium leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[42px]">
                   {narrative.map((para, i) => (
@@ -533,7 +523,10 @@ export default function WorkBody({
             )}
             </>
             )}
-            <div className="gap-x-5 [column-fill:balance] columns-1 sm:columns-2 *:mb-7 *:break-inside-avoid">
+            {/* Two columns from the smallest screen up, matching the Build,
+                Teaching and Leadership `.img` walls — a single column made the
+                cards roughly twice the size they are on every other gallery. */}
+            <div className="columns-2 gap-6 [column-fill:balance] *:mb-9 *:break-inside-avoid">
               {visible.map((p, i) => (
                 <ProjectCard
                   key={`${filter}-${p.slug}`}

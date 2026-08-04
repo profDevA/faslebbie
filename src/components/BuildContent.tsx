@@ -1,35 +1,9 @@
 "use client";
 
 import { Fragment } from "react";
+import { PopupTrigger } from "@/components/InlineToken";
 import type { BuildToken } from "@/lib/build";
 import { buildIntro } from "@/lib/build";
-
-// Red underlined project link — opens the paged project modal (Figma 16-3007).
-function ProjectLink({
-  text,
-  onOpen,
-}: {
-  text: string;
-  onOpen: () => void;
-}) {
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      data-cursor="hover"
-      onClick={onOpen}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpen();
-        }
-      }}
-      className="cursor-pointer whitespace-nowrap text-accent underline decoration-from-font underline-offset-2 text-shadow-token transition-opacity hover:opacity-70"
-    >
-      {text}
-    </span>
-  );
-}
 
 function renderTokens(
   tokens: BuildToken[],
@@ -38,13 +12,16 @@ function renderTokens(
 ) {
   return tokens.map((tok, j) => {
     const key = `${prefix}-${j}`;
+    // Opens the paged project modal (Figma 16-3007).
     if (tok.t === "proj")
       return (
-        <ProjectLink
+        <PopupTrigger
           key={key}
-          text={tok.text}
-          onOpen={() => onOpenProject(tok.id)}
-        />
+          onClick={() => onOpenProject(tok.id)}
+          className="whitespace-nowrap"
+        >
+          {tok.text}
+        </PopupTrigger>
       );
     return <Fragment key={key}>{tok.text}</Fragment>;
   });
@@ -61,7 +38,7 @@ export default function BuildContent({
 }) {
   return (
     <section
-      className={`font-serif text-[28px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {intro.map((para, i) => (
         <p key={i} className="mb-8 last:mb-0">

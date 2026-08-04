@@ -1,7 +1,12 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
+import { Fragment, useEffect, useState } from "react";
+import {
+  PopupTrigger,
+  expandPillClass,
+  onActivateKey,
+} from "@/components/InlineToken";
 import {
   researchAreas,
   researchClosing,
@@ -11,9 +16,7 @@ import {
   type ResearchToken,
 } from "@/lib/research";
 
-// Clickable grey keyword pill (same chrome + behaviour as the About page): grey
-// pill with a soft drop-shadow that inverts to a black pill on hover / while
-// open, and reveals inline continuation copy when clicked.
+// Reveal-narrative keyword — the shared grey pill (see InlineToken).
 function KeyPill({
   text,
   open,
@@ -31,17 +34,8 @@ function KeyPill({
       data-cursor="hover"
       aria-expanded={open}
       onClick={onToggle}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onToggle();
-        }
-      }}
-      className={`mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
-        open
-          ? "bg-black text-white"
-          : "bg-pill text-black text-shadow-token hover:bg-black hover:text-white hover:text-shadow-none"
-      }`}
+      onKeyDown={onActivateKey(onToggle)}
+      className={expandPillClass(open)}
     >
       {text}
     </span>
@@ -107,6 +101,9 @@ function Tokens({
             </Fragment>
           );
         }
+        // `ext` hrefs are internal routes (/leadership, /blogs). Drawn as red
+        // underlined copy, as the Research page has always rendered them —
+        // the nav pill is only used where a page frame actually draws one.
         if (tok.t === "ext")
           return (
             <Link
@@ -120,22 +117,9 @@ function Tokens({
           );
         // link → opens the research modal at its section
         return (
-          <span
-            key={key}
-            role="button"
-            tabIndex={0}
-            data-cursor="hover"
-            onClick={() => onOpenSection(tok.opens)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onOpenSection(tok.opens);
-              }
-            }}
-            className="cursor-pointer text-accent text-shadow-token underline decoration-from-font underline-offset-2 hover:decoration-2"
-          >
+          <PopupTrigger key={key} onClick={() => onOpenSection(tok.opens)}>
             {tok.text}
-          </span>
+          </PopupTrigger>
         );
       })}
     </>

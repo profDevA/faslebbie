@@ -80,7 +80,10 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           : "bg-bg text-black shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
       }`}
     >
-      <div className="mx-auto flex h-13 max-w-345 items-center justify-between gap-8 px-6">
+      {/* Same container as every page shell (max-w-[1350px], px-6 / lg:px-12)
+          so the logo lines up with the portrait column and Contact lines up
+          with the right edge of the prose on all pages. */}
+      <div className="mx-auto flex h-13 max-w-[1350px] items-center justify-between gap-8 px-6 lg:px-12">
         <Logo />
         {/* Desktop: full horizontal menu */}
         <nav className="hidden items-center gap-x-6 text-[15px] capitalize lg:flex xl:gap-x-9 xl:text-[18px]">
@@ -118,7 +121,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           Title-Case list (About → Contact). Fades/slides in on open. */}
       {open && (
         <div className="fixed inset-0 z-50 flex animate-[menu-in_0.3s_ease-out] flex-col overflow-y-auto bg-[#141414] text-bg lg:hidden">
-          <div className="flex h-13 shrink-0 items-center justify-between border-b border-white/20 px-6">
+          <div className="mx-auto flex h-13 w-full max-w-[1350px] shrink-0 items-center justify-between px-6 lg:px-12">
             <Logo onClick={() => setOpen(false)} />
             <button
               type="button"

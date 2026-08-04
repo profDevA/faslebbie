@@ -3,13 +3,19 @@
 import {
   Fragment,
   useEffect,
-  useId,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
-import Link from 'next/link'
+import {
+  ArrowTrigger,
+  CYCLE_CHIP,
+  ExternalTextLink,
+  NavPill,
+  POPUP_LINK,
+  expandPillClass,
+} from '@/components/InlineToken'
 import TestimonialsModal from '@/components/TestimonialsModal'
 import type { AboutToken, Testimonial } from '@/lib/content'
 import {
@@ -22,74 +28,6 @@ import {
 } from '@/lib/content'
 
 const TESTIMONIAL_KEY = 'what people are saying'
-
-// North-east "open external" arrow (Figma 807:19517 / Component-Interaction
-// legend) — a real icon, not the Unicode ↗ glyph (which renders differently per
-// font/OS). Thin diagonal shaft + corner arrowhead; inherits colour via
-// currentColor and is sized in em so it tracks the link text. It's positioned
-// raised (superscript) at the link, matching Figma.
-// Exact Figma arrow (node 823_70191): red NE arrow with a baked-in grey
-// drop shadow. The filter id is made unique per instance because this renders
-// once per external link and duplicate SVG filter ids would otherwise collide.
-function ArrowUpRight({ className = '' }: { className?: string }) {
-  const uid = useId()
-  const filterId = `arrow-shadow-${uid}`
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 33 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      <g filter={`url(#${filterId})`}>
-        <path
-          d="M10.415 20L29.415 1.5M14.915 1.5H29.415V16.5"
-          stroke="#EA2C2C"
-          strokeWidth={3}
-          strokeLinecap="round"
-        />
-      </g>
-      <defs>
-        <filter
-          id={filterId}
-          x="0.000441074"
-          y="0"
-          width="32.0774"
-          height="31.7066"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset dx="-3.87591" dy="5.16788" />
-          <feGaussianBlur stdDeviation="2.51934" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0.694118 0 0 0 0 0.686275 0 0 0 0 0.67451 0 0 0 1 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_dropShadow"
-            result="shape"
-          />
-        </filter>
-      </defs>
-    </svg>
-  )
-}
 
 // --- Inline-expansion accordion ---------------------------------------------
 // Gray keywords expand inline, and some expansions contain nested gray keywords.
@@ -224,13 +162,9 @@ function AboutPanel({
           </p>
         )}
         {panel.cta && (
-          <Link
-            href={panel.cta.href}
-            data-cursor="hover"
-            className="font-grotesk text-[16px] font-medium text-accent underline underline-offset-2"
-          >
-            {panel.cta.label} →
-          </Link>
+          <NavPill href={panel.cta.href} className="font-grotesk text-[16px] font-medium">
+            {panel.cta.label}
+          </NavPill>
         )}
     </PanelShell>
   )
@@ -323,7 +257,7 @@ function TypingTag({ words }: { words: readonly string[] }) {
           setIdx(i => (i + 1) % words.length)
         }
       }}
-      className="mx-[0.1em] box-decoration-clone cursor-pointer bg-[#141414] px-[0.4em] py-[0.08em] text-[1em] leading-[1.7] text-bg"
+      className={CYCLE_CHIP}
       aria-label={`${shown}. Click to cycle.`}
     >
       <span className="mr-[0.3em]">{'>/~'}</span>
@@ -360,8 +294,10 @@ function renderKeyPill(
   displayText: string,
   key: string,
 ) {
-  const isPill = tok.tone === 'gray' || tok.tone === 'gray-red' // appearance
-  const isRedText = tok.tone === 'gray-red' // red text on the grey pill
+  // A grey pill reveals narrative; red text on a pill is reserved for
+  // navigation, which a keyword never does, so `gray-red` renders as a plain
+  // grey pill too.
+  const isPill = tok.tone === 'gray' || tok.tone === 'gray-red'
   const opensPanel = keyOpensPanel(tok) // behaviour
   const inlineOpen = ctx.open.has(tok.text)
   const panelOpen = ctx.activePanel === tok.text
@@ -370,20 +306,11 @@ function renderKeyPill(
     if (opensPanel) ctx.setActivePanel(panelOpen ? null : tok.text)
     else ctx.toggleInline(tok.text)
   }
-  // Visual systems (Figma "Component Interaction" 823:70182):
-  //  • grey pill, black text ("gray")     → reveal-narrative keywords.
-  //  • grey pill, red text   ("gray-red") → action keywords (e.g. monthly).
-  //  Both invert to a black pill / white text on hover or while active.
-  //  • red text + underline, no pill ("red"/default) → e.g. what people are saying.
+  // Appearance follows the shared vocabulary (see InlineToken): a pill reveals
+  // narrative in place, while the underline means a popup opens.
   const className = isPill
-    ? `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
-        isActive
-          ? 'bg-black text-white'
-          : `bg-pill ${isRedText ? 'text-accent' : 'text-black'} text-shadow-token hover:bg-black hover:text-white hover:text-shadow-none`
-      }`
-    : `box-decoration-clone cursor-pointer leading-none text-accent text-shadow-token border-b-2 border-current transition-opacity duration-200 ${
-        isActive ? 'opacity-100' : 'hover:opacity-70'
-      }`
+    ? expandPillClass(isActive)
+    : `box-decoration-clone ${POPUP_LINK}`
   return (
     // Span (not <button>): a <button> is an atomic inline box and won't break
     // across lines, so a long pill couldn't wrap. A span + box-decoration-clone
@@ -428,29 +355,17 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
     // pill intact if it wraps across lines.
     if (tok.t === 'link')
       return (
-        <Link
-          key={key}
-          href={tok.href}
-          data-cursor="hover"
-          className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent text-shadow-token transition-colors duration-200 hover:bg-black hover:text-white hover:text-shadow-none"
-        >
+        <NavPill key={key} href={tok.href}>
           {tok.text}
-        </Link>
+        </NavPill>
       )
     if (tok.t === 'logo')
       return <LogoChip key={key} svg={ctx.logoSvgs[tok.name]} />
     if (tok.t === 'photo')
       return <PhotoChip key={key} src={tok.src} alt={tok.alt} />
-    if (tok.t === 'term')
-      return (
-        <span
-          key={key}
-          className="mx-[0.1em] box-decoration-clone bg-[#141414] px-[0.4em] py-[0.08em] font-grotesk text-[1em] leading-[1.7] text-bg"
-        >
-          <span className="mr-[0.3em]">{'>/~'}</span>
-          {tok.text}
-        </span>
-      )
+    // The black >/~ chip means "click me to cycle" — a static term isn't
+    // interactive, so it reads as plain copy rather than borrowing the chip.
+    if (tok.t === 'term') return <span key={key}>{tok.text}</span>
 
     const inlineOpen = ctx.open.has(tok.text)
     const expansion = ctx.expansions[tok.text]
@@ -771,43 +686,35 @@ export default function AboutContent({
       {/* Footer row (Figma 807:19215–19234): Testimonials + CV / Resume /
           LinkedIn / Email. Fas 07/30 — always expose Testimonials here (same
           style as the other links) so readers don't have to find the in-bio
-          "what people are saying" keyword. Opens the same modal. */}
-      {/* Single row, tight gaps — keep body font size (Fas 07/30). */}
-      <div className="mt-2 flex flex-nowrap items-center gap-x-3 sm:gap-x-4 lg:gap-x-5">
-        {testimonials.length > 0 && (
-          <button
-            type="button"
-            data-about-key
-            onClick={() => openPanel(TESTIMONIAL_KEY)}
-            data-cursor="hover"
-            className="group inline-flex shrink-0 items-center gap-0 text-accent text-shadow-token"
-          >
-            <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
+          "what people are saying" keyword. Opens the same modal.
+
+          Figma fits four links on one line at body size; the fifth (and the ↗
+          arrows) no longer fit, so from `sm` up the row is held on one line and
+          sized off the column width instead — the five labels plus their gaps
+          measure ~25em (more at `md`, where the tracking is wider), so 3.7% of
+          the column holds them inside it at every width, capped at 36px. Phones
+          keep body size and wrap, as the mobile frame (455:1897) does. */}
+      <div className="@container/about-links mt-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-inherit sm:flex-nowrap sm:gap-[0.4em] sm:text-[min(3.7cqw,36px)]">
+          {testimonials.length > 0 && (
+            <ArrowTrigger
+              data-about-key
+              onClick={() => openPanel(TESTIMONIAL_KEY)}
+              className="shrink-0"
+            >
               Testimonials
-            </span>
-            <ArrowUpRight className="h-[1em] w-[1em] shrink-0 translate-y-[0.04em] transition-transform duration-200 group-hover:translate-x-[0.06em] group-hover:translate-y-[-0.06em]" />
-          </button>
-        )}
-        {links.map(link => (
-          <a
-            key={link.label}
-            href={link.href}
-            target={link.href.startsWith('http') ? '_blank' : undefined}
-            rel={link.href.startsWith('http') ? 'noreferrer' : undefined}
-            data-cursor="hover"
-            className="group inline-flex shrink-0 items-center gap-0 text-accent text-shadow-token"
-          >
-            {/* Underline is a border (not text-decoration) so the token's
-                drop-shadow lands on the letters only, not the line (Figma). */}
-            <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
+            </ArrowTrigger>
+          )}
+          {links.map(link => (
+            <ExternalTextLink
+              key={link.label}
+              href={link.href}
+              className="shrink-0"
+            >
               {link.label}
-            </span>
-            {/* Raised (superscript) NE arrow, matching the Figma legend. The
-                33×32 viewBox already pads the lower-left for the drop shadow
-                and sits the glyph high, so it needs little manual lift/gap. */}
-            <ArrowUpRight className="h-[1em] w-[1em] shrink-0 translate-y-[0.04em] transition-transform duration-200 group-hover:translate-x-[0.06em] group-hover:translate-y-[-0.06em]" />
-          </a>
-        ))}
+            </ExternalTextLink>
+          ))}
+        </div>
       </div>
     </section>
   )

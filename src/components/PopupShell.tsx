@@ -1,0 +1,204 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+
+/**
+ * The one popup shell for the whole site (Fas 07/30: "every popup should use
+ * the same shell and spacing — consistent breadcrumbs, close button, padding
+ * and overlay treatment"). Adopted from the approved Student Works / Build
+ * popup: a centred card over a light scrim, a white breadcrumb header with the
+ * ✕, an internally scrolling body, and an optional white footer pager. The 6px
+ * black rule always sits on the bottom edge of the card.
+ *
+ * Mobile: the card fills the screen below the sticky nav (which stays visible
+ * and usable) instead of covering it; from `sm` up it centres with a margin.
+ */
+
+export type PopupCrumb = {
+  label: string;
+  /** Drop the crumb on phones, where the header only fits the last one or two. */
+  hideOnMobile?: boolean;
+};
+
+function Breadcrumbs({ crumbs }: { crumbs: PopupCrumb[] }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[14px] font-light text-black sm:text-[16px]">
+      {crumbs.map((crumb, i) => {
+        const last = i === crumbs.length - 1;
+        return (
+          // The separator belongs to the crumb it follows, so hiding a crumb on
+          // mobile hides its slash too.
+          <span
+            key={`${crumb.label}-${i}`}
+            className={`min-w-0 items-center gap-1.5 ${
+              crumb.hideOnMobile ? "hidden sm:flex" : "flex"
+            }`}
+          >
+            <span
+              className={
+                last ? "truncate underline underline-offset-2" : "truncate"
+              }
+            >
+              {crumb.label}
+            </span>
+            {!last && <span className="text-black/40">/</span>}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+export default function PopupShell({
+  open = true,
+  onClose,
+  crumbs,
+  children,
+  footer,
+  label,
+  bodyClassName = "min-h-0 flex-1 overflow-y-auto",
+  bodyRef,
+  overlayProps,
+}: {
+  /** Render nothing while false (the caller can stay mounted). */
+  open?: boolean;
+  onClose: () => void;
+  crumbs: PopupCrumb[];
+  children: ReactNode;
+  /** Pager row; rendered inside the standard white footer bar. */
+  footer?: ReactNode;
+  /** Accessible name for the dialog; defaults to the last breadcrumb. */
+  label?: string;
+  /** Override when the body is a full-bleed split rather than a scroll area. */
+  bodyClassName?: string;
+  /** Access to the scrolling body (e.g. to reset scroll when paging). */
+  bodyRef?: React.Ref<HTMLDivElement>;
+  /** Hooks some pages use to detect their own popup (e.g. data-research-modal). */
+  overlayProps?: Record<string, string>;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      // Only the topmost dialog closes, so Escape inside a nested popup (e.g.
+      // the case-study artifact lightbox) doesn't also dismiss its parent.
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      if (dialogs[dialogs.length - 1] !== overlayRef.current) return;
+      onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (!mounted || !open) return null;
+
+  return createPortal(
+    <div
+      {...overlayProps}
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label ?? crumbs[crumbs.length - 1]?.label}
+      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16"
+    >
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-[rgba(226,226,218,0.82)] sm:inset-0"
+      />
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
+        <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
+          <Breadcrumbs crumbs={crumbs} />
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            data-cursor="hover"
+            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div ref={bodyRef} className={bodyClassName}>
+          {children}
+        </div>
+
+        {footer && (
+          <div className="flex h-16 shrink-0 items-center justify-center border-t border-black bg-white px-6 sm:px-10">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** Standard red pager link used inside a PopupShell footer. */
+export function PopupPagerButton({
+  children,
+  onClick,
+  disabled,
+  ariaLabel,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      data-cursor="hover"
+      className="font-grotesk text-[15px] font-bold text-accent transition-opacity enabled:hover:opacity-70 disabled:opacity-30 lg:text-[18px]"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Standard dot row used between the two pager buttons. */
+export function PopupDots({
+  count,
+  active,
+  onSelect,
+  labelFor,
+}: {
+  count: number;
+  active: number;
+  onSelect: (index: number) => void;
+  labelFor?: (index: number) => string;
+}) {
+  return (
+    <div className="hidden max-w-full flex-wrap items-center justify-center gap-2.5 sm:flex">
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          aria-label={labelFor?.(i) ?? `Go to ${i + 1}`}
+          aria-current={i === active}
+          onClick={() => onSelect(i)}
+          data-cursor="hover"
+          className={`size-2 shrink-0 rounded-full transition-colors ${
+            i === active ? "bg-accent" : "bg-black/25 hover:bg-black/40"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}

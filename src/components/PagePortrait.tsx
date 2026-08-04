@@ -15,6 +15,10 @@ import type { CSSProperties } from "react";
  *
  * Pair with PORTRAIT_STICKY_TOP on the column wrapper so it also comes to rest
  * at the same height on every page.
+ *
+ * The height is fixed at every size, so the width has to stop growing or the
+ * crop turns into a letterbox strip across the eyes — full-bleed on phones,
+ * then the canonical 271×299 crop from `sm` up (tablet portrait included).
  */
 
 /**
@@ -65,7 +69,7 @@ export default function PagePortrait({
       height={684}
       priority
       style={style}
-      className={`h-74.75 w-full bg-[#f0f0f0] object-cover object-top lg:h-74.75 lg:w-67.75 ${className}`}
+      className={`h-74.75 w-full bg-[#f0f0f0] object-cover object-top sm:w-67.75 ${className}`}
     />
   );
 }

@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import PopupShell, {
+  PopupDots,
+  PopupPagerButton,
+} from "@/components/PopupShell";
 import type { BuildProject } from "@/lib/build";
 
 // Concept mockup frame. Shows the first Sanity image when present; otherwise a
@@ -51,9 +54,8 @@ function ConceptFrame({
   );
 }
 
-// Full-screen "Concept Preview" (Figma 16-2613 / 16-3697) — opened from the
-// modal's "View The Concept" link. Shows the concept large with its own
-// breadcrumb + close.
+// "Concept Preview" (Figma 16-2613 / 16-3697) — opened from the modal's "View
+// The Concept" link. Same popup shell, one crumb deeper.
 function ConceptPreview({
   project,
   onClose,
@@ -62,24 +64,16 @@ function ConceptPreview({
   onClose: () => void;
 }) {
   return (
-    <div className="absolute inset-0 z-10 flex flex-col bg-close">
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-black/15 bg-white px-5 sm:px-8">
-        <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">
-          Build <span className="text-black/40">/</span> {project.title}{" "}
-          <span className="text-black/40">/</span>{" "}
-          <span className="underline underline-offset-2">Concept Preview</span>
-        </span>
-        <button
-          type="button"
-          aria-label="Close preview"
-          onClick={onClose}
-          data-cursor="hover"
-          className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-        >
-          ✕
-        </button>
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 overflow-y-auto p-6 sm:p-12">
+    <PopupShell
+      onClose={onClose}
+      label={`${project.title} concept preview`}
+      crumbs={[
+        { label: "Build", hideOnMobile: true },
+        { label: project.title, hideOnMobile: true },
+        { label: "Concept Preview" },
+      ]}
+    >
+      <div className="flex flex-col items-center gap-8 p-6 sm:p-12">
         {(project.images?.length ? project.images : [undefined]).map(
           (src, i) => (
             <ConceptFrame
@@ -91,7 +85,7 @@ function ConceptPreview({
           ),
         )}
       </div>
-    </div>
+    </PopupShell>
   );
 }
 
@@ -135,58 +129,50 @@ export default function BuildProjectModal({
     scrollRef.current?.scrollTo({ top: 0 });
   }, [openId]);
 
-  // Body scroll lock + keyboard nav (Esc closes the concept preview first,
-  // then the modal; arrows page between projects).
+  // Arrows page between projects. (Escape / scroll lock live in the shared
+  // shell; when the concept preview is open it owns Escape.)
   useEffect(() => {
     if (!openId) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        // Close the concept overlay first, otherwise the whole modal.
-        if (showConceptRef.current) setShowConcept(false);
-        else onClose();
-      } else if (e.key === "ArrowRight") go(1);
+      if (showConceptRef.current) return;
+      if (e.key === "ArrowRight") go(1);
       else if (e.key === "ArrowLeft") go(-1);
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [openId, go, onClose]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openId, go]);
 
   if (!mounted || index < 0) return null;
   const project = projects[index];
 
-  return createPortal(
-    <div className="fixed inset-0 z-100 flex flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 hidden cursor-pointer bg-[rgba(226,226,218,0.82)] sm:block"
-      />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
-        {/* Header / breadcrumb */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
-          <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">
-            Build <span className="text-black/40">/</span>{" "}
-            <span className="underline underline-offset-2">{project.title}</span>
-          </span>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            data-cursor="hover"
-            className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ✕
-          </button>
-        </div>
+  if (showConcept)
+    return (
+      <ConceptPreview project={project} onClose={() => setShowConcept(false)} />
+    );
 
-        {/* Scrollable content: hero (media + meta) then the detail body */}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={project.title}
+      bodyRef={scrollRef}
+      crumbs={[{ label: "Build", hideOnMobile: true }, { label: project.title }]}
+      footer={
+        <div className="flex w-full max-w-[620px] items-center justify-between">
+          <PopupPagerButton onClick={() => go(-1)}>
+            {"< Previous"}
+          </PopupPagerButton>
+          <PopupDots
+            count={projects.length}
+            active={index}
+            onSelect={(i) => onNavigate(projects[i].id)}
+            labelFor={(i) => projects[i].title}
+          />
+          <PopupPagerButton onClick={() => go(1)}>{"Next >"}</PopupPagerButton>
+        </div>
+      }
+    >
+      <>
+          {/* Hero: media + meta, then the detail body */}
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Media panel (teal) with the concept + "View The Concept" */}
             <div className="order-2 flex flex-col justify-center gap-8 bg-[#16302b] px-6 py-10 lg:order-1 lg:px-10 lg:py-14">
@@ -248,49 +234,7 @@ export default function BuildProjectModal({
               {project.supportedTools.join(" · ")}
             </p>
           </div>
-        </div>
-
-        {/* Footer / pager */}
-        <div className="flex h-16 shrink-0 items-center justify-center border-t border-black border-b-[6px] bg-white px-6">
-          <div className="flex w-full max-w-[620px] items-center justify-between">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              data-cursor="hover"
-              className="font-grotesk text-[16px] font-bold text-accent transition-opacity hover:opacity-70 lg:text-[18px]"
-            >
-              {"< Previous"}
-            </button>
-            <div className="hidden items-center gap-2.5 sm:flex">
-              {projects.map((p, i) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  aria-label={p.title}
-                  onClick={() => onNavigate(p.id)}
-                  data-cursor="hover"
-                  className={`size-2 rounded-full transition-colors ${
-                    i === index ? "bg-accent" : "bg-black/25 hover:bg-black/40"
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              data-cursor="hover"
-              className="font-grotesk text-[16px] font-bold text-accent transition-opacity hover:opacity-70 lg:text-[18px]"
-            >
-              {"Next >"}
-            </button>
-          </div>
-        </div>
-
-        {showConcept && (
-          <ConceptPreview project={project} onClose={() => setShowConcept(false)} />
-        )}
-      </div>
-    </div>,
-    document.body,
+      </>
+    </PopupShell>
   );
 }

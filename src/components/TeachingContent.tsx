@@ -1,11 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
+import { CYCLE_CHIP, PopupTrigger } from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
 import { teachingIntro, teachingSections } from "@/lib/teaching";
 
-// Static gray institution pill (Figma 16-22597 intro) — same look as the
-// About/Leadership keyword pills but non-interactive here.
+/** Static grey institution pill from the intro (Figma 16-22597). */
 function Pill({ text }: { text: string }) {
   return (
     <span className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token">
@@ -14,41 +14,9 @@ function Pill({ text }: { text: string }) {
   );
 }
 
-// Black `>/~` terminal-style highlight (Figma — the "learn it" cycle term).
+/** The black `>/~` term, e.g. "learn it". */
 function Term({ text }: { text: string }) {
-  return (
-    <span className="mx-[0.1em] box-decoration-clone bg-[#141414] px-[0.4em] py-[0.08em] text-[1em] leading-[1.7] text-bg">
-      <span className="mr-[0.3em]">{">/~"}</span>
-      {text}
-    </span>
-  );
-}
-
-// Red, underlined link (student project or action).
-function RedLink({
-  text,
-  onClick,
-}: {
-  text: string;
-  onClick: () => void;
-}) {
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      data-cursor="hover"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="cursor-pointer whitespace-nowrap text-accent underline decoration-from-font underline-offset-2 text-shadow-token transition-opacity hover:opacity-70"
-    >
-      {text}
-    </span>
-  );
+  return <span className={CYCLE_CHIP}>{text}</span>;
 }
 
 function renderTokens(
@@ -64,15 +32,22 @@ function renderTokens(
     if (tok.t === "term") return <Term key={key} text={tok.text} />;
     if (tok.t === "student")
       return (
-        <RedLink key={key} text={tok.text} onClick={() => onOpenStudent(tok.id)} />
+        <PopupTrigger
+          key={key}
+          onClick={() => onOpenStudent(tok.id)}
+          className="whitespace-nowrap"
+        >
+          {tok.text}
+        </PopupTrigger>
       );
     if (tok.t === "action")
       return (
-        <RedLink
+        <PopupTrigger
           key={key}
-          text={tok.text}
           onClick={tok.kind === "students" ? onSeeAll : onExhibition}
-        />
+        >
+          {tok.text}
+        </PopupTrigger>
       );
     return <Fragment key={key}>{tok.text}</Fragment>;
   });
@@ -126,14 +101,15 @@ export default function TeachingContent({
             </p>
           ))}
           <p className="mt-2">
-            <RedLink
-              text={section.action.text}
+            <PopupTrigger
               onClick={
                 section.action.kind === "students"
                   ? onSeeAllStudents
                   : onOpenExhibition
               }
-            />
+            >
+              {section.action.text}
+            </PopupTrigger>
           </p>
         </div>
       ))}

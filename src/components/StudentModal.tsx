@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useState } from "react";
+import PopupShell, { PopupPagerButton } from "@/components/PopupShell";
 import type { StudentProject } from "@/lib/teaching";
 
 // Placeholder image slide (real student photos pending) — a tinted block with
@@ -74,133 +74,94 @@ export default function StudentModal({
     [slideCount],
   );
 
-  // Body scroll lock + keyboard nav (Esc closes; arrows page the image
-  // carousel — the prominent control on the frame).
+  // Arrows page the image carousel — the prominent control on the frame.
+  // (Escape / scroll lock live in the shared shell.)
   useEffect(() => {
     if (!openId) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowRight") goSlide(1);
+      if (e.key === "ArrowRight") goSlide(1);
       else if (e.key === "ArrowLeft") goSlide(-1);
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [openId, goSlide, onClose]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openId, goSlide]);
 
   if (!mounted || !project) return null;
 
-  return createPortal(
-    <div className="fixed inset-0 z-100 flex flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 hidden cursor-pointer bg-[rgba(226,226,218,0.82)] sm:block"
-      />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
-        {/* Header / breadcrumb */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
-          <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">
-            <span className="hidden sm:inline">
-              Teaching <span className="text-black/40">/</span>{" "}
-            </span>
-            Student Works <span className="text-black/40">/</span>{" "}
-            <span className="underline underline-offset-2">{project.title}</span>
-          </span>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            data-cursor="hover"
-            className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Body: image carousel + dark meta panel */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1.35fr_1fr]">
-          {/* Image carousel */}
-          <div className="relative order-2 h-[320px] min-h-0 overflow-hidden bg-black sm:h-[420px] lg:order-1 lg:h-auto">
-            <Slide project={project} index={slide} />
-            {slideCount > 1 && (
-              <>
-                <button
-                  type="button"
-                  aria-label="Previous image"
-                  onClick={() => goSlide(-1)}
-                  data-cursor="hover"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:left-6"
-                >
-                  {"<"}
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next image"
-                  onClick={() => goSlide(1)}
-                  data-cursor="hover"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:right-6"
-                >
-                  {">"}
-                </button>
-                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
-                  {Array.from({ length: slideCount }).map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      aria-label={`Image ${i + 1}`}
-                      onClick={() => setSlide(i)}
-                      data-cursor="hover"
-                      className={`size-2 rounded-full transition-colors ${
-                        i === slide ? "bg-accent" : "bg-white/50 hover:bg-white/80"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Meta panel (near-black) */}
-          <div className="order-1 flex flex-col items-center justify-center gap-5 overflow-y-auto bg-[#1c1c1c] px-6 py-12 text-center lg:order-2 lg:px-12 lg:py-14">
-            <p className="font-grotesk text-[13px] font-light tracking-[0.14em] text-white/70">
-              Student Works
-            </p>
-            <h2 className="font-serif text-[36px] font-medium leading-[1.05] text-white lg:text-[48px]">
-              {project.title}:
-            </h2>
-            <p className="max-w-[440px] font-grotesk text-[15px] font-light capitalize leading-[1.7] text-white/75 lg:text-[16px]">
-              {project.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Footer / project pager */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-t border-black border-b-[6px] bg-white px-6 sm:px-10">
-          <button
-            type="button"
-            onClick={() => goProject(-1)}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-bold text-accent transition-opacity hover:opacity-70 lg:text-[18px]"
-          >
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={`Student Works: ${project.title}`}
+      crumbs={[
+        { label: "Teaching", hideOnMobile: true },
+        { label: "Student Works", hideOnMobile: true },
+        { label: project.title },
+      ]}
+      bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
+      footer={
+        <div className="flex w-full max-w-[620px] items-center justify-between">
+          <PopupPagerButton onClick={() => goProject(-1)}>
             {"< Previous Project"}
-          </button>
-          <button
-            type="button"
-            onClick={() => goProject(1)}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-bold text-accent transition-opacity hover:opacity-70 lg:text-[18px]"
-          >
+          </PopupPagerButton>
+          <PopupPagerButton onClick={() => goProject(1)}>
             {"Next Project >"}
-          </button>
+          </PopupPagerButton>
         </div>
+      }
+    >
+      {/* Image carousel */}
+      <div className="relative order-2 h-[320px] min-h-0 overflow-hidden bg-black sm:h-[420px] lg:order-1 lg:h-auto">
+        <Slide project={project} index={slide} />
+        {slideCount > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={() => goSlide(-1)}
+              data-cursor="hover"
+              className="absolute left-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:left-6"
+            >
+              {"<"}
+            </button>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={() => goSlide(1)}
+              data-cursor="hover"
+              className="absolute right-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:right-6"
+            >
+              {">"}
+            </button>
+            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
+              {Array.from({ length: slideCount }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Image ${i + 1}`}
+                  onClick={() => setSlide(i)}
+                  data-cursor="hover"
+                  className={`size-2 rounded-full transition-colors ${
+                    i === slide ? "bg-accent" : "bg-white/50 hover:bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
-    </div>,
-    document.body,
+
+      {/* Meta panel (near-black) */}
+      <div className="order-1 flex flex-col items-center justify-center gap-5 bg-[#1c1c1c] px-6 py-12 text-center lg:order-2 lg:overflow-y-auto lg:px-12 lg:py-14">
+        <p className="font-grotesk text-[13px] font-light tracking-[0.14em] text-white/70">
+          Student Works
+        </p>
+        <h2 className="font-serif text-[36px] font-medium leading-[1.05] text-white lg:text-[48px]">
+          {project.title}:
+        </h2>
+        <p className="max-w-[440px] font-grotesk text-[15px] font-light capitalize leading-[1.7] text-white/75 lg:text-[16px]">
+          {project.description}
+        </p>
+      </div>
+    </PopupShell>
   );
 }

@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
+import { ExternalTextLink } from "@/components/InlineToken";
+import PopupShell, {
+  PopupDots,
+  PopupPagerButton,
+} from "@/components/PopupShell";
 import type { BlogBlock, BlogPost } from "@/lib/blogs";
 
 // Renders the full article body (below the hero) in the scroll region.
@@ -151,20 +155,16 @@ export default function BlogModal({
   const open = index !== null;
   const n = posts.length;
 
+  // Arrows page between posts. (Escape / scroll lock live in the shell.)
   useEffect(() => {
     if (!open) return;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") onNavigate((index! - 1 + n) % n);
       if (e.key === "ArrowRight") onNavigate((index! + 1) % n);
     };
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, index, n, onNavigate, onClose]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, index, n, onNavigate]);
 
   // Reset scroll to the top whenever the post changes.
   useEffect(() => {
@@ -176,42 +176,28 @@ export default function BlogModal({
   const prev = () => onNavigate((index! - 1 + n) % n);
   const next = () => onNavigate((index! + 1) % n);
 
-  return createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={post.title}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center bg-black/40 p-5 sm:p-10 lg:p-16"
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 -z-10 cursor-default"
-        tabIndex={-1}
-      />
-      <div className="relative flex max-h-[min(880px,92vh)] w-full flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
-        {/* Sticky header: breadcrumb + close */}
-        <div className="flex shrink-0 items-center justify-between gap-4 border-b border-black/10 px-6 py-4 lg:px-8">
-          <div className="min-w-0 truncate font-grotesk text-[14px] text-black/80 lg:text-[16px]">
-            {/* Category segment dropped with the index heading (Fas 07/28). */}
-            <span className="text-black/50">Blogs</span>
-            <span className="mx-1.5 text-black/30">/</span>
-            <span className="underline underline-offset-4">{post.title}</span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            data-cursor="hover"
-            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ✕
-          </button>
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={post.title}
+      bodyRef={scrollRef}
+      // Category segment dropped with the index heading (Fas 07/28).
+      crumbs={[{ label: "Blogs", hideOnMobile: true }, { label: post.title }]}
+      footer={
+        <div className="flex w-full max-w-[620px] items-center justify-between">
+          <PopupPagerButton onClick={prev}>{"< Previous"}</PopupPagerButton>
+          <PopupDots
+            count={n}
+            active={index!}
+            onSelect={onNavigate}
+            labelFor={(i) => `Go to ${posts[i].title}`}
+          />
+          <PopupPagerButton onClick={next}>{"Next >"}</PopupPagerButton>
         </div>
-
-        {/* Scroll region: hero + full article */}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+      }
+    >
+      <>
+          {/* Hero: cover + title panel, then the full article */}
           <div className="flex flex-col md:grid md:grid-cols-2">
             <div
               className="relative order-2 min-h-[240px] md:order-1 md:min-h-[440px]"
@@ -238,7 +224,7 @@ export default function BlogModal({
               <p className="font-grotesk text-[12px] uppercase tracking-[0.14em] opacity-80">
                 {post.kicker}
               </p>
-              <h2 className="mt-5 font-serif text-[34px] leading-[1.08] md:text-[46px]">
+              <h2 className="mt-5 font-grotesk text-[34px] font-medium leading-[1.08] md:text-[46px]">
                 {post.title}
               </h2>
               <p className="mx-auto mt-6 max-w-[34ch] font-grotesk text-[13px] leading-[1.6] opacity-80 md:text-[14px]">
@@ -251,54 +237,15 @@ export default function BlogModal({
 
           {post.url && (
             <div className="pb-12 text-center">
-              <a
+              <ExternalTextLink
                 href={post.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="hover"
-                className="font-grotesk text-[14px] font-medium text-accent underline underline-offset-4 transition-opacity hover:opacity-70"
+                className="font-grotesk text-[14px] font-medium"
               >
-                Read on faslebbie.com →
-              </a>
+                Read on faslebbie.com
+              </ExternalTextLink>
             </div>
           )}
-        </div>
-
-        {/* Sticky footer: pager */}
-        <div className="flex shrink-0 items-center justify-between border-t border-black/10 px-6 py-4 lg:px-10">
-          <button
-            type="button"
-            onClick={prev}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-medium text-accent transition-opacity hover:opacity-70 lg:text-[17px]"
-          >
-            &lt; Previous
-          </button>
-          <div className="flex items-center gap-2">
-            {posts.map((p, i) => (
-              <button
-                key={p.slug}
-                type="button"
-                aria-label={`Go to ${p.title}`}
-                onClick={() => onNavigate(i)}
-                data-cursor="hover"
-                className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                  i === index ? "bg-accent" : "bg-black/20 hover:bg-black/40"
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={next}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-medium text-accent transition-opacity hover:opacity-70 lg:text-[17px]"
-          >
-            Next &gt;
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
+      </>
+    </PopupShell>
   );
 }

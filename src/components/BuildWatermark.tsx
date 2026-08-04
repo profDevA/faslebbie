@@ -65,7 +65,7 @@ export default function BuildWatermark({
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none fixed inset-0 flex select-none items-start overflow-hidden px-5 font-logo font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:px-[5.6vw] lg:leading-[0.88] lg:tracking-[-0.022em] pt-[430px] sm:pt-[450px] ${WORDMARK_TOP}`}
+      className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-logo font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[5.6vw] lg:leading-[0.88] lg:tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
     >
       <span className="w-full text-[48px] sm:text-[56px] lg:text-[clamp(48px,12vw,176px)]">
         <span className="block">Build/Play</span>

@@ -82,7 +82,7 @@ export default function BuildBody({
                   transform: contentDrift(r),
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="relative z-10 will-change-[opacity,filter,transform]"
+                className="relative z-10 mt-[84px] will-change-[opacity,filter,transform] lg:mt-0"
               >
                 <BuildContent
                   className="pb-24"

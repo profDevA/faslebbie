@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
+import PopupShell, {
+  PopupDots,
+  PopupPagerButton,
+} from "@/components/PopupShell";
 import { mediaCategory, type MediaItem } from "@/lib/blogs";
 
 // Play glyph reused on the card + modal placeholder.
@@ -33,65 +36,47 @@ export default function MediaModal({
   const open = index !== null;
   const n = items.length;
 
+  // Arrows page between items. (Escape / scroll lock live in the shell.)
   useEffect(() => {
     if (!open) return;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") onNavigate((index! - 1 + n) % n);
       if (e.key === "ArrowRight") onNavigate((index! + 1) % n);
     };
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, index, n, onNavigate, onClose]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, index, n, onNavigate]);
 
   if (!mounted || !open) return null;
   const item = items[index!];
   const prev = () => onNavigate((index! - 1 + n) % n);
   const next = () => onNavigate((index! + 1) % n);
 
-  return createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={item.title}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center overflow-y-auto bg-black/40 p-5 sm:p-10 lg:p-16"
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 -z-10 cursor-default"
-        tabIndex={-1}
-      />
-      <div className="flex max-h-[min(880px,92vh)] w-full flex-col bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
-        {/* Header: breadcrumb + close */}
-        <div className="flex items-center justify-between gap-4 border-b border-black/10 px-6 py-4 lg:px-8">
-          <div className="min-w-0 truncate font-grotesk text-[14px] text-black/80 lg:text-[16px]">
-            <span className="text-black/50">Blogs</span>
-            <span className="mx-1.5 text-black/30">/</span>
-            <span className="text-black/50">Media</span>
-            <span className="mx-1.5 text-black/30">/</span>
-            <span className="text-black/50">{mediaCategory(item.format)}</span>
-            <span className="mx-1.5 text-black/30">/</span>
-            <span className="underline underline-offset-4">{item.title}</span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            data-cursor="hover"
-            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ✕
-          </button>
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={item.title}
+      crumbs={[
+        { label: "Blogs", hideOnMobile: true },
+        { label: "Media", hideOnMobile: true },
+        { label: mediaCategory(item.format), hideOnMobile: true },
+        { label: item.title },
+      ]}
+      footer={
+        <div className="flex w-full max-w-[620px] items-center justify-between">
+          <PopupPagerButton onClick={prev}>{"< Previous"}</PopupPagerButton>
+          <PopupDots
+            count={n}
+            active={index!}
+            onSelect={onNavigate}
+            labelFor={(i) => `Go to ${items[i].title}`}
+          />
+          <PopupPagerButton onClick={next}>{"Next >"}</PopupPagerButton>
         </div>
-
-        {/* Body: video + details */}
-        <div className="grid grid-cols-1 gap-8 bg-[#e0e0d8] px-6 py-8 md:grid-cols-2 md:items-center md:gap-10 md:px-10 md:py-12">
+      }
+    >
+      {/* Body: video + details */}
+        <div className="grid min-h-full grid-cols-1 content-center gap-8 px-6 py-8 md:grid-cols-2 md:items-center md:gap-10 md:px-10 md:py-12">
           <div className="relative aspect-video w-full bg-black">
             {item.video ? (
               <iframe
@@ -130,43 +115,7 @@ export default function MediaModal({
               {item.themes.join(" / ")}
             </p>
           </div>
-        </div>
-
-        {/* Footer: pager */}
-        <div className="flex items-center justify-between px-6 py-5 lg:px-10">
-          <button
-            type="button"
-            onClick={prev}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-medium text-accent transition-opacity hover:opacity-70 lg:text-[17px]"
-          >
-            &lt; Previous
-          </button>
-          <div className="flex items-center gap-2">
-            {items.map((m, i) => (
-              <button
-                key={m.slug}
-                type="button"
-                aria-label={`Go to ${m.title}`}
-                onClick={() => onNavigate(i)}
-                data-cursor="hover"
-                className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                  i === index ? "bg-accent" : "bg-black/20 hover:bg-black/40"
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={next}
-            data-cursor="hover"
-            className="font-grotesk text-[15px] font-medium text-accent transition-opacity hover:opacity-70 lg:text-[17px]"
-          >
-            Next &gt;
-          </button>
-        </div>
       </div>
-    </div>,
-    document.body,
+    </PopupShell>
   );
 }

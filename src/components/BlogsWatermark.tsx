@@ -57,7 +57,7 @@ export default function BlogsWatermark() {
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none fixed inset-0 flex select-none items-center justify-center overflow-hidden px-4 font-grotesk font-bold leading-[0.9] tracking-[-0.022em] will-change-[color,opacity]"
+      className="pointer-events-none absolute inset-0 flex select-none items-start justify-center overflow-hidden px-4 pt-45 font-grotesk font-bold leading-[0.9] tracking-[-0.022em] will-change-[color,opacity] lg:fixed lg:items-center lg:pt-0"
     >
       <span className="text-[clamp(40px,12vw,190px)]">Blogs/Media</span>
     </div>

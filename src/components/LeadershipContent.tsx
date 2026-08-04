@@ -1,6 +1,12 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
+import {
+  NavPillButton,
+  PopupTrigger,
+  expandPillClass,
+  onActivateKey,
+} from '@/components/InlineToken'
 import TestimonialsFooterLink from '@/components/TestimonialsFooterLink'
 import { openContactDrawer } from '@/lib/contactDrawer'
 import type { AboutToken, Testimonial } from '@/lib/content'
@@ -31,17 +37,8 @@ function GrayPill({
       data-cursor="hover"
       aria-expanded={open}
       onClick={onToggle}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onToggle()
-        }
-      }}
-      className={`mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
-        open
-          ? 'bg-black text-white'
-          : 'bg-pill text-black text-shadow-token hover:bg-black hover:text-white hover:text-shadow-none'
-      }`}
+      onKeyDown={onActivateKey(onToggle)}
+      className={expandPillClass(open)}
     >
       {text}
     </span>
@@ -133,48 +130,34 @@ export default function LeadershipContent({
 
   return (
     <section
-      className={`font-serif text-[28px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[32px] lg:text-[42px] lg:leading-normal ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
-      <p className="mb-10">
+      {/* Block rhythm mirrors Research (mb-12 / lg:mb-16 between prose blocks,
+          mb-5 under a kicker) so the section pages read on one system. */}
+      <p className="mb-12 lg:mb-16">
         {renderProse(intro, 'intro', openKey, toggle, expansions)}
       </p>
 
-      <p className="mb-6 font-serif text-[20px] font-bold capitalize leading-[1.6] tracking-[0.5px] text-black lg:text-[24px]">
-        {momentsHeading}
-      </p>
+      <div className="mb-12 lg:mb-16">
+        <p className="mb-5 font-grotesk text-[20px] font-bold capitalize leading-[1.6] tracking-[0.5px] text-black lg:text-[24px]">
+          {momentsHeading}
+        </p>
+        <p className="mb-2">{renderProse(lead, 'lead', openKey, toggle, expansions)}</p>
+        {/* Takes you to the moments gallery — navigation, so it's a pill. */}
+        <p>
+          <NavPillButton onClick={onExplore}>{exploreText}</NavPillButton>
+        </p>
+      </div>
 
-      <p className="mb-2">{renderProse(lead, 'lead', openKey, toggle, expansions)}</p>
-      <p className="mb-10">
-        <span
-          role="button"
-          tabIndex={0}
-          data-cursor="hover"
-          onClick={onExplore}
-          onKeyDown={e => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              onExplore()
-            }
-          }}
-          className="cursor-pointer text-accent underline decoration-from-font underline-offset-2"
-        >
-          {exploreText}
-        </span>
-      </p>
-
-      <p className="mb-2">
-        {renderProse(closing, 'closing', openKey, toggle, expansions)}
-      </p>
-      <p className="mb-10">
-        <button
-          type="button"
-          onClick={openContactDrawer}
-          data-cursor="hover"
-          className="text-accent underline decoration-from-font underline-offset-2"
-        >
-          {contactText}
-        </button>
-      </p>
+      <div className="mb-12 lg:mb-16">
+        <p className="mb-2">
+          {renderProse(closing, 'closing', openKey, toggle, expansions)}
+        </p>
+        {/* Opens the contact drawer over the page — underline. */}
+        <p>
+          <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
+        </p>
+      </div>
 
       {/* Fas 07/28: testimonials link at the bottom (same as About CV). */}
       <TestimonialsFooterLink

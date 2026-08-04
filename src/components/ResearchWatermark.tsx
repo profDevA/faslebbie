@@ -53,7 +53,7 @@ export default function ResearchWatermark() {
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none fixed inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:px-[5.6vw] lg:leading-[0.9] lg:tracking-[-0.022em] pt-[400px] sm:pt-[420px] ${WORDMARK_TOP}`}
+      className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[5.6vw] lg:leading-[0.9] lg:tracking-[-0.022em] pt-[404px] ${WORDMARK_TOP}`}
     >
       <span className="text-[58px] lg:text-[clamp(48px,13vw,190px)]">
         Research

@@ -73,7 +73,7 @@ export default function BlogsBody({
             />
 
             {tab === "blog" ? (
-              <div className="mx-auto mt-14 flex max-w-[720px] flex-col gap-16">
+              <div className="mx-auto mt-26 flex max-w-[720px] flex-col gap-16 lg:mt-14">
                 {groups.map((group) => (
                   <section key={group.category} className="flex flex-col gap-14">
                     {/* Category heading ("Design Muscle") removed — Fas 07/28:
@@ -89,7 +89,7 @@ export default function BlogsBody({
                           type="button"
                           onClick={() => setOpenBlog(index)}
                           data-cursor="hover"
-                          className="mt-4 font-serif text-[28px] leading-[1.15] text-accent underline decoration-1 underline-offset-[6px] transition-opacity hover:opacity-80 md:text-[32px]"
+                          className="mt-4 font-grotesk text-[28px] font-medium leading-[1.15] text-accent underline decoration-1 underline-offset-[6px] transition-opacity hover:opacity-80 md:text-[32px]"
                         >
                           {post.title}
                         </button>
@@ -99,7 +99,7 @@ export default function BlogsBody({
                 ))}
               </div>
             ) : (
-              <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-9 lg:grid-cols-4 lg:gap-x-8">
+              <div className="mt-24 grid grid-cols-2 gap-x-5 gap-y-9 lg:mt-12 lg:grid-cols-4 lg:gap-x-8">
                 {media.map((item, index) => (
                   <button
                     key={item.slug}
@@ -122,7 +122,7 @@ export default function BlogsBody({
                         <PlayGlyph className="ml-0.5 h-6 w-6" />
                       </span>
                     </div>
-                    <p className="mt-3 font-serif text-[16px] italic text-accent underline decoration-1 underline-offset-4">
+                    <p className="mt-3 font-grotesk text-[16px] font-medium text-accent underline decoration-1 underline-offset-4">
                       {item.title}
                     </p>
                     <p className="mt-1.5 font-grotesk text-[14px] text-black/60">

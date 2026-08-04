@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
+import PopupShell from '@/components/PopupShell'
 import type { PortableTextBlock } from '@portabletext/types'
 
 import type {
@@ -177,26 +178,24 @@ export default function CaseStudyView({
   onNavigate?: (slug: string) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  // In overlay mode the scroller lives inside PopupShell's portal, which only
+  // mounts on a later render — track the node in state so the effects below
+  // re-run once it exists.
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
+  const setScrollNode = useCallback((el: HTMLDivElement | null) => {
+    scrollRef.current = el
+    setScroller(el)
+  }, [])
   const overlay = variant === 'overlay'
 
   useEffect(() => {
     if (!overlay) return
-    scrollRef.current?.scrollTo({ top: 0 })
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose?.()
-    }
-    document.addEventListener('keydown', onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [overlay, onClose, p.slug])
+    scroller?.scrollTo({ top: 0 })
+  }, [overlay, scroller, p.slug])
 
   // Scroll-reveal: tag each <section> once it enters view.
   useEffect(() => {
-    const root = scrollRef.current
+    const root = overlay ? scroller : scrollRef.current
     if (!root) return
     const sections = Array.from(root.querySelectorAll('section'))
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
@@ -221,7 +220,7 @@ export default function CaseStudyView({
     )
     sections.forEach(s => io.observe(s))
 
-    const scroller: HTMLElement | Window = overlay ? root : window
+    const target: HTMLElement | Window = overlay ? root : window
     const onScroll = () => {
       const vh = overlay ? root.clientHeight : window.innerHeight
       const rootTop = overlay ? root.getBoundingClientRect().top : 0
@@ -231,13 +230,13 @@ export default function CaseStudyView({
         if (top < vh * 0.9) reveal(s)
       }
     }
-    scroller.addEventListener('scroll', onScroll, { passive: true })
+    target.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => {
       io.disconnect()
-      scroller.removeEventListener('scroll', onScroll)
+      target.removeEventListener('scroll', onScroll)
     }
-  }, [p.slug, overlay])
+  }, [p.slug, overlay, scroller])
 
   const goTo = (slug: string) => (e: React.MouseEvent) => {
     if (onNavigate) {
@@ -246,23 +245,41 @@ export default function CaseStudyView({
     }
   }
 
+  // Previous / Next pager — the shared popup footer in overlay mode, a sticky
+  // bar of its own on the standalone route.
+  const pager = (
+    <div
+      className="mx-auto flex w-full max-w-225 items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]"
+      style={{ color: RED }}
+    >
+      <Link
+        href={`/work/${prev.slug}`}
+        onClick={goTo(prev.slug)}
+        data-cursor="hover"
+        className="transition-opacity hover:opacity-70"
+      >
+        &lt; Previous
+      </Link>
+      <Link
+        href={`/work/${next.slug}`}
+        onClick={goTo(next.slug)}
+        data-cursor="hover"
+        className="transition-opacity hover:opacity-70"
+      >
+        Next &gt;
+      </Link>
+    </div>
+  )
+
   const inner = (
     <>
-      <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
-        <nav
-          aria-label="Breadcrumb"
-          className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]"
-        >
-          {overlay ? (
-            <button
-              type="button"
-              onClick={onClose}
-              data-cursor="hover"
-              className="text-black/55 transition-colors hover:text-black"
-            >
-              Work
-            </button>
-          ) : (
+      {/* Overlay mode gets the shared popup header instead. */}
+      {!overlay && (
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]"
+          >
             <Link
               href="/work"
               data-cursor="hover"
@@ -270,25 +287,13 @@ export default function CaseStudyView({
             >
               Work
             </Link>
-          )}
-          <span aria-hidden className="text-black/35">
-            /
-          </span>
-          <span aria-current="page" className="underline underline-offset-4">
-            {p.name}
-          </span>
-        </nav>
-        {overlay ? (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            data-cursor="hover"
-            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
-          >
-            ×
-          </button>
-        ) : (
+            <span aria-hidden className="text-black/35">
+              /
+            </span>
+            <span aria-current="page" className="underline underline-offset-4">
+              {p.name}
+            </span>
+          </nav>
           <Link
             href="/work"
             aria-label="Close"
@@ -297,8 +302,8 @@ export default function CaseStudyView({
           >
             ×
           </Link>
-        )}
-      </div>
+        </div>
+      )}
 
       {groupSections(p.sections ?? []).map(group =>
         group.length > 1 ? (
@@ -316,60 +321,32 @@ export default function CaseStudyView({
         ),
       )}
 
-      <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-5">
-        <div
-          className="mx-auto flex max-w-225 items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]"
-          style={{ color: RED }}
-        >
-          <Link
-            href={`/work/${prev.slug}`}
-            onClick={goTo(prev.slug)}
-            data-cursor="hover"
-            className="transition-opacity hover:opacity-70"
-          >
-            &lt; Previous
-          </Link>
-          <Link
-            href={`/work/${next.slug}`}
-            onClick={goTo(next.slug)}
-            data-cursor="hover"
-            className="transition-opacity hover:opacity-70"
-          >
-            Next &gt;
-          </Link>
+      {!overlay && (
+        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-5">
+          {pager}
         </div>
-      </div>
+      )}
     </>
   )
 
   if (overlay) {
-    if (typeof document === 'undefined') return null
-    return createPortal(
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={p.name}
-        onClick={onClose}
-        className="fixed inset-x-0 bottom-0 top-13 z-100 flex items-start justify-center bg-[rgba(226,226,218,0.8)] p-5 sm:p-10 lg:p-16 animate-[panel-in_0.2s_ease-out]"
+    return (
+      <PopupShell
+        onClose={onClose ?? (() => {})}
+        label={p.name}
+        crumbs={[{ label: 'Work', hideOnMobile: true }, { label: p.name }]}
+        bodyRef={setScrollNode}
+        bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black"
+        footer={pager}
       >
-        <div
-          ref={scrollRef}
-          onClick={e => e.stopPropagation()}
-          // Fas 07/28: expand the pop-up. Gutter comes from the overlay padding
-          // above; the panel is w-full so it fills whatever's left — scales with
-          // the screen, no magic vw. Same shell as the other content modals.
-          className="cs-root cs-fullheight relative h-full w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black shadow-[0_24px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10"
-        >
-          {inner}
-        </div>
-      </div>,
-      document.body,
+        {inner}
+      </PopupShell>
     )
   }
 
   return (
     <div
-      ref={scrollRef}
+      ref={setScrollNode}
       className="cs-root min-h-screen bg-white font-grotesk text-black"
     >
       {inner}
@@ -551,7 +528,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             className={`mt-[1em] text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.2vw] ${dark}`}
           />
           {s.ctaUrl && (
-            // Figma 600:12511 — Neue Haas 55 Roman 18px, capitalize (not caps), underlined.
+            // Figma 600:12511 — Neue Haas 55 Roman 18px, capitalize (not caps),
+            // underlined in the band's own colour rather than the site red.
             <a
               href={s.ctaUrl}
               target="_blank"

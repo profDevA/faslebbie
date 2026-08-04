@@ -217,6 +217,9 @@ export type FieldNote = {
   themes: string;
   insight: string;
   image?: string;
+  /** Extra shots of the same note — the arrows over the image page these
+   *  (Fas 07/30: "image arrows change images only"). Falls back to `image`. */
+  images?: string[];
 };
 export type FieldNotesContent = {
   kind: "field-notes";

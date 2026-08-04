@@ -55,6 +55,10 @@ function ramp(a: number, b: number, t: number) {
 const START_OPACITY = 0.32
 const START_BLUR = 2 // px
 
+// Bounds for the mobile paragraph auto-fit. 28px is the designed mobile size.
+const MAX_PARA_SIZE = 28
+const MIN_PARA_SIZE = 15
+
 // linear blend between two rgb triples → "rgb(r, g, b)"
 const NEAR_BLACK: [number, number, number] = [32, 32, 30]
 const FADED_GREY: [number, number, number] = [183, 183, 175]
@@ -96,6 +100,37 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
   useEffect(() => {
     documentPainted = true
   }, [])
+
+  // Phone-sized screens: shrink the paragraph until it fits its box. Nothing
+  // here scrolls — the wordmark and the paragraph are both pinned to the
+  // viewport and Home's scroll is spent entirely on the dissolve — so text that
+  // doesn't fit isn't just ugly, it's unreachable (a 375x667 phone lost its
+  // first and last lines). Measured rather than a `clamp()`, because how many
+  // lines the copy wraps to depends on the copy itself, which is Sanity-driven.
+  const boxRef = useRef<HTMLDivElement>(null)
+  const paraRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fit = () => {
+      const box = boxRef.current
+      const para = paraRef.current
+      if (!box || !para) return
+      // md+ keeps the designed sizes; the var only drives the mobile step.
+      if (window.innerWidth >= 768) {
+        para.style.removeProperty('--hero-para-size')
+        return
+      }
+      let size = MAX_PARA_SIZE
+      para.style.setProperty('--hero-para-size', `${size}px`)
+      while (size > MIN_PARA_SIZE && para.scrollHeight > box.clientHeight) {
+        size -= 1
+        para.style.setProperty('--hero-para-size', `${size}px`)
+      }
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [content])
 
   // The intro is "live" — and Home is therefore scrollable — whenever the page
   // opened on the intro's first frame. Decided at the first render and never
@@ -203,7 +238,10 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
               image should be closer… it's too far away"): pack the row to the
               left with a small gap instead of pushing the photo to the edge. */}
           <div className="flex items-start justify-start gap-[1.5vw]">
-            <span className="whitespace-nowrap text-[clamp(72px,15vw,250px)]">
+            {/* The phone step is smaller than a straight 15vw: at 72px the
+                wordmark alone was wider than a 375px screen, so the portrait
+                beside it was sliced by the viewport edge. */}
+            <span className="whitespace-nowrap text-[clamp(40px,13vw,250px)] lg:text-[clamp(72px,15vw,250px)]">
               Fas lebbie
             </span>
             {/* Portrait tucked in the corner, in front, with a soft shadow so it
@@ -220,7 +258,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
           </div>
           {/* Bigger gap between "Fas lebbie" and "Ph.D." (Israel 06/26). In em
               so it tracks the responsive wordmark size. */}
-          <span className="mt-[0.34em] block text-right text-[clamp(72px,15vw,250px)]">
+          <span className="mt-[0.34em] block text-right text-[clamp(40px,13vw,250px)] lg:text-[clamp(72px,15vw,250px)]">
             Ph.D.
           </span>
         </div>
@@ -247,16 +285,17 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
           identically; the text inside stays left-aligned to match Figma (Israel
           06/23 — "justify to the left"). */}
       <div
+        ref={boxRef}
         style={{
           opacity: paraOpacity,
           filter: paraBlur ? `blur(${paraBlur}px)` : undefined,
           pointerEvents: paraFront ? 'auto' : 'none',
         }}
-        className={`flex items-center justify-center px-6 will-change-[opacity,filter] lg:px-[5vw] ${
+        className={`flex items-center justify-center px-6 py-4 will-change-[opacity,filter] lg:px-[5vw] lg:py-0 ${
           introActive ? 'fixed inset-x-0 bottom-0 top-13' : 'h-full'
         }`}
       >
-        <div className="w-full max-w-272 text-left">
+        <div ref={paraRef} className="w-full max-w-272 text-left">
           <HeroParagraph
             storyHref={content?.storyHref ?? '/about'}
             segments={content?.segments}

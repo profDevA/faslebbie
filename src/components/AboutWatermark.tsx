@@ -8,6 +8,11 @@ import { WORDMARK_TOP } from "@/components/PagePortrait";
  * Big "About Me" watermark (Figma 807:19241). Fixed parallax layer — fades to
  * page grey behind content. Mobile (Fas 07/30): same background treatment as
  * Work/Teaching — sits at the bottom of the portrait, not a foreground heading.
+ *
+ * On mobile it is `absolute`, not `fixed`: the single narrow column puts the
+ * prose directly over the wordmark, so a viewport-pinned layer collided with
+ * whatever text happened to be scrolling past it. Anchored to the page instead,
+ * it stays in the gap under the portrait and scrolls away with it.
  */
 
 function ramp(a: number, b: number, t: number) {
@@ -54,7 +59,7 @@ export default function AboutWatermark() {
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none fixed inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[400px] sm:pt-[420px] ${WORDMARK_TOP}`}
+      className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP}`}
     >
       {/* About has no .txt/.img toggle — slightly lower pt than Work/Teaching. */}
       <span className="text-[58px] lg:text-[clamp(48px,14vw,200px)]">

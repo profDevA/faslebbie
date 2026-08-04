@@ -76,11 +76,16 @@ export default function WorkWatermark({
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none fixed inset-0 flex select-none flex-col items-start overflow-hidden px-5 will-change-[color,opacity] sm:px-6 lg:px-[5.6vw] pt-[430px] sm:pt-[450px] ${WORDMARK_TOP}`}
+      className={`pointer-events-none absolute inset-0 select-none flex-col items-start overflow-hidden px-5 will-change-[color,opacity] sm:px-6 lg:fixed lg:flex lg:px-[5.6vw] pt-[402px] ${WORDMARK_TOP} ${
+        receded ? 'hidden' : 'flex'
+      }`}
     >
-      {/* Mobile pt ~430 clears nav + .txt/.img + portrait so the block lands
-          at the bottom of the photo (Figma 1:14815 — wordmark @ ~643 / photo
-          ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on desktop. */}
+      {/* Mobile: `absolute`, so the block is anchored to the page and scrolls
+          away with the photo instead of sitting under whatever prose happens to
+          be passing the viewport. pt clears nav + .txt/.img + portrait so it
+          lands in the gap at the bottom of the photo (Figma 1:14815 — wordmark
+          @ ~643 / photo ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on
+          desktop, where the wordmark is a fixed layer in the left column. */}
       <div>
         <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
           Design Work

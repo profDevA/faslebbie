@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import PopupShell from "@/components/PopupShell";
 import {
   exhibitionTiles as fallbackTiles,
   exhibitionTitle as fallbackTitle,
@@ -26,24 +25,7 @@ export default function ExhibitionOverlay({
   title?: string;
   tiles?: ExhibitionTile[];
 }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-
-  if (!mounted || !open) return null;
+  if (!open) return null;
 
   // Title often comes as one line ("SFK Beijing Exhibition"); split for the
   // two-line serif treatment when it has a natural break after "Beijing".
@@ -70,34 +52,25 @@ export default function ExhibitionOverlay({
     </div>
   );
 
-  return createPortal(
-    <div className="fixed inset-0 z-100 overflow-y-auto bg-close">
-      {/* Header / close */}
-      <div className="sticky top-0 z-20 flex h-13 items-center justify-between border-b border-black/10 bg-close/90 px-5 backdrop-blur-sm sm:px-8">
-        <span className="font-grotesk text-[14px] font-light text-black sm:text-[16px]">
-          Teaching <span className="text-black/40">/</span>{" "}
-          <span className="underline underline-offset-2">{title}</span>
-        </span>
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          data-cursor="hover"
-          className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-        >
-          ✕
-        </button>
-      </div>
-
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={title}
+      crumbs={[{ label: "Teaching", hideOnMobile: true }, { label: title }]}
+      // The desktop collage is a fixed-height composition; only mobile scrolls.
+      bodyClassName="min-h-0 flex-1 overflow-y-auto lg:overflow-hidden"
+    >
       {/* Desktop: scattered collage with the title centred over it */}
-      <div className="relative hidden h-[calc(100vh-52px)] w-full lg:block">
+      <div className="@container-size relative hidden h-full w-full lg:block">
         {tiles.map((tile, i) => (
           <div
             key={i}
             style={{
               top: `${tile.pos.top}%`,
               left: `${tile.pos.left}%`,
-              width: `${tile.pos.w}vw`,
+              // Sized off the container height (not the viewport) so the collage
+              // keeps its proportions inside the popup card.
+              width: `${(tile.pos.w * 1.87).toFixed(2)}cqh`,
               backgroundColor: tile.tint,
               backgroundImage: tile.image ? `url(${tile.image})` : undefined,
               backgroundSize: "cover",
@@ -129,7 +102,6 @@ export default function ExhibitionOverlay({
           ))}
         </div>
       </div>
-    </div>,
-    document.body,
+    </PopupShell>
   );
 }

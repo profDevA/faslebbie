@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
+import PopupShell, {
+  PopupDots,
+  PopupPagerButton,
+} from "@/components/PopupShell";
 import {
   researchBreadcrumbRoot,
   researchSectionLabel,
-  researchSectionOrder,
   researchSections,
   type FieldNotesContent,
   type ManifestoContent,
@@ -16,9 +18,9 @@ import {
   type ResearchSectionId,
 } from "@/lib/research";
 
-// Paged modal (Figma 1-40135 → 1-40813). One panel, five slides
-// (paradigms → principles → modalities → manifesto → field notes) with a
-// shared breadcrumb, a scrollable body, and a Previous / dots / Next pager.
+// Section modal (Figma 1-40135 → 1-40813). One panel per section
+// (paradigms / principles / modalities / manifesto / field notes) with a shared
+// breadcrumb and a scrollable body. Only Field Notes carries a pager.
 
 function NumberedList({
   items,
@@ -247,33 +249,51 @@ function ManifestoView({ c }: { c: ManifestoContent }) {
   );
 }
 
-function FieldNotesView({ c }: { c: FieldNotesContent }) {
-  const [i, setI] = useState(0);
+function FieldNotesView({
+  c,
+  index,
+}: {
+  c: FieldNotesContent;
+  /** Which field note to show — the shell's footer pager owns this. */
+  index: number;
+}) {
   const n = c.notes.length;
-  const note = c.notes[Math.min(i, n - 1)];
-  const go = (d: 1 | -1) => setI((p) => (p + d + n) % n);
+  const note = c.notes[Math.min(index, n - 1)];
+  const images = note.images?.length
+    ? note.images
+    : note.image
+      ? [note.image]
+      : [];
+  const [slide, setSlide] = useState(0);
+  // A different note starts on its own first image.
+  useEffect(() => setSlide(0), [index]);
+  const goImage = (d: 1 | -1) =>
+    setSlide((p) => (p + d + images.length) % images.length);
+  const src = images[Math.min(slide, images.length - 1)];
   return (
     <div>
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_441px]">
-      {/* Image + left/right arrows to move between field notes (Israel 07/17:
-          "on the left you have arrows to change the image"). */}
+      {/* Roughly 50/50 image | note (Fas 07/30). */}
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+      {/* The arrows over the image page THIS note's images only; the footer
+          Previous / Next moves between field notes (Fas 07/30, same split as
+          Student Works). */}
       <div className="relative flex items-center">
-        {note.image ? (
+        {src ? (
           // eslint-disable-next-line @next/next/no-img-element -- static design asset
           <img
-            src={note.image}
+            src={src}
             alt={note.place}
             className="h-auto w-full object-cover"
           />
         ) : (
           <div className="aspect-4/3 w-full bg-white" />
         )}
-        {n > 1 && (
+        {images.length > 1 && (
           <>
             <button
               type="button"
-              aria-label="Previous field note"
-              onClick={() => go(-1)}
+              aria-label="Previous image"
+              onClick={() => goImage(-1)}
               data-cursor="hover"
               className="absolute left-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
             >
@@ -281,13 +301,27 @@ function FieldNotesView({ c }: { c: FieldNotesContent }) {
             </button>
             <button
               type="button"
-              aria-label="Next field note"
-              onClick={() => go(1)}
+              aria-label="Next image"
+              onClick={() => goImage(1)}
               data-cursor="hover"
               className="absolute right-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
             >
               {"\u203a"}
             </button>
+            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
+              {images.map((img, k) => (
+                <button
+                  key={img}
+                  type="button"
+                  aria-label={`Image ${k + 1}`}
+                  onClick={() => setSlide(k)}
+                  data-cursor="hover"
+                  className={`size-2 rounded-full transition-colors ${
+                    k === slide ? "bg-accent" : "bg-white/60 hover:bg-white/90"
+                  }`}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>
@@ -329,47 +363,17 @@ function FieldNotesView({ c }: { c: FieldNotesContent }) {
         </div>
       </div>
       </div>
-
-      {/* Previous / dots / Next between field notes (testimonial-style pager). */}
-      {n > 1 && (
-        <div className="mt-10 flex items-center justify-between border-t border-black pt-6">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            data-cursor="hover"
-            className="font-grotesk text-[18px] font-medium text-accent transition-opacity hover:opacity-70"
-          >
-            {"< Previous"}
-          </button>
-          <div className="flex items-center gap-2.5">
-            {c.notes.map((nt, k) => (
-              <button
-                key={nt.n}
-                type="button"
-                aria-label={`Field note ${nt.n}`}
-                onClick={() => setI(k)}
-                data-cursor="hover"
-                className={`size-2 rounded-full transition-colors ${
-                  k === i ? "bg-accent" : "bg-black/25 hover:bg-black/40"
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            data-cursor="hover"
-            className="font-grotesk text-[18px] font-medium text-accent transition-opacity hover:opacity-70"
-          >
-            {"Next >"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
-function SectionView({ content }: { content: ResearchSectionContent }) {
+function SectionView({
+  content,
+  noteIndex,
+}: {
+  content: ResearchSectionContent;
+  noteIndex: number;
+}) {
   switch (content.kind) {
     case "paradigms":
       return <ParadigmsView c={content} />;
@@ -380,96 +384,62 @@ function SectionView({ content }: { content: ResearchSectionContent }) {
     case "manifesto":
       return <ManifestoView c={content} />;
     case "field-notes":
-      return <FieldNotesView c={content} />;
+      return <FieldNotesView c={content} index={noteIndex} />;
   }
 }
 
 export default function ResearchModal({
   openId,
-  onNavigate,
   onClose,
   sections = researchSections,
 }: {
   openId: ResearchSectionId | null;
-  onNavigate: (id: ResearchSectionId) => void;
   onClose: () => void;
   sections?: Record<ResearchSectionId, ResearchSectionContent>;
 }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // Which field note is showing. Only Field Notes pages (Fas 07/30) — every
+  // other section opens as standalone content with no pager at all.
+  const [noteIndex, setNoteIndex] = useState(0);
+  useEffect(() => setNoteIndex(0), [openId]);
 
-  const index = openId ? researchSectionOrder.indexOf(openId) : -1;
+  if (!openId) return null;
 
-  const go = useCallback(
-    (dir: 1 | -1) => {
-      if (index < 0) return;
-      const n = researchSectionOrder.length;
-      onNavigate(researchSectionOrder[(index + dir + n) % n]);
-    },
-    [index, onNavigate],
-  );
+  const content = sections[openId];
+  const notes = content.kind === "field-notes" ? content.notes : [];
+  const goNote = (d: 1 | -1) =>
+    setNoteIndex((p) => (p + d + notes.length) % notes.length);
 
-  // Lock page scroll + wire keyboard while open.
-  useEffect(() => {
-    if (!openId) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowRight") go(1);
-      else if (e.key === "ArrowLeft") go(-1);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [openId, go, onClose]);
-
-  if (!mounted || !openId) return null;
-
-  return createPortal(
-    // Mobile: a contained popup that sits BELOW the sticky nav (nav stays
-    // visible) with a margin on all sides. Desktop: full-screen centered card.
-    <div
-      data-research-modal
-      className="fixed inset-0 z-100 flex flex-col p-5 pt-16 sm:items-center sm:justify-center sm:p-10 lg:p-16"
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-black/30 sm:inset-0"
-      />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-[#d7d7d0] shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
-        {/* Header */}
-        <div className="flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-black bg-white px-5 sm:h-[72px] sm:px-8">
-          <div className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[18px]">
-            <span className="hidden sm:inline">Research</span>
-            <span className="hidden sm:inline">/</span>
-            <span className="truncate">{researchBreadcrumbRoot}</span>
-            <span>/</span>
-            <span className="shrink-0 underline underline-offset-2">
-              {researchSectionLabel[openId]}
-            </span>
+  return (
+    <PopupShell
+      onClose={onClose}
+      label={researchSectionLabel[openId]}
+      overlayProps={{ "data-research-modal": "" }}
+      crumbs={[
+        { label: "Research", hideOnMobile: true },
+        { label: researchBreadcrumbRoot, hideOnMobile: true },
+        { label: researchSectionLabel[openId] },
+      ]}
+      bodyClassName="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
+      footer={
+        notes.length > 1 ? (
+          <div className="flex w-full max-w-[620px] items-center justify-between">
+            <PopupPagerButton onClick={() => goNote(-1)}>
+              {"< Previous"}
+            </PopupPagerButton>
+            <PopupDots
+              count={notes.length}
+              active={noteIndex}
+              onSelect={setNoteIndex}
+              labelFor={(i) => `Field note ${notes[i].n}`}
+            />
+            <PopupPagerButton onClick={() => goNote(1)}>
+              {"Next >"}
+            </PopupPagerButton>
           </div>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            data-cursor="hover"
-            className="text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14">
-          <SectionView content={sections[openId]} />
-        </div>
-      </div>
-    </div>,
-    document.body,
+        ) : undefined
+      }
+    >
+      <SectionView content={content} noteIndex={noteIndex} />
+    </PopupShell>
   );
 }

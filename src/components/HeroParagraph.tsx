@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 
+import { NavPill } from "@/components/InlineToken";
 import {
   defaultHomeSegments,
   type HomeHeroSegment,
@@ -45,6 +45,11 @@ function tokenize(segments: HomeHeroSegment[], storyHref: string): Token[] {
  * anymore… it takes you directly to the page"). Each keyword links to its
  * section, styled per the "Navigate to internal page" legend (823:70182): red
  * text on a grey pill that turns black w/ white text on hover.
+ *
+ * Below `md` the size comes from `--hero-para-size`, which V2Hero shrinks to
+ * whatever actually fits the phone's viewport — the hero holds the paragraph in
+ * a non-scrolling box, so at 28px a short screen simply cut the first and last
+ * lines off with no way to reach them.
  */
 export default function HeroParagraph({
   className = "",
@@ -62,36 +67,18 @@ export default function HeroParagraph({
     [segments, storyHref],
   );
 
-  // Figma "Component Interaction" legend (823:70182) → "Navigate to internal
-  // page": red text on a light-grey rounded pill that fills to BLACK with white
-  // text on hover/click. Same treatment as the About-page internal-link pills.
-  // box-decoration-clone keeps the rounded pill intact if it wraps across lines.
-  const pillClass =
-    "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent text-shadow-token transition-colors duration-200 hover:bg-black hover:text-white hover:text-shadow-none";
-
   return (
     <div
-      className={`font-grotesk text-[28px] font-medium leading-[1.55] tracking-[0.04em] md:text-[36px] lg:text-[42px] ${className}`}
+      className={`font-grotesk text-(length:--hero-para-size,28px) font-medium leading-[1.55] tracking-[0.04em] md:text-[36px] lg:text-[42px] ${className}`}
     >
       {tokens.map((token, i) => {
         if (token.kind === "space") return <span key={i}> </span>;
         if (token.kind === "word") return <span key={i}>{token.text}</span>;
-        if (token.kind === "story") {
-          return (
-            <Link key={i} href={token.href} data-cursor="hover" className={pillClass}>
-              {token.text}
-            </Link>
-          );
-        }
+        // Every hero keyword navigates to another page → the red pill.
         return (
-          <Link
-            key={i}
-            href={token.href}
-            data-cursor="hover"
-            className={pillClass}
-          >
+          <NavPill key={i} href={token.href}>
             {token.text}
-          </Link>
+          </NavPill>
         );
       })}
     </div>

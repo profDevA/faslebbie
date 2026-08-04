@@ -73,7 +73,7 @@ export default function AboutBody({
             // hovers/clicks — only interactive once it has settled in front.
             pointerEvents: r < 1 ? "none" : undefined,
           }}
-          className="relative z-10 will-change-[opacity,filter,transform]"
+          className="relative z-10 mt-12 will-change-[opacity,filter,transform] lg:mt-0"
         >
           <AboutContent
             className="pb-24"
