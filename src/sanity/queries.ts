@@ -28,6 +28,11 @@ const sectionsProj = `sections[]{
     items[]{ _key, title, body, defaultOpen }
   },
   _type == "proseSection" => { sectionTitle, body },
+  _type == "coreExperience" => {
+    sectionTitle, body,
+    "image": image.asset->url,
+    "imageMobile": imageMobile.asset->url
+  },
   _type == "mediaSection" => {
     sectionTitle, body,
     items[]{
@@ -72,11 +77,13 @@ const cardProj = `
   "slug": slug.current,
   "name": title,
   tagline,
+  from,
+  to,
   "categories": coalesce(categories[]->title, []),
   "image": cardThumbnail.asset->url,
   "imageLqip": cardThumbnail.asset->metadata.lqip,
   "heroImage": sections[_type == "heroSection"][0].image.asset->url,
-  "credit": cardCredits,
+  "creditNames": cardCreditNames,
   "tags": cardTags,
   accent,
   span

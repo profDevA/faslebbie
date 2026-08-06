@@ -373,6 +373,8 @@ function SectionBlock({
       return <AccordionBlock section={section} />
     case 'proseSection':
       return <ProseBlock section={section} />
+    case 'coreExperience':
+      return <CoreExperienceBlock section={section} />
     case 'mediaSection':
       return <MediaBlock section={section} />
     case 'gallerySection':
@@ -501,6 +503,21 @@ function HeroBlock({
           <strong className="font-bold">{s.headingOverride ?? p.name}</strong> ·{' '}
           {s.caption ?? p.tagline}
         </p>
+        {/* Fas 08/05: the project's before/after framing belongs here, under the
+           hero title line — not in the Overview metadata column where Israel's
+           annotation panel first placed it. Upright and in the band's own colour,
+           per 2110:39398; the labels carry a single weight step rather than the
+           accent red, which the site reserves for interactive tokens. */}
+        {(p.from || p.to) && (
+          <p className="mt-0.5 flex flex-wrap gap-x-14 text-[16px] leading-[1.6] xl:text-[1.3vw]">
+            <span>
+              <span className="font-medium">From:</span> {p.from}
+            </span>
+            <span>
+              <span className="font-medium">To:</span> {p.to}
+            </span>
+          </p>
+        )}
       </div>
     </section>
   )
@@ -708,6 +725,49 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
             className="mt-5 text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw]"
           />
         </div>
+      </div>
+    </section>
+  )
+}
+
+// Core Experience Showcase (Fas 08/05): the band between What I Brought and
+// Design Process. One exported artwork of the product's key screens, edge to
+// edge on the band colour — deliberately a single image rather than authored
+// per screen, so Fas and Israel can iterate the composition in Figma.
+function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) {
+  const light = isLight(s.appearance)
+  if (!s.image) return null
+  return (
+    <section
+      data-cs-stretch
+      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
+      style={bandStyle(s.appearance)}
+    >
+      {(s.sectionTitle || s.body) && (
+        <div className="mx-auto w-full max-w-285 px-6 text-center sm:px-10 xl:px-[3.5vw]">
+          {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
+          <Prose
+            value={s.body}
+            className="mx-auto mt-3 max-w-[70ch] text-[18px] font-light leading-[1.6] xl:text-[1.2vw]"
+          />
+        </div>
+      )}
+      {/* The wide artwork is a row of screens, so scaling it to a phone makes
+          every caption unreadable. Without a narrow crop it keeps a legible
+          width on small screens and the band scrolls sideways instead; upload an
+          `imageMobile` and it goes back to fitting the viewport. */}
+      <div className={s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'}>
+        <picture>
+          {s.imageMobile && (
+            <source media="(max-width: 640px)" srcSet={s.imageMobile} />
+          )}
+          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+          <img
+            src={s.image}
+            alt={s.sectionTitle ?? 'Core experience screens'}
+            className={`block h-auto ${s.imageMobile ? 'w-full' : 'w-208 max-w-none sm:w-full sm:max-w-full'}`}
+          />
+        </picture>
       </div>
     </section>
   )

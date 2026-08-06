@@ -41,6 +41,7 @@ export const caseStudy = defineType({
         { type: "overviewSection" },
         { type: "accordionSection" },
         { type: "proseSection" },
+        { type: "coreExperience" },
         { type: "mediaSection" },
         { type: "gallerySection" },
         { type: "showcaseGallery" },
@@ -59,6 +60,23 @@ export const caseStudy = defineType({
       group: "card",
       description: "One-line descriptor shown in the grid.",
     }),
+    // Fas 08/05: the project's before/after framing. Shown twice — under the
+    // hero title line on the case study, and between the title and the credit
+    // on the .img card — so it lives on the document, not in heroSection.
+    defineField({
+      name: "from",
+      title: "From",
+      type: "string",
+      group: ["content", "card"],
+      description: 'Where the project started, e.g. "Jargon".',
+    }),
+    defineField({
+      name: "to",
+      title: "To",
+      type: "string",
+      group: ["content", "card"],
+      description: 'Where it landed, e.g. "Insightful".',
+    }),
     defineField({
       name: "categories",
       title: "Categories",
@@ -73,7 +91,16 @@ export const caseStudy = defineType({
       group: "card",
       options: { hotspot: true },
     }),
-    defineField({ name: "cardCredits", title: "Card credits", type: "string", group: "card" }),
+    // One entry per person. The card joins them ("A", "A & B", "A, B & C") so
+    // an editor can't reproduce the punctuation Fas flagged on 08/05.
+    defineField({
+      name: "cardCreditNames",
+      title: "Card credits",
+      type: "array",
+      group: "card",
+      of: [{ type: "string" }],
+      description: "One name per entry — the card handles the commas and the ampersand.",
+    }),
     defineField({
       name: "cardTags",
       title: "Card tags",

@@ -16,7 +16,7 @@ import { getCliClient } from "sanity/cli";
 import {
   workProjects,
   workCategories,
-  WORK_CREDIT,
+  WORK_CREDIT_NAMES,
   type CaseStudy,
   type CaseStudyAccordionItem,
   type WorkCategory,
@@ -453,7 +453,7 @@ async function migrate() {
         _ref: catId(c),
       })),
       cardThumbnail: await imageValue(p.image),
-      cardCredits: WORK_CREDIT,
+      cardCreditNames: WORK_CREDIT_NAMES,
       cardTags: p.categories,
       accent: hexColor(normalizeHex(p.accent)),
       span: p.span,

@@ -896,10 +896,17 @@ export interface WorkProject {
   caseStudy?: CaseStudy
 }
 
-// Fallback credit line for grid cards that don't yet have a per-project credit
-// in Sanity (caseStudy.cardCredits). Placeholder names from Figma 823:65046 —
-// real per-project credits pending from Fas, editable per study in the Studio.
-export const WORK_CREDIT = 'Credit: Jane Doe,\nSabrina Fessler, John Doe'
+// Fallback credit names for grid cards that don't yet have per-project credits
+// in Sanity (caseStudy.cardCreditNames). Placeholder names from Figma 823:65046
+// — real per-project credits pending from Fas, editable per study in the Studio.
+export const WORK_CREDIT_NAMES = ['Jane Doe', 'Sabrina Fessler', 'John Doe']
+
+// Fas 08/05 flagged the stray punctuation on the cards as bad grammar, so the
+// card never takes a preformatted string: "A", "A & B", "A, B & C".
+export function joinNames(names: string[]): string {
+  if (names.length < 2) return names[0] ?? ''
+  return `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`
+}
 
 // The 17 projects (taglines verbatim from faslebbie.com/works). Category tags
 // mirror the live site's `cs_category` taxonomy exactly, so the FILTER WORK

@@ -2,7 +2,7 @@
 
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { type Testimonial, type WorkToken, WORK_CREDIT } from "@/lib/content";
+import { type Testimonial, type WorkToken } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
 import CaseStudyView from "@/components/CaseStudyView";
 import { PopupTrigger } from "@/components/InlineToken";
@@ -613,7 +613,7 @@ function ProjectCard({
       onClick={onOpen}
       data-cursor="hover"
       {...(reveal ? { "data-work-card": true } : {})}
-      className={`${reveal ? "work-card-reveal " : ""}group block w-full text-left`}
+      className={`${reveal ? "work-card-reveal " : ""}group @container/card block w-full text-left`}
       // Small repeating per-row stagger so cards cascade in as a group without
       // later cards waiting too long — mirrors the staggered fade on
       // faslebbie.com/works.
@@ -657,15 +657,34 @@ function ProjectCard({
           </span>
         </div>
       )}
-      {/* Figma 1111:4653 + Israel 07/06: the project name is MEDIUM weight (not
-          bold) and turns red on hover. A rule sits under the title, then the
-          CREDIT line — italic, may wrap to two lines (card design 1251:6829). */}
-      <p className="mt-2 w-fit border-b border-black pb-1 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
+      {/* Card meta, from the component in Figma 2080:31219 (instance 2080:31446):
+          two lines only, 8px apart, 18px on 1.65px of tracking. The title is
+          Medium and underlined through its descenders; the pair below is italic
+          with FROM and TO one weight step above their values. There is no credit
+          line — the call asked for credit to stay editable, and it is (Overview
+          → Team, which Fas and Israel agreed is the same thing), but it is not
+          drawn on the card.
+
+          The phone masonry cards are half the width of the 332px card the frame
+          draws (160px against 332px), so below 18rem they drop to 16px without
+          tracking and stack the pair rather than breaking "To:" off its value. */}
+      <p className="mt-2 w-fit font-grotesk text-[16px] font-medium leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
         {project.name}
       </p>
-      <p className="mt-2 whitespace-pre-line font-grotesk text-[16px] italic leading-snug text-black/55">
-        {project.credit || WORK_CREDIT}
-      </p>
+      {(project.from || project.to) && (
+        // Figma spaces the two apart with a run of literal spaces, which would
+        // put To wherever each From value happens to end. A fixed column lands
+        // it in the same place the frame does (57% of the card) and keeps the
+        // values aligned down the grid.
+        <p className="mt-2 grid grid-cols-1 font-grotesk text-[16px] italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+          <span>
+            <span className="font-medium">From</span>: {project.from}
+          </span>
+          <span>
+            <span className="font-medium">To</span>: {project.to}
+          </span>
+        </p>
+      )}
     </button>
   );
 }

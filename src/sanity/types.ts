@@ -113,6 +113,13 @@ export type Section =
       body?: PortableTextBlock[];
     })
   | (Base & {
+      _type: "coreExperience";
+      sectionTitle?: string;
+      body?: PortableTextBlock[];
+      image?: string;
+      imageMobile?: string;
+    })
+  | (Base & {
       _type: "mediaSection";
       sectionTitle?: string;
       body?: PortableTextBlock[];
@@ -164,11 +171,14 @@ export interface StudyCard {
   slug: string;
   name: string;
   tagline?: string;
+  /** Before/after framing — shown in the hero and on the .img card. */
+  from?: string;
+  to?: string;
   categories: string[];
   image?: string;
   imageLqip?: string;
   heroImage?: string;
-  credit?: string;
+  creditNames?: string[];
   tags?: string[];
   accent?: SanityColor;
   span?: "sm" | "md" | "lg";
