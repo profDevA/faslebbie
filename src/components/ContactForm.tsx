@@ -5,15 +5,12 @@ import Image from "next/image";
 
 import { useSite } from "@/components/SiteProvider";
 
-// "Drop Me a Line" contact form (Figma 16:45157). Centered portrait + heading,
-// Name / Email* / Message* fields on translucent white inputs, and a black
-// pill "Send Message" button. Posts to /api/contact (Resend).
+// "Drop Me a Line" (Figma 2218:75548) — light drawer: portrait, heading,
+// Name / Email* / Message* on translucent white inputs, black pill submit.
 type Status = "idle" | "submitting" | "success" | "error";
 
-// Dark-panel styling: the drawer is black, so inputs use a translucent light
-// fill with light text.
 const inputClass =
-  "w-full rounded-[7px] border border-white/15 bg-white/10 px-[15px] font-grotesk text-[16px] text-bg outline-none transition-colors placeholder:font-light placeholder:text-white/40 focus:border-white/45";
+  "w-full rounded-[7px] border border-[#dadbdd] bg-white/70 px-[15px] font-grotesk text-[16px] text-black outline-none transition-colors placeholder:font-light placeholder:text-[#868e96] focus:border-black/40";
 
 export default function ContactForm() {
   const { contact } = useSite();
@@ -48,29 +45,29 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[440px] flex-col">
-      {/* Portrait */}
-      <div className="relative mx-auto h-[190px] w-[210px] overflow-hidden">
+    <div className="mx-auto flex w-full max-w-[420px] flex-col">
+      {/* Same 161/145 master crop as listing PagePortrait (Figma 2218:75512). */}
+      <div className="relative mx-auto aspect-161/145 w-40.25 overflow-hidden">
         <Image
           src={contact.portraitSrc}
           alt="Fas Lebbie"
           fill
-          sizes="210px"
+          sizes="161px"
           className="object-cover object-top"
           priority
         />
       </div>
 
-      <h1 className="mt-8 text-center font-grotesk text-[38px] font-bold leading-none tracking-[0.5px] text-bg sm:text-[44px]">
+      <h1 className="mt-11 text-center font-grotesk text-[38px] font-medium leading-none text-black sm:text-[44px]">
         {contact.heading}
       </h1>
 
       {status === "success" ? (
-        <div className="mt-10 rounded-[7px] border border-white/15 bg-white/5 px-5 py-8 text-center">
-          <p className="font-grotesk text-[20px] font-medium text-bg">
+        <div className="mt-10 rounded-[7px] border border-[#dadbdd] bg-white/70 px-5 py-8 text-center">
+          <p className="font-grotesk text-[20px] font-medium text-black">
             {contact.successTitle}
           </p>
-          <p className="mt-2 font-grotesk text-[15px] text-bg/60">
+          <p className="mt-2 font-grotesk text-[15px] text-black/60">
             {contact.successBody}
           </p>
           <button
@@ -83,21 +80,21 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="mt-9 flex flex-col gap-5" noValidate>
-          <label className="flex flex-col gap-2">
-            <span className="font-grotesk text-[16px] text-bg">Name</span>
+        <form onSubmit={onSubmit} className="mt-9 flex flex-col gap-[18px]" noValidate>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-grotesk text-[16px] text-black">Name</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
               autoComplete="name"
-              className={`${inputClass} h-[40px]`}
+              className={`${inputClass} h-[38px]`}
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="font-grotesk text-[16px] text-bg">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-grotesk text-[16px] text-black">
               Email <span className="text-[#f56c6c]">*</span>
             </span>
             <input
@@ -107,12 +104,12 @@ export default function ContactForm() {
               placeholder="Email Address"
               autoComplete="email"
               required
-              className={`${inputClass} h-[40px]`}
+              className={`${inputClass} h-[38px]`}
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="font-grotesk text-[16px] text-bg">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-grotesk text-[16px] text-black">
               Message <span className="text-[#f56c6c]">*</span>
             </span>
             <textarea
@@ -121,7 +118,7 @@ export default function ContactForm() {
               placeholder="Message"
               required
               rows={4}
-              className={`${inputClass} resize-y py-2.5 leading-normal`}
+              className={`${inputClass} h-[98px] resize-none py-2.5 leading-normal`}
             />
           </label>
 
@@ -133,7 +130,7 @@ export default function ContactForm() {
             type="submit"
             disabled={status === "submitting"}
             data-cursor="hover"
-            className="mt-1 h-[42px] w-fit rounded-[39px] bg-bg px-7 font-grotesk text-[16px] font-light text-black transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="mt-1 h-[42px] w-fit rounded-[39px] border border-black bg-black px-7 font-grotesk text-[16px] font-light text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {status === "submitting" ? "Sending…" : contact.submitLabel}
           </button>

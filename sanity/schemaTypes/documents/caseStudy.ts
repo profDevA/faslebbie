@@ -137,14 +137,9 @@ export const caseStudy = defineType({
     defineField({
       name: "seo",
       title: "SEO",
-      type: "object",
+      type: "pageSeo",
       group: "seo",
       options: { collapsible: true, collapsed: true },
-      fields: [
-        { name: "title", title: "Meta title", type: "string" },
-        { name: "description", title: "Meta description", type: "text", rows: 2 },
-        { name: "ogImage", title: "Social image", type: "image" },
-      ],
     }),
 
     // --- References ---

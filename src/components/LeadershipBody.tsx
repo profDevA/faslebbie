@@ -9,6 +9,7 @@ import LeadershipWatermark from "@/components/LeadershipWatermark";
 import ViewToggle from "@/components/ViewToggle";
 import { leadershipGallery, type Testimonial } from "@/lib/content";
 import type { LeadershipContentData } from "@/lib/leadershipFromSanity";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -16,8 +17,10 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { usePersistedView } from "@/hooks/usePersistedView";
 
 type View = "txt" | "img";
+const VIEWS = ["txt", "img"] as const;
 
 /**
  * Holistic Leadership page (Figma 1-44995 / 1-45057 / 1-45118) — same ".txt" /
@@ -36,7 +39,7 @@ export default function LeadershipBody({
 } = {}) {
   const moments = content?.moments ?? leadershipGallery;
 
-  const [view, setView] = useState<View>("txt");
+  const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openId, setOpenId] = useState<string | null>(null);
   // Reveal/pin (txt view only). Re-arms when toggling back to ".txt".
   const { r, pin } = useReveal(view === "txt");
@@ -65,7 +68,7 @@ export default function LeadershipBody({
           {/* Desktop pin: sticks under the nav so the content brightens in place
               before the page scrolls (same as About/Work). The toggle sits inside
               the dim back layer and only goes live once ~70% revealed. */}
-          <div className="lg:sticky lg:top-[52px]">
+          <div className={STICKY_UNDER_NAV}>
             <div
               style={{
                 opacity,
@@ -76,7 +79,7 @@ export default function LeadershipBody({
             >
               {viewToggle}
             </div>
-            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
               <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
                 {/* Mobile (Figma 1-45348): portrait first, then the "Leadership"
                     heading that recedes on scroll. Desktop (Figma 1-44995 →

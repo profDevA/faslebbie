@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import ResearchBody from "@/components/ResearchBody";
 import ResearchWatermark from "@/components/ResearchWatermark";
-import { getResearchPage } from "@/sanity/fetch";
+import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { researchFromSanity } from "@/lib/researchFromSanity";
+import { getResearchPage, getSiteSettings } from "@/sanity/fetch";
 
 // Research page (Figma "Faslebbie July Hollistic" 28fl2XqojJTa3jEblotAaz,
 // frames 1-40936 → 1-41873). Mirrors the About/Leadership architecture: a big
@@ -12,6 +14,20 @@ import { researchFromSanity } from "@/lib/researchFromSanity";
 //
 // Content is Sanity-driven (researchPage singleton); the in-code copy in
 // lib/research.ts is the fallback used when the document/field is empty.
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [page, site] = await Promise.all([
+    getResearchPage(),
+    getSiteSettings(),
+  ]);
+  return pageMetadataFromSanity(page?.seo, {
+    title: "Research — Fas Lebbie, Ph.D.",
+    description: site?.siteDescription?.trim(),
+    ogImage: site?.ogImage,
+    ogImageAlt: site?.ogImageAlt,
+  });
+}
+
 export default async function ResearchPage() {
   const content = researchFromSanity(await getResearchPage());
   return (

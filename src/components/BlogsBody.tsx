@@ -5,6 +5,7 @@ import Image from "next/image";
 import BlogModal from "@/components/BlogModal";
 import MediaModal from "@/components/MediaModal";
 import ViewToggle from "@/components/ViewToggle";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import { blogPosts, mediaItems, type BlogPost, type MediaItem } from "@/lib/blogs";
@@ -51,7 +52,7 @@ export default function BlogsBody({
 
   return (
     <div className="relative">
-      <div className="lg:sticky lg:top-[52px]">
+      <div className={STICKY_UNDER_NAV}>
         <main className="relative z-10 mx-auto w-full max-w-[1350px] px-6 py-12 lg:px-12 lg:py-16">
           <div
             style={{

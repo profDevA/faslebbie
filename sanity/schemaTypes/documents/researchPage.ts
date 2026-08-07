@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { pageSeoField } from "../objects/pageSeo";
 
 // Singleton for the /research page: hero prose areas + the five modal sections
 // (Minerals & Post-Extractive Design). Manifesto uses standard rich text so the
@@ -10,6 +11,7 @@ export const researchPage = defineType({
   groups: [
     { name: "hero", title: "Hero", default: true },
     { name: "sections", title: "Modal sections" },
+    { name: "seo", title: "SEO" },
   ],
   fields: [
     defineField({
@@ -42,6 +44,7 @@ export const researchPage = defineType({
       of: [{ type: "researchFieldNote" }],
       group: "sections",
     }),
+    pageSeoField,
   ],
   preview: { prepare: () => ({ title: "Research Page" }) },
 });

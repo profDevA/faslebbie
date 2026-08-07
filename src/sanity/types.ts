@@ -184,8 +184,17 @@ export interface StudyCard {
   span?: "sm" | "md" | "lg";
 }
 
+export interface SanityPageSeo {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageAlt?: string;
+}
+
 export interface Study extends StudyCard {
-  seo?: { title?: string; description?: string };
+  seo?: SanityPageSeo;
   sections: Section[];
 }
 
@@ -197,6 +206,7 @@ export interface WorkPageConfig {
   enableImageView?: boolean;
   loadMoreLabel?: string;
   appearance?: Appearance;
+  seo?: SanityPageSeo;
 }
 
 export interface SanityNavLink {
@@ -207,9 +217,13 @@ export interface SanityNavLink {
 export interface SanityHomePage {
   hero?: PortableTextBlock[];
   storyHref?: string;
+  seo?: SanityPageSeo;
 }
 
 export interface SanitySiteSettings {
+  logoName?: string;
+  logoSuffix?: string;
+  masterPortrait?: string;
   navItems?: SanityNavLink[];
   mobileNavItems?: SanityNavLink[];
   contactDrawerTitle?: string;
@@ -219,6 +233,15 @@ export interface SanitySiteSettings {
   contactSuccessTitle?: string;
   contactSuccessBody?: string;
   contactSendAnotherLabel?: string;
+  siteTitle?: string;
+  siteDescription?: string;
+  favicon?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageAlt?: string;
 }
 
 // --- Research page (raw Sanity shape) -------------------------------------
@@ -266,6 +289,7 @@ export interface SanityResearchPage {
     insight?: string;
     image?: string;
   }[];
+  seo?: SanityPageSeo;
 }
 
 // --- Teaching / Build / Leadership (raw Sanity shapes) ---------------------
@@ -309,6 +333,7 @@ export interface SanityTeachingPage {
   students?: SanityStudentProject[];
   exhibitionTitle?: string;
   exhibitionTiles?: SanityExhibitionTile[];
+  seo?: SanityPageSeo;
 }
 
 export interface SanityBuildProject {
@@ -331,6 +356,7 @@ export interface SanityBuildProject {
 export interface SanityBuildPage {
   intro?: PortableTextBlock[];
   projects?: SanityBuildProject[];
+  seo?: SanityPageSeo;
 }
 
 export interface SanityLeadershipMoment {
@@ -352,6 +378,7 @@ export interface SanityLeadershipPage {
   exploreText?: string;
   contactText?: string;
   moments?: SanityLeadershipMoment[];
+  seo?: SanityPageSeo;
 }
 
 export interface SanityAboutExpansion {
@@ -368,6 +395,7 @@ export interface SanityAboutPage {
   bio?: PortableTextBlock[];
   expansions?: SanityAboutExpansion[];
   links?: SanityAboutLink[];
+  seo?: SanityPageSeo;
 }
 
 export interface SanityTestimonial {
@@ -409,4 +437,5 @@ export interface SanityMediaEntry {
 export interface SanityBlogsPage {
   posts?: SanityBlogPostItem[];
   media?: SanityMediaEntry[];
+  seo?: SanityPageSeo;
 }

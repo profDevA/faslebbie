@@ -4,6 +4,7 @@ import { useState } from "react";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import ResearchContent from "@/components/ResearchContent";
 import ResearchModal from "@/components/ResearchModal";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -40,7 +41,7 @@ export default function ResearchBody({
 
   return (
     <div className="relative">
-      <div className="lg:sticky lg:top-[52px]">
+      <div className={STICKY_UNDER_NAV}>
         <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
           <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
             <h1 className="sr-only">Research</h1>

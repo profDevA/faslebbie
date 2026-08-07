@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Design tokens from docs/homepage-spec.md (Figma UGhCSEFr7IXzY4uMnCjNxY) */
+  /* Page tokens (bg/accent). Nav chrome heights live in lib/navLayout.ts. */
   --color-bg: #e5e5de;
   --color-accent: #ea2c2c;
   --color-panel: #ebebe4;
@@ -38,17 +38,6 @@ body {
   }
   to {
     opacity: 1;
-  }
-}
-
-/* Mobile menu slides down from the top instead of appearing instantly
-   (Israel 06/17: "it comes down, it doesn't just appear suddenly"). */
-@keyframes menu-in {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
   }
 }
 

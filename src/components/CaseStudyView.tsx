@@ -489,35 +489,52 @@ function HeroBlock({
   project: Study
 }) {
   if (!s.image) return null
+  const caption = (
+    <>
+      <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
+        <strong className="font-bold">{s.headingOverride ?? p.name}</strong> ·{' '}
+        {s.caption ?? p.tagline}
+      </p>
+      {/* Fas 08/05: the project's before/after framing belongs here, under the
+         hero title line — not in the Overview metadata column where Israel's
+         annotation panel first placed it. Upright and in the band's own colour,
+         per 2110:39398; the labels carry a single weight step rather than the
+         accent red, which the site reserves for interactive tokens. */}
+      {(p.from || p.to) && (
+        <p className="mt-0.5 flex flex-wrap gap-x-14 text-[16px] leading-[1.6] xl:text-[1.3vw]">
+          <span>
+            <span className="font-medium">From:</span> {p.from}
+          </span>
+          <span>
+            <span className="font-medium">To:</span> {p.to}
+          </span>
+        </p>
+      )}
+    </>
+  )
   return (
     <section className="relative">
-      {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-      <img
-        src={s.image}
-        alt={p.name}
-        className="block h-auto w-full object-cover object-left"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
-      <div className="absolute bottom-4 left-7.5 p-2.5 text-white">
-        <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
-          <strong className="font-bold">{s.headingOverride ?? p.name}</strong> ·{' '}
-          {s.caption ?? p.tagline}
-        </p>
-        {/* Fas 08/05: the project's before/after framing belongs here, under the
-           hero title line — not in the Overview metadata column where Israel's
-           annotation panel first placed it. Upright and in the band's own colour,
-           per 2110:39398; the labels carry a single weight step rather than the
-           accent red, which the site reserves for interactive tokens. */}
-        {(p.from || p.to) && (
-          <p className="mt-0.5 flex flex-wrap gap-x-14 text-[16px] leading-[1.6] xl:text-[1.3vw]">
-            <span>
-              <span className="font-medium">From:</span> {p.from}
-            </span>
-            <span>
-              <span className="font-medium">To:</span> {p.to}
-            </span>
-          </p>
-        )}
+      {/* Mobile (Figma 344:19457): black tall frame; photo sits in lower ~73%
+         (img layer y≈257/791); title near top. Desktop keeps full-bleed hero. */}
+      <div className="relative aspect-[360/791] overflow-hidden bg-black lg:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={s.image}
+          alt={p.name}
+          className="absolute inset-x-0 bottom-0 h-[73.5%] w-full object-cover object-[82%_30%]"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.25)_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0)_72%,rgba(0,0,0,0.4)_100%)]" />
+        <div className="absolute left-4.5 top-[10%] max-w-[92%] p-2.5 text-white">{caption}</div>
+      </div>
+      <div className="relative hidden lg:block">
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={s.image}
+          alt={p.name}
+          className="block h-auto w-full object-cover object-left"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
+        <div className="absolute bottom-4 left-7.5 p-2.5 text-white">{caption}</div>
       </div>
     </section>
   )
@@ -527,13 +544,16 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
   const contain = s.sideImageFit === 'contain'
+  const cta = s.ctaLabel ?? 'Visit Site'
   return (
     <section
       data-cs-stretch
       className="grid grid-cols-1 lg:grid-cols-2"
       style={bandStyle(s.appearance)}
     >
-      <div className="flex flex-col justify-between gap-10 px-6 py-14 sm:px-10 xl:px-[3.5vw] xl:py-[3.8rem]">
+      {/* Mobile (Figma 344:19467): copy first, then portrait device band.
+          Desktop: copy | media side-by-side. */}
+      <div className="flex flex-col justify-between gap-10 px-6 py-12 sm:px-10 lg:py-14 xl:px-[3.5vw] xl:py-[3.8rem]">
         <div>
           {/* Figma 600:12509 — Neue Haas 55 Roman 24px, capitalize. */}
           <h2 className={`text-[24px] font-normal capitalize leading-tight xl:text-[1.5vw] ${dark}`}>
@@ -546,16 +566,15 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             className={`mt-[1em] text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.2vw] ${dark}`}
           />
           {s.ctaUrl && (
-            // Figma 600:12511 — Neue Haas 55 Roman 18px, capitalize (not caps),
-            // underlined in the band's own colour rather than the site red.
+            // Mobile Figma uses "Visit SITE"; desktop stays sentence case.
             <a
               href={s.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[18px] font-normal capitalize underline underline-offset-4 transition-colors hover:text-accent xl:text-[1.15vw] ${dark}`}
+              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent xl:text-[1.15vw] ${dark} max-lg:uppercase max-lg:tracking-[0.04em] lg:capitalize`}
             >
-              {s.ctaLabel ?? 'Visit Site'}
+              {cta}
             </a>
           )}
         </div>
@@ -594,11 +613,42 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )}
         </div>
       </div>
+      {/* Mobile: still preferred over video (Figma overview mockups).
+          Band ~360×552; media contained + centred (phone, laptop, or collage). */}
+      <div
+        className="relative flex aspect-[360/552] items-center justify-center px-[10%] py-[10%] lg:hidden"
+        style={{
+          backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
+        }}
+      >
+        {s.sideImage ? (
+          // eslint-disable-next-line @next/next/no-img-element -- case-study art
+          <img
+            src={s.sideImage}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+          />
+        ) : (
+          s.sideVideo && (
+            <video
+              src={s.sideVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="max-h-full max-w-full object-contain"
+            />
+          )
+        )}
+      </div>
+      {/* Desktop: video if set, else image fill / contain (Figma 600:12450). */}
       {s.sideVideo ? (
-        // Jitter flow exports ship on a white backdrop with the device centred, so
-        // we contain + pad it (phone floats with generous margin, per Figma 600:12450)
-        // rather than cover-cropping it edge-to-edge.
-        <div className="relative flex min-h-[70vw] items-center justify-center bg-white p-6 sm:p-10 lg:min-h-full lg:p-12 xl:p-[3vw]">
+        <div
+          className="relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]"
+          style={{
+            backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? '#fff',
+          }}
+        >
           <video
             src={s.sideVideo}
             autoPlay
@@ -610,7 +660,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
         </div>
       ) : (
         <div
-          className={`relative lg:min-h-full ${contain ? '' : 'min-h-[70vw]'}`}
+          className="relative hidden lg:block lg:min-h-full"
           style={{
             backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
           }}
@@ -620,12 +670,9 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             <img
               src={s.sideImage}
               alt=""
-              // Device panels (Experian's phone) already carry their own margins
-              // in the export, so they flow at natural height on mobile and are
-              // contained on desktop instead of cover-cropping the device.
               className={
                 contain
-                  ? 'block h-auto w-full lg:absolute lg:inset-0 lg:h-full lg:w-full lg:object-contain lg:object-center'
+                  ? 'absolute inset-0 h-full w-full object-contain object-center'
                   : 'absolute inset-0 h-full w-full object-cover object-center'
               }
             />

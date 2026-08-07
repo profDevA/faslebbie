@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-
 /**
  * The one popup shell for the whole site (Fas 07/30: "every popup should use
  * the same shell and spacing — consistent breadcrumbs, close button, padding
@@ -11,8 +10,8 @@ import { createPortal } from "react-dom";
  * ✕, an internally scrolling body, and an optional white footer pager. The 6px
  * black rule always sits on the bottom edge of the card.
  *
- * Mobile: the card fills the screen below the sticky nav (which stays visible
- * and usable) instead of covering it; from `sm` up it centres with a margin.
+ * Mobile (Figma 1:37279): inset centred card (~20px margin, ~80vh tall) — not
+ * full-bleed. From `sm` up it stays a wide centred overlay with margin.
  */
 
 export type PopupCrumb = {
@@ -23,7 +22,7 @@ export type PopupCrumb = {
 
 function Breadcrumbs({ crumbs }: { crumbs: PopupCrumb[] }) {
   return (
-    <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[14px] font-light text-black sm:text-[16px]">
+    <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[16px]">
       {crumbs.map((crumb, i) => {
         const last = i === crumbs.length - 1;
         return (
@@ -109,15 +108,15 @@ export default function PopupShell({
       role="dialog"
       aria-modal="true"
       aria-label={label ?? crumbs[crumbs.length - 1]?.label}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] flex-col pt-13 sm:items-center sm:justify-center sm:p-10 lg:p-16"
+      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center p-5 sm:p-10 lg:p-16"
     >
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-x-0 bottom-0 top-13 cursor-pointer bg-[rgba(226,226,218,0.82)] sm:inset-0"
+        className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
       />
-      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden border-b-[6px] border-black bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)] sm:min-h-0 sm:flex-none">
+      <div className="relative flex h-[min(684px,80dvh)] min-h-0 w-full flex-col overflow-hidden border-b-[6px] border-black bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)]">
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <Breadcrumbs crumbs={crumbs} />
           <button

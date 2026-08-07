@@ -1,7 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
-import { CYCLE_CHIP, PopupTrigger } from "@/components/InlineToken";
+import {
+  CYCLE_CHIP,
+  NavPillButton,
+  PopupTrigger,
+} from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
 import { teachingIntro, teachingSections } from "@/lib/teaching";
 
@@ -40,15 +44,20 @@ function renderTokens(
           {tok.text}
         </PopupTrigger>
       );
-    if (tok.t === "action")
+    if (tok.t === "action") {
+      // Red pill = view/page navigation; underline = in-place popup (legend).
+      if (tok.kind === "students")
+        return (
+          <NavPillButton key={key} onClick={onSeeAll}>
+            {tok.text}
+          </NavPillButton>
+        );
       return (
-        <PopupTrigger
-          key={key}
-          onClick={tok.kind === "students" ? onSeeAll : onExhibition}
-        >
+        <PopupTrigger key={key} onClick={onExhibition}>
           {tok.text}
         </PopupTrigger>
       );
+    }
     return <Fragment key={key}>{tok.text}</Fragment>;
   });
 }
@@ -101,15 +110,15 @@ export default function TeachingContent({
             </p>
           ))}
           <p className="mt-2">
-            <PopupTrigger
-              onClick={
-                section.action.kind === "students"
-                  ? onSeeAllStudents
-                  : onOpenExhibition
-              }
-            >
-              {section.action.text}
-            </PopupTrigger>
+            {section.action.kind === "students" ? (
+              <NavPillButton onClick={onSeeAllStudents}>
+                {section.action.text}
+              </NavPillButton>
+            ) : (
+              <PopupTrigger onClick={onOpenExhibition}>
+                {section.action.text}
+              </PopupTrigger>
+            )}
           </p>
         </div>
       ))}

@@ -53,13 +53,17 @@ export default function AboutWatermark() {
   const color = mix(fade);
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
   const opacity = 1 - fade * 0.7;
-  const z = fade < 0.5 ? 30 : -10;
+  // Mobile: always behind (QA — do not pin "About Me" at the top). Desktop
+  // keeps the front→back reveal z swap.
+  const desktopFront = fade < 0.5;
 
   return (
     <div
       aria-hidden
-      style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP}`}
+      style={{ color, textShadow: shadow, opacity }}
+      className={`pointer-events-none absolute inset-0 -z-10 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP} ${
+        desktopFront ? "lg:z-30" : "lg:-z-10"
+      }`}
     >
       {/* About has no .txt/.img toggle — slightly lower pt than Work/Teaching. */}
       <span className="text-[58px] lg:text-[clamp(48px,14vw,200px)]">

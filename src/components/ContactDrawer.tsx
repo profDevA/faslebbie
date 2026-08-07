@@ -3,11 +3,11 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useSite } from "@/components/SiteProvider";
+import { NAV_H } from "@/lib/navLayout";
 import ContactForm from "./ContactForm";
 
-// Contact drawer (Figma 1:227 / 16:45157) — a right-side slide-in panel with a
-// "Contact" + ✕ top bar over the "Drop Me a Line" form. Opened from the nav
-// (desktop Contact link + mobile menu). Mirrors the deepsocal contact drawer.
+// Contact drawer (Figma 2218:75548) — right-side slide-in on a warm light
+// panel, white "Contact" + ✕ bar (same 82px height as page nav).
 export default function ContactDrawer({
   open,
   onClose,
@@ -16,7 +16,7 @@ export default function ContactDrawer({
   onClose: () => void;
 }) {
   const { contact } = useSite();
-  // Lock body scroll + close on Escape while open.
+
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
@@ -39,13 +39,13 @@ export default function ContactDrawer({
       aria-label={contact.drawerTitle}
       className="fixed inset-0 z-100 flex animate-[panel-in_0.3s_ease-out] justify-end"
     >
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      {/* Black panel (Fas 07/21) — unified with the dark nav header so the two
-          no longer visually converge the way the old white panel did. */}
-      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#141414] text-bg shadow-[-8px_0_28px_rgba(0,0,0,0.35)]">
-        {/* Top bar: "Contact" (underlined) + × close. */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/15 px-6">
-          <span className="font-grotesk text-[18px] text-bg underline underline-offset-4">
+      {/* Soft wash over the page (Figma: rgba(225,225,216,0.5)). */}
+      <div className="absolute inset-0 bg-[#e1e1d8]/50" onClick={onClose} />
+      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#d2d2c8] text-black shadow-[-8px_0_28px_rgba(0,0,0,0.18)]">
+        <div
+          className={`flex ${NAV_H} shrink-0 items-center justify-between border-b border-black bg-white px-7`}
+        >
+          <span className="font-grotesk text-[18px] font-light tracking-[0.38px] text-black underline decoration-from-font underline-offset-2">
             {contact.drawerTitle}
           </span>
           <button
@@ -53,13 +53,12 @@ export default function ContactDrawer({
             onClick={onClose}
             aria-label="Close"
             data-cursor="hover"
-            className="text-[22px] leading-none text-bg transition-opacity hover:opacity-60"
+            className="flex size-5 items-center justify-center text-[22px] leading-none text-black transition-opacity hover:opacity-60"
           >
             ✕
           </button>
         </div>
-        {/* Body: the "Drop Me a Line" form (scrolls if tall). */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-16 pt-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-[30px] pb-16 pt-16">
           <ContactForm />
         </div>
       </div>

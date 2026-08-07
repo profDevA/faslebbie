@@ -1,13 +1,23 @@
+import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import V2Hero from "@/components/V2Hero";
 import { homeFromSanity } from "@/lib/homeFromSanity";
-import { getHomePage } from "@/sanity/fetch";
+import { pageMetadataFromSanity } from "@/lib/pageMetadata";
+import { getHomePage, getSiteSettings } from "@/sanity/fetch";
 
-// Homepage (Figma 807:2527 / 2588) — the aidesign-os-style parallax hero Israel
-// signed off on 06/22: the "Fas lebbie / Ph.D." wordmark starts on top, then
-// fades and recedes behind as the interactive paragraph comes forward. Keywords
-// navigate straight to their page; "more to my story+" goes to About.
+// Homepage — wordmark dissolve + centered portrait/bio (Figma 2218:75431).
+// Wordmark keeps original layout (no corner photo). Keywords → pages; story+ → About.
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [home, site] = await Promise.all([getHomePage(), getSiteSettings()]);
+  return pageMetadataFromSanity(home?.seo, {
+    title: site?.siteTitle?.trim() || "Fas Lebbie, Ph.D.",
+    description: site?.siteDescription?.trim(),
+    ogImage: site?.ogImage,
+    ogImageAlt: site?.ogImageAlt,
+  });
+}
 
 export default async function Home() {
   const content = homeFromSanity(await getHomePage());

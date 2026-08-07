@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CaseStudyView from "@/components/CaseStudyView";
-import { findStudy, getStudySlugs } from "@/sanity/fetch";
+import { pageMetadataFromSanity } from "@/lib/pageMetadata";
+import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
 // Standalone, shareable case-study page at /work/<slug> — renders on a direct
 // visit / refresh / share. Inside the works page itself, clicking a project opens
@@ -19,13 +20,15 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const found = await findStudy(slug);
+  const [found, site] = await Promise.all([findStudy(slug), getSiteSettings()]);
   if (!found) return {};
   const { project } = found;
-  return {
-    title: project.seo?.title ?? `${project.name} — Fas Lebbie`,
-    description: project.seo?.description ?? project.tagline,
-  };
+  return pageMetadataFromSanity(project.seo, {
+    title: `${project.name} — Fas Lebbie`,
+    description: project.tagline || site?.siteDescription?.trim(),
+    ogImage: project.image || site?.ogImage,
+    ogImageAlt: site?.ogImageAlt || project.name,
+  });
 }
 
 export default async function CaseStudyPage({

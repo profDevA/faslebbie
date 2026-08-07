@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { pageSeoField } from "../objects/pageSeo";
 
 // Singleton for the /teaching page: intro prose, the ".txt" sections (Student
 // Works / My Student Exhibitions), Student Works entries, and the SFK
@@ -11,6 +12,7 @@ export const teachingPage = defineType({
     { name: "prose", title: "Prose", default: true },
     { name: "students", title: "Student works" },
     { name: "exhibition", title: "Exhibition" },
+    { name: "seo", title: "SEO" },
   ],
   fields: [
     defineField({ name: "intro", title: "Intro prose", type: "interactiveProse", group: "prose" }),
@@ -42,6 +44,7 @@ export const teachingPage = defineType({
       of: [{ type: "exhibitionTile" }],
       group: "exhibition",
     }),
+    pageSeoField,
   ],
   preview: { prepare: () => ({ title: "Teaching Page" }) },
 });

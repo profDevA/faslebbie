@@ -8,6 +8,7 @@ import CaseStudyView from "@/components/CaseStudyView";
 import { PopupTrigger } from "@/components/InlineToken";
 import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -15,11 +16,13 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { usePersistedView } from "@/hooks/usePersistedView";
 import ViewToggle from "@/components/ViewToggle";
 import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
 type Filter = string;
+const WORK_VIEWS = ["txt", "img"] as const;
 
 // Masonry card image heights per span tier (desktop) so the grid varies like
 // Figma 823:65046.
@@ -44,9 +47,10 @@ const WALL_WHEEL_SCALE = 0.65; // how strongly the wheel scrolls the wall
 // category list 1251:6335 — 207px wide, ~44px row pitch).
 const WALL_MENU_W = 480;
 const WALL_MENU_INNER_W = 207;
-// Closed state widens the centre gutter (on top of the existing 20px column
-// gap) into a clear lane so the vertical "FILTER WORK" tab sits in empty space
-// instead of overlapping the adjacent column (each pair shifts out by half).
+/** Mobile menu width; open gap = this + 10px each side. */
+const WALL_MENU_INNER_W_MOBILE = 168;
+const WALL_MENU_W_MOBILE = WALL_MENU_INNER_W_MOBILE + 20;
+// Closed state widens the centre gutter for the vertical "FILTER WORK" tab.
 const WALL_TAB_LANE = 24;
 
 type WorkProject = Study;
@@ -99,30 +103,39 @@ export default function WorkBody({
   // popup, don't create a new path"). No route change — `openSlug` drives the
   // overlay, so there's no full-page fallback and no intercepting-route flakiness.
   const [openSlug, setOpenSlug] = useState<string | null>(null);
-  const [view, setView] = useState<View>(textOn ? "txt" : "img");
+  // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
+  const [view, setView] = usePersistedView<View>(
+    WORK_VIEWS,
+    textOn ? "txt" : "img",
+  );
   // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
   // on first completion so scrolling back up never replays it (Israel 07/02);
   // re-arms when toggling back to `.txt` (which scrolls to top).
   const { r, pin } = useReveal(view === "txt");
   const [filter, setFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [wide, setWide] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
-  // `.img` wall auto/manual scroll: one shared offset drives all 4 column
-  // tracks (via refs, mutated in rAF for perf — no re-render per frame).
+  // `.img` wall auto/manual scroll: one shared offset drives column tracks
+  // (via refs, mutated in rAF for perf — no re-render per frame).
   const wallWinRef = useRef<HTMLDivElement>(null);
   const trackRefs = useRef<Array<HTMLDivElement | null>>([]);
   const wallOffset = useRef(0);
 
-  // Auto-drift + wheel-driven manual scroll for the desktop `.img` wall. The
-  // wall is FINITE (Israel 07/04 — "it's endless… it needs to stop, it should
-  // have a beginning and an end"): a single shared offset is clamped to
-  // [0, maxOffset] so the columns drift down (each at its own speed) until the
-  // last card reaches the bottom of the window, then stop. The wheel nudges the
-  // same offset so it stays manually scrollable within those bounds.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Auto-drift + wheel-driven manual scroll for the `.img` wall (mobile + desktop).
+  // Finite: clamped to [0, maxOffset] so columns stop at the end (Israel 07/04).
   useEffect(() => {
     if (view !== "img") return;
     const win = wallWinRef.current;
-    if (!win || window.innerWidth < 1024) return;
+    if (!win) return;
 
     const reduce = window.matchMedia?.(
       "(prefers-reduced-motion: reduce)",
@@ -182,7 +195,13 @@ export default function WorkBody({
       cancelAnimationFrame(raf);
       win.removeEventListener("wheel", onWheel);
     };
-  }, [view, filter]);
+  }, [view, filter, wide]);
+
+  // Drop stale column tracks when switching 2↔4 columns.
+  useEffect(() => {
+    trackRefs.current = [];
+    wallOffset.current = 0;
+  }, [wide]);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -209,12 +228,18 @@ export default function WorkBody({
     [filter, projects],
   );
 
-  // Round-robin the visible projects into 4 columns for the auto-scroll wall.
+  // Round-robin: 4 columns desktop, 2 columns mobile (Figma 1:17564 / 1:19168).
   const wallColumns = useMemo(() => {
-    const cols: WorkProject[][] = [[], [], [], []];
-    visible.forEach((p, i) => cols[i % 4].push(p));
+    const n = wide ? 4 : 2;
+    const cols: WorkProject[][] = Array.from({ length: n }, () => []);
+    visible.forEach((p, i) => cols[i % n].push(p));
     return cols;
-  }, [visible]);
+  }, [visible, wide]);
+
+  const menuShift =
+    (filterOpen ? (wide ? WALL_MENU_W : WALL_MENU_W_MOBILE) : WALL_TAB_LANE) /
+    2;
+  const menuInnerW = wide ? WALL_MENU_INNER_W : WALL_MENU_INNER_W_MOBILE;
 
   // Scroll-triggered reveal for the `.img` grid: each card fades up as it
   // enters the viewport (faslebbie.com/works fades on load, but our 17-card
@@ -295,7 +320,7 @@ export default function WorkBody({
               content brightens in place before the page scrolls. The toggle is
               inside the pinned wrapper so the pin engages immediately (no pre-pin
               scroll while the content is still dim), exactly like the About page. */}
-          <div className="lg:sticky lg:top-[52px]">
+          <div className={STICKY_UNDER_NAV}>
             {/* The toggle is part of the dim back layer too: at the very top it's
                 grayed out + blurred behind the wordmark and not clickable, then it
                 brightens and goes live alongside the content (~70% revealed). */}
@@ -362,27 +387,24 @@ export default function WorkBody({
       ) : (
         <>
           {showToggle && viewToggle}
-          <main ref={gridRef} className="relative z-10 w-full pb-24 pt-10 lg:pb-0 lg:pt-4">
-          {/* Desktop: 4 full-width auto-scroll columns (~25% each). FILTER WORK
-              is a centred tab; on open the left pair slides left and the right
-              pair slides right by half the menu width, opening a centred gap for
-              the menu — columns keep their width and clip at the screen edges
-              (Figma 1111:4653 closed / 1111:6992 open). */}
+          <main ref={gridRef} className="relative z-10 w-full pb-0 pt-6 lg:pt-4">
+          {/* Shared wall (Figma mobile 1:17564 / 1:19168 + desktop 1111:4653):
+              2 cols mobile / 4 desktop. On open, left slides left and right
+              slides right — same Filter Work interaction on every breakpoint. */}
           <div
             ref={wallWinRef}
-            className="relative hidden h-[calc(100vh-190px)] w-full overflow-hidden lg:block"
+            className="relative h-[calc(100vh-150px)] w-full overflow-hidden lg:h-[calc(100vh-190px)]"
           >
-            <div className="flex h-full w-full gap-5 px-6">
+            <div className="flex h-full w-full gap-2 px-2 lg:gap-5 lg:px-6">
               <div
-                className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
-                style={{
-                  transform: `translateX(-${(filterOpen ? WALL_MENU_W : WALL_TAB_LANE) / 2}px)`,
-                }}
+                className="flex min-w-0 flex-1 gap-2 transition-transform duration-500 ease-out lg:gap-5"
+                style={{ transform: `translateX(-${menuShift}px)` }}
               >
-                {[0, 1].map((ci) => (
+                {(wide ? [0, 1] : [0]).map((ci) => (
                   <WallColumn
-                    key={`${filter}-col-${ci}`}
-                    col={wallColumns[ci]}
+                    key={`${filter}-col-${ci}-${wide ? "d" : "m"}`}
+                    col={wallColumns[ci] ?? []}
+                    showMeta={wide}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -391,15 +413,14 @@ export default function WorkBody({
                 ))}
               </div>
               <div
-                className="flex flex-1 gap-5 transition-transform duration-500 ease-out"
-                style={{
-                  transform: `translateX(${(filterOpen ? WALL_MENU_W : WALL_TAB_LANE) / 2}px)`,
-                }}
+                className="flex min-w-0 flex-1 gap-2 transition-transform duration-500 ease-out lg:gap-5"
+                style={{ transform: `translateX(${menuShift}px)` }}
               >
-                {[2, 3].map((ci) => (
+                {(wide ? [2, 3] : [1]).map((ci) => (
                   <WallColumn
-                    key={`${filter}-col-${ci}`}
-                    col={wallColumns[ci]}
+                    key={`${filter}-col-${ci}-${wide ? "d" : "m"}`}
+                    col={wallColumns[ci] ?? []}
+                    showMeta={wide}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -409,11 +430,6 @@ export default function WorkBody({
               </div>
             </div>
 
-            {/* Centred FILTER WORK — vertical tab (closed) / category list
-                (open). When open a transparent backdrop closes on click. The
-                open menu sits in the upper third (Figma), not vertically
-                centred; the closed tab stays centred. Hidden entirely when no
-                categories exist (Figma backend spec 1260:895). */}
             {categories.length > 0 && (
             <div className="pointer-events-none absolute inset-0 z-20">
               {filterOpen && (
@@ -426,13 +442,9 @@ export default function WorkBody({
               )}
               {filterOpen ? (
                 <div
-                  className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col gap-[22px]"
-                  style={{ width: WALL_MENU_INNER_W }}
+                  className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col gap-[18px] lg:gap-[22px]"
+                  style={{ width: menuInnerW }}
                 >
-                  {/* Visible way out. Fas 07/28: the filter applies on click but
-                      the only way to dismiss it was an invisible backdrop —
-                      "how do I go back out? Maybe we can put a close bar in
-                      here, because the user won't know." */}
                   <button
                     type="button"
                     onClick={() => setFilterOpen(false)}
@@ -453,7 +465,7 @@ export default function WorkBody({
                         type="button"
                         data-cursor="hover"
                         onClick={() => setFilter(cat)}
-                        className={`flex items-baseline justify-between gap-6 font-grotesk text-[20px] font-medium leading-none transition-colors ${
+                        className={`flex items-baseline justify-between gap-6 font-grotesk text-[18px] font-medium leading-none transition-colors lg:text-[20px] ${
                           active
                             ? "text-accent"
                             : "text-black hover:text-accent"
@@ -480,62 +492,6 @@ export default function WorkBody({
               )}
             </div>
             )}
-          </div>
-
-          {/* Mobile / tablet: horizontal filter + single masonry. */}
-          <div className="px-6 lg:hidden">
-            {categories.length > 0 && (
-            <>
-            <button
-              type="button"
-              onClick={() => setFilterOpen((o) => !o)}
-              data-cursor="hover"
-              aria-expanded={filterOpen}
-              className="mb-5 inline-flex items-center gap-2 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70"
-            >
-              Filter Work <span className="text-accent">{filterOpen ? "−" : "+"}</span>
-            </button>
-            {filterOpen && (
-              <div className="mb-8 flex flex-col gap-2 border-l-2 border-accent bg-close px-5 py-4">
-                {(["All", ...categories] as Filter[]).map((cat) => {
-                  const active = filter === cat;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      data-cursor="hover"
-                      onClick={() => {
-                        setFilter(cat);
-                        setFilterOpen(false);
-                      }}
-                      className={`flex items-center justify-between gap-6 font-grotesk text-[17px] transition-colors ${
-                        active ? "font-bold text-accent" : "text-black hover:text-accent"
-                      }`}
-                    >
-                      <span>{cat}</span>
-                      <span className={active ? "text-accent" : "text-black/50"}>
-                        {counts[cat]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            </>
-            )}
-            {/* Two columns from the smallest screen up, matching the Build,
-                Teaching and Leadership `.img` walls — a single column made the
-                cards roughly twice the size they are on every other gallery. */}
-            <div className="columns-2 gap-6 [column-fill:balance] *:mb-9 *:break-inside-avoid">
-              {visible.map((p, i) => (
-                <ProjectCard
-                  key={`${filter}-${p.slug}`}
-                  project={p}
-                  index={i}
-                  onOpen={() => openProject(p.slug)}
-                />
-              ))}
-            </div>
           </div>
           </main>
         </>
@@ -572,17 +528,24 @@ function WallColumn({
   col,
   trackRef,
   onOpen,
+  showMeta = true,
 }: {
   col: WorkProject[];
   trackRef: (el: HTMLDivElement | null) => void;
   onOpen: (slug: string) => void;
+  showMeta?: boolean;
 }) {
   return (
     <div className="work-wall-col flex-1">
       <div ref={trackRef} className="work-wall-track">
         {col.map((p, i) => (
-          <div key={`${p.slug}-${i}`} className="mb-5">
-            <ProjectCard project={p} reveal={false} onOpen={() => onOpen(p.slug)} />
+          <div key={`${p.slug}-${i}`} className="mb-4 lg:mb-5">
+            <ProjectCard
+              project={p}
+              reveal={false}
+              showMeta={showMeta}
+              onOpen={() => onOpen(p.slug)}
+            />
           </div>
         ))}
       </div>
@@ -595,6 +558,7 @@ function ProjectCard({
   onOpen,
   index = 0,
   reveal = true,
+  showMeta = true,
 }: {
   project: WorkProject;
   onOpen: () => void;
@@ -602,6 +566,8 @@ function ProjectCard({
   // When false (auto-scroll wall) the card is always visible — the column's
   // continuous drift is the animation, so no scroll-reveal is applied.
   reveal?: boolean;
+  /** Mobile .img (Figma 1:17564) is image-only; desktop wall keeps title/From/To. */
+  showMeta?: boolean;
 }) {
   const accent = project.accent?.hex ?? "#999999";
   // The wall (reveal=false) is the first paint when `.img` opens, so load its
@@ -612,6 +578,7 @@ function ProjectCard({
       type="button"
       onClick={onOpen}
       data-cursor="hover"
+      aria-label={project.name}
       {...(reveal ? { "data-work-card": true } : {})}
       className={`${reveal ? "work-card-reveal " : ""}group @container/card block w-full text-left`}
       // Small repeating per-row stagger so cards cascade in as a group without
@@ -620,12 +587,6 @@ function ProjectCard({
       style={reveal ? { transitionDelay: `${(index % 6) * 70}ms` } : undefined}
     >
       {src ? (
-        // Real card art (Figma 823:65046) at its natural aspect — true masonry.
-        // width/height reserve the aspect-ratio box; the base64 LQIP is painted
-        // as the element background so a blurred preview shows on the very first
-        // frame (it ships inline with the page data — no request), then the sharp
-        // image renders on top. The wall (reveal=false) is the first paint on
-        // `.img`, so it loads eagerly at high priority.
         // eslint-disable-next-line @next/next/no-img-element -- static design asset
         <img
           src={src}
@@ -657,33 +618,23 @@ function ProjectCard({
           </span>
         </div>
       )}
-      {/* Card meta, from the component in Figma 2080:31219 (instance 2080:31446):
-          two lines only, 8px apart, 18px on 1.65px of tracking. The title is
-          Medium and underlined through its descenders; the pair below is italic
-          with FROM and TO one weight step above their values. There is no credit
-          line — the call asked for credit to stay editable, and it is (Overview
-          → Team, which Fas and Israel agreed is the same thing), but it is not
-          drawn on the card.
-
-          The phone masonry cards are half the width of the 332px card the frame
-          draws (160px against 332px), so below 18rem they drop to 16px without
-          tracking and stack the pair rather than breaking "To:" off its value. */}
-      <p className="mt-2 w-fit font-grotesk text-[16px] font-medium leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
-        {project.name}
-      </p>
-      {(project.from || project.to) && (
-        // Figma spaces the two apart with a run of literal spaces, which would
-        // put To wherever each From value happens to end. A fixed column lands
-        // it in the same place the frame does (57% of the card) and keeps the
-        // values aligned down the grid.
-        <p className="mt-2 grid grid-cols-1 font-grotesk text-[16px] italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
-          <span>
-            <span className="font-medium">From</span>: {project.from}
-          </span>
-          <span>
-            <span className="font-medium">To</span>: {project.to}
-          </span>
-        </p>
+      {showMeta && (
+        <>
+          {/* Card meta (Figma 2080:31219) — desktop wall only. */}
+          <p className="mt-2 w-fit font-grotesk text-[16px] font-medium leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+            {project.name}
+          </p>
+          {(project.from || project.to) && (
+            <p className="mt-2 grid grid-cols-1 font-grotesk text-[16px] italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+              <span>
+                <span className="font-medium">From</span>: {project.from}
+              </span>
+              <span>
+                <span className="font-medium">To</span>: {project.to}
+              </span>
+            </p>
+          )}
+        </>
       )}
     </button>
   );

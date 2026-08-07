@@ -101,10 +101,10 @@ export default function StudentModal({
       footer={
         <div className="flex w-full max-w-[620px] items-center justify-between">
           <PopupPagerButton onClick={() => goProject(-1)}>
-            {"< Previous Project"}
+            {"< Previous"}
           </PopupPagerButton>
           <PopupPagerButton onClick={() => goProject(1)}>
-            {"Next Project >"}
+            {"Next >"}
           </PopupPagerButton>
         </div>
       }

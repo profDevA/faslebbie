@@ -4,6 +4,7 @@ import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import AboutContent from "@/components/AboutContent";
 import type { AboutContentData } from "@/lib/aboutFromSanity";
 import { aboutLogos, type Testimonial } from "@/lib/content";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -49,9 +50,9 @@ export default function AboutBody({
 
   return (
     <div className="relative">
-      {/* Desktop pin: sticks under the nav (h-13 = 52px) for `pin` px of scroll
+      {/* Desktop pin: sticks under the nav (82px) for `pin` px of scroll
           so the content brightens in place before the page scrolls. */}
-      <div className="lg:sticky lg:top-[52px]">
+      <div className={STICKY_UNDER_NAV}>
         <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-32">
         {/* Portrait column — shared sticky offset so the photo rests at the same
             height as every other page (Fas 07/28). */}
@@ -60,7 +61,7 @@ export default function AboutBody({
           <h1 className="sr-only">About Me</h1>
           <PagePortrait
             style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-            className="relative z-10 will-change-[opacity,filter,transform]"
+            className="relative z-10 !bg-transparent mix-blend-multiply will-change-[opacity,filter,transform]"
           />
         </div>
 

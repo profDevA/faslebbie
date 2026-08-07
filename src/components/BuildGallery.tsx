@@ -3,12 +3,11 @@
 import type { BuildProject } from "@/lib/build";
 
 // ".img" masonry of build cards (Figma 16-2783 / 16-3446). Real project image
-// from Sanity when present; otherwise the tinted title placeholder. Each card
-// opens the paged project modal.
-const SPAN_H: Record<BuildProject["span"], string> = {
-  sm: "h-[240px]",
-  md: "h-[300px]",
-  lg: "h-[380px]",
+// at natural aspect (same as Work wall); tinted title placeholder when missing.
+const PLACEHOLDER_H: Record<BuildProject["span"], string> = {
+  sm: "h-[180px]",
+  md: "h-[220px]",
+  lg: "h-[280px]",
 };
 
 export default function BuildGallery({
@@ -20,7 +19,7 @@ export default function BuildGallery({
 }) {
   return (
     <div className="mx-auto w-full max-w-[1350px] px-6 lg:px-12">
-      <div className="columns-2 gap-6 [column-fill:balance] lg:columns-4 *:mb-9 *:break-inside-avoid">
+      <div className="columns-2 gap-4 [column-fill:balance] lg:columns-4 lg:gap-6 *:mb-6 *:break-inside-avoid lg:*:mb-9">
         {items.map((item) => {
           const cover = item.images?.[0];
           return (
@@ -31,18 +30,18 @@ export default function BuildGallery({
               data-cursor="hover"
               className="group block w-full text-left"
             >
-              <div
-                style={cover ? undefined : { backgroundColor: item.tint }}
-                className={`relative flex w-full items-center justify-center overflow-hidden ${SPAN_H[item.span]} transition-opacity group-hover:opacity-90`}
-              >
-                {cover ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN cover
-                  <img
-                    src={cover}
-                    alt={item.title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : (
+              {cover ? (
+                // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN cover
+                <img
+                  src={cover}
+                  alt={item.title}
+                  className="h-auto w-full bg-[#f0f0f0] transition-opacity group-hover:opacity-90"
+                />
+              ) : (
+                <div
+                  style={{ backgroundColor: item.tint }}
+                  className={`relative flex w-full items-center justify-center overflow-hidden ${PLACEHOLDER_H[item.span]} transition-opacity group-hover:opacity-90`}
+                >
                   <span
                     className={`px-4 text-center font-logo text-[clamp(22px,2.4vw,34px)] font-semibold tracking-tight ${
                       item.lightArt ? "text-black/20" : "text-white/90"
@@ -50,8 +49,8 @@ export default function BuildGallery({
                   >
                     {item.title}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
               <p className="mt-3 w-fit border-b border-black pb-1 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
                 {item.title}
               </p>

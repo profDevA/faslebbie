@@ -3,22 +3,14 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
+import { useSite } from "@/components/SiteProvider";
+
 /**
  * The portrait in the left column of every listing page — About, Work,
  * Research, Build, Leadership, Teaching.
  *
- * Fas 07/28 ("a big one"): this had drifted into two source images
- * (portrait.png vs portrait-about.png) at two different sizes, so the photo
- * visibly changed as you clicked between pages — "not a small one that
- * changes… just make it constant, one image across all of this." He named the
- * About/Research photo as the one to keep, so that's the canonical source here.
- *
- * Pair with PORTRAIT_STICKY_TOP on the column wrapper so it also comes to rest
- * at the same height on every page.
- *
- * The height is fixed at every size, so the width has to stop growing or the
- * crop turns into a letterbox strip across the eyes — full-bleed on phones,
- * then the canonical 271×299 crop from `sm` up (tablet portrait included).
+ * Source: Site Settings → Brand → Master portrait (fallback /portrait-master.png).
+ * Same 161/145 aspect as Contact / Home.
  */
 
 /**
@@ -61,15 +53,16 @@ export default function PagePortrait({
   /** Page-specific spacing only — never size or source. */
   className?: string;
 }) {
+  const { brand } = useSite();
   return (
     <Image
-      src="/portrait-about.png"
+      src={brand.portraitSrc}
       alt="Portrait of Fas Lebbie"
-      width={620}
-      height={684}
+      width={1111}
+      height={1000}
       priority
       style={style}
-      className={`h-74.75 w-full bg-[#f0f0f0] object-cover object-top sm:w-67.75 ${className}`}
+      className={`aspect-161/145 w-full bg-[#f0f0f0] object-cover object-top sm:w-67.75 ${className}`}
     />
   );
 }

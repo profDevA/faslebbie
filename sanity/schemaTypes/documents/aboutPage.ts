@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { pageSeoField } from "../objects/pageSeo";
 
 // Singleton for the /about page: the bio itself, the reveal copy behind each
 // grey keyword, and the CV / Resume / LinkedIn / Email links.
@@ -13,6 +14,7 @@ export const aboutPage = defineType({
     { name: "bio", title: "Bio", default: true },
     { name: "expansions", title: "Keyword expansions" },
     { name: "links", title: "Links" },
+    { name: "seo", title: "SEO" },
   ],
   fields: [
     defineField({
@@ -56,6 +58,7 @@ export const aboutPage = defineType({
         },
       ],
     }),
+    pageSeoField,
   ],
   preview: { prepare: () => ({ title: "About Page" }) },
 });

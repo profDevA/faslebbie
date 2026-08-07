@@ -10,6 +10,7 @@ import StudentModal from "@/components/StudentModal";
 import ExhibitionOverlay from "@/components/ExhibitionOverlay";
 import { students as fallbackStudents, teachingIntro, teachingSections } from "@/lib/teaching";
 import type { TeachingContentData } from "@/lib/teachingFromSanity";
+import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -17,8 +18,10 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { usePersistedView } from "@/hooks/usePersistedView";
 
 type View = "txt" | "img";
+const VIEWS = ["txt", "img"] as const;
 
 /**
  * Teaching / Pedagogy page (Figma 16-19731 / 16-22597 / 16-19360) — same
@@ -41,7 +44,7 @@ export default function TeachingBody({
   const exhibitionTitle = content?.exhibitionTitle;
   const exhibitionTiles = content?.exhibitionTiles;
 
-  const [view, setView] = useState<View>("txt");
+  const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openStudent, setOpenStudent] = useState<string | null>(null);
   const [exhibitionOpen, setExhibitionOpen] = useState(false);
   const { r, pin } = useReveal(view === "txt");
@@ -67,7 +70,7 @@ export default function TeachingBody({
 
       {view === "txt" ? (
         <>
-          <div className="lg:sticky lg:top-[52px]">
+          <div className={STICKY_UNDER_NAV}>
             <div
               style={{
                 opacity,

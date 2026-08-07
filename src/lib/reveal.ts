@@ -23,10 +23,8 @@ export function ramp(a: number, b: number, t: number) {
 // phantom scroll). Homepage is separate — see HOME_INTRO_REVEAL.
 export const INTRO_REVEAL = false;
 
-// Homepage-only wordmark front→back dissolve (Fas 07/30): "Only for this one
-// [Home], that's it." Section pages stay settled; Home plays the scroll reveal
-// again. After it settles, V2Hero collapses the tall pin so there's no empty
-// up/down scroll ("when it's cold… make sure this doesn't go up and down").
+// Homepage-only wordmark front→back dissolve (Fas 07/30). Centered portrait +
+// bio come forward; wordmark keeps original layout (no corner photo).
 export const HOME_INTRO_REVEAL = true;
 
 // Share of a viewport of scroll over which the layers settle to the front.

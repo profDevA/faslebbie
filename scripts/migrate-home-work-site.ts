@@ -109,10 +109,12 @@ async function imageValue(rel: string) {
 }
 
 async function seedSite() {
-  const portrait = await imageValue("/contact-portrait.png");
+  const portrait = await imageValue("/portrait-master.png");
   const doc = {
     _id: "siteSettings",
     _type: "siteSettings",
+    logoName: "Fas lebbie",
+    logoSuffix: "Ph.D.",
     navItems: navItems.map((i) => ({
       _type: "navLink",
       _key: key(),
@@ -131,7 +133,7 @@ async function seedSite() {
     contactSuccessTitle: "Thanks — your message is on its way.",
     contactSuccessBody: "Fas will get back to you at the email you provided.",
     contactSendAnotherLabel: "Send another",
-    ...(portrait ? { contactPortrait: portrait } : {}),
+    ...(portrait ? { masterPortrait: portrait } : {}),
   };
   await client.createOrReplace(doc);
   console.log("✓ seeded siteSettings");

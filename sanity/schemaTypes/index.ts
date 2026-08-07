@@ -25,6 +25,7 @@ import { interactiveProse } from "./objects/interactiveProse";
 import { workProse } from "./objects/workProse";
 import { homeProse } from "./objects/homeProse";
 import { navLink } from "./objects/navLink";
+import { pageSeo } from "./objects/pageSeo";
 import { exhibitionTile } from "./objects/exhibitionTile";
 import {
   aboutLogo,
@@ -120,6 +121,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   workProse,
   homeProse,
   navLink,
+  pageSeo,
   exhibitionTile,
   aboutProse,
   aboutTyper,

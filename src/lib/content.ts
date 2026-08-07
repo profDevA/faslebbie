@@ -1220,30 +1220,34 @@ export const workNarrative: WorkToken[][] = [
   ],
 ]
 
-// Desktop bar order + labels per the new Figma nav (854:79638): About, Work,
-// Build, Leadership, Research, Teaching, Blogs / Media. A "Home" link leads the
-// list (Fas 07/21 — "we should put it Home… when you click it, it should go
-// straight to Home, not replay the animation").
+// Desktop chrome (Figma 2218:75431 / 08/06): About, Projects▾ (Case Studies +
+// Build/Playground — rendered in Nav.tsx), Approach, Research, Teaching,
+// Words + Media. Logo → Home. Routes stay /work /build /leadership /blogs.
 export const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Work', href: '/work' },
-  { label: 'Build', href: '/build' },
-  { label: 'Leadership', href: '/leadership' },
+  { label: 'Case Studies', href: '/work' },
+  { label: 'Build / Playground', href: '/build' },
+  { label: 'Approach', href: '/leadership' },
   { label: 'Research', href: '/research' },
   { label: 'Teaching', href: '/teaching' },
-  { label: 'Blogs / Media', href: '/blogs' },
+  { label: 'Words + Media', href: '/blogs' },
 ]
 
-// The mobile dropdown lists items in a different order than the desktop bar
-// (Figma 187:3325): About, Work, Research, Build, Teaching, Leadership, Blogs.
+// Mobile Sanity list (Nav folds Case Studies + Build into a Projects▾ accordion).
 export const mobileNavItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Work', href: '/work' },
+  { label: 'Case Studies', href: '/work' },
+  { label: 'Build / Playground', href: '/build' },
+  { label: 'Approach', href: '/leadership' },
   { label: 'Research', href: '/research' },
-  { label: 'Build', href: '/build' },
   { label: 'Teaching', href: '/teaching' },
-  { label: 'Leadership', href: '/leadership' },
-  { label: 'Blogs & Media', href: '/blogs' },
+  { label: 'Words + Media', href: '/blogs' },
 ]
+
+/** Projects dropdown children (Figma 2229 project-dropdown states). */
+export const projectNavItems = [
+  { label: 'Case Studies', href: '/work' },
+  { label: 'Build / Playground', href: '/build' },
+] as const

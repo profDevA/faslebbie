@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PopupShell, {
   PopupDots,
   PopupPagerButton,
@@ -267,26 +267,40 @@ function FieldNotesView({
   const [slide, setSlide] = useState(0);
   // A different note starts on its own first image.
   useEffect(() => setSlide(0), [index]);
-  const goImage = (d: 1 | -1) =>
-    setSlide((p) => (p + d + images.length) % images.length);
-  const src = images[Math.min(slide, images.length - 1)];
+
+  const goImage = useCallback(
+    (d: 1 | -1) => {
+      if (images.length <= 1) return;
+      setSlide((p) => (p + d + images.length) % images.length);
+    },
+    [images.length],
+  );
+
+  // Keyboard arrows page images only (footer Previous/Next pages notes) —
+  // same split as Student Works.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goImage(1);
+      else if (e.key === "ArrowLeft") goImage(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goImage]);
+
+  const src = images[Math.min(slide, Math.max(images.length - 1, 0))];
   return (
-    <div>
-      {/* Roughly 50/50 image | note (Fas 07/30). */}
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-      {/* The arrows over the image page THIS note's images only; the footer
-          Previous / Next moves between field notes (Fas 07/30, same split as
-          Student Works). */}
-      <div className="relative flex items-center">
+    <>
+      {/* Image carousel — arrows change images only. */}
+      <div className="relative order-2 h-[320px] min-h-0 overflow-hidden bg-black sm:h-[420px] lg:order-1 lg:h-auto">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element -- static design asset
           <img
             src={src}
             alt={note.place}
-            className="h-auto w-full object-cover"
+            className="h-full w-full object-cover"
           />
         ) : (
-          <div className="aspect-4/3 w-full bg-white" />
+          <div className="h-full w-full bg-white" />
         )}
         {images.length > 1 && (
           <>
@@ -295,18 +309,18 @@ function FieldNotesView({
               aria-label="Previous image"
               onClick={() => goImage(-1)}
               data-cursor="hover"
-              className="absolute left-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
+              className="absolute left-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:left-6"
             >
-              {"\u2039"}
+              {"<"}
             </button>
             <button
               type="button"
               aria-label="Next image"
               onClick={() => goImage(1)}
               data-cursor="hover"
-              className="absolute right-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center bg-white/85 text-[18px] leading-none text-black transition-opacity hover:opacity-70"
+              className="absolute right-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:right-6"
             >
-              {"\u203a"}
+              {">"}
             </button>
             <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
               {images.map((img, k) => (
@@ -317,7 +331,7 @@ function FieldNotesView({
                   onClick={() => setSlide(k)}
                   data-cursor="hover"
                   className={`size-2 rounded-full transition-colors ${
-                    k === slide ? "bg-accent" : "bg-white/60 hover:bg-white/90"
+                    k === slide ? "bg-accent" : "bg-white/50 hover:bg-white/80"
                   }`}
                 />
               ))}
@@ -325,45 +339,46 @@ function FieldNotesView({
           </>
         )}
       </div>
-      <div className="flex flex-col">
-        <div className="border-b border-black pb-4">
-          <p className="font-grotesk text-[18px] text-black">
+
+      {/* Meta panel — Student Works / Testimonials pattern. */}
+      <div className="order-1 flex flex-col justify-center gap-0 bg-[#1c1c1c] px-6 py-10 text-white lg:order-2 lg:overflow-y-auto lg:px-12 lg:py-14">
+        <div className="border-b border-white/25 pb-4">
+          <p className="font-grotesk text-[14px] tracking-wider text-white/70">
             Field Notes {note.n}
           </p>
-          <p className="mt-1 font-grotesk text-[24px] font-medium text-black">
+          <p className="mt-1 font-grotesk text-[24px] font-medium text-white lg:text-[28px]">
             {note.place}
           </p>
-          <p className="mt-3 font-grotesk text-[18px] font-light italic leading-[1.6] text-black">
+          <p className="mt-3 font-grotesk text-[15px] font-light italic leading-[1.6] text-white/80 lg:text-[16px]">
             {note.quote}
           </p>
         </div>
-        <div className="border-b border-black py-4">
-          <p className="font-grotesk text-[18px] font-medium text-black">
+        <div className="border-b border-white/25 py-4">
+          <p className="font-grotesk text-[15px] font-medium text-white">
             Methodology
           </p>
-          <p className="mt-2 font-grotesk text-[18px] font-light text-black">
+          <p className="mt-2 font-grotesk text-[15px] font-light text-white/75">
             {note.methodology}
           </p>
         </div>
-        <div className="border-b border-black py-4">
-          <p className="font-grotesk text-[18px] font-medium text-black">
+        <div className="border-b border-white/25 py-4">
+          <p className="font-grotesk text-[15px] font-medium text-white">
             Research Themes
           </p>
-          <p className="mt-2 font-grotesk text-[18px] font-light text-black">
+          <p className="mt-2 font-grotesk text-[15px] font-light text-white/75">
             {note.themes}
           </p>
         </div>
-        <div className="border-b border-black py-4">
-          <p className="font-grotesk text-[18px] font-medium text-black">
+        <div className="border-b border-white/25 py-4">
+          <p className="font-grotesk text-[15px] font-medium text-white">
             Research Insight
           </p>
-          <p className="mt-2 font-grotesk text-[18px] font-light leading-[1.6] text-black">
+          <p className="mt-2 font-grotesk text-[15px] font-light leading-[1.6] text-white/75">
             {note.insight}
           </p>
         </div>
       </div>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -405,10 +420,13 @@ export default function ResearchModal({
   if (!openId) return null;
 
   const content = sections[openId];
-  const notes = content.kind === "field-notes" ? content.notes : [];
+  const isFieldNotes = content.kind === "field-notes";
+  const notes = isFieldNotes ? content.notes : [];
   const goNote = (d: 1 | -1) =>
     setNoteIndex((p) => (p + d + notes.length) % notes.length);
 
+  // Field Notes uses the Student Works 50/50 shell; other sections are
+  // standalone scroll content with no Prev/Next (QA / Fas 07/30).
   return (
     <PopupShell
       onClose={onClose}
@@ -419,7 +437,11 @@ export default function ResearchModal({
         { label: researchBreadcrumbRoot, hideOnMobile: true },
         { label: researchSectionLabel[openId] },
       ]}
-      bodyClassName="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
+      bodyClassName={
+        isFieldNotes
+          ? "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
+          : "min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
+      }
       footer={
         notes.length > 1 ? (
           <div className="flex w-full max-w-[620px] items-center justify-between">

@@ -89,11 +89,18 @@ const cardProj = `
   span
 `;
 
+const seoProj = `seo{
+  title, description, ogImageAlt,
+  "ogImage": ogImage.asset->url,
+  "ogImageWidth": ogImage.asset->metadata.dimensions.width,
+  "ogImageHeight": ogImage.asset->metadata.dimensions.height
+}`;
+
 // All studies with full section content, ordered — powers the /work grid + the
 // in-page popup (which needs each study's full body ready without a round-trip).
 export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy"] | order(orderRank asc){
   ${cardProj},
-  seo,
+  ${seoProj},
   ${sectionsProj}
 }`);
 
@@ -106,19 +113,28 @@ export const CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(orde
 
 export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
   sectionTitle, intro, enableTextView, enableImageView, loadMoreLabel,
-  ${appearanceProj}
+  ${appearanceProj},
+  ${seoProj}
 }`);
 
 export const HOME_PAGE_QUERY = defineQuery(`*[_type == "homePage"][0]{
-  hero, storyHref
+  hero, storyHref,
+  ${seoProj}
 }`);
 
 export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
+  logoName, logoSuffix,
+  "masterPortrait": masterPortrait.asset->url,
   navItems[]{ label, href },
   mobileNavItems[]{ label, href },
   contactDrawerTitle, contactHeading, contactSubmitLabel,
   contactSuccessTitle, contactSuccessBody, contactSendAnotherLabel,
-  "contactPortrait": contactPortrait.asset->url
+  "contactPortrait": contactPortrait.asset->url,
+  siteTitle, siteDescription, ogTitle, ogDescription, ogImageAlt,
+  "favicon": favicon.asset->url,
+  "ogImage": ogImage.asset->url,
+  "ogImageWidth": ogImage.asset->metadata.dimensions.width,
+  "ogImageHeight": ogImage.asset->metadata.dimensions.height
 }`);
 
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);
@@ -130,7 +146,8 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   principles{ label, intro, items[]{ title, body }, conclusionKicker, conclusionBody },
   modalities{ kicker, statement, items, groups[]{ title, items }, footnote },
   manifesto,
-  fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url }
+  fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url },
+  ${seoProj}
 }`);
 
 export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
@@ -144,7 +161,8 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
   exhibitionTiles[]{
     tint, label, span, posTop, posLeft, posW,
     "image": image.asset->url
-  }
+  },
+  ${seoProj}
 }`);
 
 export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
@@ -153,12 +171,14 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
     id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
     description, howItWorks, note, supportedTools,
     "images": images[].asset->url
-  }
+  },
+  ${seoProj}
 }`);
 
 export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0]{
   intro, lead, closing, momentsHeading, exploreText, contactText,
-  moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url }
+  moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url },
+  ${seoProj}
 }`);
 
 // About's bio is Portable Text carrying INLINE objects (logo chips, cycling
@@ -179,7 +199,8 @@ export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
     keyword,
     "body": body[]${aboutProseProj}
   },
-  links[]{ label, href }
+  links[]{ label, href },
+  ${seoProj}
 }`);
 
 // "What people are saying" testimonials, ordered — powers the About modal.
@@ -189,5 +210,6 @@ export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order
 
 export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
   posts[]{ slug, category, meta, title, kicker, description, body[]{ ..., _type == "image" => { "url": asset->url } }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
-  media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "thumb": thumb.asset->url }
+  media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "thumb": thumb.asset->url },
+  ${seoProj}
 }`);

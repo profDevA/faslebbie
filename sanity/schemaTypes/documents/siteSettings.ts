@@ -1,15 +1,42 @@
 import { defineField, defineType } from "sanity";
 
-// Global chrome: nav labels + contact drawer copy. One document for the whole site.
+// Site Settings: brand (logo + portrait), nav, contact drawer, SEO / share.
 export const siteSettings = defineType({
   name: "siteSettings",
   title: "Site Settings",
   type: "document",
   groups: [
-    { name: "nav", title: "Navigation", default: true },
+    { name: "brand", title: "Brand", default: true },
+    { name: "nav", title: "Navigation" },
     { name: "contact", title: "Contact" },
+    { name: "seo", title: "SEO / Share" },
   ],
   fields: [
+    defineField({
+      name: "logoName",
+      title: "Logo / wordmark name",
+      type: "string",
+      group: "brand",
+      description: 'Nav + home watermark first line (e.g. "Fas lebbie").',
+      initialValue: "Fas lebbie",
+    }),
+    defineField({
+      name: "logoSuffix",
+      title: "Logo / wordmark suffix",
+      type: "string",
+      group: "brand",
+      description: 'Nav + home watermark second line (e.g. "Ph.D.").',
+      initialValue: "Ph.D.",
+    }),
+    defineField({
+      name: "masterPortrait",
+      title: "Master portrait",
+      type: "image",
+      group: "brand",
+      description:
+        "One head/shoulders crop for Home, listing pages, and Contact (Figma 2218:75512).",
+      options: { hotspot: true },
+    }),
     defineField({
       name: "navItems",
       title: "Desktop nav",
@@ -41,9 +68,10 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: "contactPortrait",
-      title: "Portrait",
+      title: "Contact portrait (optional override)",
       type: "image",
       group: "contact",
+      description: "Leave empty to use Master portrait from Brand.",
     }),
     defineField({
       name: "contactSubmitLabel",
@@ -72,6 +100,65 @@ export const siteSettings = defineType({
       type: "string",
       initialValue: "Send another",
       group: "contact",
+    }),
+
+    // --- SEO / Share (browser tab + link previews) ---
+    defineField({
+      name: "siteTitle",
+      title: "Site title",
+      type: "string",
+      group: "seo",
+      description: "Browser tab title. Also used for Open Graph if OG title is empty.",
+      initialValue: "Fas Lebbie, Ph.D.",
+    }),
+    defineField({
+      name: "siteDescription",
+      title: "Site description",
+      type: "text",
+      rows: 3,
+      group: "seo",
+      description: "Default meta description and OG description fallback.",
+      initialValue:
+        "Designer, researcher, educator — using design as a force for systems transition at scale.",
+    }),
+    defineField({
+      name: "favicon",
+      title: "Favicon",
+      type: "image",
+      group: "seo",
+      description: "Tab icon (SVG or PNG). Falls back to /favicon.svg if empty.",
+      options: { accept: "image/svg+xml,image/png,image/x-icon,image/webp" },
+    }),
+    defineField({
+      name: "ogTitle",
+      title: "OG title",
+      type: "string",
+      group: "seo",
+      description: "Title when the site is shared. Empty → site title.",
+    }),
+    defineField({
+      name: "ogDescription",
+      title: "OG description",
+      type: "text",
+      rows: 3,
+      group: "seo",
+      description: "Description when the site is shared. Empty → site description.",
+    }),
+    defineField({
+      name: "ogImage",
+      title: "OG image",
+      type: "image",
+      group: "seo",
+      description:
+        "Social share image (link previews). Falls back to /portrait-master.png.",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "ogImageAlt",
+      title: "OG image alt",
+      type: "string",
+      group: "seo",
+      initialValue: "Fas Lebbie",
     }),
   ],
   preview: { prepare: () => ({ title: "Site Settings" }) },

@@ -4,6 +4,7 @@ import "./globals.css";
 import DotCursor from "@/components/DotCursor";
 import { SiteProvider } from "@/components/SiteProvider";
 import { siteFromSanity } from "@/lib/siteFromSanity";
+import { siteMetadataFromSanity } from "@/lib/siteMetadata";
 import { getSiteSettings } from "@/sanity/fetch";
 
 // Reckless Neue (Displaay) — Fas's own licensed webfonts, migrated from
@@ -42,11 +43,11 @@ const nhaas = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Fas Lebbie, Ph.D.",
-  description:
-    "Designer, researcher, educator — using design as a force for systems transition at scale.",
-};
+// Favicon / title / OG come from Site Settings → SEO / Share (Sanity).
+// Local fallbacks live in siteMetadataFromSanity until fields are filled.
+export async function generateMetadata(): Promise<Metadata> {
+  return siteMetadataFromSanity(await getSiteSettings());
+}
 
 export default async function RootLayout({
   children,
