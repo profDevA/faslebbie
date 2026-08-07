@@ -48,13 +48,13 @@ function NavLink({
       href={href}
       data-cursor="hover"
       aria-current={active ? "page" : undefined}
-      className={`whitespace-nowrap font-grotesk capitalize transition-opacity ${
+      className={`whitespace-nowrap font-grotesk capitalize underline-offset-[6px] transition-opacity ${
         light
           ? active
-            ? "font-medium text-white"
+            ? "font-medium text-white underline decoration-1"
             : "font-normal text-white/80 hover:text-white"
           : active
-            ? "font-medium"
+            ? "font-medium underline decoration-2"
             : "font-normal opacity-70 hover:opacity-100"
       }`}
     >
@@ -82,13 +82,13 @@ function ProjectsMenu({ light }: { light?: boolean }) {
         data-cursor="hover"
         aria-expanded={open}
         aria-haspopup="true"
-        className={`flex items-center gap-1 whitespace-nowrap font-grotesk capitalize transition-opacity ${
+        className={`flex items-center gap-1 whitespace-nowrap font-grotesk capitalize underline-offset-[6px] transition-opacity hover:underline ${
           light
             ? active
-              ? "font-medium text-white"
+              ? "font-medium text-white underline decoration-1"
               : "font-normal text-white/80 hover:text-white"
             : active
-              ? "font-medium"
+              ? "font-medium underline decoration-2"
               : "font-normal opacity-70 hover:opacity-100"
         }`}
         onClick={() => setOpen((v) => !v)}
@@ -207,19 +207,14 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
     return () => window.removeEventListener(OPEN_CONTACT_EVENT, openDrawer);
   }, []);
 
-  // Header stays above the panel (z-50 > z-40). Panel is a sibling, not a
-  // child, so it can’t paint over the logo/X. Slides right ↔ left.
+  // Sticky header above the menu panel (z-50 > z-40). Panel is a sibling so
+  // it can’t paint over the logo/X. Slides right ↔ left.
   const menuOpen = menuMounted;
 
   return (
     <>
-      {/* Spacer keeps page layout when the header is pinned fixed — without
-          this, Work/Build/etc. .txt/.img content jumps/disappears on open. */}
-      {menuOpen && <div className={`shrink-0 ${NAV_H}`} aria-hidden />}
       <header
-        className={`${
-          menuOpen ? "fixed inset-x-0 top-0 z-50" : "relative z-50"
-        } ${
+        className={`sticky top-0 z-50 ${
           menuOpen || dark
             ? "border-b border-white/25 bg-[#1e1e1e] text-white"
             : "bg-bg text-black shadow-[0_2px_4px_rgba(0,0,0,0.08)]"
@@ -322,8 +317,8 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               onClick={() => setOpen(false)}
               data-cursor="hover"
               aria-current={isActive(mobileHome.href) ? "page" : undefined}
-              className={`w-fit capitalize transition-opacity hover:opacity-70 ${
-                isActive(mobileHome.href) ? "font-medium" : ""
+              className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
+                isActive(mobileHome.href) ? "font-medium underline decoration-2" : ""
               }`}
             >
               {mobileHome.label}
@@ -334,8 +329,8 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
                 onClick={() => setOpen(false)}
                 data-cursor="hover"
                 aria-current={isActive(mobileAbout.href) ? "page" : undefined}
-                className={`w-fit capitalize transition-opacity hover:opacity-70 ${
-                  isActive(mobileAbout.href) ? "font-medium" : ""
+                className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
+                  isActive(mobileAbout.href) ? "font-medium underline decoration-2" : ""
                 }`}
               >
                 {mobileAbout.label}
@@ -376,8 +371,10 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
                         aria-current={
                           isActive(item.href) ? "page" : undefined
                         }
-                        className={`w-fit capitalize transition-opacity hover:opacity-70 ${
-                          isActive(item.href) ? "font-medium" : ""
+                        className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
+                          isActive(item.href)
+                            ? "font-medium underline decoration-2"
+                            : ""
                         }`}
                       >
                         {item.label}
@@ -394,8 +391,8 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
                 onClick={() => setOpen(false)}
                 data-cursor="hover"
                 aria-current={isActive(item.href) ? "page" : undefined}
-                className={`w-fit capitalize transition-opacity hover:opacity-70 ${
-                  isActive(item.href) ? "font-medium" : ""
+                className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
+                  isActive(item.href) ? "font-medium underline decoration-2" : ""
                 }`}
               >
                 {item.label}
