@@ -81,7 +81,12 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
   const introActive = start === 0;
 
   useEffect(() => {
-    if (!introActive) return;
+    // Settled return-to-Home: same visual shell as post-intro, so pin scroll
+    // at top (client nav can restore a mid-page offset and squash spacing).
+    if (!introActive) {
+      window.scrollTo(0, 0);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
     const onScroll = () => {
@@ -153,11 +158,11 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
         </div>
       )}
 
+      {/* Same fixed shell for first visit AND return-to-Home — previously the
+          settled path used in-flow h-full and looked tighter under the sticky nav. */}
       <div
         ref={boxRef}
-        className={`flex items-center justify-center px-6 py-4 lg:px-[5vw] lg:py-0 ${
-          introActive ? `fixed inset-x-0 bottom-0 ${NAV_TOP}` : "h-full"
-        }`}
+        className={`fixed inset-x-0 bottom-0 ${NAV_TOP} flex items-center justify-center overflow-y-auto px-6 py-4 lg:px-[5vw] lg:py-0`}
       >
         <div
           ref={paraRef}
