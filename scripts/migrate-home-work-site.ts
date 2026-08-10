@@ -15,12 +15,37 @@ import { randomUUID } from "node:crypto";
 import { getCliClient } from "sanity/cli";
 
 import {
+  heroSegments,
   mobileNavItems,
   navItems,
   workNarrative,
+  type HeroSegment,
+  type SectionId,
   type WorkToken,
 } from "../src/lib/content";
-import { defaultHomeSegments, type HomeHeroSegment } from "../src/lib/homeFromSanity";
+import type { HomeHeroSegment } from "../src/lib/homeFromSanity";
+
+/** Seed-only map: legacy SectionId → route (runtime hero comes from Sanity). */
+const SECTION_HREF: Record<SectionId, string> = {
+  design: "/work",
+  research: "/research",
+  prototype: "/build",
+  teach: "/teaching",
+  mentor: "/teaching",
+  write: "/blogs",
+  lead: "/leadership",
+  advise: "/about",
+};
+
+function seedHomeSegments(): HomeHeroSegment[] {
+  return heroSegments.map((seg: HeroSegment): HomeHeroSegment => {
+    if (seg.type === "keyword")
+      return { type: "keyword", href: SECTION_HREF[seg.id], text: seg.text };
+    if (seg.type === "story")
+      return { type: "story", text: seg.text, href: "/about" };
+    return { type: "text", text: seg.text };
+  });
+}
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const PUBLIC = join(process.cwd(), "public");
@@ -63,7 +88,7 @@ async function seedHome() {
   const doc = {
     _id: "homePage",
     _type: "homePage",
-    hero: [block(defaultHomeSegments().map(homeSpan))],
+    hero: [block(seedHomeSegments().map(homeSpan))],
     storyHref: "/about",
   };
   await client.createOrReplace(doc);

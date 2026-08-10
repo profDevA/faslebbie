@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
-import ToolStack from "@/components/ToolStack";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
  * Big "Design Work" watermark (Figma 807:2979 desktop / 1:14815 mobile).
  * Fixed parallax layer: fades to page grey and sits behind content.
- *
- * Mobile (Fas 07/30 / Figma 1:14815): no foreground heading — wordmark + Stack
- * sit just under the portrait (background), same idea as desktop. With
- * INTRO_REVEAL off it starts fully receded on both breakpoints.
+ * Fas 08/09: Stack lives under the portrait (WorkBody), not in this overlay —
+ * remove from the wordmark so the backdrop isn't congested.
  */
 
 function ramp(a: number, b: number, t: number) {
@@ -69,7 +66,7 @@ export default function WorkWatermark({
   const effFade = receded ? 1 : fade;
   const color = mix(effFade);
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - effFade).toFixed(3)})`;
-  const opacity = 1 - effFade * 0.7;
+  const opacity = wordmarkOpacity(effFade);
   const z = effFade < 0.5 ? 30 : -10;
 
   return (
@@ -86,19 +83,9 @@ export default function WorkWatermark({
           lands in the gap at the bottom of the photo (Figma 1:14815 — wordmark
           @ ~643 / photo ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on
           desktop, where the wordmark is a fixed layer in the left column. */}
-      <div>
-        <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
-          Design Work
-        </span>
-        <div className="mt-3 flex items-center gap-5 pl-0.5 lg:mt-[1.4vw] lg:gap-[31px] lg:pl-[0.4vw]">
-          <span className="shrink-0 font-serif text-[16px] tracking-[0.06em] lg:text-[20px] xl:text-[26px]">
-            Stack:
-          </span>
-          <div className="origin-left scale-[0.58] lg:scale-100">
-            <ToolStack className="gap-x-[18px] lg:gap-x-[30px]" />
-          </div>
-        </div>
-      </div>
+      <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
+        Design Work
+      </span>
     </div>
   );
 }

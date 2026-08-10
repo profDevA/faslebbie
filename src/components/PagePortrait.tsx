@@ -62,7 +62,8 @@ export default function PagePortrait({
       height={1000}
       priority
       style={style}
-      className={`aspect-161/145 w-full bg-[#f0f0f0] object-cover object-top sm:w-67.75 ${className}`}
+      /* Fas 08/10: slightly smaller than Figma 271px listing crop. */
+      className={`aspect-161/145 w-full bg-[#f0f0f0] object-cover object-top sm:w-60 ${className}`}
     />
   );
 }

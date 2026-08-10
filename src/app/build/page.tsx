@@ -7,7 +7,7 @@ import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { getBuildPage, getSiteSettings } from "@/sanity/fetch";
 
 // Build / Play Ground page. Content is Sanity-driven (buildPage singleton); the
-// in-code copy in lib/build.ts is the fallback used when a field is empty.
+// Content from Sanity buildPage only (empty Studio = empty UI).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getBuildPage(), getSiteSettings()]);

@@ -1,9 +1,3 @@
-import {
-  heroSegments,
-  panels,
-  type HeroSegment,
-  type SectionId,
-} from "@/lib/content";
 import { proseRuns } from "@/lib/sanityProse";
 import type { SanityHomePage } from "@/sanity/types";
 
@@ -17,27 +11,13 @@ export interface HomeContentData {
   storyHref: string;
 }
 
-/** Resolve in-code hero segments (SectionId keywords) to href-bearing segments. */
-export function defaultHomeSegments(): HomeHeroSegment[] {
-  return heroSegments.map((s: HeroSegment): HomeHeroSegment => {
-    if (s.type === "keyword") {
-      return {
-        type: "keyword",
-        href: panels[s.id as SectionId]?.cta.href ?? "/",
-        text: s.text,
-      };
-    }
-    if (s.type === "story") return { type: "story", text: s.text, href: "/about" };
-    return { type: "text", text: s.text };
-  });
-}
-
+/** Sanity Home page only — no in-code seed fallback. */
 export function homeFromSanity(
   data: SanityHomePage | null | undefined,
 ): HomeContentData {
   const storyHref = data?.storyHref?.trim() || "/about";
   if (!data?.hero?.length) {
-    return { segments: defaultHomeSegments(), storyHref };
+    return { segments: [], storyHref };
   }
 
   const segments: HomeHeroSegment[] = [];
@@ -56,8 +36,5 @@ export function homeFromSanity(
     }
   }
 
-  return {
-    segments: segments.length ? segments : defaultHomeSegments(),
-    storyHref,
-  };
+  return { segments, storyHref };
 }

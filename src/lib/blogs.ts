@@ -1,14 +1,24 @@
 // Blogs & Media content model (Figma 318-5704 / 308-4566 + modals 16-570 /
 // 504-16389). Two tabs: ".blog" (a centered list of writing, grouped by column)
 // and ".media" (a grid of talks / podcasts / interviews). Both open a paged
-// modal. This in-code data is the fallback used when the Sanity `blogsPage`
-// singleton (or a field) is empty — see lib/blogsFromSanity.ts.
+// modal. Seed shapes + migrate-script data only; runtime UI reads Sanity via
+// blogsFromSanity (empty Studio = empty UI).
+
+// Inline run inside a text block (from Sanity Portable Text marks).
+export type BlogInline = {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  href?: string;
+};
 
 // A block in the full article body rendered inside the (scrollable) modal.
 // For `img`, `text` holds the image src (a /blog/… path or a Sanity URL).
+// `parts` carries bold/italic/link spans when present; otherwise use `text`.
 export type BlogBlock = {
   kind: "h2" | "h3" | "p" | "li" | "img";
   text: string;
+  parts?: BlogInline[];
 };
 
 export type BlogPost = {

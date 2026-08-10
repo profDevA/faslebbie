@@ -5,7 +5,8 @@
   --color-bg: #e5e5de;
   --color-accent: #ea2c2c;
   --color-panel: #ebebe4;
-  --color-pill: rgba(0, 0, 0, 0.1);
+  /* Solid gray ≈ former rgba(0,0,0,0.1) on page #e5e5de (no transparency). */
+  --color-pill: #cecec8;
   --color-close: #f5f4ec;
   --color-hairline: #c8c8c8;
 

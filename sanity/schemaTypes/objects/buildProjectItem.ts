@@ -46,7 +46,23 @@ export const buildProjectItem = defineType({
     }),
     defineField({ name: "tint", title: "Placeholder tint", type: "string", group: "card" }),
     defineField({ name: "lightArt", title: "Light placeholder (dark label)", type: "boolean", group: "card" }),
-    defineField({ name: "blurb", title: "Card blurb", type: "text", rows: 2, group: "card" }),
+    defineField({
+      name: "blurb",
+      title: "Card blurb",
+      type: "text",
+      rows: 2,
+      description: "Short line under the tech stack on the .img card.",
+      group: "card",
+    }),
+    defineField({
+      name: "images",
+      title: "Images",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+      description:
+        "First image = .img card cover + modal concept art. Extra images appear in the modal body (2nd under How it Works).",
+      group: "card",
+    }),
     defineField({ name: "kicker", title: "Modal kicker", type: "string", initialValue: "Design · 5 Min Read", group: "modal" }),
     defineField({ name: "subtitle", title: "Modal subtitle", type: "text", rows: 2, group: "modal" }),
     defineField({ name: "description", title: "Description", type: "text", rows: 4, group: "modal" }),
@@ -66,13 +82,8 @@ export const buildProjectItem = defineType({
       options: { layout: "tags" },
       group: "modal",
     }),
-    defineField({
-      name: "images",
-      title: "Images",
-      type: "array",
-      of: [{ type: "image", options: { hotspot: true } }],
-      group: "modal",
-    }),
   ],
-  preview: { select: { title: "title", subtitle: "subtitle" } },
+  preview: {
+    select: { title: "title", subtitle: "blurb", media: "images.0" },
+  },
 });

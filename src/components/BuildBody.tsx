@@ -7,7 +7,6 @@ import BuildGallery from "@/components/BuildGallery";
 import BuildProjectModal from "@/components/BuildProjectModal";
 import BuildWatermark from "@/components/BuildWatermark";
 import ViewToggle from "@/components/ViewToggle";
-import { buildIntro, buildProjects as fallbackProjects } from "@/lib/build";
 import type { BuildContentData } from "@/lib/buildFromSanity";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, portraitDrift, revealBlur, revealOpacity } from "@/lib/reveal";
@@ -18,20 +17,16 @@ type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
 
 /**
- * Build / Play Ground page (Figma 16-2956 / 16-3007 / 16-2783) — same ".txt" /
- * ".img" architecture as Work + Leadership. ".txt" is the pinned reveal (the
- * "Build/Play Ground" watermark starts in front, the portrait + prose brighten
- * forward) with red project links; ".img" is a masonry of project cards. Both
- * the prose links and the cards open the paged project modal. Mobile: no
- * watermark / pin / reveal — content sits settled.
+ * Build / Play Ground page (Figma 16-2956 / 16-3007 / 16-2783).
+ * Content from Sanity only — no in-code seed fallback.
  */
 export default function BuildBody({
   content,
 }: {
-  content?: BuildContentData;
-} = {}) {
-  const intro = content?.intro ?? buildIntro;
-  const buildProjects = content?.projects ?? fallbackProjects;
+  content: BuildContentData;
+}) {
+  const intro = content.intro;
+  const buildProjects = content.projects;
 
   const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -69,8 +64,11 @@ export default function BuildBody({
             >
               {viewToggle}
             </div>
-            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
-              <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
+            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 py-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:py-16">
+              {/* Figma 16:3407 — portrait centered above prose on mobile. */}
+              <div
+                className={`flex flex-col items-center lg:sticky lg:items-stretch lg:self-start ${PORTRAIT_STICKY_TOP}`}
+              >
                 <h1 className="sr-only">Build/Play Ground</h1>
                 <PagePortrait
                   style={{ transform: portraitDrift(r) }}
@@ -85,7 +83,7 @@ export default function BuildBody({
                   transform: contentDrift(r),
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="relative z-10 mt-12 will-change-[opacity,filter,transform] lg:mt-0"
+                className="relative z-10 mt-4 will-change-[opacity,filter,transform] lg:mt-0"
               >
                 <BuildContent
                   className="pb-24"

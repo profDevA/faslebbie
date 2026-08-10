@@ -10,15 +10,8 @@ import { loadTestimonials } from "@/lib/testimonials";
 
 const logoSvgs = getAboutLogoSvgs();
 
-// About page (Figma 807:19122 / 19414) — on desktop the heading is the big
-// "About Me" watermark behind the content, which starts on top and recedes as
-// the dimmed bio (left portrait + prose) brightens forward on scroll. Mobile
-// keeps a small left-aligned heading. Dark nav matches the new design.
-//
-// The bio and the testimonials both come from Sanity; if the dataset is empty
-// (or unreachable) each falls back to the in-code copy so the page never
-// breaks. The brand logos stay on disk — they're inlined as SVG markup for the
-// hover-wobble, which an <img> can't do.
+// About page — bio / links / testimonials from Sanity only.
+// Brand logos stay on disk (inlined SVG for hover-wobble).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [about, site] = await Promise.all([getAboutPage(), getSiteSettings()]);
@@ -31,12 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  let content = aboutFromSanity(null);
-  try {
-    content = aboutFromSanity(await getAboutPage());
-  } catch {
-    // keep the in-code fallback
-  }
+  const content = aboutFromSanity(await getAboutPage());
 
   return (
     <>

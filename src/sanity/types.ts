@@ -182,6 +182,8 @@ export interface StudyCard {
   tags?: string[];
   accent?: SanityColor;
   span?: "sm" | "md" | "lg";
+  /** When true, Work opens the access password gate first (Fas 08/09). */
+  passwordProtected?: boolean;
 }
 
 export interface SanityPageSeo {
@@ -389,6 +391,10 @@ export interface SanityAboutExpansion {
 export interface SanityAboutLink {
   label?: string;
   href?: string;
+  /** CDN URL when a PDF was uploaded on the About link (CV / Resume). */
+  pdfUrl?: string | null;
+  /** When true, About opens the access password gate before the link. */
+  passwordProtected?: boolean;
 }
 
 export interface SanityAboutPage {

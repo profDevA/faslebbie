@@ -7,13 +7,10 @@ import {
   expandPillClass,
   onActivateKey,
 } from "@/components/InlineToken";
-import {
-  researchAreas,
-  researchClosing,
-  researchExpansions,
-  type ResearchArea,
-  type ResearchSectionId,
-  type ResearchToken,
+import type {
+  ResearchArea,
+  ResearchSectionId,
+  ResearchToken,
 } from "@/lib/research";
 
 // Reveal-narrative keyword — the shared grey pill (see InlineToken).
@@ -62,7 +59,7 @@ function Tokens({
         if (tok.t === "text") return <Fragment key={key}>{tok.text}</Fragment>;
         if (tok.t === "hl") {
           const open = openKey === tok.text;
-          const expansion = tok.expansion ?? researchExpansions[tok.text];
+          const expansion = tok.expansion;
           const hasExpand = Boolean(tok.expand?.length) || Boolean(expansion);
           return (
             <Fragment key={key}>
@@ -129,13 +126,14 @@ function Tokens({
 export default function ResearchContent({
   className = "",
   onOpen,
-  areas = researchAreas,
-  closing = researchClosing,
+  areas,
+  closing,
 }: {
   className?: string;
   onOpen: (id: ResearchSectionId) => void;
-  areas?: ResearchArea[];
-  closing?: ResearchToken[];
+  /** From Sanity only — empty arrays render an empty page body. */
+  areas: ResearchArea[];
+  closing: ResearchToken[];
 }) {
   // One grey expansion open at a time (About-style). Click-outside / Escape
   // closes it.

@@ -36,13 +36,15 @@ export const mediaEntry = defineType({
       title: "Thumbnail",
       type: "image",
       options: { hotspot: true },
-      description: "Optional card preview image (else a play placeholder).",
+      description:
+        "Square card image for the .media grid. Without this the card is an empty play tile.",
     }),
     defineField({
       name: "video",
       title: "Embed URL",
       type: "url",
-      description: "Optional YouTube/Vimeo/Spotify embed URL for the modal.",
+      description:
+        "YouTube / Vimeo / Spotify URL for the modal player. Without this the modal shows a black play placeholder.",
     }),
     defineField({ name: "source", title: "Source", type: "string", description: 'e.g. "The Design Leadership Podcast".' }),
     defineField({ name: "detail", title: "Detail line", type: "string", description: 'e.g. "Spotify • Episode 32 • 2024".' }),
@@ -55,5 +57,5 @@ export const mediaEntry = defineType({
       options: { layout: "tags" },
     }),
   ],
-  preview: { select: { title: "title", subtitle: "format" } },
+  preview: { select: { title: "title", subtitle: "format", media: "thumb" } },
 });

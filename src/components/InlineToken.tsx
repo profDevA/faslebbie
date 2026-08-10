@@ -191,6 +191,14 @@ export function PopupTrigger({
   );
 }
 
+function normalizeHref(href: string) {
+  const t = href.trim();
+  // Bare email addresses from Studio should still open the mail client.
+  if (t && !/^[a-z][a-z0-9+.-]*:/i.test(t) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t))
+    return `mailto:${t}`;
+  return t;
+}
+
 export function ExternalTextLink({
   href,
   children,
@@ -200,14 +208,25 @@ export function ExternalTextLink({
   children: ReactNode;
   className?: string;
 }) {
-  const sameTab = href.startsWith("mailto:");
+  const resolved = normalizeHref(href);
+  const sameTab =
+    resolved.startsWith("mailto:") || resolved.startsWith("tel:");
   return (
     <a
-      href={href}
+      href={resolved}
       target={sameTab ? undefined : "_blank"}
       rel={sameTab ? undefined : "noopener noreferrer"}
       data-cursor="hover"
       className={`${EXTERNAL_LINK} ${className}`}
+      onClick={
+        sameTab
+          ? (e) => {
+              // Some environments ignore plain mailto <a> clicks; force navigate.
+              e.preventDefault();
+              window.location.href = resolved;
+            }
+          : undefined
+      }
     >
       <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
         {children}

@@ -32,6 +32,15 @@ export const caseStudy = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "passwordProtected",
+      title: "Password protected",
+      type: "boolean",
+      group: "content",
+      initialValue: false,
+      description:
+        "When on, visitors must enter the Site Settings → Access password before opening this case study (for NDA work).",
+    }),
+    defineField({
       name: "sections",
       title: "Sections",
       type: "array",

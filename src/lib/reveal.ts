@@ -38,6 +38,15 @@ export const PIN_VH = REVEAL_VH;
 export const START_OPACITY = 0.32;
 export const START_BLUR = 2; // px
 
+// Receded wordmark / watermark opacity once the content is in front.
+// Fas 08/09 recording: “make it more 20% so it’s not so intense” (was ~30%).
+export const WORDMARK_RECEDED_OPACITY = 0.2;
+
+/** Opacity of the big page wordmark as fade goes 0 (front) → 1 (receded). */
+export function wordmarkOpacity(fade: number) {
+  return 1 - fade * (1 - WORDMARK_RECEDED_OPACITY);
+}
+
 // Subtle drift magnitudes in px. Kept small on purpose. No scale, no sideways
 // motion (Israel 06/25) — only the content rises a touch as it clarifies.
 const DRIFT = {

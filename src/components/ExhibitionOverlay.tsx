@@ -1,23 +1,16 @@
 "use client";
 
 import PopupShell from "@/components/PopupShell";
-import {
-  exhibitionTiles as fallbackTiles,
-  exhibitionTitle as fallbackTitle,
-  type ExhibitionTile,
-} from "@/lib/teaching";
+import type { ExhibitionTile } from "@/lib/teaching";
 
-// SFK Beijing Exhibition overlay (Figma 280-4632 / live faslebbie.com/
-// sfk-beijeing-exhibition) — opened from the ".txt" "Explore my student
-// exhibitions" link and the ".img" exhibition grid. A scattered photo collage
-// (desktop) around the centred serif title + a "View Student Works" button that
-// jumps into the student grid. Mobile: title on top, then a simple grid.
+// SFK Beijing Exhibition overlay (Figma 280-4632) — opened from the ".txt"
+// "Explore my student exhibitions" CTA. Tiles come from Sanity only.
 export default function ExhibitionOverlay({
   open,
   onClose,
   onViewStudents,
-  title = fallbackTitle,
-  tiles = fallbackTiles,
+  title = "",
+  tiles = [],
 }: {
   open: boolean;
   onClose: () => void;

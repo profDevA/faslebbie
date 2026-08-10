@@ -7,7 +7,7 @@ import LeadershipGallery from "@/components/LeadershipGallery";
 import LeadershipMomentPopup from "@/components/LeadershipMomentPopup";
 import LeadershipWatermark from "@/components/LeadershipWatermark";
 import ViewToggle from "@/components/ViewToggle";
-import { leadershipGallery, type Testimonial } from "@/lib/content";
+import type { Testimonial } from "@/lib/content";
 import type { LeadershipContentData } from "@/lib/leadershipFromSanity";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
@@ -23,21 +23,16 @@ type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
 
 /**
- * Holistic Leadership page (Figma 1-44995 / 1-45057 / 1-45118) — same ".txt" /
- * ".img" architecture as Work. ".txt" is the pinned reveal (the "Leadership"
- * watermark starts in front, the portrait + prose brighten forward), with a red
- * "Explore my leadership moments" link that flips to ".img": a masonry of moment
- * cards that each open the unified image / name / role / testimonial popup.
- * Mobile: no watermark / pin / reveal — content sits settled.
+ * Holistic Leadership page — content from Sanity only.
  */
 export default function LeadershipBody({
   content,
   testimonials = [],
 }: {
-  content?: LeadershipContentData;
+  content: LeadershipContentData;
   testimonials?: Testimonial[];
-} = {}) {
-  const moments = content?.moments ?? leadershipGallery;
+}) {
+  const moments = content.moments;
 
   const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -105,13 +100,13 @@ export default function LeadershipBody({
               >
                 <LeadershipContent
                   className="pb-24"
-                  intro={content?.intro}
-                  lead={content?.lead}
-                  closing={content?.closing}
-                  expansions={content?.expansions}
-                  momentsHeading={content?.momentsHeading}
-                  exploreText={content?.exploreText}
-                  contactText={content?.contactText}
+                  intro={content.intro}
+                  lead={content.lead}
+                  closing={content.closing}
+                  expansions={content.expansions}
+                  momentsHeading={content.momentsHeading}
+                  exploreText={content.exploreText}
+                  contactText={content.contactText}
                   testimonials={testimonials}
                   onExplore={() => switchView("img")}
                 />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
@@ -52,7 +52,7 @@ export default function AboutWatermark() {
 
   const color = mix(fade);
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
-  const opacity = 1 - fade * 0.7;
+  const opacity = wordmarkOpacity(fade);
   // Mobile: always behind (QA — do not pin "About Me" at the top). Desktop
   // keeps the front→back reveal z swap.
   const desktopFront = fade < 0.5;

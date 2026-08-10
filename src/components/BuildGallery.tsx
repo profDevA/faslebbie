@@ -2,14 +2,8 @@
 
 import type { BuildProject } from "@/lib/build";
 
-// ".img" masonry of build cards (Figma 16-2783 / 16-3446). Real project image
-// at natural aspect (same as Work wall); tinted title placeholder when missing.
-const PLACEHOLDER_H: Record<BuildProject["span"], string> = {
-  sm: "h-[180px]",
-  md: "h-[220px]",
-  lg: "h-[280px]",
-};
-
+// ".img" grid of build cards (Figma 16:2783 / 16:3446). Desktop: 4 equal
+// columns, fixed ~420px portrait covers; title underlined + tech + blurb.
 export default function BuildGallery({
   items,
   onOpen,
@@ -18,8 +12,9 @@ export default function BuildGallery({
   onOpen: (id: string) => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1350px] px-6 lg:px-12">
-      <div className="columns-2 gap-4 [column-fill:balance] lg:columns-4 lg:gap-6 *:mb-6 *:break-inside-avoid lg:*:mb-9">
+    <div className="mx-auto w-full max-w-[1350px] px-3 sm:px-6 lg:px-12">
+      {/* Figma 16:3446 mobile = 2 cols; 16:2783 desktop = 4 cols. */}
+      <div className="grid grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-20">
         {items.map((item) => {
           const cover = item.images?.[0];
           return (
@@ -35,15 +30,15 @@ export default function BuildGallery({
                 <img
                   src={cover}
                   alt={item.title}
-                  className="h-auto w-full bg-[#f0f0f0] transition-opacity group-hover:opacity-90"
+                  className="aspect-3/4 w-full object-cover bg-[#f0f0f0] transition-opacity group-hover:opacity-90 lg:aspect-auto lg:h-[420px]"
                 />
               ) : (
                 <div
                   style={{ backgroundColor: item.tint }}
-                  className={`relative flex w-full items-center justify-center overflow-hidden ${PLACEHOLDER_H[item.span]} transition-opacity group-hover:opacity-90`}
+                  className="relative flex aspect-3/4 w-full items-center justify-center overflow-hidden transition-opacity group-hover:opacity-90 lg:aspect-auto lg:h-[420px]"
                 >
                   <span
-                    className={`px-4 text-center font-logo text-[clamp(22px,2.4vw,34px)] font-semibold tracking-tight ${
+                    className={`px-3 text-center font-logo text-[clamp(16px,4vw,34px)] font-semibold tracking-tight ${
                       item.lightArt ? "text-black/20" : "text-white/90"
                     }`}
                   >
@@ -51,15 +46,15 @@ export default function BuildGallery({
                   </span>
                 </div>
               )}
-              <p className="mt-3 w-fit border-b border-black pb-1 font-grotesk text-[16px] font-medium leading-tight text-black transition-colors group-hover:text-accent">
+              {/* Figma 16:2783 — 10px under cover, 15px between title / tech+blurb.
+                  Spans (not <p>) — <button> cannot contain paragraphs. */}
+              <span className="mt-2.5 block font-grotesk text-[14px] font-medium capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
                 {item.title}
-              </p>
-              <p className="mt-2 font-grotesk text-[13px] font-medium tracking-wide text-black/70">
-                {item.tech.join(" · ")}
-              </p>
-              <p className="mt-1 font-grotesk text-[13px] leading-[1.55] text-black/55">
-                {item.blurb}
-              </p>
+              </span>
+              <span className="mt-3.5 block font-grotesk text-[12px] font-light leading-[1.35] tracking-[0.9px] text-black sm:text-[13px] sm:tracking-[1.65px] lg:text-[18px]">
+                <span className="block">{item.tech.join(" · ")}</span>
+                {item.blurb ? <span className="block">{item.blurb}</span> : null}
+              </span>
             </button>
           );
         })}

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
+import { wordmarkOpacity } from "@/lib/reveal";
 
 /**
  * Mobile page heading that RECEDES on scroll: it sits sharp/near-black at the
@@ -53,7 +54,7 @@ export default function MobileRecedeHeading({
 
   return (
     <h1
-      style={{ color: mix(fade), opacity: 1 - fade * 0.7 }}
+      style={{ color: mix(fade), opacity: wordmarkOpacity(fade) }}
       className={`will-change-[color,opacity] lg:hidden ${className}`}
     >
       {children}

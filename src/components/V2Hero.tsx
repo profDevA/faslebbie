@@ -12,6 +12,7 @@ import {
   START_BLUR,
   START_OPACITY,
   ramp,
+  wordmarkOpacity,
 } from "@/lib/reveal";
 
 // Returning to Home from another page must NOT replay the intro (Fas 07/21).
@@ -114,7 +115,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
 
   const nameColor = mix(fade);
   const nameShadow = `0 0 1.5px ${nameColor}`;
-  const nameOpacity = 1 - fade * 0.7;
+  const nameOpacity = wordmarkOpacity(fade);
   const nameZ = fade < 0.5 ? 30 : -10;
 
   // Portrait + bio both brighten as you scroll (wordmark recedes the other way).
@@ -175,7 +176,8 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
             height={1000}
             priority
             style={{ opacity: portraitOpacity }}
-            className="aspect-161/145 h-36.25 w-40.25 shrink-0 bg-[#f0f0f0] object-cover object-top will-change-[opacity]"
+            /* Same display size as listing PagePortrait (240px / sm:w-60). */
+            className="aspect-161/145 w-40.25 shrink-0 bg-[#f0f0f0] object-cover object-top will-change-[opacity] sm:w-60"
           />
           <div
             style={{
@@ -188,7 +190,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
             <HeroParagraph
               className="max-w-272 text-center leading-[1.35] tracking-[1.65px] text-shadow-token"
               storyHref={content?.storyHref ?? "/about"}
-              segments={content?.segments}
+              segments={content?.segments ?? []}
             />
           </div>
         </div>

@@ -17,6 +17,9 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import { usePersistedView } from "@/hooks/usePersistedView";
+import { useAccessGate } from "@/hooks/useAccessGate";
+import PasswordGate from "@/components/PasswordGate";
+import ToolStack from "@/components/ToolStack";
 import ViewToggle from "@/components/ViewToggle";
 import WorkWatermark from "@/components/WorkWatermark";
 
@@ -274,8 +277,18 @@ export default function WorkBody({
     return () => io.disconnect();
   }, [view, filter, visible]);
 
+  // Soft password gate for NDA studies (Fas 08/09). One unlock lasts the tab.
+  const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate();
+
   // Open the case study as an in-page popup (no navigation).
-  const openProject = (slug: string) => setOpenSlug(slug);
+  const openProject = (slug: string) => {
+    const study = projects.find((p) => p.slug === slug);
+    if (study?.passwordProtected) {
+      requestAccess(() => setOpenSlug(slug));
+      return;
+    }
+    setOpenSlug(slug);
+  };
 
   // --- token renderer for the .txt narrative ---
   const renderToken = (tok: WorkToken, key: string) => {
@@ -337,17 +350,36 @@ export default function WorkBody({
               </div>
             )}
             <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+              {/* Portrait column width = photo width so Stack wraps under it
+                  (Figma 1:9885), not across the page over the watermark. */}
               <div
-                className={`flex flex-col gap-6 lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
+                className={`relative z-10 flex w-full flex-col gap-5 sm:w-60 lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
               >
-                {/* Mobile: no foreground "Design Work" heading — the wordmark +
-                    Stack live in WorkWatermark behind the portrait (Figma
-                    1:44550 / Fas 07/30), same as desktop. */}
                 <h1 className="sr-only">Design Work</h1>
                 <PagePortrait
                   style={{ opacity, filter: blur, transform: portraitDrift(r) }}
-                  className="relative z-10 will-change-[opacity,filter,transform]"
+                  className="relative z-10 !w-full will-change-[opacity,filter,transform]"
                 />
+                {/* Figma 1:9885 / 1344:40761 — Stack under portrait, same width,
+                    label beside a 2-row icon column (not across the page). */}
+                <div
+                  style={{
+                    opacity,
+                    filter: blur,
+                    pointerEvents: r < 0.7 ? "none" : undefined,
+                  }}
+                  className="relative z-10 flex w-full items-center gap-[18px] text-black will-change-[opacity,filter]"
+                >
+                  <span className="shrink-0 font-grotesk text-[14px] font-medium tracking-[0.06em]">
+                    Stack:
+                  </span>
+                  <ToolStack
+                    scale={0.53}
+                    perRow={7}
+                    className="flex min-w-0 flex-col items-start gap-[14px]"
+                    iconGapClassName="gap-4"
+                  />
+                </div>
               </div>
 
               <div
@@ -360,7 +392,7 @@ export default function WorkBody({
                   // fully settle — so links like "Coral Health" work a touch early.
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="relative z-10 mt-40 will-change-[opacity,filter,transform] lg:mt-0"
+                className="relative z-10 mt-8 will-change-[opacity,filter,transform] lg:mt-0"
               >
                 <section className="pb-24 font-grotesk text-[26px] font-medium leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[42px]">
                   {narrative.map((para, i) => (
@@ -511,10 +543,17 @@ export default function WorkBody({
               next={found.next}
               variant="overlay"
               onClose={() => setOpenSlug(null)}
-              onNavigate={(slug) => setOpenSlug(slug)}
+              onNavigate={openProject}
             />
           );
         })()}
+
+      <PasswordGate
+        open={gateOpen}
+        message="This case study is password protected. To view it, please enter the password below."
+        onClose={closeGate}
+        onSuccess={onGateSuccess}
+      />
     </div>
   );
 }

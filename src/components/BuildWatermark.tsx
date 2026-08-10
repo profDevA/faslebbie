@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
@@ -58,7 +58,7 @@ export default function BuildWatermark({
   const effFade = receded ? 1 : fade;
   const color = mix(effFade);
   const shadow = `-0.27vw 0.36vw 0.4vw rgba(177, 175, 172, ${(1 - effFade).toFixed(3)})`;
-  const opacity = 1 - effFade * 0.7;
+  const opacity = wordmarkOpacity(effFade);
   const z = effFade < 0.5 ? 30 : -10;
 
   return (

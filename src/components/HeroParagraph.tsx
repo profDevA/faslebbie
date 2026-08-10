@@ -3,10 +3,7 @@
 import { useMemo } from "react";
 
 import { NavPill } from "@/components/InlineToken";
-import {
-  defaultHomeSegments,
-  type HomeHeroSegment,
-} from "@/lib/homeFromSanity";
+import type { HomeHeroSegment } from "@/lib/homeFromSanity";
 
 type Token =
   | { kind: "word"; text: string }
@@ -59,11 +56,11 @@ export default function HeroParagraph({
   className?: string;
   /** Where "And there's more to my story+." links when a mark has no href. */
   storyHref?: string;
-  /** Sanity-driven segments; falls back to in-code home copy. */
-  segments?: HomeHeroSegment[];
+  /** Sanity-driven segments only (empty Studio = empty paragraph). */
+  segments: HomeHeroSegment[];
 }) {
   const tokens = useMemo(
-    () => tokenize(segments ?? defaultHomeSegments(), storyHref),
+    () => tokenize(segments, storyHref),
     [segments, storyHref],
   );
 

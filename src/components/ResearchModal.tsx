@@ -8,7 +8,6 @@ import PopupShell, {
 import {
   researchBreadcrumbRoot,
   researchSectionLabel,
-  researchSections,
   type FieldNotesContent,
   type ManifestoContent,
   type ModalitiesContent,
@@ -406,11 +405,11 @@ function SectionView({
 export default function ResearchModal({
   openId,
   onClose,
-  sections = researchSections,
+  sections = {},
 }: {
   openId: ResearchSectionId | null;
   onClose: () => void;
-  sections?: Record<ResearchSectionId, ResearchSectionContent>;
+  sections?: Partial<Record<ResearchSectionId, ResearchSectionContent>>;
 }) {
   // Which field note is showing. Only Field Notes pages (Fas 07/30) — every
   // other section opens as standalone content with no pager at all.
@@ -420,6 +419,7 @@ export default function ResearchModal({
   if (!openId) return null;
 
   const content = sections[openId];
+  if (!content) return null;
   const isFieldNotes = content.kind === "field-notes";
   const notes = isFieldNotes ? content.notes : [];
   const goNote = (d: 1 | -1) =>

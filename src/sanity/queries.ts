@@ -86,7 +86,8 @@ const cardProj = `
   "creditNames": cardCreditNames,
   "tags": cardTags,
   accent,
-  span
+  span,
+  passwordProtected
 `;
 
 const seoProj = `seo{
@@ -199,9 +200,14 @@ export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
     keyword,
     "body": body[]${aboutProseProj}
   },
-  links[]{ label, href },
+  links[]{ label, href, passwordProtected, "pdfUrl": pdf.asset->url },
   ${seoProj}
 }`);
+
+// Server-only — never project `accessPassword` into client page props.
+export const ACCESS_PASSWORD_QUERY = defineQuery(
+  `*[_type == "siteSettings"][0]{ accessPassword }`,
+);
 
 // "What people are saying" testimonials, ordered — powers the About modal.
 export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order(orderRank asc){

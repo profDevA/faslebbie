@@ -8,7 +8,6 @@ import TeachingWatermark from "@/components/TeachingWatermark";
 import ViewToggle from "@/components/ViewToggle";
 import StudentModal from "@/components/StudentModal";
 import ExhibitionOverlay from "@/components/ExhibitionOverlay";
-import { students as fallbackStudents, teachingIntro, teachingSections } from "@/lib/teaching";
 import type { TeachingContentData } from "@/lib/teachingFromSanity";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
@@ -24,25 +23,17 @@ type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
 
 /**
- * Teaching / Pedagogy page (Figma 16-19731 / 16-22597 / 16-19360) — same
- * ".txt" / ".img" architecture as Work / Leadership / Build. ".txt" is the
- * pinned reveal (the "Teaching" watermark starts in front, portrait + prose
- * brighten forward) with red student links + two actions: "See all student
- * works" (→ ".img") and "Explore my student exhibitions" (→ the SFK Beijing
- * overlay). ".img" is a Student Works masonry + an SFK Exhibition masonry.
- * Student links / cards open the paged student modal. Mobile: no watermark /
- * pin / reveal — content sits settled.
+ * Teaching / Pedagogy page (Figma 16-19731 / 16-22597 / 280-4434) — same
+ * ".txt" / ".img" architecture as Work / Leadership / Build. Content comes
+ * from Sanity only (no in-code seed fallback).
  */
 export default function TeachingBody({
   content,
 }: {
-  content?: TeachingContentData;
-} = {}) {
-  const intro = content?.intro ?? teachingIntro;
-  const sections = content?.sections ?? teachingSections;
-  const students = content?.students ?? fallbackStudents;
-  const exhibitionTitle = content?.exhibitionTitle;
-  const exhibitionTiles = content?.exhibitionTiles;
+  content: TeachingContentData;
+}) {
+  const { intro, sections, students, exhibitionTitle, exhibitionTiles } =
+    content;
 
   const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openStudent, setOpenStudent] = useState<string | null>(null);

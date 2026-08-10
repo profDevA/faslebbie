@@ -1,16 +1,9 @@
 "use client";
 
 import type { ExhibitionTile, StudentProject } from "@/lib/teaching";
-import {
-  exhibitionTiles as fallbackTiles,
-  exhibitionTitle as fallbackTitle,
-  students as fallbackStudents,
-} from "@/lib/teaching";
 
-// ".img" view (Figma 16-19360 / 280-4434): a "Student Works" masonry (each card
-// opens the paged student modal) followed by an "SFK Exhibition" masonry (opens
-// the SFK Beijing exhibition overlay). Placeholder tinted art until Fas supplies
-// the real photos.
+// ".img" view (Figma 280:4434 / 840:5714): Student Works masonry only.
+// Exhibitions open from the .txt CTA overlay (Figma 280:4634), not stacked here.
 /** Placeholder tiles only — real photos use natural aspect (match Work .img). */
 const PLACEHOLDER_H: Record<StudentProject["span"], string> = {
   sm: "h-[160px]",
@@ -18,52 +11,24 @@ const PLACEHOLDER_H: Record<StudentProject["span"], string> = {
   lg: "h-[280px]",
 };
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-7 font-grotesk text-[18px] font-bold tracking-[0.02em] text-black">
-      {children}
-    </h2>
-  );
-}
-
-function SeeAll({
-  text,
-  onClick,
-}: {
-  text: string;
-  onClick?: () => void;
-}) {
-  return (
-    <div className="mt-4 flex justify-center">
-      <button
-        type="button"
-        onClick={onClick}
-        data-cursor="hover"
-        className="font-grotesk text-[18px] font-bold text-black underline decoration-from-font underline-offset-4 transition-opacity hover:opacity-70"
-      >
-        {text}
-      </button>
-    </div>
-  );
-}
-
 export default function TeachingGallery({
-  students = fallbackStudents,
-  exhibitionTitle = fallbackTitle,
-  exhibitionTiles = fallbackTiles,
+  students,
   onOpenStudent,
-  onOpenExhibition,
 }: {
-  students?: StudentProject[];
+  students: StudentProject[];
+  /** Kept for call-site compatibility; exhibition lives in the .txt overlay. */
   exhibitionTitle?: string;
   exhibitionTiles?: ExhibitionTile[];
   onOpenStudent: (id: string) => void;
-  onOpenExhibition: () => void;
+  onOpenExhibition?: () => void;
 }) {
+  if (!students.length) return null;
+
   return (
     <div className="mx-auto w-full max-w-[1350px] px-6 lg:px-12">
-      {/* Student Works */}
-      <SectionHeading>Student Works</SectionHeading>
+      <h2 className="mb-7 font-grotesk text-[18px] font-bold tracking-[0.02em] text-black">
+        Student Works
+      </h2>
       <div className="columns-2 gap-4 [column-fill:balance] lg:columns-4 lg:gap-6 *:mb-6 *:break-inside-avoid lg:*:mb-9">
         {students.map((item) => {
           const cover = item.images?.[0];
@@ -103,44 +68,6 @@ export default function TeachingGallery({
           );
         })}
       </div>
-      <SeeAll
-        text="See All Student Works"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      />
-
-      <hr className="my-14 border-black/10" />
-
-      {/* SFK Exhibition */}
-      <SectionHeading>{exhibitionTitle}</SectionHeading>
-      <div className="columns-2 gap-4 [column-fill:balance] lg:columns-4 lg:gap-6 *:mb-6 *:break-inside-avoid lg:*:mb-9">
-        {exhibitionTiles.map((tile, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={onOpenExhibition}
-            data-cursor="hover"
-            className="group block w-full text-left"
-          >
-            {tile.image ? (
-              // eslint-disable-next-line @next/next/no-img-element -- exhibition art
-              <img
-                src={tile.image}
-                alt={tile.label || "Exhibition"}
-                className="h-auto w-full bg-[#f0f0f0] transition-opacity group-hover:opacity-90"
-              />
-            ) : (
-              <div
-                style={{ backgroundColor: tile.tint }}
-                className={`w-full overflow-hidden ${PLACEHOLDER_H[tile.span]} transition-opacity group-hover:opacity-90`}
-              />
-            )}
-            <p className="mt-3 font-grotesk text-[14px] font-medium text-black/70">
-              {tile.label || "Lorem Ipsum"}
-            </p>
-          </button>
-        ))}
-      </div>
-      <SeeAll text="See All" onClick={onOpenExhibition} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { PortableTextBlock } from "@portabletext/types";
 
-import { workNarrative, type WorkToken } from "@/lib/content";
+import type { WorkToken } from "@/lib/content";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
 import type { WorkPageConfig } from "@/sanity/types";
 
@@ -29,12 +29,12 @@ export function workNarrativeFromBlocks(
     .filter((p) => p.length > 0);
 }
 
+/** Sanity Work page only — no in-code narrative fallback. */
 export function workFromSanity(
   data: WorkPageConfig | null | undefined,
 ): WorkContentData {
-  const narrative = workNarrativeFromBlocks(data?.intro);
   return {
-    narrative: narrative.length ? narrative : workNarrative,
+    narrative: workNarrativeFromBlocks(data?.intro),
     sectionTitle: data?.sectionTitle,
     loadMoreLabel: data?.loadMoreLabel,
     enableTextView: data?.enableTextView !== false,

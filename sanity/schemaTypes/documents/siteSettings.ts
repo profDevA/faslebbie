@@ -9,6 +9,7 @@ export const siteSettings = defineType({
     { name: "brand", title: "Brand", default: true },
     { name: "nav", title: "Navigation" },
     { name: "contact", title: "Contact" },
+    { name: "access", title: "Access" },
     { name: "seo", title: "SEO / Share" },
   ],
   fields: [
@@ -100,6 +101,16 @@ export const siteSettings = defineType({
       type: "string",
       initialValue: "Send another",
       group: "contact",
+    }),
+
+    // --- Access (Fas 08/09: NDA case studies + CV/Resume soft gate) ---
+    defineField({
+      name: "accessPassword",
+      title: "Access password",
+      type: "string",
+      group: "access",
+      description:
+        "Shared password for any case study or About link marked password-protected. Leave empty to turn the gate off (toggles stay, but visitors won't be asked).",
     }),
 
     // --- SEO / Share (browser tab + link previews) ---

@@ -3,7 +3,6 @@
 import { Fragment } from "react";
 import { PopupTrigger } from "@/components/InlineToken";
 import type { BuildToken } from "@/lib/build";
-import { buildIntro } from "@/lib/build";
 
 function renderTokens(
   tokens: BuildToken[],
@@ -29,16 +28,16 @@ function renderTokens(
 
 export default function BuildContent({
   className = "",
-  intro = buildIntro,
+  intro,
   onOpenProject,
 }: {
   className?: string;
-  intro?: BuildToken[][];
+  intro: BuildToken[][];
   onOpenProject: (id: string) => void;
 }) {
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`font-grotesk text-[24px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {intro.map((para, i) => (
         <p key={i} className="mb-8 last:mb-0">

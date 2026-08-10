@@ -1,22 +1,19 @@
 import type { PortableTextBlock } from "@portabletext/types";
 
 import type { SanityResearchPage } from "@/sanity/types";
-import {
-  researchAreas,
-  researchClosing,
-  researchSections,
-  type ManifestoContent,
-  type ManifestoRun,
-  type ResearchArea,
-  type ResearchSectionContent,
-  type ResearchSectionId,
-  type ResearchToken,
+import type {
+  ManifestoContent,
+  ManifestoRun,
+  ResearchArea,
+  ResearchSectionContent,
+  ResearchSectionId,
+  ResearchToken,
 } from "@/lib/research";
 
 export interface ResearchContentData {
   areas: ResearchArea[];
   closing: ResearchToken[];
-  sections: Record<ResearchSectionId, ResearchSectionContent>;
+  sections: Partial<Record<ResearchSectionId, ResearchSectionContent>>;
 }
 
 const padN = (i: number) => String(i + 1).padStart(2, "0");
@@ -29,14 +26,11 @@ interface Span {
 interface MarkDef {
   _key?: string;
   _type?: string;
-  /** Plain string (legacy) or nested Portable Text reveal. */
   expansion?: string | PortableTextBlock[];
   section?: ResearchSectionId;
   href?: string;
 }
 
-// Flatten Portable Text blocks into the hero prose token stream. Each span's
-// active annotation (found in the block's markDefs) decides the token kind.
 function blocksToTokens(blocks?: PortableTextBlock[]): ResearchToken[] {
   if (!blocks?.length) return [];
   const tokens: ResearchToken[] = [];
@@ -76,7 +70,6 @@ function blocksToTokens(blocks?: PortableTextBlock[]): ResearchToken[] {
   return tokens;
 }
 
-// Manifesto: one paragraph per block, bold runs flagged via the `strong` mark.
 function blocksToManifesto(blocks?: PortableTextBlock[]): ManifestoRun[][] {
   if (!blocks?.length) return [];
   return blocks
@@ -92,30 +85,22 @@ function blocksToManifesto(blocks?: PortableTextBlock[]): ManifestoRun[][] {
     .filter((p) => p.length > 0);
 }
 
-// Merge Sanity content over the in-code defaults so a missing document (or a
-// missing field) never blanks the page.
+/** Sanity Research page only — no in-code seed fallback. */
 export function researchFromSanity(
   data: SanityResearchPage | null | undefined,
 ): ResearchContentData {
-  const defaults: ResearchContentData = {
-    areas: researchAreas,
-    closing: researchClosing,
-    sections: researchSections,
-  };
-  if (!data) return defaults;
+  if (!data) return { areas: [], closing: [], sections: {} };
 
-  const areas: ResearchArea[] = data.areas?.length
-    ? data.areas.map((a) => ({
-        kicker: a.kicker ?? "",
-        body: blocksToTokens(a.body),
-      })).filter((a) => a.body.length > 0)
-    : [];
-  const resolvedAreas = areas.length ? areas : defaults.areas;
+  const areas: ResearchArea[] = (data.areas ?? [])
+    .map((a) => ({
+      kicker: a.kicker ?? "",
+      body: blocksToTokens(a.body),
+    }))
+    .filter((a) => a.body.length > 0);
 
-  const closingTokens = blocksToTokens(data.closing);
-  const closing = closingTokens.length ? closingTokens : defaults.closing;
-
-  const sections = { ...defaults.sections };
+  const closing = blocksToTokens(data.closing);
+  const sections: Partial<Record<ResearchSectionId, ResearchSectionContent>> =
+    {};
 
   if (data.paradigms?.items?.length) {
     sections.paradigms = {
@@ -184,5 +169,5 @@ export function researchFromSanity(
     };
   }
 
-  return { areas: resolvedAreas, closing, sections };
+  return { areas, closing, sections };
 }

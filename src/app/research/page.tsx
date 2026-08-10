@@ -13,7 +13,7 @@ import { getResearchPage, getSiteSettings } from "@/sanity/fetch";
 // (paradigms / principles / modalities / manifesto / field notes).
 //
 // Content is Sanity-driven (researchPage singleton); the in-code copy in
-// lib/research.ts is the fallback used when the document/field is empty.
+// Content from Sanity researchPage only (empty Studio = empty UI).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([

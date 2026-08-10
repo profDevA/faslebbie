@@ -10,12 +10,6 @@ import {
 import TestimonialsFooterLink from '@/components/TestimonialsFooterLink'
 import { openContactDrawer } from '@/lib/contactDrawer'
 import type { AboutToken, Testimonial } from '@/lib/content'
-import {
-  leadershipClosing,
-  leadershipExpansions,
-  leadershipIntro,
-  leadershipLead,
-} from '@/lib/content'
 
 // Gray keyword pill (Figma 354:747) — click to expand a short continuation
 // inline (like About/Research). Inverts to a black pill while open, and on
@@ -83,13 +77,13 @@ function renderProse(
 // expand inline on click.
 export default function LeadershipContent({
   className = '',
-  intro = leadershipIntro,
-  lead = leadershipLead,
-  closing = leadershipClosing,
-  expansions = leadershipExpansions,
-  momentsHeading = 'My leadership moments',
-  exploreText = 'Explore my leadership moments',
-  contactText = 'Get in touch',
+  intro = [],
+  lead = [],
+  closing = [],
+  expansions = {},
+  momentsHeading = '',
+  exploreText = '',
+  contactText = '',
   onExplore,
   testimonials = [],
 }: {

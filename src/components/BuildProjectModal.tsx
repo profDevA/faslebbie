@@ -102,7 +102,8 @@ export default function BuildProjectModal({
 }) {
   const [mounted, setMounted] = useState(false);
   const [showConcept, setShowConcept] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const shellScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
   // Mirror `showConcept` in a ref so the keydown handler reads the latest value
   // without re-subscribing on every toggle (and without calling the parent's
   // close from inside a state updater — which triggers a setState-in-render).
@@ -126,7 +127,8 @@ export default function BuildProjectModal({
   // Reset the concept overlay + scroll position whenever the project changes.
   useEffect(() => {
     setShowConcept(false);
-    scrollRef.current?.scrollTo({ top: 0 });
+    if (shellScrollRef.current) shellScrollRef.current.scrollTop = 0;
+    if (rightScrollRef.current) rightScrollRef.current.scrollTop = 0;
   }, [openId]);
 
   // Arrows page between projects. (Escape / scroll lock live in the shared
@@ -150,12 +152,16 @@ export default function BuildProjectModal({
       <ConceptPreview project={project} onClose={() => setShowConcept(false)} />
     );
 
+  // Figma 16:3059 desktop / mobile stack like 16:997. Shared PopupShell.
+  // Desktop: left media sticky, right (meta + article) scrolls.
+  // Mobile: meta → media → article (single body scroll).
   return (
     <PopupShell
       onClose={onClose}
       label={project.title}
-      bodyRef={scrollRef}
       crumbs={[{ label: "Build", hideOnMobile: true }, { label: project.title }]}
+      bodyRef={shellScrollRef}
+      bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
       footer={
         <div className="flex w-full max-w-[620px] items-center justify-between">
           <PopupPagerButton onClick={() => go(-1)}>
@@ -171,70 +177,75 @@ export default function BuildProjectModal({
         </div>
       }
     >
-      <>
-          {/* Hero: media + meta, then the detail body */}
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* Media panel (teal) with the concept + "View The Concept" */}
-            <div className="order-2 flex flex-col justify-center gap-8 bg-[#16302b] px-6 py-10 lg:order-1 lg:px-10 lg:py-14">
-              <ConceptFrame project={project} className="mx-auto max-w-[440px]" />
-              <button
-                type="button"
-                onClick={() => setShowConcept(true)}
-                data-cursor="hover"
-                className="mx-auto font-grotesk text-[15px] font-medium text-white underline underline-offset-4 transition-opacity hover:opacity-70"
-              >
-                View The Concept
-              </button>
-            </div>
+      {/* Media — 2nd on mobile, left sticky on desktop. */}
+      <div className="order-2 flex min-h-[280px] flex-col justify-center gap-8 bg-[#16302b] px-6 py-10 sm:min-h-[360px] lg:order-1 lg:h-full lg:min-h-0 lg:overflow-hidden lg:px-10 lg:py-14">
+        <ConceptFrame project={project} className="mx-auto max-w-[440px]" />
+        <button
+          type="button"
+          onClick={() => setShowConcept(true)}
+          data-cursor="hover"
+          className="mx-auto font-grotesk text-[15px] font-medium capitalize text-white underline underline-offset-4 transition-opacity hover:opacity-70"
+        >
+          View The Concept
+        </button>
+      </div>
 
-            {/* Meta panel (near-black) */}
-            <div className="order-1 flex flex-col items-center justify-center gap-5 bg-[#1c1c1c] px-6 py-12 text-center lg:order-2 lg:px-14 lg:py-14">
-              <p className="font-grotesk text-[14px] font-light tracking-[0.14em] text-white/70">
-                {project.kicker}
-              </p>
-              <h2 className="font-serif text-[40px] font-medium leading-[1.05] text-white lg:text-[52px]">
-                {project.title}
-              </h2>
-              <p className="max-w-[420px] font-grotesk text-[15px] font-light leading-[1.6] text-white/70 lg:text-[16px]">
-                {project.subtitle}
-              </p>
-            </div>
-          </div>
+      {/* Meta + article — flatten on mobile so media sits between them. */}
+      <div
+        ref={rightScrollRef}
+        className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close"
+      >
+        <div className="order-1 flex flex-col items-center justify-center gap-5 bg-[#1c1c1c] px-6 py-12 text-center lg:order-none lg:min-h-full lg:px-14 lg:py-14">
+          <p className="font-grotesk text-[14px] font-light tracking-[0.14em] text-white/70">
+            {project.kicker}
+          </p>
+          <h2 className="font-serif text-[40px] font-medium leading-[1.05] text-white lg:text-[52px]">
+            {project.title}
+          </h2>
+          <p className="max-w-[420px] font-grotesk text-[15px] font-light leading-[1.6] text-white/70 lg:text-[16px]">
+            {project.subtitle}
+          </p>
+        </div>
 
-          {/* Detail body */}
-          <div className="mx-auto w-full max-w-[760px] px-6 py-12 lg:px-0 lg:py-16">
-            <p className="font-grotesk text-[16px] leading-[1.7] text-black/80">
-              {project.description}
+        <div className="order-3 mx-auto w-full max-w-[420px] bg-close px-6 py-12 lg:order-none lg:max-w-[440px] lg:px-0 lg:py-16">
+          <p className="font-grotesk text-[16px] font-light leading-[1.7] text-black/80">
+            {project.description}
+          </p>
+
+          <p className="mt-10 font-grotesk text-[16px] font-bold text-black">
+            How it Works
+          </p>
+          <ol className="mt-4 list-decimal space-y-3 pl-6 font-grotesk text-[16px] font-light leading-[1.6] text-black/80">
+            {project.howItWorks.map((step, i) => (
+              <li key={i} className="pl-1">
+                {step}
+              </li>
+            ))}
+          </ol>
+
+          {project.note && (
+            <p className="mt-8 font-grotesk text-[16px] font-light leading-[1.7] text-black/80">
+              {project.note}
             </p>
+          )}
 
-            <p className="mt-10 font-grotesk text-[18px] font-bold text-black">
-              How it Works
-            </p>
-            <ol className="mt-4 list-decimal space-y-3 pl-6 font-grotesk text-[16px] leading-[1.6] text-black/80">
-              {project.howItWorks.map((step, i) => (
-                <li key={i} className="pl-1">
-                  {step}
-                </li>
-              ))}
-            </ol>
+          {project.images?.[1] ? (
+            // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
+            <img
+              src={project.images[1]}
+              alt=""
+              className="mt-10 aspect-454/376 w-full object-cover"
+            />
+          ) : null}
 
-            {project.note && (
-              <p className="mt-8 font-grotesk text-[16px] leading-[1.7] text-black/80">
-                {project.note}
-              </p>
-            )}
-
-            {/* Body image placeholder */}
-            <div className="mt-10 aspect-video w-full bg-white" />
-
-            <p className="mt-8 font-grotesk text-[16px] font-bold italic text-black">
-              Supported tools
-            </p>
-            <p className="mt-1 font-grotesk text-[16px] text-black/70">
-              {project.supportedTools.join(" · ")}
-            </p>
-          </div>
-      </>
+          <p className="mt-8 font-grotesk text-[16px] font-bold italic text-black">
+            Supported tools
+          </p>
+          <p className="mt-1 font-grotesk text-[16px] font-light text-black/70">
+            {project.supportedTools.join(" · ")}
+          </p>
+        </div>
+      </div>
     </PopupShell>
   );
 }

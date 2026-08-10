@@ -17,15 +17,11 @@ import {
   expandPillClass,
 } from '@/components/InlineToken'
 import TestimonialsModal from '@/components/TestimonialsModal'
+import PasswordGate from '@/components/PasswordGate'
+import { useAccessGate } from '@/hooks/useAccessGate'
+import type { AboutLink } from '@/lib/aboutFromSanity'
 import type { AboutToken, Testimonial } from '@/lib/content'
-import {
-  aboutExpansions,
-  aboutLinks,
-  aboutLogos,
-  aboutPanels,
-  aboutParagraphs,
-  testimonials as fallbackTestimonials,
-} from '@/lib/content'
+import { aboutLogos } from '@/lib/content'
 
 const TESTIMONIAL_KEY = 'what people are saying'
 
@@ -35,8 +31,7 @@ const TESTIMONIAL_KEY = 'what people are saying'
 // siblings but keeps its ancestor chain open (so nested keywords stay visible).
 
 // keyword -> gray keywords nested directly inside its expansion. Derived from
-// whichever expansion set is in play (Sanity's, or the in-code fallback), so
-// the nesting rules follow the content rather than being fixed at build time.
+// Sanity expansions, so nesting rules follow Studio content at runtime.
 type KeywordTree = Record<string, string[]>
 
 function keywordTree(expansions: Record<string, AboutToken[]>): KeywordTree {
@@ -78,96 +73,11 @@ function ancestorsOf(
   return result
 }
 
-// Shared chrome for every boxed panel (Figma 187:2356 etc.): fade-in wrapper,
-// red left border, lowercase title, and a × close button. Renders below the
-// paragraph; `contentClassName` lets callers tweak the inner box (e.g. clip the
-// slider's peeking card).
-function PanelShell({
-  title,
-  onClose,
-  children,
-  contentClassName = '',
-}: {
-  title: string
-  onClose: () => void
-  children: React.ReactNode
-  contentClassName?: string
-}) {
-  return (
-    <div className="block animate-[panel-in_0.25s_ease-out] py-5 text-left">
-      <div
-        className={`relative flex w-full flex-col gap-3.25 border-l-4 border-accent bg-panel px-4.25 py-3.5 ${contentClassName}`}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          data-cursor="hover"
-          className="absolute right-3 top-2 z-10 font-grotesk text-[30px] leading-none text-black/70 transition-colors hover:text-black"
-        >
-          ×
-        </button>
-        <p className="pr-6 font-grotesk text-[20px] font-bold lowercase leading-[1.35] tracking-wider">
-          {title}
-        </p>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-// Boxed panel for a RED keyword (Figma 187:2356 teach / 1913 recognized / 2107
-// monthly) — title, body, CTA, × close; renders below the paragraph.
-function AboutPanel({
-  keyword,
-  onClose,
-}: {
-  keyword: string
-  onClose: () => void
-}) {
-  const panel = aboutPanels[keyword]
-  if (!panel) return null
-  return (
-    <PanelShell title={keyword} onClose={onClose} contentClassName="max-w-204.25">
-      {panel.body.map((b, i) => (
-          <p
-            key={i}
-            className="font-grotesk text-[16px] font-medium leading-[1.35] tracking-[0.06em]"
-          >
-            {b}
-          </p>
-        ))}
-        {panel.awards && (
-          <div className="flex flex-wrap items-center gap-x-[19px] gap-y-3 pt-1">
-            <span className="font-grotesk text-[16px] font-medium tracking-[0.06em]">
-              Awards:
-            </span>
-            <div className="flex flex-wrap items-center gap-[18px]">
-              {panel.awards.map(a => (
-                // eslint-disable-next-line @next/next/no-img-element -- static award mark
-                <img
-                  key={a.src}
-                  src={a.src}
-                  alt={a.alt}
-                  style={{ height: `${a.h}px` }}
-                  className="w-auto"
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {panel.placeholder && (
-          <p className="text-[12px] uppercase tracking-wider text-black/40">
-            placeholder — final copy pending
-          </p>
-        )}
-        {panel.cta && (
-          <NavPill href={panel.cta.href} className="font-grotesk text-[16px] font-medium">
-            {panel.cta.label}
-          </NavPill>
-        )}
-    </PanelShell>
-  )
+// Red-keyword boxed panels used to load body from lib/content aboutPanels.
+// No in-code seed — return null until panels are modeled in Sanity.
+// Testimonials still use TestimonialsModal separately.
+function AboutPanel(_props: { keyword: string; onClose: () => void }) {
+  return null
 }
 
 // Inline brand logo chip. The SVG is a self-contained chip (background + logo
@@ -553,22 +463,39 @@ function MeasuredParagraph({
 export default function AboutContent({
   className = '',
   logoSvgs,
-  testimonials = fallbackTestimonials,
-  paragraphs = aboutParagraphs,
-  expansions = aboutExpansions,
-  links = aboutLinks.map(l => ({ label: l.label, href: l.href })),
+  testimonials = [],
+  paragraphs = [],
+  expansions = {},
+  links = [],
 }: {
   className?: string
   logoSvgs: Record<keyof typeof aboutLogos, string>
   testimonials?: Testimonial[]
-  // Content comes from Sanity (see lib/aboutFromSanity). The in-code copy is
-  // the default so the page still renders if the dataset is empty.
+  /** Bio / expansions / links from Sanity only. */
   paragraphs?: AboutToken[][]
   expansions?: Record<string, AboutToken[]>
-  links?: { label: string; href: string }[]
+  links?: AboutLink[]
 }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set())
   const [activePanel, setActivePanel] = useState<string | null>(null)
+  const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate()
+
+  const openProtectedHref = (href: string) => {
+    let resolved = href.trim()
+    if (
+      !/^[a-z][a-z0-9+.-]*:/i.test(resolved) &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resolved)
+    ) {
+      resolved = `mailto:${resolved}`
+    }
+    const sameTab =
+      resolved.startsWith('mailto:') || resolved.startsWith('tel:')
+    if (sameTab) {
+      window.location.href = resolved
+      return
+    }
+    window.open(resolved, '_blank', 'noopener,noreferrer')
+  }
 
   const tree = useMemo(() => keywordTree(expansions), [expansions])
 
@@ -683,39 +610,41 @@ export default function AboutContent({
         />
       )}
 
-      {/* Footer row (Figma 807:19215–19234): Testimonials + CV / Resume /
-          LinkedIn / Email. Fas 07/30 — always expose Testimonials here (same
-          style as the other links) so readers don't have to find the in-bio
-          "what people are saying" keyword. Opens the same modal.
-
-          Figma fits four links on one line at body size; the fifth (and the ↗
-          arrows) no longer fit, so from `sm` up the row is held on one line and
-          sized off the column width instead — the five labels plus their gaps
-          measure ~25em (more at `md`, where the tracking is wider), so 3.7% of
-          the column holds them inside it at every width, capped at 36px. Phones
-          keep body size and wrap, as the mobile frame (455:1897) does. */}
+      {/* Footer row: CV / Resume / LinkedIn / Email.
+          Fas 08/09 — drop the extra Testimonials↗ link; readers still open
+          the modal via the in-bio “what people are saying” keyword. */}
       <div className="@container/about-links mt-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-inherit sm:flex-nowrap sm:gap-[0.4em] sm:text-[min(3.7cqw,36px)]">
-          {testimonials.length > 0 && (
-            <ArrowTrigger
-              data-about-key
-              onClick={() => openPanel(TESTIMONIAL_KEY)}
-              className="shrink-0"
-            >
-              Testimonials
-            </ArrowTrigger>
+          {links.map(link =>
+            link.passwordProtected ? (
+              <ArrowTrigger
+                key={link.label}
+                className="shrink-0"
+                onClick={() =>
+                  requestAccess(() => openProtectedHref(link.href))
+                }
+              >
+                {link.label}
+              </ArrowTrigger>
+            ) : (
+              <ExternalTextLink
+                key={link.label}
+                href={link.href}
+                className="shrink-0"
+              >
+                {link.label}
+              </ExternalTextLink>
+            ),
           )}
-          {links.map(link => (
-            <ExternalTextLink
-              key={link.label}
-              href={link.href}
-              className="shrink-0"
-            >
-              {link.label}
-            </ExternalTextLink>
-          ))}
         </div>
       </div>
+
+      <PasswordGate
+        open={gateOpen}
+        message="This file is password protected. To view it, please enter the password below."
+        onClose={closeGate}
+        onSuccess={onGateSuccess}
+      />
     </section>
   )
 }

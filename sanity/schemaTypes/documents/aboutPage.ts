@@ -39,22 +39,65 @@ export const aboutPage = defineType({
       title: "Links",
       type: "array",
       group: "links",
+      description:
+        "Footer row: CV, Resume, LinkedIn, Email. For CV / Resume upload a PDF; for LinkedIn / Email use a URL or mailto.",
       of: [
         {
           type: "object",
           fields: [
-            { name: "label", title: "Label", type: "string" },
+            {
+              name: "label",
+              title: "Label",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: "pdf",
+              title: "PDF file (upload)",
+              type: "file",
+              options: { accept: "application/pdf" },
+              description:
+                "Preferred for CV / Resume. When set, the site uses this file instead of the URL below.",
+            },
             {
               name: "href",
               title: "URL or path",
               type: "string",
               description:
-                "e.g. /cv.pdf, https://linkedin.com/in/…, mailto:…",
+                "LinkedIn, mailto:, or a fallback PDF link if you skip the upload. e.g. https://linkedin.com/in/…, mailto:fas@…",
+            },
+            {
+              name: "passwordProtected",
+              title: "Password protected",
+              type: "boolean",
+              initialValue: false,
+              description:
+                "Turn on for CV / Resume. Uses the Site Settings → Access password.",
             },
           ],
           preview: {
-            select: { title: "label", subtitle: "href" },
+            select: {
+              title: "label",
+              href: "href",
+              pdf: "pdf.asset.originalFilename",
+              locked: "passwordProtected",
+            },
+            prepare: ({ title, href, pdf, locked }) => ({
+              title: title || "Link",
+              subtitle: [
+                locked ? "Locked" : null,
+                pdf ? `PDF: ${pdf}` : href || "No URL or PDF",
+              ]
+                .filter(Boolean)
+                .join(" · "),
+            }),
           },
+          validation: (Rule) =>
+            Rule.custom((value: { href?: string; pdf?: { asset?: unknown } } | undefined) => {
+              if (!value) return true;
+              if (value.pdf?.asset || (value.href && value.href.trim())) return true;
+              return "Add a PDF upload or a URL.";
+            }),
         },
       ],
     }),

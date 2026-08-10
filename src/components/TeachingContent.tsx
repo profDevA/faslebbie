@@ -7,7 +7,6 @@ import {
   PopupTrigger,
 } from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
-import { teachingIntro, teachingSections } from "@/lib/teaching";
 
 /** Static grey institution pill from the intro (Figma 16-22597). */
 function Pill({ text }: { text: string }) {
@@ -45,17 +44,14 @@ function renderTokens(
         </PopupTrigger>
       );
     if (tok.t === "action") {
-      // Red pill = view/page navigation; underline = in-place popup (legend).
-      if (tok.kind === "students")
-        return (
-          <NavPillButton key={key} onClick={onSeeAll}>
-            {tok.text}
-          </NavPillButton>
-        );
+      // Figma 16:22597 — both CTAs are grey pills (students grid + exhibition overlay).
       return (
-        <PopupTrigger key={key} onClick={onExhibition}>
+        <NavPillButton
+          key={key}
+          onClick={tok.kind === "students" ? onSeeAll : onExhibition}
+        >
           {tok.text}
-        </PopupTrigger>
+        </NavPillButton>
       );
     }
     return <Fragment key={key}>{tok.text}</Fragment>;
@@ -64,15 +60,15 @@ function renderTokens(
 
 export default function TeachingContent({
   className = "",
-  intro = teachingIntro,
-  sections = teachingSections,
+  intro,
+  sections,
   onOpenStudent,
   onSeeAllStudents,
   onOpenExhibition,
 }: {
   className?: string;
-  intro?: TeachToken[][];
-  sections?: TeachSection[];
+  intro: TeachToken[][];
+  sections: TeachSection[];
   onOpenStudent: (id: string) => void;
   onSeeAllStudents: () => void;
   onOpenExhibition: () => void;
@@ -110,15 +106,15 @@ export default function TeachingContent({
             </p>
           ))}
           <p className="mt-2">
-            {section.action.kind === "students" ? (
-              <NavPillButton onClick={onSeeAllStudents}>
-                {section.action.text}
-              </NavPillButton>
-            ) : (
-              <PopupTrigger onClick={onOpenExhibition}>
-                {section.action.text}
-              </PopupTrigger>
-            )}
+            <NavPillButton
+              onClick={
+                section.action.kind === "students"
+                  ? onSeeAllStudents
+                  : onOpenExhibition
+              }
+            >
+              {section.action.text}
+            </NavPillButton>
           </p>
         </div>
       ))}

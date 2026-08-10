@@ -1,7 +1,3 @@
-import {
-  mobileNavItems as fallbackMobileNav,
-  navItems as fallbackNav,
-} from "@/lib/content";
 import type { SanitySiteSettings } from "@/sanity/types";
 
 export interface NavItem {
@@ -22,7 +18,7 @@ export interface ContactCopy {
 export interface SiteBrand {
   logoName: string;
   logoSuffix: string;
-  /** Shared Home / listing / Contact portrait (Sanity or local fallback). */
+  /** Shared Home / listing / Contact portrait from Sanity (or empty). */
   portraitSrc: string;
 }
 
@@ -33,75 +29,63 @@ export interface SiteContentData {
   contact: ContactCopy;
 }
 
-const FALLBACK_PORTRAIT = "/portrait-master.png";
-
-const defaultBrand: SiteBrand = {
-  logoName: "Fas lebbie",
-  logoSuffix: "Ph.D.",
-  portraitSrc: FALLBACK_PORTRAIT,
-};
-
-const defaultContact: ContactCopy = {
-  drawerTitle: "Contact",
-  heading: "Drop Me a Line",
-  portraitSrc: FALLBACK_PORTRAIT,
-  submitLabel: "Send Message",
-  successTitle: "Thanks — your message is on its way.",
-  successBody: "Fas will get back to you at the email you provided.",
-  sendAnotherLabel: "Send another",
-};
-
 function mapLinks(
   items: { label?: string; href?: string }[] | undefined,
-  fallback: NavItem[],
 ): NavItem[] {
-  if (!items?.length) return fallback;
-  const mapped = items
+  if (!items?.length) return [];
+  return items
     .filter((i) => i.label && i.href)
     .map((i) => ({ label: i.label!, href: i.href! }));
-  return mapped.length ? mapped : fallback;
 }
 
-/** QA: Home must appear in primary nav even if Sanity list is stale. */
+/** QA: Home must appear in primary nav even if Sanity list omits it. */
 function ensureHome(items: NavItem[]): NavItem[] {
   if (items.some((i) => i.href === "/")) return items;
   return [{ label: "Home", href: "/" }, ...items];
 }
 
+const emptyContact: ContactCopy = {
+  drawerTitle: "",
+  heading: "",
+  portraitSrc: "",
+  submitLabel: "",
+  successTitle: "",
+  successBody: "",
+  sendAnotherLabel: "",
+};
+
+/** Site Settings from Sanity only — no in-code nav/content seed. */
 export function siteFromSanity(
   data: SanitySiteSettings | null | undefined,
 ): SiteContentData {
   if (!data) {
     return {
-      brand: defaultBrand,
-      navItems: ensureHome(fallbackNav),
-      mobileNavItems: ensureHome(fallbackMobileNav),
-      contact: defaultContact,
+      brand: { logoName: "", logoSuffix: "", portraitSrc: "" },
+      navItems: ensureHome([]),
+      mobileNavItems: ensureHome([]),
+      contact: emptyContact,
     };
   }
 
-  // Brand master is the default; Contact override only if explicitly set.
-  const master = data.masterPortrait?.trim() || FALLBACK_PORTRAIT;
+  const master = data.masterPortrait?.trim() || "";
   const contactPortrait = data.contactPortrait?.trim() || master;
 
   return {
     brand: {
-      logoName: data.logoName?.trim() || defaultBrand.logoName,
-      logoSuffix: data.logoSuffix?.trim() || defaultBrand.logoSuffix,
+      logoName: data.logoName?.trim() || "",
+      logoSuffix: data.logoSuffix?.trim() || "",
       portraitSrc: master,
     },
-    navItems: ensureHome(mapLinks(data.navItems, fallbackNav)),
-    mobileNavItems: ensureHome(mapLinks(data.mobileNavItems, fallbackMobileNav)),
+    navItems: ensureHome(mapLinks(data.navItems)),
+    mobileNavItems: ensureHome(mapLinks(data.mobileNavItems)),
     contact: {
-      drawerTitle: data.contactDrawerTitle?.trim() || defaultContact.drawerTitle,
-      heading: data.contactHeading?.trim() || defaultContact.heading,
+      drawerTitle: data.contactDrawerTitle?.trim() || "",
+      heading: data.contactHeading?.trim() || "",
       portraitSrc: contactPortrait,
-      submitLabel: data.contactSubmitLabel?.trim() || defaultContact.submitLabel,
-      successTitle:
-        data.contactSuccessTitle?.trim() || defaultContact.successTitle,
-      successBody: data.contactSuccessBody?.trim() || defaultContact.successBody,
-      sendAnotherLabel:
-        data.contactSendAnotherLabel?.trim() || defaultContact.sendAnotherLabel,
+      submitLabel: data.contactSubmitLabel?.trim() || "",
+      successTitle: data.contactSuccessTitle?.trim() || "",
+      successBody: data.contactSuccessBody?.trim() || "",
+      sendAnotherLabel: data.contactSendAnotherLabel?.trim() || "",
     },
   };
 }

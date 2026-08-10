@@ -1,18 +1,43 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { ExternalTextLink } from "@/components/InlineToken";
 import PopupShell, {
   PopupDots,
   PopupPagerButton,
 } from "@/components/PopupShell";
-import type { BlogBlock, BlogPost } from "@/lib/blogs";
+import type { BlogBlock, BlogInline, BlogPost } from "@/lib/blogs";
 
-// Renders the full article body (below the hero) in the scroll region.
+function RichText({ parts, text }: { parts?: BlogInline[]; text: string }) {
+  if (!parts?.length) return <>{text}</>;
+  return (
+    <>
+      {parts.map((p, i) => {
+        let node: ReactNode = p.text;
+        if (p.bold) node = <strong className="font-medium">{node}</strong>;
+        if (p.italic) node = <em>{node}</em>;
+        if (p.href)
+          node = (
+            <a
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cursor="hover"
+              className="text-accent underline underline-offset-2"
+            >
+              {node}
+            </a>
+          );
+        return <span key={i}>{node}</span>;
+      })}
+    </>
+  );
+}
+
 function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
   return (
-    <article className="mx-auto w-full max-w-[660px] px-6 py-12 md:px-8 md:py-16">
+    <article className="mx-auto w-full max-w-[420px] px-6 py-12 lg:max-w-[440px] lg:px-0 lg:py-16">
       {blocks.map((b, i) => {
         if (b.kind === "h2")
           return (
@@ -20,7 +45,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               key={i}
               className="mt-10 mb-1 font-grotesk text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]"
             >
-              {b.text}
+              <RichText parts={b.parts} text={b.text} />
             </h3>
           );
         if (b.kind === "h3")
@@ -29,7 +54,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               key={i}
               className="mt-7 font-grotesk text-[15px] font-medium italic leading-snug text-black/70"
             >
-              {b.text}
+              <RichText parts={b.parts} text={b.text} />
             </p>
           );
         if (b.kind === "li")
@@ -38,7 +63,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               key={i}
               className="relative mt-2 pl-5 font-grotesk text-[15px] leading-[1.7] text-black/80 before:absolute before:left-1 before:content-['•']"
             >
-              {b.text}
+              <RichText parts={b.parts} text={b.text} />
             </p>
           );
         if (b.kind === "img")
@@ -49,8 +74,8 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               alt=""
               width={1200}
               height={800}
-              sizes="(max-width: 768px) 90vw, 640px"
-              className="mx-auto my-8 h-auto w-full rounded-md"
+              sizes="(max-width: 768px) 90vw, 440px"
+              className="mx-auto my-8 h-auto w-full"
             />
           );
         return (
@@ -58,7 +83,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
             key={i}
             className="mt-4 font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
           >
-            {b.text}
+            <RichText parts={b.parts} text={b.text} />
           </p>
         );
       })}
@@ -66,16 +91,19 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
   );
 }
 
-// A share icon that sits on the cover image and opens a small popup (Fas 07/21
-// — "put a share icon on the image… clicking it opens a small share pop-up").
-// Replaces the old inline share buttons.
 function ShareMenu({ url, title }: { url: string; title: string }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const enc = encodeURIComponent;
   const links = [
-    { label: "X", href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}` },
-    { label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}` },
+    {
+      label: "X",
+      href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}`,
+    },
+    {
+      label: "LinkedIn",
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`,
+    },
   ];
 
   const copy = async () => {
@@ -98,7 +126,16 @@ function ShareMenu({ url, title }: { url: string; title: string }) {
         data-cursor="hover"
         className="flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition-colors hover:bg-black/75"
       >
-        <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />
           <circle cx="18" cy="19" r="3" />
@@ -133,10 +170,9 @@ function ShareMenu({ url, title }: { url: string; title: string }) {
   );
 }
 
-// Paged blog modal (Figma 16-570 / 16-1497 / 16-997 / 16-2211). One post at a
-// time: a cover hero + colored caption panel, followed by the full article body
-// — the whole thing scrolls inside the modal, with a sticky breadcrumb header
-// and a sticky Previous / dots / Next footer.
+// Figma 318:6158 desktop / 16:997 mobile. Shared PopupShell.
+// Desktop: left cover sticky, right (meta + article) scrolls.
+// Mobile: stack meta → cover → article (single body scroll).
 export default function BlogModal({
   index,
   posts,
@@ -150,12 +186,12 @@ export default function BlogModal({
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const shellScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
 
   const open = index !== null;
   const n = posts.length;
 
-  // Arrows page between posts. (Escape / scroll lock live in the shell.)
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -166,9 +202,10 @@ export default function BlogModal({
     return () => document.removeEventListener("keydown", onKey);
   }, [open, index, n, onNavigate]);
 
-  // Reset scroll to the top whenever the post changes.
   useEffect(() => {
-    if (open && scrollRef.current) scrollRef.current.scrollTop = 0;
+    if (!open) return;
+    if (shellScrollRef.current) shellScrollRef.current.scrollTop = 0;
+    if (rightScrollRef.current) rightScrollRef.current.scrollTop = 0;
   }, [index, open]);
 
   if (!mounted || !open) return null;
@@ -180,9 +217,9 @@ export default function BlogModal({
     <PopupShell
       onClose={onClose}
       label={post.title}
-      bodyRef={scrollRef}
-      // Category segment dropped with the index heading (Fas 07/28).
       crumbs={[{ label: "Blogs", hideOnMobile: true }, { label: post.title }]}
+      bodyRef={shellScrollRef}
+      bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
       footer={
         <div className="flex w-full max-w-[620px] items-center justify-between">
           <PopupPagerButton onClick={prev}>{"< Previous"}</PopupPagerButton>
@@ -196,43 +233,50 @@ export default function BlogModal({
         </div>
       }
     >
-      <>
-          {/* Hero: cover + title panel, then the full article */}
-          <div className="flex flex-col md:grid md:grid-cols-2">
-            <div
-              className="relative order-2 min-h-[240px] md:order-1 md:min-h-[440px]"
-              style={{ backgroundColor: post.coverBg }}
-            >
-              {post.cover && (
-                <Image
-                  src={post.cover}
-                  alt={post.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 500px"
-                  className="object-cover"
-                />
-              )}
-              <ShareMenu
-                url={post.url ?? (typeof window !== "undefined" ? window.location.href : "")}
-                title={post.title}
-              />
-            </div>
-            <div
-              className="order-1 flex flex-col justify-center px-7 py-12 text-center md:order-2 md:px-12 md:py-16"
-              style={{ backgroundColor: post.panelBg, color: post.panelText }}
-            >
-              <p className="font-grotesk text-[12px] uppercase tracking-[0.14em] opacity-80">
-                {post.kicker}
-              </p>
-              <h2 className="mt-5 font-grotesk text-[34px] font-medium leading-[1.08] md:text-[46px]">
-                {post.title}
-              </h2>
-              <p className="mx-auto mt-6 max-w-[34ch] font-grotesk text-[13px] leading-[1.6] opacity-80 md:text-[14px]">
-                {post.description}
-              </p>
-            </div>
-          </div>
+      {/* Cover — 2nd on mobile, left sticky on desktop. */}
+      <div
+        className="relative order-2 min-h-[240px] sm:min-h-[280px] lg:order-1 lg:h-full lg:min-h-0 lg:overflow-hidden"
+        style={{ backgroundColor: post.coverBg }}
+      >
+        {post.cover && (
+          <Image
+            src={post.cover}
+            alt={post.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+        )}
+        <ShareMenu
+          url={
+            post.url ??
+            (typeof window !== "undefined" ? window.location.href : "")
+          }
+          title={post.title}
+        />
+      </div>
 
+      {/* Meta + article — flatten on mobile so cover sits between them. */}
+      <div
+        ref={rightScrollRef}
+        className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close"
+      >
+        <div
+          className="order-1 flex flex-col items-center justify-center gap-5 px-7 py-12 text-center lg:order-none lg:min-h-full lg:px-14 lg:py-14"
+          style={{ backgroundColor: post.panelBg, color: post.panelText }}
+        >
+          <p className="font-grotesk text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[14px]">
+            {post.kicker}
+          </p>
+          <h2 className="font-grotesk text-[34px] font-medium leading-[1.08] lg:text-[46px]">
+            {post.title}
+          </h2>
+          <p className="mx-auto max-w-[34ch] font-grotesk text-[13px] leading-[1.6] opacity-80 lg:text-[14px]">
+            {post.description}
+          </p>
+        </div>
+
+        <div className="order-3 bg-close lg:order-none">
           {post.body?.length ? <ArticleBody blocks={post.body} /> : null}
 
           {post.url && (
@@ -245,7 +289,8 @@ export default function BlogModal({
               </ExternalTextLink>
             </div>
           )}
-      </>
+        </div>
+      </div>
     </PopupShell>
   );
 }

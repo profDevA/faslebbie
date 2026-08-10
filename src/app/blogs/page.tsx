@@ -9,7 +9,7 @@ import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 // Blogs & Media (Figma 318-5704 / 308-4566 + modals 16-570 / 504-16389). Two
 // tabs — ".blog" (writing list) and ".media" (talks/podcasts grid) — over the
 // receding "Blogs/Media" watermark. Both open a paged modal. Content is
-// Sanity-driven (blogsPage singleton); lib/blogs.ts is the fallback.
+// Content from Sanity blogsPage only (empty Studio = empty UI).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getBlogsPage(), getSiteSettings()]);

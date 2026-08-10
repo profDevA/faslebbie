@@ -1,101 +1,100 @@
 import type { SanityBlogPostItem, SanityBlogsPage } from "@/sanity/types";
-import {
-  blogBodies,
-} from "@/lib/blogBodies";
-import {
-  blogPosts,
-  mediaItems,
-  type BlogBlock,
-  type BlogPost,
-  type MediaItem,
-} from "@/lib/blogs";
+import type { BlogBlock, BlogPost, MediaItem } from "@/lib/blogs";
 
 export type BlogsContentData = {
   posts: BlogPost[];
   media: MediaItem[];
 };
 
-// In-code cover fallback, keyed by slug (used when Sanity has no cover yet).
-const coverBySlug = new Map(blogPosts.map((p) => [p.slug, p.cover]));
-
 // Flatten the Sanity `body` (Portable Text + inline images) into the flat block
-// list the modal renders. Section = h2, Subheading = h3, bullet = li, image =
-// img, everything else = p.
+// list the modal renders. Preserves strong/em/link marks as `parts`.
 function toBlogBody(
   blocks: SanityBlogPostItem["body"],
 ): BlogBlock[] | undefined {
   if (!blocks?.length) return undefined;
+  type RawChild = { text?: string; marks?: string[] };
+  type MarkDef = { _key?: string; _type?: string; href?: string };
   type RawBlock = {
     _type?: string;
     style?: string;
     listItem?: string;
-    children?: { text?: string }[];
+    children?: RawChild[];
+    markDefs?: MarkDef[];
     url?: string | null;
   };
+
+  const toParts = (children: RawChild[] | undefined, markDefs: MarkDef[]) =>
+    (children ?? []).map((c) => {
+      const marks = c.marks ?? [];
+      const linkKey = marks.find((m) =>
+        markDefs.some((d) => d._key === m && d._type === "link"),
+      );
+      const href = markDefs.find((d) => d._key === linkKey)?.href;
+      return {
+        text: c.text ?? "",
+        bold: marks.includes("strong"),
+        italic: marks.includes("em"),
+        href: href || undefined,
+      };
+    });
+
   const out: BlogBlock[] = [];
   for (const raw of blocks) {
     const b = raw as RawBlock;
-    // Inline figures/diagrams (resolved to a URL in the GROQ query).
     if (b._type === "image") {
       if (b.url) out.push({ kind: "img", text: b.url });
       continue;
     }
     if (b._type !== "block") continue;
-    const text = (b.children ?? [])
-      .map((c) => c.text ?? "")
-      .join("")
-      .trim();
+    const parts = toParts(b.children, b.markDefs ?? []);
+    const text = parts.map((p) => p.text).join("").trim();
     if (!text) continue;
-    if (b.listItem === "bullet") out.push({ kind: "li", text });
-    else if (b.style === "h2") out.push({ kind: "h2", text });
+    const rich = parts.some((p) => p.bold || p.italic || p.href)
+      ? parts
+      : undefined;
+    if (b.listItem === "bullet") out.push({ kind: "li", text, parts: rich });
+    else if (b.style === "h2") out.push({ kind: "h2", text, parts: rich });
     else if (b.style === "h3" || b.style === "h4")
-      out.push({ kind: "h3", text });
-    else out.push({ kind: "p", text });
+      out.push({ kind: "h3", text, parts: rich });
+    else out.push({ kind: "p", text, parts: rich });
   }
   return out.length ? out : undefined;
 }
 
-// Map the raw `blogsPage` singleton to the component props, falling back to the
-// in-code content (lib/blogs.ts) whenever the document or a field is empty.
+/** Sanity Blogs & Media page only — no in-code seed fallback. */
 export function blogsFromSanity(
   data: SanityBlogsPage | null | undefined,
 ): BlogsContentData {
-  const posts: BlogPost[] =
-    data?.posts?.length
-      ? data.posts.map((p, i) => ({
-          slug: p.slug ?? `post-${i}`,
-          category: p.category ?? "Design Muscle",
-          meta: p.meta ?? "",
-          title: p.title ?? "Untitled",
-          kicker: p.kicker ?? p.meta ?? "",
-          description: p.description ?? "",
-          body:
-            toBlogBody(p.body) ??
-            (p.slug ? blogBodies[p.slug] : undefined),
-          url: p.url ?? undefined,
-          cover: p.cover ?? (p.slug ? coverBySlug.get(p.slug) : undefined),
-          coverBg: p.coverBg ?? "#eaa31e",
-          panelBg: p.panelBg ?? "#3a1618",
-          panelText: p.panelText ?? "#e8917b",
-        }))
-      : blogPosts;
+  if (!data) return { posts: [], media: [] };
 
-  const media: MediaItem[] =
-    data?.media?.length
-      ? data.media.map((m, i) => ({
-          slug: m.slug ?? `media-${i}`,
-          format: m.format ?? "Podcast",
-          title: m.title ?? "Untitled",
-          platform: m.platform ?? "",
-          year: m.year ?? "",
-          thumb: m.thumb ?? undefined,
-          video: m.video ?? undefined,
-          source: m.source ?? "",
-          detail: m.detail ?? "",
-          description: m.description ?? "",
-          themes: m.themes ?? [],
-        }))
-      : mediaItems;
+  const posts: BlogPost[] = (data.posts ?? []).map((p, i) => ({
+    slug: p.slug ?? `post-${i}`,
+    category: p.category ?? "Design Muscle",
+    meta: p.meta ?? "",
+    title: p.title ?? "Untitled",
+    kicker: p.kicker ?? p.meta ?? "",
+    description: p.description ?? "",
+    body: toBlogBody(p.body),
+    url: p.url ?? undefined,
+    cover: p.cover ?? undefined,
+    coverBg: p.coverBg ?? "#eaa31e",
+    panelBg: p.panelBg ?? "#3a1618",
+    panelText: p.panelText ?? "#e8917b",
+  }));
+
+  const media: MediaItem[] = (data.media ?? []).map((m, i) => ({
+    slug: m.slug ?? `media-${i}`,
+    format: m.format ?? "Podcast",
+    title: m.title ?? "Untitled",
+    platform: m.platform ?? "",
+    year: m.year ?? "",
+    thumb: m.thumb ?? undefined,
+    video: m.video ?? undefined,
+    source: m.source ?? "",
+    detail: m.detail ?? "",
+    description: m.description ?? "",
+    themes: m.themes ?? [],
+  }));
 
   return { posts, media };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH } from "@/lib/reveal";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 
 /**
  * Big centered "Blogs/Media" watermark (Figma 318-5704 / 16-951). Same recede
@@ -50,7 +50,7 @@ export default function BlogsWatermark() {
 
   const color = mix(fade);
   const shadow = `-0.2vw 0.3vw 0.4vw rgba(177, 175, 172, ${(1 - fade).toFixed(3)})`;
-  const opacity = 1 - fade * 0.7;
+  const opacity = wordmarkOpacity(fade);
   const z = fade < 0.5 ? 30 : -10;
 
   return (

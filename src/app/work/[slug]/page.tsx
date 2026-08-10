@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import CaseStudyView from "@/components/CaseStudyView";
+import CaseStudyAccess from "@/components/CaseStudyAccess";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
@@ -41,11 +41,10 @@ export default async function CaseStudyPage({
   if (!found) notFound();
 
   return (
-    <CaseStudyView
+    <CaseStudyAccess
       project={found.project}
       prev={found.prev}
       next={found.next}
-      variant="page"
     />
   );
 }

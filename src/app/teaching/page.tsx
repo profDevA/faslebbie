@@ -6,8 +6,7 @@ import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { teachingFromSanity } from "@/lib/teachingFromSanity";
 import { getSiteSettings, getTeachingPage } from "@/sanity/fetch";
 
-// Teaching page. Content is Sanity-driven (teachingPage singleton); the in-code
-// copy in lib/teaching.ts is the fallback used when the document/field is empty.
+// Teaching page. Content is Sanity-driven (teachingPage singleton) only.
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([

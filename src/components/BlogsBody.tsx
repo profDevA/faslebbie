@@ -3,14 +3,15 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import BlogModal from "@/components/BlogModal";
+import BlogsWatermark from "@/components/BlogsWatermark";
 import MediaModal from "@/components/MediaModal";
 import ViewToggle from "@/components/ViewToggle";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
-import { blogPosts, mediaItems, type BlogPost, type MediaItem } from "@/lib/blogs";
+import type { BlogPost, MediaItem } from "@/lib/blogs";
 
-type Tab = "blog" | "media";
+type Tab = "words" | "media";
 
 function PlayGlyph({ className = "" }: { className?: string }) {
   return (
@@ -21,13 +22,13 @@ function PlayGlyph({ className = "" }: { className?: string }) {
 }
 
 export default function BlogsBody({
-  posts = blogPosts,
-  media = mediaItems,
+  posts,
+  media,
 }: {
-  posts?: BlogPost[];
-  media?: MediaItem[];
+  posts: BlogPost[];
+  media: MediaItem[];
 }) {
-  const [tab, setTab] = useState<Tab>("blog");
+  const [tab, setTab] = useState<Tab>("words");
   const [openBlog, setOpenBlog] = useState<number | null>(null);
   const [openMedia, setOpenMedia] = useState<number | null>(null);
 
@@ -52,6 +53,9 @@ export default function BlogsBody({
 
   return (
     <div className="relative">
+      {/* Figma 318:6052 / 308:4566 — large centered wordmark behind content. */}
+      <BlogsWatermark />
+
       <div className={STICKY_UNDER_NAV}>
         <main className="relative z-10 mx-auto w-full max-w-[1350px] px-6 py-12 lg:px-12 lg:py-16">
           <div
@@ -67,30 +71,32 @@ export default function BlogsBody({
                 Teaching exactly (Fas 07/28). Sits in an already-padded wrapper,
                 so the component's own top padding is dropped. */}
             <ViewToggle
-              views={["blog", "media"] as const}
+              views={["words", "media"] as const}
               value={tab}
               onChange={setTab}
               className="pt-0 lg:pt-0"
             />
 
-            {tab === "blog" ? (
-              <div className="mx-auto mt-26 flex max-w-[720px] flex-col gap-16 lg:mt-14">
+            {tab === "words" ? (
+              /* Figma 318:6052 — 18px meta, 42px red titles, ~105px stack gap. */
+              <div className="mx-auto mt-12 flex max-w-[700px] flex-col gap-[105px] lg:mt-10">
                 {groups.map((group) => (
-                  <section key={group.category} className="flex flex-col gap-14">
-                    {/* Category heading ("Design Muscle") removed — Fas 07/28:
-                        "I don't think we need this design muscle, I think we
-                        remove it." Grouping is kept so posts hold their order
-                        and the heading can be restored if he wants it back. */}
+                  <section
+                    key={group.category}
+                    className="flex flex-col gap-[105px]"
+                  >
+                    {/* Category heading ("Design Muscle") removed — Fas 07/28.
+                        Grouping kept for order / restore if he wants it back. */}
                     {group.items.map(({ post, index }) => (
                       <article key={post.slug} className="text-center">
-                        <p className="font-grotesk text-[13px] text-black/55">
+                        <p className="font-grotesk text-[16px] leading-[1.15] text-black md:text-[18px]">
                           {post.meta}
                         </p>
                         <button
                           type="button"
                           onClick={() => setOpenBlog(index)}
                           data-cursor="hover"
-                          className="mt-4 font-grotesk text-[28px] font-medium leading-[1.15] text-accent underline decoration-1 underline-offset-[6px] transition-opacity hover:opacity-80 md:text-[32px]"
+                          className="mt-6 font-grotesk text-[28px] font-medium capitalize leading-[1.37] tracking-[-1.28px] text-accent underline decoration-1 underline-offset-[6px] transition-opacity hover:opacity-80 md:mt-7 md:text-[36px] lg:text-[42px]"
                         >
                           {post.title}
                         </button>
@@ -100,7 +106,8 @@ export default function BlogsBody({
                 ))}
               </div>
             ) : (
-              <div className="mt-24 grid grid-cols-2 gap-x-5 gap-y-9 lg:mt-12 lg:grid-cols-4 lg:gap-x-8">
+              /* Figma 308:4566 — 4-col landscape thumbs (~333×260), italic titles. */
+              <div className="mt-12 grid grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-5 sm:gap-y-9 lg:mt-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-8">
                 {media.map((item, index) => (
                   <button
                     key={item.slug}
@@ -109,7 +116,7 @@ export default function BlogsBody({
                     data-cursor="hover"
                     className="group flex flex-col text-left"
                   >
-                    <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-white">
+                    <div className="relative flex aspect-[333/260] w-full items-center justify-center overflow-hidden bg-white lg:h-[260px] lg:aspect-auto">
                       {item.thumb && (
                         <Image
                           src={item.thumb}
@@ -119,14 +126,14 @@ export default function BlogsBody({
                           className="object-cover"
                         />
                       )}
-                      <span className="relative flex h-13 w-13 items-center justify-center rounded-full bg-black text-white transition-transform group-hover:scale-105">
+                      <span className="relative flex size-13 items-center justify-center rounded-full bg-black text-white transition-transform group-hover:scale-105">
                         <PlayGlyph className="ml-0.5 h-6 w-6" />
                       </span>
                     </div>
-                    <p className="mt-3 font-grotesk text-[16px] font-medium text-accent underline decoration-1 underline-offset-4">
+                    <p className="mt-2.5 font-grotesk text-[14px] font-medium italic capitalize leading-[1.35] tracking-[0.9px] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent sm:mt-3 sm:text-[16px] lg:text-[18px] lg:tracking-[1.65px]">
                       {item.title}
                     </p>
-                    <p className="mt-1.5 font-grotesk text-[14px] text-black/60">
+                    <p className="mt-3.5 font-grotesk text-[14px] capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
                       {item.format} · {item.platform} · {item.year}
                     </p>
                   </button>
