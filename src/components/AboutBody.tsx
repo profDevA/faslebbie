@@ -80,6 +80,8 @@ export default function AboutBody({
             className="pb-24"
             logoSvgs={logoSvgs}
             testimonials={testimonials}
+            headline={content?.headline}
+            intro={content?.intro}
             paragraphs={content?.paragraphs}
             expansions={content?.expansions}
             links={content?.links}

@@ -372,7 +372,19 @@ export interface SanityLeadershipMoment {
   image?: string;
 }
 
+export interface SanityApproachBlock {
+  subheading?: string;
+  body?: PortableTextBlock[];
+}
+
+export interface SanityApproachSection {
+  title?: string;
+  static?: boolean;
+  blocks?: SanityApproachBlock[];
+}
+
 export interface SanityLeadershipPage {
+  sections?: SanityApproachSection[];
   intro?: PortableTextBlock[];
   lead?: PortableTextBlock[];
   closing?: PortableTextBlock[];
@@ -398,6 +410,8 @@ export interface SanityAboutLink {
 }
 
 export interface SanityAboutPage {
+  headline?: string | null;
+  intro?: PortableTextBlock[];
   bio?: PortableTextBlock[];
   expansions?: SanityAboutExpansion[];
   links?: SanityAboutLink[];

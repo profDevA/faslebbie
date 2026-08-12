@@ -10,7 +10,7 @@ import { verifyAccessPassword } from "@/lib/access";
  */
 export default function PasswordGate({
   open,
-  message = "This content is password protected. To view it, please enter the password below.",
+  message = "Please enter your password.",
   onClose,
   onSuccess,
 }: {

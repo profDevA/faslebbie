@@ -177,6 +177,11 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
 }`);
 
 export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0]{
+  sections[]{
+    title,
+    static,
+    blocks[]{ subheading, body }
+  },
   intro, lead, closing, momentsHeading, exploreText, contactText,
   moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url },
   ${seoProj}
@@ -195,6 +200,8 @@ const aboutProseProj = `{
 }`;
 
 export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
+  headline,
+  "intro": intro[]${aboutProseProj},
   "bio": bio[]${aboutProseProj},
   expansions[]{
     keyword,

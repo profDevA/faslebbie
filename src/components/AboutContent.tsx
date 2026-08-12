@@ -464,6 +464,8 @@ export default function AboutContent({
   className = '',
   logoSvgs,
   testimonials = [],
+  headline = '',
+  intro = [],
   paragraphs = [],
   expansions = {},
   links = [],
@@ -471,6 +473,8 @@ export default function AboutContent({
   className?: string
   logoSvgs: Record<keyof typeof aboutLogos, string>
   testimonials?: Testimonial[]
+  headline?: string
+  intro?: AboutToken[][]
   /** Bio / expansions / links from Sanity only. */
   paragraphs?: AboutToken[][]
   expansions?: Record<string, AboutToken[]>
@@ -563,6 +567,16 @@ export default function AboutContent({
       id="about"
       className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
+      {headline ? (
+        <h2 className="mb-6 font-grotesk text-[32px] font-bold leading-[1.15] tracking-[0.5px] md:text-[40px] lg:mb-8 lg:text-[48px]">
+          {headline}
+        </h2>
+      ) : null}
+      {intro.map((para, i) => (
+        <p key={`intro-${i}`} className="mb-7">
+          {renderTokens(para, ctx, `intro${i}`)}
+        </p>
+      ))}
       {paragraphs.map((para, i) => {
         // A red keyword in this paragraph whose boxed panel expands inline.
         // "what people are saying" is excluded — it opens a centred modal
@@ -641,7 +655,7 @@ export default function AboutContent({
 
       <PasswordGate
         open={gateOpen}
-        message="This file is password protected. To view it, please enter the password below."
+        message="Please enter your password."
         onClose={closeGate}
         onSuccess={onGateSuccess}
       />

@@ -65,7 +65,7 @@ export default function CaseStudyAccess({
       )}
       <PasswordGate
         open={needsGate && !allowed && gateOpen}
-        message="This case study is password protected. To view it, please enter the password below."
+        message="Please enter your password."
         onClose={dismiss}
         onSuccess={onSuccess}
       />

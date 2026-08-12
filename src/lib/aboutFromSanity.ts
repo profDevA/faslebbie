@@ -9,6 +9,8 @@ export interface AboutLink {
 }
 
 export interface AboutContentData {
+  headline: string
+  intro: AboutToken[][]
   paragraphs: AboutToken[][]
   expansions: Record<string, AboutToken[]>
   links: AboutLink[]
@@ -80,6 +82,8 @@ function blocksToTokens(blocks?: PortableTextBlock[]): AboutToken[] {
 }
 
 const empty: AboutContentData = {
+  headline: '',
+  intro: [],
   paragraphs: [],
   expansions: {},
   links: [],
@@ -91,6 +95,8 @@ export function aboutFromSanity(
 ): AboutContentData {
   if (!data) return empty
 
+  const headline = data.headline?.trim() ?? ''
+  const intro = blocksToParagraphs(data.intro)
   const paragraphs = blocksToParagraphs(data.bio)
 
   const expansions: Record<string, AboutToken[]> = {}
@@ -118,5 +124,5 @@ export function aboutFromSanity(
     })
   }
 
-  return { paragraphs, expansions, links }
+  return { headline, intro, paragraphs, expansions, links }
 }

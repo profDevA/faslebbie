@@ -2,7 +2,19 @@ import type { SanityLeadershipPage } from "@/sanity/types";
 import { proseRuns, type ProseRun } from "@/lib/sanityProse";
 import type { AboutToken, LeadershipGalleryItem } from "@/lib/content";
 
+export interface LeadershipSectionBlock {
+  subheading?: string;
+  tokens: AboutToken[];
+}
+
+export interface LeadershipSection {
+  title: string;
+  static: boolean;
+  blocks: LeadershipSectionBlock[];
+}
+
 export interface LeadershipContentData {
+  sections: LeadershipSection[];
   intro: AboutToken[];
   lead: AboutToken[];
   closing: AboutToken[];
@@ -29,6 +41,7 @@ function fieldToTokens(
 }
 
 const empty: LeadershipContentData = {
+  sections: [],
   intro: [],
   lead: [],
   closing: [],
@@ -39,13 +52,27 @@ const empty: LeadershipContentData = {
   contactText: "",
 };
 
-/** Sanity Leadership page only — no in-code seed fallback. */
+/** Sanity Approach (/leadership) page only — no in-code seed fallback. */
 export function leadershipFromSanity(
   data: SanityLeadershipPage | null | undefined,
 ): LeadershipContentData {
   if (!data) return empty;
 
   const expansions: Record<string, string> = {};
+
+  const sections: LeadershipSection[] = (data.sections ?? [])
+    .filter((s) => s.title && s.blocks?.length)
+    .map((s) => ({
+      title: s.title!.trim(),
+      static: s.static ?? false,
+      blocks: (s.blocks ?? [])
+        .filter((b) => b.body?.length)
+        .map((b) => ({
+          subheading: b.subheading?.trim() || undefined,
+          tokens: fieldToTokens(proseRuns(b.body), expansions),
+        })),
+    }));
+
   const intro = fieldToTokens(proseRuns(data.intro), expansions);
   const lead = fieldToTokens(proseRuns(data.lead), expansions);
   const closing = fieldToTokens(proseRuns(data.closing), expansions);
@@ -64,6 +91,7 @@ export function leadershipFromSanity(
   }));
 
   return {
+    sections,
     intro,
     lead,
     closing,
@@ -71,6 +99,6 @@ export function leadershipFromSanity(
     moments,
     momentsHeading: data.momentsHeading ?? "",
     exploreText: data.exploreText ?? "",
-    contactText: data.contactText ?? "",
+    contactText: data.contactText?.trim() || "Get in touch",
   };
 }

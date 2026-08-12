@@ -60,7 +60,7 @@ export const structure: StructureResolver = (S, context) =>
         .id("buildPage")
         .child(S.document().schemaType("buildPage").documentId("buildPage")),
       S.listItem()
-        .title("Leadership Page")
+        .title("Approach Page")
         .id("leadershipPage")
         .child(
           S.document()

@@ -18,6 +18,20 @@ export const aboutPage = defineType({
   ],
   fields: [
     defineField({
+      name: "headline",
+      title: "Headline",
+      type: "string",
+      description: 'Visible heading above the bio (e.g. "Designing for Transitions.").',
+      group: "bio",
+    }),
+    defineField({
+      name: "intro",
+      title: "Intro",
+      type: "aboutProse",
+      description: "Opening paragraph(s) below the headline, before the numbered bio sections.",
+      group: "bio",
+    }),
+    defineField({
       name: "bio",
       title: "Bio",
       type: "aboutProse",

@@ -1,49 +1,27 @@
 import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
+import { approachSection } from "../objects/approachSection";
 
-// Singleton for the /leadership page: the three ".txt" prose paragraphs (with
-// click-to-expand grey pills), the small headings/links, and the repeatable
-// "leadership moments" that power the ".img" gallery + unified popup.
+// Singleton for /leadership (nav: Approach): seven-section prose with grey-pill
+// reveals, plus leadership moments for the ".img" gallery.
 export const leadershipPage = defineType({
   name: "leadershipPage",
-  title: "Leadership Page",
+  title: "Approach Page",
   type: "document",
   groups: [
     { name: "prose", title: "Prose", default: true },
+    { name: "legacy", title: "Legacy prose" },
     { name: "moments", title: "Moments" },
     { name: "seo", title: "SEO" },
   ],
   fields: [
     defineField({
-      name: "intro",
-      title: "Intro prose",
-      type: "interactiveProse",
-      group: "prose",
-    }),
-    defineField({
-      name: "momentsHeading",
-      title: "Moments heading",
-      type: "string",
-      initialValue: "My leadership moments",
-      group: "prose",
-    }),
-    defineField({
-      name: "lead",
-      title: "Lead prose",
-      type: "interactiveProse",
-      group: "prose",
-    }),
-    defineField({
-      name: "exploreText",
-      title: "Explore link text",
-      type: "string",
-      initialValue: "Explore my leadership moments",
-      group: "prose",
-    }),
-    defineField({
-      name: "closing",
-      title: "Closing prose",
-      type: "interactiveProse",
+      name: "sections",
+      title: "Approach sections",
+      type: "array",
+      of: [{ type: "approachSection" }],
+      description:
+        "Final-copy structure (7 sections). When set, replaces legacy intro / lead / closing.",
       group: "prose",
     }),
     defineField({
@@ -54,6 +32,38 @@ export const leadershipPage = defineType({
       group: "prose",
     }),
     defineField({
+      name: "intro",
+      title: "Intro prose (legacy)",
+      type: "interactiveProse",
+      group: "legacy",
+    }),
+    defineField({
+      name: "momentsHeading",
+      title: "Moments heading (legacy)",
+      type: "string",
+      initialValue: "My leadership moments",
+      group: "legacy",
+    }),
+    defineField({
+      name: "lead",
+      title: "Lead prose (legacy)",
+      type: "interactiveProse",
+      group: "legacy",
+    }),
+    defineField({
+      name: "exploreText",
+      title: "Explore link text (legacy — removed from Approach)",
+      type: "string",
+      initialValue: "",
+      group: "legacy",
+    }),
+    defineField({
+      name: "closing",
+      title: "Closing prose (legacy)",
+      type: "interactiveProse",
+      group: "legacy",
+    }),
+    defineField({
       name: "moments",
       title: "Leadership moments",
       type: "array",
@@ -62,5 +72,5 @@ export const leadershipPage = defineType({
     }),
     pageSeoField,
   ],
-  preview: { prepare: () => ({ title: "Leadership Page" }) },
+  preview: { prepare: () => ({ title: "Approach Page" }) },
 });

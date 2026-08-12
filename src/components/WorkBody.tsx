@@ -550,7 +550,7 @@ export default function WorkBody({
 
       <PasswordGate
         open={gateOpen}
-        message="This case study is password protected. To view it, please enter the password below."
+        message="Please enter your password."
         onClose={closeGate}
         onSuccess={onGateSuccess}
       />

@@ -82,7 +82,7 @@ export default function LeadershipBody({
                     stays clear in BOTH the top and reading states — so it's
                     exempt from the reveal fade/blur (only the subtle forward
                     drift applies); the prose still brightens in. */}
-                <h1 className="sr-only">Leadership</h1>
+                <h1 className="sr-only">Approach</h1>
                 <PagePortrait
                   style={{ transform: portraitDrift(r) }}
                   className="relative z-10 will-change-transform"
@@ -100,6 +100,7 @@ export default function LeadershipBody({
               >
                 <LeadershipContent
                   className="pb-24"
+                  sections={content.sections}
                   intro={content.intro}
                   lead={content.lead}
                   closing={content.closing}

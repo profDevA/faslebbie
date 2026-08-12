@@ -33,6 +33,7 @@ import {
   aboutProse,
   aboutTyper,
 } from "./objects/aboutProse";
+import { approachSection } from "./objects/approachSection";
 import { aboutExpansion } from "./objects/aboutExpansion";
 import { studentProject } from "./objects/studentProject";
 import { teachingSection } from "./objects/teachingSection";
@@ -128,6 +129,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   aboutLogo,
   aboutPhoto,
   aboutExpansion,
+  approachSection,
   studentProject,
   teachingSection,
   buildProjectItem,
