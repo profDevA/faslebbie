@@ -39,12 +39,17 @@ export const START_OPACITY = 0.32;
 export const START_BLUR = 2; // px
 
 // Receded wordmark / watermark opacity once the content is in front.
-// Fas 08/09 recording: “make it more 20% so it’s not so intense” (was ~30%).
-export const WORDMARK_RECEDED_OPACITY = 0.2;
+// Receded wordmark opacity — one value site-wide (Aug 11: overlay consistent
+// across Home, About, Work, etc.). Was 20% → 14% → 5% (invisible); 12% reads
+// on screen while staying subtle.
+export const WORDMARK_RECEDED_OPACITY = 0.12;
 
 /** Opacity of the big page wordmark as fade goes 0 (front) → 1 (receded). */
-export function wordmarkOpacity(fade: number) {
-  return 1 - fade * (1 - WORDMARK_RECEDED_OPACITY);
+export function wordmarkOpacity(
+  fade: number,
+  receded = WORDMARK_RECEDED_OPACITY,
+) {
+  return 1 - fade * (1 - receded);
 }
 
 // Subtle drift magnitudes in px. Kept small on purpose. No scale, no sideways

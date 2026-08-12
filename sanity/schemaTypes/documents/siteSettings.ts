@@ -129,8 +129,7 @@ export const siteSettings = defineType({
       rows: 3,
       group: "seo",
       description: "Default meta description and OG description fallback.",
-      initialValue:
-        "Designer, researcher, educator — using design as a force for systems transition at scale.",
+      initialValue: "Designer · Researcher · Educator",
     }),
     defineField({
       name: "favicon",
@@ -161,7 +160,7 @@ export const siteSettings = defineType({
       type: "image",
       group: "seo",
       description:
-        "Social share image (link previews). Falls back to /portrait-master.png.",
+        "Social share image (link previews). Falls back to /og-share.png.",
       options: { hotspot: true },
     }),
     defineField({

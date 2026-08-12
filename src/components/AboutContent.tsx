@@ -567,16 +567,21 @@ export default function AboutContent({
       id="about"
       className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
-      {headline ? (
-        <h2 className="mb-6 font-grotesk text-[32px] font-bold leading-[1.15] tracking-[0.5px] md:text-[40px] lg:mb-8 lg:text-[48px]">
-          {headline}
-        </h2>
-      ) : null}
-      {intro.map((para, i) => (
-        <p key={`intro-${i}`} className="mb-7">
-          {renderTokens(para, ctx, `intro${i}`)}
-        </p>
-      ))}
+      {/* Figma 2632:1716 — headline 24px Medium + intro 42px Medium, same block. */}
+      {(headline || intro.length > 0) && (
+        <div className="mb-7">
+          {headline ? (
+            <h2 className="mb-0 font-grotesk text-[18px] font-medium leading-[1.6] tracking-[0.5px] md:text-[20px] lg:text-[24px]">
+              {headline}
+            </h2>
+          ) : null}
+          {intro.map((para, i) => (
+            <p key={`intro-${i}`} className="mb-0">
+              {renderTokens(para, ctx, `intro${i}`)}
+            </p>
+          ))}
+        </div>
+      )}
       {paragraphs.map((para, i) => {
         // A red keyword in this paragraph whose boxed panel expands inline.
         // "what people are saying" is excluded — it opens a centred modal
@@ -627,13 +632,14 @@ export default function AboutContent({
       {/* Footer row: CV / Resume / LinkedIn / Email.
           Fas 08/09 — drop the extra Testimonials↗ link; readers still open
           the modal via the in-bio “what people are saying” keyword. */}
-      <div className="@container/about-links mt-2">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-inherit sm:flex-nowrap sm:gap-[0.4em] sm:text-[min(3.7cqw,36px)]">
+      {/* Figma 2562:36424 — CV / Resume / LinkedIn / Email on #e3e3db pills. */}
+      <div className="@container/about-links mt-8">
+        <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,42px)]">
           {links.map(link =>
             link.passwordProtected ? (
               <ArrowTrigger
                 key={link.label}
-                className="shrink-0"
+                className="inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5"
                 onClick={() =>
                   requestAccess(() => openProtectedHref(link.href))
                 }
@@ -644,7 +650,7 @@ export default function AboutContent({
               <ExternalTextLink
                 key={link.label}
                 href={link.href}
-                className="shrink-0"
+                className="inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5"
               >
                 {link.label}
               </ExternalTextLink>

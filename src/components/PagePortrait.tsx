@@ -3,6 +3,10 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
+import {
+  LISTING_PORTRAIT_IMAGE_CLASS,
+  LISTING_PORTRAIT_SIZE,
+} from "@/lib/portraitLayout";
 import { useSite } from "@/components/SiteProvider";
 
 /**
@@ -10,7 +14,7 @@ import { useSite } from "@/components/SiteProvider";
  * Research, Build, Leadership, Teaching.
  *
  * Source: Site Settings → Brand → Master portrait (fallback /portrait-master.png).
- * Same 161/145 aspect as Contact / Home.
+ * Figma 2647:3716 — square ~318px (Home uses a smaller 161×145 crop).
  */
 
 /**
@@ -58,12 +62,11 @@ export default function PagePortrait({
     <Image
       src={brand.portraitSrc}
       alt="Portrait of Fas Lebbie"
-      width={1111}
-      height={1000}
+      width={LISTING_PORTRAIT_SIZE}
+      height={LISTING_PORTRAIT_SIZE}
       priority
       style={style}
-      /* Fas 08/10: slightly smaller than Figma 271px listing crop. */
-      className={`aspect-161/145 w-full bg-[#f0f0f0] object-cover object-top sm:w-60 ${className}`}
+      className={`${LISTING_PORTRAIT_IMAGE_CLASS} ${className}`}
     />
   );
 }

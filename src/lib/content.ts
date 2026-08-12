@@ -52,29 +52,23 @@ export interface PanelContent {
   hasToolStack?: boolean
 }
 
-// The 14 design-tool logos (Figma 807:2982), each exported at 4x as its own
-// transparent PNG (cream page background keyed out to a clean alpha matte) so
-// they stay razor-sharp. They're drawn as CSS masks tinted with `currentColor`
-// so they take the SAME colour as the wordmark (near-black at the top, fading
-// to grey as it recedes). `w`/`h` are each glyph's native Figma size in px — we
-// keep those exact proportions and per-icon heights instead of forcing them all
-// to one height. `name` is the tool label shown in the hover tooltip (Figma
-// 1111:30779). NOTE: positions 1-4 and 9 are best-guess pending Fas's confirm.
+// Figma 2632:21353 (logo frames) — assets for Stack under Work portrait
+// (2562:41828). PNG exports; w/h = native glyph size in px; `name` = tooltip.
 export const toolStackLogos: { src: string; w: number; h: number; name: string }[] = [
-  { src: '/tools/stack/logo-01.png', w: 28.75, h: 28.0, name: 'Paper' },
-  { src: '/tools/stack/logo-02.png', w: 18.75, h: 28.75, name: 'Figma' },
-  { src: '/tools/stack/logo-03.png', w: 29.75, h: 29.75, name: 'Linear' },
-  { src: '/tools/stack/logo-04.png', w: 29.5, h: 19.0, name: 'Claude Code' },
-  { src: '/tools/stack/logo-05.png', w: 32.25, h: 32.25, name: 'ChatGPT' },
-  { src: '/tools/stack/logo-06.png', w: 25.5, h: 26.25, name: 'Supabase' },
-  { src: '/tools/stack/logo-07.png', w: 24.0, h: 24.25, name: 'Lovable' },
-  { src: '/tools/stack/logo-08.png', w: 28.0, h: 28.0, name: 'Next.js' },
-  { src: '/tools/stack/logo-09.png', w: 31.0, h: 30.5, name: 'Spline' },
-  { src: '/tools/stack/logo-10.png', w: 28.75, h: 29.5, name: 'Notion' },
-  { src: '/tools/stack/logo-11.png', w: 33.75, h: 32.25, name: 'GitHub' },
-  { src: '/tools/stack/logo-12.png', w: 28.75, h: 24.0, name: 'Vercel' },
-  { src: '/tools/stack/logo-13.png', w: 29.75, h: 29.75, name: 'Floral AI' },
-  { src: '/tools/stack/logo-14.png', w: 32.25, h: 28.0, name: 'Weavy' },
+  { src: '/tools/stack/paper.png', w: 28.68, h: 27.98, name: 'Paper' },
+  { src: '/tools/stack/figma.png', w: 18.635, h: 28.69, name: 'Figma' },
+  { src: '/tools/stack/spline.png', w: 29.584, h: 29.584, name: 'Spline' },
+  { src: '/tools/stack/claude-code.png', w: 29.379, h: 18.887, name: 'Claude Code' },
+  { src: '/tools/stack/chatgpt.png', w: 32.177, h: 32.177, name: 'ChatGPT' },
+  { src: '/tools/stack/supabase.png', w: 27.98, h: 32.177, name: 'Supabase' },
+  { src: '/tools/stack/lovable.png', w: 23.783, h: 24.184, name: 'Lovable' },
+  { src: '/tools/stack/nextjs.png', w: 27.98, h: 27.98, name: 'Next.js' },
+  { src: '/tools/stack/linear.png', w: 30.888, h: 30.47, name: 'Linear' },
+  { src: '/tools/stack/notion.png', w: 28.577, h: 29.382, name: 'Notion' },
+  { src: '/tools/stack/github.png', w: 33.576, h: 32.178, name: 'GitHub' },
+  { src: '/tools/stack/vercel.png', w: 28.68, h: 23.783, name: 'Vercel' },
+  { src: '/tools/stack/floral-ai.png', w: 29.598, h: 29.598, name: 'Floral AI' },
+  { src: '/tools/stack/weavy.png', w: 32.2, h: 27.94, name: 'Weavy' },
 ]
 
 export const panels: Record<SectionId, PanelContent> = {
@@ -447,7 +441,7 @@ export const aboutParagraphs: AboutToken[][] = [
     { t: 'text', text: ', a ' },
     { t: 'key', text: 'fan', tone: 'gray' },
     { t: 'text', text: ', a husband and father ' },
-    { t: 'photo', src: '/about-logos/father.png', alt: 'Fas with family' },
+    { t: 'photo', src: '/family.png', alt: 'Fas with family' },
     { t: 'text', text: '.' },
   ],
 ]

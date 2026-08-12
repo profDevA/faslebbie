@@ -1,6 +1,7 @@
 "use client";
 
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
+import { LISTING_PORTRAIT_COLUMN_CLASS } from "@/lib/portraitLayout";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { type Testimonial, type WorkToken } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
@@ -57,6 +58,10 @@ const WALL_MENU_W_MOBILE = WALL_MENU_INNER_W_MOBILE + 20;
 const WALL_TAB_LANE = 24;
 
 type WorkProject = Study;
+
+function matchesFilter(project: WorkProject, filter: Filter) {
+  return filter === "All" || project.categories.includes(filter);
+}
 
 // Card thumbnails come back as the full-resolution original asset URL. Serve a
 // resized, auto-format (webp/avif) variant off the Sanity CDN so the `.img`
@@ -115,7 +120,9 @@ export default function WorkBody({
   // on first completion so scrolling back up never replays it (Israel 07/02);
   // re-arms when toggling back to `.txt` (which scrolls to top).
   const { r, pin } = useReveal(view === "txt");
-  const [filter, setFilter] = useState<Filter>("All");
+  // Committed filter (chip + grid blur after Apply). Pending = in-panel preview.
+  const [appliedFilter, setAppliedFilter] = useState<Filter>("All");
+  const [pendingFilter, setPendingFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
   const [wide, setWide] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -198,9 +205,9 @@ export default function WorkBody({
       cancelAnimationFrame(raf);
       win.removeEventListener("wheel", onWheel);
     };
-  }, [view, filter, wide]);
+  }, [view, wide]);
 
-  // Drop stale column tracks when switching 2↔4 columns.
+  // Drop stale column tracks when switching 2↔4 columns (not on filter — same DOM).
   useEffect(() => {
     trackRefs.current = [];
     wallOffset.current = 0;
@@ -223,21 +230,39 @@ export default function WorkBody({
     return c;
   }, [projects, categories]);
 
-  const visible = useMemo(
-    () =>
-      filter === "All"
-        ? projects
-        : projects.filter((p) => p.categories.includes(filter)),
-    [filter, projects],
-  );
+  // Preview blur while the panel is open; committed blur after Apply.
+  const blurFilter = filterOpen ? pendingFilter : appliedFilter;
 
   // Round-robin: 4 columns desktop, 2 columns mobile (Figma 1:17564 / 1:19168).
+  // All projects stay in the wall — non-matches blur instead of hiding.
   const wallColumns = useMemo(() => {
     const n = wide ? 4 : 2;
     const cols: WorkProject[][] = Array.from({ length: n }, () => []);
-    visible.forEach((p, i) => cols[i % n].push(p));
+    projects.forEach((p, i) => cols[i % n].push(p));
     return cols;
-  }, [visible, wide]);
+  }, [projects, wide]);
+
+  const openFilter = () => {
+    setPendingFilter(appliedFilter);
+    setFilterOpen(true);
+  };
+
+  const closeFilter = () => {
+    setPendingFilter(appliedFilter);
+    setFilterOpen(false);
+  };
+
+  const applyFilter = () => {
+    setAppliedFilter(pendingFilter);
+    setFilterOpen(false);
+  };
+
+  const clearFilter = () => {
+    setAppliedFilter("All");
+    setPendingFilter("All");
+  };
+
+  const showApply = filterOpen && pendingFilter !== appliedFilter;
 
   const menuShift =
     (filterOpen ? (wide ? WALL_MENU_W : WALL_MENU_W_MOBILE) : WALL_TAB_LANE) /
@@ -275,7 +300,7 @@ export default function WorkBody({
     );
     cards.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [view, filter, visible]);
+  }, [view, appliedFilter]);
 
   // Soft password gate for NDA studies (Fas 08/09). One unlock lasts the tab.
   const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate();
@@ -353,32 +378,26 @@ export default function WorkBody({
               {/* Portrait column width = photo width so Stack wraps under it
                   (Figma 1:9885), not across the page over the watermark. */}
               <div
-                className={`relative z-10 flex w-full flex-col gap-5 sm:w-60 lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
+                className={`relative z-10 flex w-full flex-col gap-5 ${LISTING_PORTRAIT_COLUMN_CLASS} lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
               >
                 <h1 className="sr-only">Design Work</h1>
                 <PagePortrait
                   style={{ opacity, filter: blur, transform: portraitDrift(r) }}
                   className="relative z-10 !w-full will-change-[opacity,filter,transform]"
                 />
-                {/* Figma 1:9885 / 1344:40761 — Stack under portrait, same width,
-                    label beside a 2-row icon column (not across the page). */}
+                {/* Figma 2562:41828 — Stack under portrait (7 + 7). */}
                 <div
                   style={{
                     opacity,
                     filter: blur,
                     pointerEvents: r < 0.7 ? "none" : undefined,
                   }}
-                  className="relative z-10 flex w-full items-center gap-[18px] text-black will-change-[opacity,filter]"
+                  className="relative z-10 flex w-full items-start gap-[17.5px] text-black will-change-[opacity,filter]"
                 >
-                  <span className="shrink-0 font-grotesk text-[14px] font-medium tracking-[0.06em]">
+                  <span className="shrink-0 pt-px font-grotesk text-[14px] font-medium leading-[1.35] tracking-[0.88px]">
                     Stack:
                   </span>
-                  <ToolStack
-                    scale={0.53}
-                    perRow={7}
-                    className="flex min-w-0 flex-col items-start gap-[14px]"
-                    iconGapClassName="gap-4"
-                  />
+                  <ToolStack perRow={7} scale={0.55} />
                 </div>
               </div>
 
@@ -419,6 +438,23 @@ export default function WorkBody({
       ) : (
         <>
           {showToggle && viewToggle}
+          {appliedFilter !== "All" && !filterOpen && (
+            <div className="relative z-10 flex items-center justify-center gap-[10px] px-6 pb-3 pt-1">
+              <span className="font-grotesk text-[24px] tracking-[0.5px] text-black/50">
+                {appliedFilter}
+                <span className="ml-6 tabular-nums">{counts[appliedFilter]}</span>
+              </span>
+              <button
+                type="button"
+                data-cursor="hover"
+                onClick={clearFilter}
+                aria-label={`Clear ${appliedFilter} filter`}
+                className="flex size-4 items-center justify-center font-grotesk text-[16px] leading-none text-black transition-opacity hover:opacity-60"
+              >
+                ×
+              </button>
+            </div>
+          )}
           <main ref={gridRef} className="relative z-10 w-full pb-0 pt-6 lg:pt-4">
           {/* Shared wall (Figma mobile 1:17564 / 1:19168 + desktop 1111:4653):
               2 cols mobile / 4 desktop. On open, left slides left and right
@@ -434,8 +470,9 @@ export default function WorkBody({
               >
                 {(wide ? [0, 1] : [0]).map((ci) => (
                   <WallColumn
-                    key={`${filter}-col-${ci}-${wide ? "d" : "m"}`}
+                    key={`col-${ci}-${wide ? "d" : "m"}`}
                     col={wallColumns[ci] ?? []}
+                    blurFilter={blurFilter}
                     showMeta={wide}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
@@ -450,8 +487,9 @@ export default function WorkBody({
               >
                 {(wide ? [2, 3] : [1]).map((ci) => (
                   <WallColumn
-                    key={`${filter}-col-${ci}-${wide ? "d" : "m"}`}
+                    key={`col-${ci}-${wide ? "d" : "m"}`}
                     col={wallColumns[ci] ?? []}
+                    blurFilter={blurFilter}
                     showMeta={wide}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
@@ -468,53 +506,72 @@ export default function WorkBody({
                 <button
                   type="button"
                   aria-label="Close filter"
-                  onClick={() => setFilterOpen(false)}
+                  onClick={closeFilter}
                   className="pointer-events-auto absolute inset-0 cursor-pointer"
                 />
               )}
               {filterOpen ? (
                 <div
-                  className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col gap-[18px] lg:gap-[22px]"
+                  className="work-filter-expand pointer-events-auto absolute left-1/2 top-[24px] flex -translate-x-1/2 flex-col items-stretch"
                   style={{ width: menuInnerW }}
                 >
                   <button
                     type="button"
-                    onClick={() => setFilterOpen(false)}
+                    onClick={closeFilter}
                     data-cursor="hover"
                     aria-label="Close filter"
-                    className="flex items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black"
+                    className="mb-[18px] flex items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black lg:mb-[22px]"
                   >
                     <span>Close</span>
                     <span aria-hidden className="text-[16px] leading-none">
                       ×
                     </span>
                   </button>
-                  {(["All", ...categories] as Filter[]).map((cat) => {
-                    const active = filter === cat;
-                    return (
-                      <button
-                        key={cat}
-                        type="button"
-                        data-cursor="hover"
-                        onClick={() => setFilter(cat)}
-                        className={`flex items-baseline justify-between gap-6 font-grotesk text-[18px] font-medium leading-none transition-colors lg:text-[20px] ${
-                          active
-                            ? "text-accent"
-                            : "text-black hover:text-accent"
-                        }`}
-                      >
-                        <span>{cat === "All" ? "ALL" : cat}</span>
-                        <span className={active ? "text-accent" : "text-black/45"}>
-                          {counts[cat]}
-                        </span>
-                      </button>
-                    );
-                  })}
+                  <div className="flex flex-col gap-[8px]">
+                    {(["All", ...categories] as Filter[]).map((cat) => {
+                      const active = pendingFilter === cat;
+                      const isAll = cat === "All";
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          data-cursor="hover"
+                          onClick={() => setPendingFilter(cat)}
+                          className={`flex w-full items-baseline justify-between gap-6 font-grotesk font-medium transition-colors ${
+                            isAll
+                              ? "text-[16px] uppercase leading-[19.2px]"
+                              : "text-[20px] leading-[36px] tracking-[-0.225px]"
+                          } ${
+                            active
+                              ? "text-accent"
+                              : "text-black hover:text-accent"
+                          }`}
+                        >
+                          <span>{isAll ? "ALL" : cat}</span>
+                          <span
+                            className={`tabular-nums ${active ? "text-accent" : "text-black/45"}`}
+                          >
+                            {counts[cat]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {showApply && (
+                    <button
+                      type="button"
+                      data-cursor="hover"
+                      onClick={applyFilter}
+                      className="mx-auto mt-8 h-[42px] w-[197px] rounded-[39px] bg-black font-grotesk text-[16px] font-medium leading-none text-white transition-opacity hover:opacity-85 lg:mt-10"
+                    >
+                      Apply
+                    </button>
+                  )}
                 </div>
               ) : (
                 <button
                   type="button"
-                  onClick={() => setFilterOpen(true)}
+                  onClick={openFilter}
                   data-cursor="hover"
                   aria-expanded={false}
                   className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
@@ -565,11 +622,13 @@ export default function WorkBody({
 // so it stops once the last card reaches the bottom of the window.
 function WallColumn({
   col,
+  blurFilter,
   trackRef,
   onOpen,
   showMeta = true,
 }: {
   col: WorkProject[];
+  blurFilter: Filter;
   trackRef: (el: HTMLDivElement | null) => void;
   onOpen: (slug: string) => void;
   showMeta?: boolean;
@@ -581,6 +640,7 @@ function WallColumn({
           <div key={`${p.slug}-${i}`} className="mb-4 lg:mb-5">
             <ProjectCard
               project={p}
+              dimmed={!matchesFilter(p, blurFilter)}
               reveal={false}
               showMeta={showMeta}
               onOpen={() => onOpen(p.slug)}
@@ -598,6 +658,7 @@ function ProjectCard({
   index = 0,
   reveal = true,
   showMeta = true,
+  dimmed = false,
 }: {
   project: WorkProject;
   onOpen: () => void;
@@ -607,6 +668,8 @@ function ProjectCard({
   reveal?: boolean;
   /** Mobile .img (Figma 1:17564) is image-only; desktop wall keeps title/From/To. */
   showMeta?: boolean;
+  /** Non-matching filter preview / applied state — blur like faslebbie.com/works. */
+  dimmed?: boolean;
 }) {
   const accent = project.accent?.hex ?? "#999999";
   // The wall (reveal=false) is the first paint when `.img` opens, so load its
@@ -619,29 +682,40 @@ function ProjectCard({
       data-cursor="hover"
       aria-label={project.name}
       {...(reveal ? { "data-work-card": true } : {})}
-      className={`${reveal ? "work-card-reveal " : ""}group @container/card block w-full text-left`}
+      className={`${reveal ? "work-card-reveal " : ""}${dimmed ? "work-card-dimmed " : ""}group @container/card block w-full text-left`}
       // Small repeating per-row stagger so cards cascade in as a group without
       // later cards waiting too long — mirrors the staggered fade on
       // faslebbie.com/works.
       style={reveal ? { transitionDelay: `${(index % 6) * 70}ms` } : undefined}
     >
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element -- static design asset
-        <img
-          src={src}
-          width={w}
-          height={h}
-          alt={project.name}
-          loading={reveal ? "lazy" : "eager"}
-          fetchPriority={reveal ? "auto" : "high"}
-          decoding="async"
-          className="h-auto w-full bg-[#f0f0f0] bg-cover bg-center"
+        <div
+          className="work-card-media"
           style={
-            project.imageLqip
-              ? { backgroundImage: `url(${project.imageLqip})` }
+            w && h
+              ? { aspectRatio: `${w} / ${h}` }
               : undefined
           }
-        />
+        >
+          {dimmed ? (
+            <div
+              className="work-card-media-blur"
+              style={{ backgroundImage: `url(${src})` }}
+              aria-hidden
+            />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element -- static design asset */
+            <img
+              src={src}
+              width={w}
+              height={h}
+              alt={project.name}
+              loading={reveal ? "lazy" : "eager"}
+              fetchPriority={reveal ? "auto" : "high"}
+              decoding="async"
+            />
+          )}
+        </div>
       ) : (
         // Branded colour placeholder until real art lands.
         <div

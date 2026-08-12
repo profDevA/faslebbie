@@ -8,6 +8,11 @@ import { useSite } from "@/components/SiteProvider";
 import type { HomeContentData } from "@/lib/homeFromSanity";
 import { NAV_H_PX, NAV_TOP } from "@/lib/navLayout";
 import {
+  HOME_PORTRAIT_HEIGHT,
+  HOME_PORTRAIT_IMAGE_CLASS,
+  HOME_PORTRAIT_WIDTH,
+} from "@/lib/portraitLayout";
+import {
   HOME_INTRO_REVEAL,
   START_BLUR,
   START_OPACITY,
@@ -163,21 +168,20 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
           settled path used in-flow h-full and looked tighter under the sticky nav. */}
       <div
         ref={boxRef}
-        className={`fixed inset-x-0 bottom-0 ${NAV_TOP} flex items-center justify-center overflow-y-auto px-6 py-4 lg:px-[5vw] lg:py-0`}
+        className={`fixed inset-x-0 bottom-0 ${NAV_TOP} flex items-start justify-start overflow-y-auto px-6 pt-10 pb-12 md:pt-12 md:pb-14 lg:items-center lg:justify-center lg:px-[5vw] lg:py-0`}
       >
         <div
           ref={paraRef}
-          className="flex w-full max-w-275 flex-col items-center gap-8 lg:gap-8.25"
+          className="flex w-full max-w-275 flex-col items-center gap-10 lg:gap-8.25"
         >
           <Image
             src={brand.portraitSrc}
             alt="Portrait of Fas Lebbie"
-            width={1111}
-            height={1000}
+            width={HOME_PORTRAIT_WIDTH}
+            height={HOME_PORTRAIT_HEIGHT}
             priority
             style={{ opacity: portraitOpacity }}
-            /* Same display size as listing PagePortrait (240px / sm:w-60). */
-            className="aspect-161/145 w-40.25 shrink-0 bg-[#f0f0f0] object-cover object-top will-change-[opacity] sm:w-60"
+            className={`${HOME_PORTRAIT_IMAGE_CLASS} will-change-[opacity]`}
           />
           <div
             style={{

@@ -228,3 +228,48 @@ body {
     animation: none;
   }
 }
+
+/* Work `.img` filter — faslebbie.com/works: blur via a scaled bg layer clipped
+   by overflow:hidden (not filter on <img>, which feathers alpha at edges). */
+.work-card-media {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background-color: var(--color-bg);
+}
+
+.work-card-media img,
+.work-card-media-blur {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.work-card-media img {
+  object-fit: cover;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.work-card-media-blur {
+  position: absolute;
+  inset: 0;
+  filter: blur(7px);
+  transform: scale(1.1);
+  transform-origin: center center;
+  transition: opacity 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-card-media img,
+  .work-card-media-blur {
+    transition: none;
+  }
+
+  .work-card-media-blur {
+    filter: none;
+    transform: none;
+  }
+}

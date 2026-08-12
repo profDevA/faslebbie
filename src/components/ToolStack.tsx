@@ -3,11 +3,8 @@
 import { toolStackLogos } from "@/lib/content";
 
 /**
- * The design-tool stack row (Figma 1111:30779) rendered as `currentColor`-tinted
- * CSS masks, each with a hover tooltip carrying the tool name. Used both in the
- * desktop "Design Work" watermark and the mobile heading. The per-icon wrapper is
- * `pointer-events-auto` so tooltips still work inside the watermark's otherwise
- * `pointer-events-none` parallax layer (when it sits in front, at the top).
+ * Design-tool stack row (Figma 2562:41828, assets from 2632:21353). PNG icons at
+ * native Figma size; hover tooltip per tool.
  */
 function LogoIcon({
   logo,
@@ -18,21 +15,15 @@ function LogoIcon({
 }) {
   return (
     <span className="group pointer-events-auto relative inline-flex items-center justify-center">
-      <span
-        aria-label={logo.name}
-        role="img"
-        className="inline-block shrink-0 bg-current"
+      {/* eslint-disable-next-line @next/next/no-img-element -- tiny static tool marks */}
+      <img
+        src={logo.src}
+        alt=""
+        aria-hidden
+        className="inline-block shrink-0 object-contain"
         style={{
           width: `${logo.w * scale}px`,
           height: `${logo.h * scale}px`,
-          WebkitMaskImage: `url(${logo.src})`,
-          maskImage: `url(${logo.src})`,
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center",
-          maskPosition: "center",
-          WebkitMaskSize: "contain",
-          maskSize: "contain",
         }}
       />
       <span
@@ -48,10 +39,10 @@ function LogoIcon({
 export default function ToolStack({
   scale = 1,
   className = "",
-  /** When set (e.g. Figma 1344:40761 under-portrait stack), chunk into rows. */
+  /** Chunk into rows (Work `.txt` uses 7 + 7 under the portrait). */
   perRow,
-  rowGapClassName = "gap-[14px]",
-  iconGapClassName = "gap-4",
+  rowGapClassName = "gap-[10px]",
+  iconGapClassName = "gap-[22px]",
 }: {
   scale?: number;
   className?: string;

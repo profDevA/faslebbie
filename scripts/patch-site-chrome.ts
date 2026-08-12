@@ -12,8 +12,7 @@ import { getCliClient } from "sanity/cli";
 const client = getCliClient({ apiVersion: "2025-01-01" });
 
 const SITE_TITLE = "Fas Lebbie, Ph.D.";
-const SITE_DESCRIPTION =
-  "Designer, researcher, educator — using design as a force for systems transition at scale.";
+const SITE_DESCRIPTION = "Designer · Researcher · Educator";
 
 const navItems = [
   { _key: "home", _type: "navLink", label: "Home", href: "/" },

@@ -8,6 +8,8 @@
  *   sanity exec scripts/patch-about-final-copy.ts --with-user-token
  */
 import { randomUUID } from "node:crypto";
+import { createReadStream, existsSync } from "node:fs";
+import { basename, join } from "node:path";
 
 import { getCliClient } from "sanity/cli";
 
@@ -15,6 +17,24 @@ import type { AboutToken } from "../src/lib/content";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
+const PUBLIC = join(process.cwd(), "public");
+
+const assetCache = new Map<string, string | null>();
+
+async function uploadImage(p: string): Promise<string | null> {
+  if (assetCache.has(p)) return assetCache.get(p)!;
+  const abs = join(PUBLIC, p.replace(/^\//, ""));
+  if (!existsSync(abs)) {
+    console.warn(`  ! missing asset: ${p}`);
+    assetCache.set(p, null);
+    return null;
+  }
+  const asset = await client.assets.upload("image", createReadStream(abs), {
+    filename: basename(abs),
+  });
+  assetCache.set(p, asset._id);
+  return asset._id;
+}
 
 const HEADLINE = "Designing for Transitions.";
 
@@ -129,6 +149,7 @@ const BIO: AboutToken[][] = [
       ],
     },
     { t: "text", text: " and offer free mentorship " },
+    // Doc: Calendly / booking — still /teaching until Fas confirms URL.
     { t: "link", text: "monthly", href: "/teaching" },
     { t: "text", text: " to " },
     {
@@ -148,7 +169,13 @@ const BIO: AboutToken[][] = [
     { t: "key", text: "reader", tone: "gray" },
     { t: "text", text: ", a " },
     { t: "key", text: "fan", tone: "gray" },
-    { t: "text", text: ", a husband and father." },
+    { t: "text", text: ", a husband and father " },
+    {
+      t: "photo",
+      src: "/family.png",
+      alt: "Fas with family",
+    },
+    { t: "text", text: "." },
   ],
 ];
 
@@ -217,7 +244,7 @@ const EXPANSIONS: Record<string, AboutToken[]> = {
 
 type MarkDef = Record<string, unknown> & { _key: string; _type: string };
 
-function toBlock(tokens: AboutToken[]) {
+async function toBlock(tokens: AboutToken[]) {
   const markDefs: MarkDef[] = [];
   const children: Record<string, unknown>[] = [];
 
@@ -253,9 +280,23 @@ function toBlock(tokens: AboutToken[]) {
       case "logo":
         children.push({ _type: "aboutLogo", _key: key(), name: tok.name });
         break;
-      case "photo":
-        console.warn(`  ! skipping photo token in patch (${tok.src})`);
+      case "photo": {
+        const id = await uploadImage(tok.src);
+        children.push({
+          _type: "aboutPhoto",
+          _key: key(),
+          alt: tok.alt,
+          ...(id
+            ? {
+                image: {
+                  _type: "image",
+                  asset: { _type: "reference", _ref: id },
+                },
+              }
+            : {}),
+        });
         break;
+      }
       default:
         break;
     }
@@ -264,8 +305,10 @@ function toBlock(tokens: AboutToken[]) {
   return { _type: "block", _key: key(), style: "normal", markDefs, children };
 }
 
-function toBlocks(paras: AboutToken[][]) {
-  return paras.map((p) => toBlock(p));
+async function toBlocks(paras: AboutToken[][]) {
+  const blocks = [];
+  for (const p of paras) blocks.push(await toBlock(p));
+  return blocks;
 }
 
 const LINK_DEFAULTS = [
@@ -310,19 +353,21 @@ async function main() {
     };
   });
 
-  const expansions = Object.entries(EXPANSIONS).map(([keyword, tokens]) => ({
-    _type: "aboutExpansion" as const,
-    _key: key(),
-    keyword,
-    body: [toBlock(tokens)],
-  }));
+  const expansions = await Promise.all(
+    Object.entries(EXPANSIONS).map(async ([keyword, tokens]) => ({
+      _type: "aboutExpansion" as const,
+      _key: key(),
+      keyword,
+      body: [await toBlock(tokens)],
+    })),
+  );
 
   await client.createOrReplace({
     _id: "aboutPage",
     _type: "aboutPage",
     headline: HEADLINE,
-    intro: toBlocks(INTRO),
-    bio: toBlocks(BIO),
+    intro: await toBlocks(INTRO),
+    bio: await toBlocks(BIO),
     expansions,
     links,
   });

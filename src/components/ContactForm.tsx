@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
+import { HOME_PORTRAIT_WIDTH } from "@/lib/portraitLayout";
 import { useSite } from "@/components/SiteProvider";
 
 // "Drop Me a Line" (Figma 2218:75548) — light drawer: portrait, heading,
@@ -46,13 +47,13 @@ export default function ContactForm() {
 
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col">
-      {/* Same 161/145 master crop as listing PagePortrait (Figma 2218:75512). */}
-      <div className="relative mx-auto aspect-161/145 w-40.25 overflow-hidden">
+      {/* Figma 2647:3713 — same Home crop (161×145). */}
+      <div className="relative mx-auto aspect-161/145 w-[161px] overflow-hidden">
         <Image
           src={contact.portraitSrc}
           alt="Fas Lebbie"
           fill
-          sizes="161px"
+          sizes={`${HOME_PORTRAIT_WIDTH}px`}
           className="object-cover object-top"
           priority
         />
