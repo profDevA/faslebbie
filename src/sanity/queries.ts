@@ -113,7 +113,7 @@ export const STUDY_CARDS_QUERY = defineQuery(`*[_type == "caseStudy"] | order(or
 export const CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(orderRank asc).title`);
 
 export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
-  sectionTitle, intro, enableTextView, enableImageView, loadMoreLabel,
+  sectionTitle, intro, enableTextView, enableImageView,
   toolStackPerRow,
   toolStack[]{
     label,
@@ -136,6 +136,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   "masterPortrait": masterPortrait.asset->url,
   navItems[]{ label, href },
   mobileNavItems[]{ label, href },
+  projectNavItems[]{ label, href },
   contactDrawerTitle, contactHeading, contactSubmitLabel,
   contactSuccessTitle, contactSuccessBody, contactSendAnotherLabel,
   "contactPortrait": contactPortrait.asset->url,

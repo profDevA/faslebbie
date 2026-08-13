@@ -238,6 +238,7 @@ export interface SanitySiteSettings {
   masterPortrait?: string;
   navItems?: SanityNavLink[];
   mobileNavItems?: SanityNavLink[];
+  projectNavItems?: SanityNavLink[];
   contactDrawerTitle?: string;
   contactHeading?: string;
   contactPortrait?: string;

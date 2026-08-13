@@ -16,8 +16,9 @@ export const workPage = defineType({
       name: "sectionTitle",
       title: "Section title",
       type: "string",
-      initialValue: "Work",
+      initialValue: "Design Work",
       group: "content",
+      description: "Background wordmark on the Work page.",
     }),
     defineField({
       name: "intro",
@@ -48,6 +49,22 @@ export const workPage = defineType({
       of: [{ type: "toolStackItem" }],
       group: "content",
       description: "Icons under the portrait in text view.",
+      validation: (Rule) =>
+        Rule.custom(
+          (
+            items:
+              | { label?: string; logo?: { asset?: { _ref?: string } } }[]
+              | undefined,
+          ) => {
+            if (!items?.length) return true;
+            const missing = items.filter((i) => !i.logo?.asset?._ref);
+            if (!missing.length) return true;
+            const labels = missing
+              .map((i) => i.label?.trim() || "(unnamed)")
+              .join(", ");
+            return `Missing logo: ${labels}. Those items won't appear on the site.`;
+          },
+        ).warning(),
     }),
     defineField({
       name: "toolStackPerRow",
@@ -63,6 +80,8 @@ export const workPage = defineType({
       type: "string",
       initialValue: "Load More",
       group: "content",
+      description: "Reserved — not used on the Work gallery yet.",
+      hidden: true,
     }),
     defineField({ name: "appearance", type: "appearance", group: "content" }),
     pageSeoField,

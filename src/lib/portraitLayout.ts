@@ -18,5 +18,5 @@ export const LISTING_PORTRAIT_IMAGE_CLASS =
 /** Work `.txt` column — portrait + Stack share this width. */
 export const LISTING_PORTRAIT_COLUMN_CLASS = "sm:w-[271px]";
 
-/** Stack grid under the Work portrait — 6 icons per row (14 → 6+6+2). */
+/** Fallback when Work Page → toolStackPerRow is unset in Sanity. */
 export const STACK_ICONS_PER_ROW = 6;

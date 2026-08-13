@@ -26,11 +26,14 @@ function mix(t: number) {
 export default function WorkWatermark({
   show = true,
   receded = false,
+  title = "Design Work",
 }: {
   show?: boolean;
   /** Force the fully-receded (faint grey, behind) state regardless of scroll —
    *  used by the ".img" grid, where the wordmark always sits in the back. */
   receded?: boolean;
+  /** Work Page → section title (Sanity). */
+  title?: string;
 }) {
   const [fade, setFade] = useState(INTRO_REVEAL ? 0 : 1);
   const fadeMax = useRef(0);
@@ -84,7 +87,7 @@ export default function WorkWatermark({
           @ ~643 / photo ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on
           desktop, where the wordmark is a fixed layer in the left column. */}
       <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
-        Design Work
+        {title}
       </span>
     </div>
   );

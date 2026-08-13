@@ -1,4 +1,5 @@
 import type { SanitySiteSettings } from "@/sanity/types";
+import { projectNavItems as defaultProjectNavItems } from "@/lib/content";
 
 export interface NavItem {
   label: string;
@@ -28,8 +29,14 @@ export interface SiteContentData {
   brand: SiteBrand;
   navItems: NavItem[];
   mobileNavItems: NavItem[];
+  projectNavItems: NavItem[];
   contact: ContactCopy;
 }
+
+const defaultProjectNav: NavItem[] = defaultProjectNavItems.map((i) => ({
+  label: i.label,
+  href: i.href,
+}));
 
 function mapLinks(
   items: { label?: string; href?: string }[] | undefined,
@@ -70,6 +77,7 @@ export function siteFromSanity(
       },
       navItems: ensureHome([]),
       mobileNavItems: ensureHome([]),
+      projectNavItems: defaultProjectNav,
       contact: emptyContact,
     };
   }
@@ -89,6 +97,9 @@ export function siteFromSanity(
     },
     navItems: ensureHome(mapLinks(data.navItems)),
     mobileNavItems: ensureHome(mapLinks(data.mobileNavItems)),
+    projectNavItems: mapLinks(data.projectNavItems).length
+      ? mapLinks(data.projectNavItems)
+      : defaultProjectNav,
     contact: {
       drawerTitle: data.contactDrawerTitle?.trim() || "",
       heading: data.contactHeading?.trim() || "",

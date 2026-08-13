@@ -117,6 +117,7 @@ export default function WorkBody({
   const showToggle = textOn && imgOn;
   const bgColor = work.appearance?.backgroundColor?.hex;
   const narrative = work.narrative;
+  const wordmarkTitle = work.sectionTitle?.trim() || "Design Work";
 
   // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
   // popup, don't create a new path"). No route change — `openSlug` drives the
@@ -447,7 +448,7 @@ export default function WorkBody({
           in ".img" it's forced to its receded (faint grey, behind) state so the grid
           always sits over a backdropped wordmark — like Figma — instead of snapping
           back to the front when switching views resets the scroll. */}
-      <WorkWatermark receded={view === "img"} />
+      <WorkWatermark receded={view === "img"} title={wordmarkTitle} />
       {view === "txt" ? (
         <>
           {/* Desktop pin: sticks under the nav for `pin` px of scroll so the
@@ -476,7 +477,7 @@ export default function WorkBody({
               <div
                 className={`relative z-10 flex w-full max-w-full flex-col gap-5 ${LISTING_PORTRAIT_COLUMN_CLASS} lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
               >
-                <h1 className="sr-only">Design Work</h1>
+                <h1 className="sr-only">{wordmarkTitle}</h1>
                 <PagePortrait
                   style={{ opacity, filter: blur, transform: portraitDrift(r) }}
                   className="relative z-10 !w-full will-change-[opacity,filter,transform]"

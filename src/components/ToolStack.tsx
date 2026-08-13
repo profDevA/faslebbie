@@ -63,12 +63,19 @@ export default function ToolStack({
   const items: StackLogo[] =
     logos && logos.length > 0
       ? logos
-      : toolStackLogos.map((l) => ({
-          src: l.src,
-          label: l.name,
-          width: l.w,
-          height: l.h,
-        }));
+      : (() => {
+          if (process.env.NODE_ENV === "development") {
+            console.warn(
+              "[ToolStack] No Sanity stack logos — using bundled fallback from content.ts",
+            );
+          }
+          return toolStackLogos.map((l) => ({
+            src: l.src,
+            label: l.name,
+            width: l.w,
+            height: l.h,
+          }));
+        })();
 
   const cols = Math.max(1, Math.min(12, perRow));
 

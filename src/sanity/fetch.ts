@@ -30,22 +30,23 @@ import type {
   WorkPageConfig,
 } from "./types";
 
-const options = { next: { revalidate: 60, tags: ["caseStudy"] } };
+const studyOptions = { next: { revalidate: 60, tags: ["caseStudy"] } };
+const workPageOptions = { next: { revalidate: 60, tags: ["workPage"] } };
 
 export async function getAllStudies(): Promise<Study[]> {
-  return client.fetch(ALL_STUDIES_QUERY, {}, options) as Promise<Study[]>;
+  return client.fetch(ALL_STUDIES_QUERY, {}, studyOptions) as Promise<Study[]>;
 }
 
 export async function getCategories(): Promise<string[]> {
-  return client.fetch(CATEGORIES_QUERY, {}, options) as Promise<string[]>;
+  return client.fetch(CATEGORIES_QUERY, {}, studyOptions) as Promise<string[]>;
 }
 
 export async function getWorkPage(): Promise<WorkPageConfig | null> {
-  return client.fetch(WORK_PAGE_QUERY, {}, options) as Promise<WorkPageConfig | null>;
+  return client.fetch(WORK_PAGE_QUERY, {}, workPageOptions) as Promise<WorkPageConfig | null>;
 }
 
 export async function getStudySlugs(): Promise<string[]> {
-  return client.fetch(STUDY_SLUGS_QUERY, {}, options) as Promise<string[]>;
+  return client.fetch(STUDY_SLUGS_QUERY, {}, studyOptions) as Promise<string[]>;
 }
 
 export async function getResearchPage(): Promise<SanityResearchPage | null> {

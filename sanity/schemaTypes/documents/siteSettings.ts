@@ -63,6 +63,18 @@ export const siteSettings = defineType({
       description: "Order can differ from desktop.",
     }),
     defineField({
+      name: "projectNavItems",
+      title: "Projects dropdown",
+      type: "array",
+      of: [{ type: "navLink" }],
+      group: "nav",
+      description: "Case Studies + Build / Playground under the Projects menu.",
+      initialValue: [
+        { _type: "navLink", label: "Case Studies", href: "/work" },
+        { _type: "navLink", label: "Build / Playground", href: "/build" },
+      ],
+    }),
+    defineField({
       name: "contactDrawerTitle",
       title: "Drawer title",
       type: "string",

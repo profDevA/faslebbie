@@ -30,34 +30,36 @@ async function uploadLogo(filename: string) {
 }
 
 async function main() {
-  const id: string | null = await client.fetch(
-    `*[_type == "workPage"][0]._id`,
+  const docs = await client.fetch<{ _id: string }[]>(
+    `*[_type == "workPage"]{ _id }`,
   );
-  if (!id) throw new Error("No workPage document");
+  if (!docs.length) throw new Error("No workPage document");
 
-  const toolStack = [];
-  for (const logo of toolStackLogos) {
-    const filename = logo.src.split("/").pop()!;
-    const assetId = await uploadLogo(filename);
-    if (!assetId) continue;
-    toolStack.push({
-      _type: "toolStackItem",
-      _key: key(),
-      label: logo.name,
-      logo: {
-        _type: "image",
-        asset: { _type: "reference", _ref: assetId },
-      },
-    });
-    console.log(`  · ${logo.name}`);
+  for (const doc of docs) {
+    const toolStack = [];
+    for (const logo of toolStackLogos) {
+      const filename = logo.src.split("/").pop()!;
+      const assetId = await uploadLogo(filename);
+      if (!assetId) continue;
+      toolStack.push({
+        _type: "toolStackItem",
+        _key: key(),
+        label: logo.name,
+        logo: {
+          _type: "image",
+          asset: { _type: "reference", _ref: assetId },
+        },
+      });
+      console.log(`  · ${logo.name}`);
+    }
+
+    await client
+      .patch(doc._id)
+      .set({ toolStack, toolStackPerRow: 6 })
+      .commit();
+
+    console.log(`patched ${doc._id}: ${toolStack.length} stack icons`);
   }
-
-  await client
-    .patch(id)
-    .set({ toolStack, toolStackPerRow: 6 })
-    .commit();
-
-  console.log(`patched ${id}: ${toolStack.length} stack icons`);
 }
 
 main().catch((err) => {

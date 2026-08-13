@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ContactDrawer from "@/components/ContactDrawer";
 import { useSite } from "@/components/SiteProvider";
-import { projectNavItems } from "@/lib/content";
 import { OPEN_CONTACT_EVENT } from "@/lib/contactDrawer";
 import { NAV_H, NAV_TOP } from "@/lib/navLayout";
 
@@ -66,6 +65,7 @@ function NavLink({
 /** Projects ▾ — Case Studies + Build/Playground (Figma project-dropdown). */
 function ProjectsMenu({ light }: { light?: boolean }) {
   const pathname = usePathname();
+  const { projectNavItems } = useSite();
   const [open, setOpen] = useState(false);
   const active = projectNavItems.some(
     (i) => pathname === i.href || pathname.startsWith(i.href + "/"),
@@ -140,7 +140,7 @@ function ProjectsMenu({ light }: { light?: boolean }) {
 const MENU_MS = 300;
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
-  const { navItems, mobileNavItems, contact } = useSite();
+  const { navItems, mobileNavItems, projectNavItems, contact } = useSite();
   const [open, setOpen] = useState(false);
   // Keep panel mounted through the close slide (open alone would unmount instantly).
   const [menuMounted, setMenuMounted] = useState(false);

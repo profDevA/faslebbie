@@ -15,7 +15,6 @@ export interface WorkToolStackLogo {
 export interface WorkContentData {
   narrative: WorkToken[][];
   sectionTitle?: string;
-  loadMoreLabel?: string;
   enableTextView: boolean;
   enableImageView: boolean;
   toolStack: WorkToolStackLogo[];
@@ -64,8 +63,7 @@ export function workFromSanity(
 ): WorkContentData {
   return {
     narrative: workNarrativeFromBlocks(data?.intro),
-    sectionTitle: data?.sectionTitle,
-    loadMoreLabel: data?.loadMoreLabel,
+    sectionTitle: data?.sectionTitle?.trim() || undefined,
     enableTextView: data?.enableTextView !== false,
     enableImageView: data?.enableImageView !== false,
     toolStack: mapToolStack(data?.toolStack),
