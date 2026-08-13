@@ -1,9 +1,7 @@
 import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
 
-// Singleton for the /teaching page: intro prose, the ".txt" sections (Student
-// Works / My Student Exhibitions), Student Works entries, and the SFK
-// exhibition collage.
+// Singleton for the /teaching page: intro, sections, student works, exhibition.
 export const teachingPage = defineType({
   name: "teachingPage",
   title: "Teaching Page",

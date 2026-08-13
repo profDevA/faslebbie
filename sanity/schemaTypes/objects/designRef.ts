@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// A reference link kept on the case study (e.g. the Figma frame it maps to).
+// A reference link kept on the case study (e.g. design file or frame URL).
 export const designRef = defineType({
   name: "designRef",
   title: "Design reference",

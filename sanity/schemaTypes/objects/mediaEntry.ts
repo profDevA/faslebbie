@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One ".media" entry (Blogs & Media). Shows as a play-button card in the grid;
-// opens a paged modal with the embed + details.
+// One media entry for Blogs & Media. Shows as a play-button card in the grid.
 export const mediaEntry = defineType({
   name: "mediaEntry",
   title: "Media entry",
@@ -37,7 +36,7 @@ export const mediaEntry = defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Square card image for the .media grid. Without this the card is an empty play tile.",
+        "Square thumbnail for the media grid. Without this the card shows as an empty play tile.",
     }),
     defineField({
       name: "video",

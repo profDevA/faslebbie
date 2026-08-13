@@ -1,8 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One labelled device row inside the Motion Showcase ("Key Product
-// Experiences"). Holds one or more device frames — each is a mediaItem so it
-// can be a looping video (the Jitter export) or a static frame placeholder.
+// One labelled device row. Each frame is a video, image, or prototype embed.
 export const motionRow = defineType({
   name: "motionRow",
   title: "Device row",

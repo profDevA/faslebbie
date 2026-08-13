@@ -1,84 +1,86 @@
 "use client";
 
+import Image from "next/image";
+
+import { STACK_ICONS_PER_ROW } from "@/lib/portraitLayout";
 import { toolStackLogos } from "@/lib/content";
 
-/**
- * Design-tool stack row (Figma 2562:41828, assets from 2632:21353). PNG icons at
- * native Figma size; hover tooltip per tool.
- */
-function LogoIcon({
-  logo,
-  scale,
-}: {
-  logo: (typeof toolStackLogos)[number];
-  scale: number;
-}) {
+/** Display height for stack icons (listing scale). */
+const ICON_H = 16;
+
+export type StackLogo = {
+  src: string;
+  label: string;
+  width: number;
+  height: number;
+};
+
+function iconWidth(logo: StackLogo) {
+  const h = logo.height > 0 ? logo.height : ICON_H;
+  const w = logo.width > 0 ? logo.width : h;
+  return Math.max(8, Math.round((w / h) * ICON_H));
+}
+
+function LogoIcon({ logo }: { logo: StackLogo }) {
+  const w = iconWidth(logo);
+  const src =
+    logo.src.includes("cdn.sanity.io") && !logo.src.includes("?")
+      ? `${logo.src}?h=64&auto=format&fit=max&q=90`
+      : logo.src;
+
   return (
-    <span className="group pointer-events-auto relative inline-flex items-center justify-center">
-      {/* eslint-disable-next-line @next/next/no-img-element -- tiny static tool marks */}
-      <img
-        src={logo.src}
+    <span className="group pointer-events-auto relative flex h-4 w-full items-center justify-center">
+      <Image
+        src={src}
         alt=""
         aria-hidden
-        className="inline-block shrink-0 object-contain"
-        style={{
-          width: `${logo.w * scale}px`,
-          height: `${logo.h * scale}px`,
-        }}
+        width={w}
+        height={ICON_H}
+        className="max-h-full max-w-full object-contain"
+        unoptimized={!src.includes("cdn.sanity.io")}
       />
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-50 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-[8px] bg-white px-[10px] py-[5px] font-grotesk text-[13px] font-medium leading-none text-black opacity-0 shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100"
+        className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-[60] -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-[8px] bg-white px-[10px] py-[5px] font-grotesk text-[13px] font-medium leading-none text-black opacity-0 shadow-[0_6px_20px_rgba(0,0,0,0.16)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100"
       >
-        {logo.name}
+        {logo.label}
       </span>
     </span>
   );
 }
 
 export default function ToolStack({
-  scale = 1,
+  logos,
   className = "",
-  /** Chunk into rows (Work `.txt` uses 7 + 7 under the portrait). */
-  perRow,
-  rowGapClassName = "gap-[10px]",
-  iconGapClassName = "gap-[22px]",
+  perRow = STACK_ICONS_PER_ROW,
 }: {
-  scale?: number;
+  /** Sanity stack; falls back to bundled logos when empty. */
+  logos?: StackLogo[];
   className?: string;
+  /** Icons per row — extra icons wrap to the next row(s). */
   perRow?: number;
-  rowGapClassName?: string;
-  iconGapClassName?: string;
 }) {
-  if (perRow && perRow > 0) {
-    const rows: (typeof toolStackLogos)[] = [];
-    for (let i = 0; i < toolStackLogos.length; i += perRow) {
-      rows.push(toolStackLogos.slice(i, i + perRow));
-    }
-    return (
-      <span
-        className={
-          className || `flex flex-col items-start ${rowGapClassName}`
-        }
-      >
-        {rows.map((row, idx) => (
-          <span
-            key={idx}
-            className={`flex items-center ${iconGapClassName}`}
-          >
-            {row.map((logo) => (
-              <LogoIcon key={logo.src} logo={logo} scale={scale} />
-            ))}
-          </span>
-        ))}
-      </span>
-    );
-  }
+  const items: StackLogo[] =
+    logos && logos.length > 0
+      ? logos
+      : toolStackLogos.map((l) => ({
+          src: l.src,
+          label: l.name,
+          width: l.w,
+          height: l.h,
+        }));
+
+  const cols = Math.max(1, Math.min(12, perRow));
 
   return (
-    <span className={`flex flex-wrap items-center gap-y-3 ${className}`}>
-      {toolStackLogos.map((logo) => (
-        <LogoIcon key={logo.src} logo={logo} scale={scale} />
+    <span
+      className={`grid w-full gap-x-[6px] gap-y-[8px] overflow-visible ${className}`}
+      style={{
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+      }}
+    >
+      {items.map((logo) => (
+        <LogoIcon key={`${logo.src}-${logo.label}`} logo={logo} />
       ))}
     </span>
   );

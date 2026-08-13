@@ -1,8 +1,7 @@
 import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
 
-// Singleton for the /blogs page: the ".blog" writing list and the ".media"
-// grid. Both are repeatable arrays the team can extend from the CMS.
+// Singleton for the /blogs page: blog posts and media entries.
 export const blogsPage = defineType({
   name: "blogsPage",
   title: "Blogs & Media Page",

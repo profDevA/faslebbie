@@ -1,8 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// Motion Showcase ("Key Product Experiences"): stacked, labelled device rows —
-// mobile (3-up), tablet/iPad, desktop — each playing a looping animation. Fas
-// 07/23: "different animations that are playing … mobile, tablet, desktop."
+// Motion Showcase: stacked device rows with looping animations.
 export const motionShowcase = defineType({
   name: "motionShowcase",
   title: "Motion Showcase (device animations)",

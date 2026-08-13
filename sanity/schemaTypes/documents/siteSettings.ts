@@ -30,12 +30,21 @@ export const siteSettings = defineType({
       initialValue: "Ph.D.",
     }),
     defineField({
-      name: "masterPortrait",
-      title: "Master portrait",
+      name: "homePortrait",
+      title: "Home portrait",
       type: "image",
       group: "brand",
       description:
-        "One head/shoulders crop for Home, listing pages, and Contact (Figma 2218:75512).",
+        "Wider/shorter crop for Home + Contact. Listing pages use Master portrait.",
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: "masterPortrait",
+      title: "Master portrait (listing pages)",
+      type: "image",
+      group: "brand",
+      description:
+        "Tighter head/shoulders crop for About, Work, Research, etc.",
       options: { hotspot: true },
     }),
     defineField({
@@ -51,7 +60,7 @@ export const siteSettings = defineType({
       type: "array",
       of: [{ type: "navLink" }],
       group: "nav",
-      description: "Order can differ from desktop (matches the Figma mobile menu).",
+      description: "Order can differ from desktop.",
     }),
     defineField({
       name: "contactDrawerTitle",
@@ -72,7 +81,7 @@ export const siteSettings = defineType({
       title: "Contact portrait (optional override)",
       type: "image",
       group: "contact",
-      description: "Leave empty to use Master portrait from Brand.",
+      description: "Leave empty to use Home portrait from Brand.",
     }),
     defineField({
       name: "contactSubmitLabel",
@@ -103,7 +112,7 @@ export const siteSettings = defineType({
       group: "contact",
     }),
 
-    // --- Access (Fas 08/09: NDA case studies + CV/Resume soft gate) ---
+    // --- Access ---
     defineField({
       name: "accessPassword",
       title: "Access password",

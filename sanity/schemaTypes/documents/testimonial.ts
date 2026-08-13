@@ -1,8 +1,7 @@
 import { defineField, defineType } from "sanity";
 import { orderRankField } from "@sanity/orderable-document-list";
 
-// A single "what people are saying" testimonial. Orderable so Fas can drag to
-// reorder the carousel; rendered on the About page (TestimonialsModal).
+// Orderable testimonial shown on the About page.
 export const testimonial = defineType({
   name: "testimonial",
   title: "Testimonial",

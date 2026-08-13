@@ -55,7 +55,7 @@ export const mediaItem = defineType({
       name: "embedUrl",
       title: "Prototype embed URL",
       type: "url",
-      description: "Figma prototype / iframe URL.",
+      description: "Prototype or iframe embed URL.",
       hidden: ({ parent }) => parent?.mediaType !== "prototype",
     }),
     defineField({ name: "caption", title: "Caption", type: "string" }),

@@ -22,6 +22,7 @@ import { useAccessGate } from '@/hooks/useAccessGate'
 import type { AboutLink } from '@/lib/aboutFromSanity'
 import type { AboutToken, Testimonial } from '@/lib/content'
 import { aboutLogos } from '@/lib/content'
+import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
 const TESTIMONIAL_KEY = 'what people are saying'
 
@@ -253,7 +254,7 @@ function renderKeyPill(
 //    saying" is a red keyword whose panel holds the testimonial slider)
 function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
   {
-    if (tok.t === 'text')
+    if (tok.t === "text")
       return (
         <span key={key} className={ctx.expanded ? 'font-normal' : undefined}>
           {tok.text}
@@ -302,7 +303,34 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
 }
 
 function renderTokens(tokens: AboutToken[], ctx: RenderCtx, prefix: string) {
-  return tokens.map((tok, j) => renderToken(tok, ctx, `${prefix}-${j}`))
+  return tokens.flatMap((tok, j) => {
+    if (tok.t === "text" && j > 0) {
+      const prev = tokens[j - 1];
+      if (
+        prev.t === "key" &&
+        ctx.open.has(prev.text) &&
+        !keyOpensPanel(prev) &&
+        ctx.expansions[prev.text]
+      ) {
+        const trimmed = textAfterExpandedKey(
+          tok.text,
+          ctx.expansions[prev.text],
+        );
+        if (trimmed === null) return [];
+        if (trimmed !== tok.text) {
+          return [
+            <span
+              key={`${prefix}-${j}`}
+              className={ctx.expanded ? "font-normal" : undefined}
+            >
+              {trimmed}
+            </span>,
+          ];
+        }
+      }
+    }
+    return [renderToken(tok, ctx, `${prefix}-${j}`)];
+  });
 }
 
 // Where the boxed panel lands within the keyword's paragraph:

@@ -38,7 +38,7 @@ export const caseStudy = defineType({
       group: "content",
       initialValue: false,
       description:
-        "When on, visitors must enter the Site Settings → Access password before opening this case study (for NDA work).",
+        "When on, visitors must enter the Site Settings → Access password before opening this case study.",
     }),
     defineField({
       name: "sections",
@@ -69,9 +69,6 @@ export const caseStudy = defineType({
       group: "card",
       description: "One-line descriptor shown in the grid.",
     }),
-    // Fas 08/05: the project's before/after framing. Shown twice — under the
-    // hero title line on the case study, and between the title and the credit
-    // on the .img card — so it lives on the document, not in heroSection.
     defineField({
       name: "from",
       title: "From",
@@ -100,8 +97,6 @@ export const caseStudy = defineType({
       group: "card",
       options: { hotspot: true },
     }),
-    // One entry per person. The card joins them ("A", "A & B", "A, B & C") so
-    // an editor can't reproduce the punctuation Fas flagged on 08/05.
     defineField({
       name: "cardCreditNames",
       title: "Card credits",
@@ -154,7 +149,7 @@ export const caseStudy = defineType({
     // --- References ---
     defineField({
       name: "designRefs",
-      title: "Design references (Figma, etc.)",
+      title: "Design references",
       type: "array",
       group: "refs",
       of: [{ type: "designRef" }],

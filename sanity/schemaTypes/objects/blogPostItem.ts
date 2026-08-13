@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One ".blog" entry (Blogs & Media). Shows as a title + meta line in the list;
-// opens a paged modal with a cover slide + colored caption panel.
+// One blog post for Blogs & Media. Opens in a modal with cover and body.
 export const blogPostItem = defineType({
   name: "blogPostItem",
   title: "Blog post",

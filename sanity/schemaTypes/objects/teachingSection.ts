@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// A ".txt" section on the Teaching page: a kicker, interactive prose, and a
-// trailing red action link (Student Works / My Student Exhibitions).
+// A Teaching page section: kicker, interactive prose, and an optional action link.
 export const teachingSection = defineType({
   name: "teachingSection",
   title: "Section",
@@ -15,8 +14,8 @@ export const teachingSection = defineType({
       type: "string",
       options: {
         list: [
-          { title: "See all student works (→ .img)", value: "students" },
-          { title: "Explore student exhibitions (→ overlay)", value: "exhibition" },
+          { title: "See all student works", value: "students" },
+          { title: "Explore student exhibitions", value: "exhibition" },
         ],
       },
     }),

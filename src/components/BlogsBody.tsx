@@ -57,7 +57,7 @@ export default function BlogsBody({
       <BlogsWatermark />
 
       <div className={STICKY_UNDER_NAV}>
-        <main className="relative z-10 mx-auto w-full max-w-[1350px] px-6 py-12 lg:px-12 lg:py-16">
+        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-12 lg:px-12 lg:py-16">
           <div
             style={{
               opacity,

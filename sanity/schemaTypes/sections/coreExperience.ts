@@ -1,10 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// Core Experience Showcase: a full-bleed band between Problem Context / What I
-// Brought and Design Process, carrying one exported artwork of the product's
-// key screens. Fas 08/05 — "give us a section for image, so we can upload our
-// image … it would be for the entire section. We don't need Chang to develop it
-// every time." Hence one image rather than Israel's per-screen field list.
+// Core Experience Showcase: full-bleed band with one exported artwork of key screens.
 export const coreExperience = defineType({
   name: "coreExperience",
   title: "Core Experience Showcase",
@@ -15,7 +11,7 @@ export const coreExperience = defineType({
       title: "Showcase headline",
       type: "string",
       description:
-        'Optional — the Coral band runs untitled. e.g. "Five Moments, One Journey".',
+        'Optional section title. Leave blank if the band has no heading.',
     }),
     defineField({ name: "body", title: "Supporting description", type: "portableText" }),
     defineField({

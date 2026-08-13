@@ -280,7 +280,7 @@ export const aboutExpansions: Record<string, AboutToken[]> = {
   'Scalar Design Leadership': [
     {
       t: 'text',
-      text: "Scalar Design Leadership — I view leadership as an interactive system focused on resonant relationships through quality interactions. Founded on six years of applied research, my approach emphasizes design leadership across three levels of scale: scale deep (people as interconnected systems), scale wide (transdisciplinary problem-solving), and scale up (organizations as designable systems) — applied across personal, product, team, strategy, and company dimensions. This integrated perspective drives my commitment and ask of the design teams I've led, aiming to drive meaningful change through innovation, collaboration, and growth.",
+      text: "I view leadership as an interactive system focused on resonant relationships through quality interactions. Founded on six years of applied research, my approach emphasizes design leadership across three levels of scale: scale deep (people as interconnected systems), scale wide (transdisciplinary problem-solving), and scale up (organizations as designable systems) — applied across personal, product, team, strategy, and company dimensions. This integrated perspective drives my commitment and ask of the design teams I've led, aiming to drive meaningful change through innovation, collaboration, and growth.",
     },
   ],
   // Live-site "In Academia" paragraph, trimmed to the CMU half (the MIT GOV/LAB

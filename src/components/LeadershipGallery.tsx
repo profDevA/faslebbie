@@ -18,7 +18,7 @@ export default function LeadershipGallery({
   onOpen: (id: string) => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1350px] px-6 lg:px-12">
+    <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
       <p className="mb-8 w-fit font-grotesk text-[20px] font-medium capitalize text-black underline underline-offset-4 lg:text-[24px]">
         My leadership moments
       </p>

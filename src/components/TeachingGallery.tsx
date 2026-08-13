@@ -25,7 +25,7 @@ export default function TeachingGallery({
   if (!students.length) return null;
 
   return (
-    <div className="mx-auto w-full max-w-[1350px] px-6 lg:px-12">
+    <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
       <h2 className="mb-7 font-grotesk text-[18px] font-bold tracking-[0.02em] text-black">
         Student Works
       </h2>

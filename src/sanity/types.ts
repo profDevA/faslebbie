@@ -200,6 +200,13 @@ export interface Study extends StudyCard {
   sections: Section[];
 }
 
+export interface ToolStackItem {
+  label?: string;
+  src?: string;
+  width?: number;
+  height?: number;
+}
+
 export interface WorkPageConfig {
   sectionTitle?: string;
   /** Work ".txt" narrative as Portable Text (workProse marks). */
@@ -207,6 +214,8 @@ export interface WorkPageConfig {
   enableTextView?: boolean;
   enableImageView?: boolean;
   loadMoreLabel?: string;
+  toolStack?: ToolStackItem[];
+  toolStackPerRow?: number;
   appearance?: Appearance;
   seo?: SanityPageSeo;
 }
@@ -225,6 +234,7 @@ export interface SanityHomePage {
 export interface SanitySiteSettings {
   logoName?: string;
   logoSuffix?: string;
+  homePortrait?: string;
   masterPortrait?: string;
   navItems?: SanityNavLink[];
   mobileNavItems?: SanityNavLink[];

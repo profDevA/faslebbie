@@ -4,8 +4,9 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 
 import {
+  LISTING_PORTRAIT_HEIGHT,
   LISTING_PORTRAIT_IMAGE_CLASS,
-  LISTING_PORTRAIT_SIZE,
+  LISTING_PORTRAIT_WIDTH,
 } from "@/lib/portraitLayout";
 import { useSite } from "@/components/SiteProvider";
 
@@ -14,7 +15,7 @@ import { useSite } from "@/components/SiteProvider";
  * Research, Build, Leadership, Teaching.
  *
  * Source: Site Settings → Brand → Master portrait (fallback /portrait-master.png).
- * Figma 2647:3716 — square ~318px (Home uses a smaller 161×145 crop).
+ * Figma 2647:3716 — ~271×305 (956∶1076 export; Home uses 161×145 crop).
  */
 
 /**
@@ -62,8 +63,8 @@ export default function PagePortrait({
     <Image
       src={brand.portraitSrc}
       alt="Portrait of Fas Lebbie"
-      width={LISTING_PORTRAIT_SIZE}
-      height={LISTING_PORTRAIT_SIZE}
+      width={LISTING_PORTRAIT_WIDTH}
+      height={LISTING_PORTRAIT_HEIGHT}
       priority
       style={style}
       className={`${LISTING_PORTRAIT_IMAGE_CLASS} ${className}`}

@@ -6,8 +6,7 @@ import { defineArrayMember, defineType } from "sanity";
 // Leadership: alongside the grey click-to-expand keywords it has cycling `>/~`
 // typer tags, inline brand-logo chips and an inline photo. Those three aren't
 // annotations (they replace text rather than mark it), so they're modelled as
-// INLINE OBJECTS in the block's `of` — that's what lets Fas drop a logo into the
-// middle of a sentence from the Studio.
+// INLINE OBJECTS in the block's `of` for logos and photos mid-sentence.
 //
 // Grey pills carry no copy here: their reveal text lives in the aboutPage
 // document's `expansions` list, keyed by the pill's own words, so an expansion

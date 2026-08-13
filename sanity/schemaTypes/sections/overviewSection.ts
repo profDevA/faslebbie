@@ -43,7 +43,7 @@ export const overviewSection = defineType({
       type: "file",
       options: { accept: "video/*" },
       description:
-        "Optional looping animation (e.g. the phone Jitter export). Plays in place of the side image when set.",
+        "Optional looping video. Replaces the side image when set.",
     }),
     defineField({
       name: "sideImageFit",

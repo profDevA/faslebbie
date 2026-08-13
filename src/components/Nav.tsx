@@ -221,7 +221,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
         }`}
       >
         <div
-          className={`mx-auto grid ${NAV_H} max-w-[1350px] grid-cols-[1fr_auto] items-center gap-4 px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8 lg:px-12`}
+          className={`mx-auto grid ${NAV_H} max-w-[1440px] grid-cols-[1fr_auto] items-center gap-4 px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-8 lg:px-12`}
         >
           <div className="justify-self-start">
             <Logo onClick={menuOpen ? () => setOpen(false) : undefined} />

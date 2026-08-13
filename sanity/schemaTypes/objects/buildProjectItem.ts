@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One build / play-ground project. Repeatable, editable template — appears in
-// the ".img" grid and the paged project modal.
+// One build project. Appears in the gallery grid and the project modal.
 export const buildProjectItem = defineType({
   name: "buildProjectItem",
   title: "Build project",
@@ -51,7 +50,7 @@ export const buildProjectItem = defineType({
       title: "Card blurb",
       type: "text",
       rows: 2,
-      description: "Short line under the tech stack on the .img card.",
+      description: "Short line under the tech stack on the gallery card.",
       group: "card",
     }),
     defineField({
@@ -60,7 +59,7 @@ export const buildProjectItem = defineType({
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
       description:
-        "First image = .img card cover + modal concept art. Extra images appear in the modal body (2nd under How it Works).",
+        "First image is the gallery card cover and modal hero. Additional images appear in the modal body.",
       group: "card",
     }),
     defineField({ name: "kicker", title: "Modal kicker", type: "string", initialValue: "Design · 5 Min Read", group: "modal" }),

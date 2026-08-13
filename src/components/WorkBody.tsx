@@ -2,14 +2,22 @@
 
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { LISTING_PORTRAIT_COLUMN_CLASS } from "@/lib/portraitLayout";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { type Testimonial, type WorkToken } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
 import CaseStudyView from "@/components/CaseStudyView";
 import { PopupTrigger } from "@/components/InlineToken";
 import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
-import { STICKY_UNDER_NAV } from "@/lib/navLayout";
+import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -56,6 +64,9 @@ const WALL_MENU_INNER_W_MOBILE = 168;
 const WALL_MENU_W_MOBILE = WALL_MENU_INNER_W_MOBILE + 20;
 // Closed state widens the centre gutter for the vertical "FILTER WORK" tab.
 const WALL_TAB_LANE = 24;
+/** Masonry reorder on filter — matches column slide + live site PopsIn (~500ms). */
+const WALL_FILTER_MOVE_MS = 500;
+const WALL_FILTER_MOVE_EASE = "cubic-bezier(0, 0, 0.2, 1)";
 
 type WorkProject = Study;
 
@@ -131,6 +142,10 @@ export default function WorkBody({
   const wallWinRef = useRef<HTMLDivElement>(null);
   const trackRefs = useRef<Array<HTMLDivElement | null>>([]);
   const wallOffset = useRef(0);
+  /** When set, ease wallOffset toward this value (filter scroll-to-top). */
+  const wallScrollTarget = useRef<number | null>(null);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const flipFromRef = useRef<Map<string, DOMRect> | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -185,8 +200,16 @@ export default function WorkBody({
     };
 
     const tick = () => {
-      // Auto-advance until the end, then hold (no looping back to the top).
-      if (!reduce && wallOffset.current < maxOffset()) {
+      if (wallScrollTarget.current !== null) {
+        const target = wallScrollTarget.current;
+        const diff = target - wallOffset.current;
+        if (Math.abs(diff) < 1) {
+          wallOffset.current = target;
+          wallScrollTarget.current = null;
+        } else {
+          wallOffset.current += diff * 0.15;
+        }
+      } else if (!reduce && wallOffset.current < maxOffset()) {
         wallOffset.current += WALL_AUTO_SPEED;
       }
       apply();
@@ -211,7 +234,14 @@ export default function WorkBody({
   useEffect(() => {
     trackRefs.current = [];
     wallOffset.current = 0;
+    wallScrollTarget.current = null;
   }, [wide]);
+
+  // Ease wall to top when filter changes so matches (now first) are visible (Fas 08/12).
+  useEffect(() => {
+    if (view !== "img") return;
+    wallScrollTarget.current = 0;
+  }, [view, pendingFilter, appliedFilter]);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -233,14 +263,76 @@ export default function WorkBody({
   // Preview blur while the panel is open; committed blur after Apply.
   const blurFilter = filterOpen ? pendingFilter : appliedFilter;
 
-  // Round-robin: 4 columns desktop, 2 columns mobile (Figma 1:17564 / 1:19168).
-  // All projects stay in the wall — non-matches blur instead of hiding.
+  // Round-robin: 4 columns desktop, 2 columns mobile. When filtered, matching
+  // projects first then blurred non-matches (faslebbie.com/works — Fas 08/12).
   const wallColumns = useMemo(() => {
     const n = wide ? 4 : 2;
     const cols: WorkProject[][] = Array.from({ length: n }, () => []);
-    projects.forEach((p, i) => cols[i % n].push(p));
+    const ordered =
+      blurFilter === "All"
+        ? projects
+        : [
+            ...projects.filter((p) => matchesFilter(p, blurFilter)),
+            ...projects.filter((p) => !matchesFilter(p, blurFilter)),
+          ];
+    ordered.forEach((p, i) => cols[i % n].push(p));
     return cols;
-  }, [projects, wide]);
+  }, [projects, wide, blurFilter]);
+
+  const registerCardRef = useCallback(
+    (slug: string, el: HTMLDivElement | null) => {
+      if (el) cardRefs.current.set(slug, el);
+      else cardRefs.current.delete(slug);
+    },
+    [],
+  );
+
+  const queueWallFlip = useCallback(() => {
+    const map = new Map<string, DOMRect>();
+    cardRefs.current.forEach((el, slug) => {
+      map.set(slug, el.getBoundingClientRect());
+    });
+    flipFromRef.current = map;
+  }, []);
+
+  useLayoutEffect(() => {
+    if (view !== "img") return;
+    const first = flipFromRef.current;
+    if (!first) return;
+    flipFromRef.current = null;
+
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduce) return;
+
+    cardRefs.current.forEach((el, slug) => {
+      const from = first.get(slug);
+      if (!from) return;
+      const to = el.getBoundingClientRect();
+      const dx = from.left - to.left;
+      const dy = from.top - to.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+
+      el.getAnimations().forEach((anim) => anim.cancel());
+      el.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px)` },
+          { transform: "translate(0, 0)" },
+        ],
+        {
+          duration: WALL_FILTER_MOVE_MS,
+          easing: WALL_FILTER_MOVE_EASE,
+        },
+      );
+    });
+  }, [wallColumns, view]);
+
+  const selectPendingFilter = (cat: Filter) => {
+    if (cat === pendingFilter) return;
+    queueWallFlip();
+    setPendingFilter(cat);
+  };
 
   const openFilter = () => {
     setPendingFilter(appliedFilter);
@@ -248,16 +340,20 @@ export default function WorkBody({
   };
 
   const closeFilter = () => {
+    if (pendingFilter !== appliedFilter) queueWallFlip();
     setPendingFilter(appliedFilter);
     setFilterOpen(false);
   };
 
   const applyFilter = () => {
+    // Preview already reordered the wall while the panel was open.
     setAppliedFilter(pendingFilter);
     setFilterOpen(false);
   };
 
   const clearFilter = () => {
+    if (appliedFilter === "All" && pendingFilter === "All") return;
+    queueWallFlip();
     setAppliedFilter("All");
     setPendingFilter("All");
   };
@@ -374,30 +470,34 @@ export default function WorkBody({
                 {viewToggle}
               </div>
             )}
-            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-8 lg:pb-16 lg:pt-20`}>
               {/* Portrait column width = photo width so Stack wraps under it
                   (Figma 1:9885), not across the page over the watermark. */}
               <div
-                className={`relative z-10 flex w-full flex-col gap-5 ${LISTING_PORTRAIT_COLUMN_CLASS} lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
+                className={`relative z-10 flex w-full max-w-full flex-col gap-5 ${LISTING_PORTRAIT_COLUMN_CLASS} lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}
               >
                 <h1 className="sr-only">Design Work</h1>
                 <PagePortrait
                   style={{ opacity, filter: blur, transform: portraitDrift(r) }}
                   className="relative z-10 !w-full will-change-[opacity,filter,transform]"
                 />
-                {/* Figma 2562:41828 — Stack under portrait (7 + 7). */}
+                {/* Stack sits in the portrait column — must not bleed into prose. */}
                 <div
                   style={{
                     opacity,
-                    filter: blur,
                     pointerEvents: r < 0.7 ? "none" : undefined,
                   }}
-                  className="relative z-10 flex w-full items-start gap-[17.5px] text-black will-change-[opacity,filter]"
+                  className="relative z-10 flex w-full max-w-full items-start gap-2 overflow-visible text-black will-change-[opacity]"
                 >
                   <span className="shrink-0 pt-px font-grotesk text-[14px] font-medium leading-[1.35] tracking-[0.88px]">
                     Stack:
                   </span>
-                  <ToolStack perRow={7} scale={0.55} />
+                  <div className="min-w-0 flex-1 overflow-visible">
+                    <ToolStack
+                      logos={work.toolStack.length ? work.toolStack : undefined}
+                      perRow={work.toolStackPerRow}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -439,7 +539,7 @@ export default function WorkBody({
         <>
           {showToggle && viewToggle}
           {appliedFilter !== "All" && !filterOpen && (
-            <div className="relative z-10 flex items-center justify-center gap-[10px] px-6 pb-3 pt-1">
+            <div className="relative z-10 flex items-center gap-[10px] px-2 pb-3 pt-1 lg:px-6">
               <span className="font-grotesk text-[24px] tracking-[0.5px] text-black/50">
                 {appliedFilter}
                 <span className="ml-6 tabular-nums">{counts[appliedFilter]}</span>
@@ -449,9 +549,23 @@ export default function WorkBody({
                 data-cursor="hover"
                 onClick={clearFilter}
                 aria-label={`Clear ${appliedFilter} filter`}
-                className="flex size-4 items-center justify-center font-grotesk text-[16px] leading-none text-black transition-opacity hover:opacity-60"
+                className="flex size-[18px] shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60"
               >
-                ×
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M0.832031 16.8324L8.83203 8.8324L16.832 0.832397M8.83203 8.8324L0.832031 0.832397L16.832 16.8324"
+                    stroke="currentColor"
+                    strokeWidth="1.66478"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
             </div>
           )}
@@ -474,6 +588,7 @@ export default function WorkBody({
                     col={wallColumns[ci] ?? []}
                     blurFilter={blurFilter}
                     showMeta={wide}
+                    registerCardRef={registerCardRef}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -491,6 +606,7 @@ export default function WorkBody({
                     col={wallColumns[ci] ?? []}
                     blurFilter={blurFilter}
                     showMeta={wide}
+                    registerCardRef={registerCardRef}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -523,9 +639,22 @@ export default function WorkBody({
                     className="mb-[18px] flex items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black lg:mb-[22px]"
                   >
                     <span>Close</span>
-                    <span aria-hidden className="text-[16px] leading-none">
-                      ×
-                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                      aria-hidden
+                      className="shrink-0"
+                    >
+                      <path
+                        d="M0.832031 16.8324L8.83203 8.8324L16.832 0.832397M8.83203 8.8324L0.832031 0.832397L16.832 16.8324"
+                        stroke="currentColor"
+                        strokeWidth="1.66478"
+                        strokeLinecap="round"
+                      />
+                    </svg>
                   </button>
                   <div className="flex flex-col gap-[8px]">
                     {(["All", ...categories] as Filter[]).map((cat) => {
@@ -536,7 +665,7 @@ export default function WorkBody({
                           key={cat}
                           type="button"
                           data-cursor="hover"
-                          onClick={() => setPendingFilter(cat)}
+                          onClick={() => selectPendingFilter(cat)}
                           className={`flex w-full items-baseline justify-between gap-6 font-grotesk font-medium transition-colors ${
                             isAll
                               ? "text-[16px] uppercase leading-[19.2px]"
@@ -562,7 +691,7 @@ export default function WorkBody({
                       type="button"
                       data-cursor="hover"
                       onClick={applyFilter}
-                      className="mx-auto mt-8 h-[42px] w-[197px] rounded-[39px] bg-black font-grotesk text-[16px] font-medium leading-none text-white transition-opacity hover:opacity-85 lg:mt-10"
+                      className="mx-auto mt-6 h-[34px] min-w-[120px] rounded-[39px] bg-black px-6 font-grotesk text-[14px] font-medium leading-none text-white transition-opacity hover:opacity-85 lg:mt-8"
                     >
                       Apply
                     </button>
@@ -624,20 +753,26 @@ function WallColumn({
   col,
   blurFilter,
   trackRef,
+  registerCardRef,
   onOpen,
   showMeta = true,
 }: {
   col: WorkProject[];
   blurFilter: Filter;
   trackRef: (el: HTMLDivElement | null) => void;
+  registerCardRef: (slug: string, el: HTMLDivElement | null) => void;
   onOpen: (slug: string) => void;
   showMeta?: boolean;
 }) {
   return (
     <div className="work-wall-col flex-1">
       <div ref={trackRef} className="work-wall-track">
-        {col.map((p, i) => (
-          <div key={`${p.slug}-${i}`} className="mb-4 lg:mb-5">
+        {col.map((p) => (
+          <div
+            key={p.slug}
+            ref={(el) => registerCardRef(p.slug, el)}
+            className="work-card-flip-item mb-4 lg:mb-5"
+          >
             <ProjectCard
               project={p}
               dimmed={!matchesFilter(p, blurFilter)}
@@ -697,24 +832,22 @@ function ProjectCard({
               : undefined
           }
         >
-          {dimmed ? (
-            <div
-              className="work-card-media-blur"
-              style={{ backgroundImage: `url(${src})` }}
-              aria-hidden
-            />
-          ) : (
-            /* eslint-disable-next-line @next/next/no-img-element -- static design asset */
-            <img
-              src={src}
-              width={w}
-              height={h}
-              alt={project.name}
-              loading={reveal ? "lazy" : "eager"}
-              fetchPriority={reveal ? "auto" : "high"}
-              decoding="async"
-            />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element -- static design asset */}
+          <img
+            src={src}
+            width={w}
+            height={h}
+            alt={project.name}
+            loading={reveal ? "lazy" : "eager"}
+            fetchPriority={reveal ? "auto" : "high"}
+            decoding="async"
+            className={dimmed ? "opacity-0" : "opacity-100"}
+          />
+          <div
+            className={`work-card-media-blur ${dimmed ? "opacity-100" : "opacity-0"}`}
+            style={{ backgroundImage: `url(${src})` }}
+            aria-hidden
+          />
         </div>
       ) : (
         // Branded colour placeholder until real art lands.
@@ -732,7 +865,7 @@ function ProjectCard({
         </div>
       )}
       {showMeta && (
-        <>
+        <div className="work-card-meta">
           {/* Card meta (Figma 2080:31219) — desktop wall only. */}
           <p className="mt-2 w-fit font-grotesk text-[16px] font-medium leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
             {project.name}
@@ -747,7 +880,7 @@ function ProjectCard({
               </span>
             </p>
           )}
-        </>
+        </div>
       )}
     </button>
   );

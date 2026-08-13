@@ -1,8 +1,6 @@
 import { defineArrayMember, defineType } from "sanity";
 
-// Work page ".txt" narrative. Spans can be marked as a red project link
-// (opens the case-study modal by slug) or a red org name (Western Digital /
-// SanDisk — underlined but not clickable).
+// Work page text narrative. Mark spans as project links or org names.
 export const workProse = defineType({
   name: "workProse",
   title: "Work prose",
@@ -25,7 +23,7 @@ export const workProse = defineType({
                 type: "string",
                 title: "Case study slug",
                 description:
-                  "Must match a published Case Study slug (e.g. coral-health).",
+                  "Must match a published Case Study slug.",
                 validation: (r) => r.required(),
               },
             ],

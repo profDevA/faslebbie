@@ -18,7 +18,9 @@ export interface ContactCopy {
 export interface SiteBrand {
   logoName: string;
   logoSuffix: string;
-  /** Shared Home / listing / Contact portrait from Sanity (or empty). */
+  /** Home + Contact portrait (161×145 crop). */
+  homePortraitSrc: string;
+  /** Listing pages portrait (tighter head/shoulders crop). */
   portraitSrc: string;
 }
 
@@ -47,7 +49,7 @@ function ensureHome(items: NavItem[]): NavItem[] {
 const emptyContact: ContactCopy = {
   drawerTitle: "",
   heading: "",
-  portraitSrc: "",
+  portraitSrc: "/home-portrait.png",
   submitLabel: "",
   successTitle: "",
   successBody: "",
@@ -60,20 +62,29 @@ export function siteFromSanity(
 ): SiteContentData {
   if (!data) {
     return {
-      brand: { logoName: "", logoSuffix: "", portraitSrc: "" },
+      brand: {
+        logoName: "",
+        logoSuffix: "",
+        homePortraitSrc: "/home-portrait.png",
+        portraitSrc: "/portrait-master.png",
+      },
       navItems: ensureHome([]),
       mobileNavItems: ensureHome([]),
       contact: emptyContact,
     };
   }
 
-  const master = data.masterPortrait?.trim() || "";
-  const contactPortrait = data.contactPortrait?.trim() || master;
+  const home =
+    data.homePortrait?.trim() || "/home-portrait.png";
+  const master =
+    data.masterPortrait?.trim() || "/portrait-master.png";
+  const contactPortrait = data.contactPortrait?.trim() || home;
 
   return {
     brand: {
       logoName: data.logoName?.trim() || "",
       logoSuffix: data.logoSuffix?.trim() || "",
+      homePortraitSrc: home,
       portraitSrc: master,
     },
     navItems: ensureHome(mapLinks(data.navItems)),

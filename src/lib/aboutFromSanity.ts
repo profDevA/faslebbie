@@ -1,3 +1,4 @@
+import { stripExpansionKeywordPrefix } from '@/lib/aboutExpansionNormalize'
 import type { PortableTextBlock } from '@portabletext/types'
 import type { SanityAboutPage } from '@/sanity/types'
 import { aboutLogos, type AboutToken } from '@/lib/content'
@@ -102,7 +103,10 @@ export function aboutFromSanity(
   const expansions: Record<string, AboutToken[]> = {}
   for (const e of data.expansions ?? []) {
     if (!e.keyword) continue
-    const body = blocksToTokens(e.body)
+    const body = stripExpansionKeywordPrefix(
+      e.keyword,
+      blocksToTokens(e.body),
+    )
     if (body.length) expansions[e.keyword] = body
   }
 

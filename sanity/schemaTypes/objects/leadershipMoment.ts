@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One leadership moment (Leadership → ".img" gallery + unified popup).
-// Repeatable, editable template.
+// One leadership moment for the gallery view and detail popup.
 export const leadershipMoment = defineType({
   name: "leadershipMoment",
   title: "Leadership moment",

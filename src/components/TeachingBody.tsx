@@ -9,7 +9,7 @@ import ViewToggle from "@/components/ViewToggle";
 import StudentModal from "@/components/StudentModal";
 import ExhibitionOverlay from "@/components/ExhibitionOverlay";
 import type { TeachingContentData } from "@/lib/teachingFromSanity";
-import { STICKY_UNDER_NAV } from "@/lib/navLayout";
+import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
   portraitDrift,
@@ -72,7 +72,7 @@ export default function TeachingBody({
             >
               {viewToggle}
             </div>
-            <main className="relative z-10 mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-10 px-6 pb-12 pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-20">
+            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-8 lg:pb-16 lg:pt-20`}>
               <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
                 {/* Portrait only — "Teaching" wordmark is the background layer
                     (TeachingWatermark), sitting at the bottom of the photo on

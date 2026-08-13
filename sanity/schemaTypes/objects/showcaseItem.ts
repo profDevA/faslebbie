@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One slide in the cover-flow Showcase Gallery (Galderma-style slider).
+// One slide in the showcase gallery slider.
 export const showcaseItem = defineType({
   name: "showcaseItem",
   title: "Showcase item",

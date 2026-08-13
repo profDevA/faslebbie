@@ -1,8 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One cell of the Project Highlights grid. Each cell loops through its own set
-// of frames (brand art / photo cards) — Fas 07/23: "this one changes to these
-// three and it plays in a loop." One frame = a static cell.
+// One cell in the Project Highlights grid. Loops through its frame images.
 export const highlightCell = defineType({
   name: "highlightCell",
   title: "Highlight cell",

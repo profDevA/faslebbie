@@ -17,8 +17,8 @@ export const accordionSection = defineType({
       validation: (r) => r.required(),
       options: {
         list: [
-          { title: "Centered (What I Brought)", value: "centered" },
-          { title: "Split with side copy (Design Process)", value: "split" },
+          { title: "Centered", value: "centered" },
+          { title: "Split with side copy", value: "split" },
         ],
         layout: "radio",
       },

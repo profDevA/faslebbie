@@ -21,7 +21,7 @@ export const workPage = defineType({
     }),
     defineField({
       name: "intro",
-      title: ".txt narrative",
+      title: "Text narrative",
       type: "workProse",
       group: "content",
       description:
@@ -29,17 +29,33 @@ export const workPage = defineType({
     }),
     defineField({
       name: "enableTextView",
-      title: "Enable text (.txt) view",
+      title: "Enable text view",
       type: "boolean",
       initialValue: true,
       group: "content",
     }),
     defineField({
       name: "enableImageView",
-      title: "Enable image (.img) view",
+      title: "Enable gallery view",
       type: "boolean",
       initialValue: true,
       group: "content",
+    }),
+    defineField({
+      name: "toolStack",
+      title: "Tool stack",
+      type: "array",
+      of: [{ type: "toolStackItem" }],
+      group: "content",
+      description: "Icons under the portrait in text view.",
+    }),
+    defineField({
+      name: "toolStackPerRow",
+      title: "Stack icons per row",
+      type: "number",
+      initialValue: 6,
+      group: "content",
+      validation: (r) => r.min(1).max(12),
     }),
     defineField({
       name: "loadMoreLabel",

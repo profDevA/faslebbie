@@ -2,7 +2,15 @@ import type { PortableTextBlock } from "@portabletext/types";
 
 import type { WorkToken } from "@/lib/content";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
-import type { WorkPageConfig } from "@/sanity/types";
+import { STACK_ICONS_PER_ROW } from "@/lib/portraitLayout";
+import type { ToolStackItem, WorkPageConfig } from "@/sanity/types";
+
+export interface WorkToolStackLogo {
+  src: string;
+  label: string;
+  width: number;
+  height: number;
+}
 
 export interface WorkContentData {
   narrative: WorkToken[][];
@@ -10,7 +18,28 @@ export interface WorkContentData {
   loadMoreLabel?: string;
   enableTextView: boolean;
   enableImageView: boolean;
+  toolStack: WorkToolStackLogo[];
+  toolStackPerRow: number;
   appearance?: WorkPageConfig["appearance"];
+}
+
+function clampPerRow(n: number | undefined): number {
+  if (typeof n !== "number" || !Number.isFinite(n)) return STACK_ICONS_PER_ROW;
+  return Math.max(1, Math.min(12, Math.round(n)));
+}
+
+function mapToolStack(
+  items: ToolStackItem[] | undefined,
+): WorkToolStackLogo[] {
+  if (!items?.length) return [];
+  return items
+    .filter((i) => i.label?.trim() && i.src?.trim())
+    .map((i) => ({
+      label: i.label!.trim(),
+      src: i.src!.trim(),
+      width: i.width && i.width > 0 ? i.width : 32,
+      height: i.height && i.height > 0 ? i.height : 32,
+    }));
 }
 
 function runToToken(run: ProseRun): WorkToken {
@@ -39,6 +68,8 @@ export function workFromSanity(
     loadMoreLabel: data?.loadMoreLabel,
     enableTextView: data?.enableTextView !== false,
     enableImageView: data?.enableImageView !== false,
+    toolStack: mapToolStack(data?.toolStack),
+    toolStackPerRow: clampPerRow(data?.toolStackPerRow),
     appearance: data?.appearance,
   };
 }

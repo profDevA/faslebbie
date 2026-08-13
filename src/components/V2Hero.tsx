@@ -175,7 +175,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
           className="flex w-full max-w-275 flex-col items-center gap-10 lg:gap-8.25"
         >
           <Image
-            src={brand.portraitSrc}
+            src={brand.homePortraitSrc}
             alt="Portrait of Fas Lebbie"
             width={HOME_PORTRAIT_WIDTH}
             height={HOME_PORTRAIT_HEIGHT}

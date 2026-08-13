@@ -12,7 +12,7 @@ export default function BuildGallery({
   onOpen: (id: string) => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1350px] px-3 sm:px-6 lg:px-12">
+    <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-6 lg:px-12">
       {/* Figma 16:3446 mobile = 2 cols; 16:2783 desktop = 4 cols. */}
       <div className="grid grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-20">
         {items.map((item) => {

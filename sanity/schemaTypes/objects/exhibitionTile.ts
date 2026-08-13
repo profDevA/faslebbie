@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One tile in the Teaching SFK Beijing exhibition collage / masonry.
+// One tile in the Teaching exhibition collage.
 export const exhibitionTile = defineType({
   name: "exhibitionTile",
   title: "Exhibition tile",
@@ -23,7 +23,7 @@ export const exhibitionTile = defineType({
       name: "label",
       title: "Caption",
       type: "string",
-      description: "Optional label under the tile in the .img grid.",
+      description: "Optional caption under the tile in the gallery grid.",
     }),
     defineField({
       name: "span",

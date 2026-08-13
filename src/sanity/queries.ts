@@ -114,6 +114,13 @@ export const CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(orde
 
 export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
   sectionTitle, intro, enableTextView, enableImageView, loadMoreLabel,
+  toolStackPerRow,
+  toolStack[]{
+    label,
+    "src": logo.asset->url,
+    "width": logo.asset->metadata.dimensions.width,
+    "height": logo.asset->metadata.dimensions.height
+  },
   ${appearanceProj},
   ${seoProj}
 }`);
@@ -125,6 +132,7 @@ export const HOME_PAGE_QUERY = defineQuery(`*[_type == "homePage"][0]{
 
 export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   logoName, logoSuffix,
+  "homePortrait": homePortrait.asset->url,
   "masterPortrait": masterPortrait.asset->url,
   navItems[]{ label, href },
   mobileNavItems[]{ label, href },

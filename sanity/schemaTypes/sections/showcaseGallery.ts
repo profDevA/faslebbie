@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// Cover-flow showcase slider (Galderma-style). One item featured at a time with
-// prev/next; supports unlimited items. Renderer shows nav only when >1.
+// Cover-flow showcase slider. One item featured at a time with prev/next.
 export const showcaseGallery = defineType({
   name: "showcaseGallery",
   title: "Showcase Gallery (slider)",
@@ -15,7 +14,7 @@ export const showcaseGallery = defineType({
       type: "boolean",
       initialValue: false,
       description:
-        "When on, clicking the centered slide opens a full-screen lightbox (used for the Research Artifacts). Otherwise clicking a side slide just centers it.",
+        "When on, clicking the centered slide opens a full-screen lightbox. Otherwise clicking a side slide centers it.",
     }),
     defineField({
       name: "items",

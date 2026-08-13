@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-// One student project (Teaching → Student Works). The repeatable, editable
-// template the team fills in — appears in the ".img" grid and the paged modal.
+// One student project for the gallery grid and detail modal.
 export const studentProject = defineType({
   name: "studentProject",
   title: "Student project",

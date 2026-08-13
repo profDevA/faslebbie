@@ -2,15 +2,15 @@ import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
 import { approachSection } from "../objects/approachSection";
 
-// Singleton for /leadership (nav: Approach): seven-section prose with grey-pill
-// reveals, plus leadership moments for the ".img" gallery.
+// Singleton for /leadership (nav: Approach): section prose with grey-pill
+// reveals, plus leadership moments for the gallery view.
 export const leadershipPage = defineType({
   name: "leadershipPage",
   title: "Approach Page",
   type: "document",
   groups: [
     { name: "prose", title: "Prose", default: true },
-    { name: "legacy", title: "Legacy prose" },
+    { name: "legacy", title: "Deprecated fields" },
     { name: "moments", title: "Moments" },
     { name: "seo", title: "SEO" },
   ],
@@ -21,7 +21,7 @@ export const leadershipPage = defineType({
       type: "array",
       of: [{ type: "approachSection" }],
       description:
-        "Final-copy structure (7 sections). When set, replaces legacy intro / lead / closing.",
+        "Seven sections with grey-pill reveals. When set, replaces the deprecated intro, lead, and closing fields.",
       group: "prose",
     }),
     defineField({
@@ -33,33 +33,33 @@ export const leadershipPage = defineType({
     }),
     defineField({
       name: "intro",
-      title: "Intro prose (legacy)",
+      title: "Intro prose (deprecated)",
       type: "interactiveProse",
       group: "legacy",
     }),
     defineField({
       name: "momentsHeading",
-      title: "Moments heading (legacy)",
+      title: "Moments heading (deprecated)",
       type: "string",
       initialValue: "My leadership moments",
       group: "legacy",
     }),
     defineField({
       name: "lead",
-      title: "Lead prose (legacy)",
+      title: "Lead prose (deprecated)",
       type: "interactiveProse",
       group: "legacy",
     }),
     defineField({
       name: "exploreText",
-      title: "Explore link text (legacy — removed from Approach)",
+      title: "Explore link text (deprecated)",
       type: "string",
       initialValue: "",
       group: "legacy",
     }),
     defineField({
       name: "closing",
-      title: "Closing prose (legacy)",
+      title: "Closing prose (deprecated)",
       type: "interactiveProse",
       group: "legacy",
     }),
