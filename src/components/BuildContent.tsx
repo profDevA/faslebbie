@@ -11,7 +11,6 @@ function renderTokens(
 ) {
   return tokens.map((tok, j) => {
     const key = `${prefix}-${j}`;
-    // Opens the paged project modal (Figma 16-3007).
     if (tok.t === "proj")
       return (
         <PopupTrigger

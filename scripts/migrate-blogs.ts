@@ -16,6 +16,7 @@ import path from "node:path";
 import { getCliClient } from "sanity/cli";
 
 import { blogPosts, mediaItems, type BlogBlock } from "../src/lib/blogs";
+import { seedBooks, seedJournals } from "./seed/publications-seed";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
@@ -104,9 +105,32 @@ async function migrate() {
     themes: m.themes,
   }));
 
-  await client.createOrReplace({ _id: "blogsPage", _type: "blogsPage", posts, media });
+  const books = seedBooks.map((b) => ({
+    _type: "publicationItem",
+    _key: key(),
+    title: b.title,
+    year: b.year,
+    ...(b.href ? { href: b.href } : {}),
+  }));
+
+  const journals = seedJournals.map((j) => ({
+    _type: "publicationItem",
+    _key: key(),
+    title: j.title,
+    year: j.year,
+    ...(j.href ? { href: j.href } : {}),
+  }));
+
+  await client.createOrReplace({
+    _id: "blogsPage",
+    _type: "blogsPage",
+    posts,
+    media,
+    books,
+    journals,
+  });
   console.log(
-    `Seeded blogsPage: ${posts.length} posts, ${media.length} media entries, ${assetCache.size} images uploaded.`,
+    `Seeded blogsPage: ${posts.length} posts, ${media.length} media, ${books.length} books, ${journals.length} journals, ${assetCache.size} images uploaded.`,
   );
 }
 

@@ -48,9 +48,7 @@ export default function StudentModal({
 
   const index = openId ? projects.findIndex((p) => p.id === openId) : -1;
   const project = index >= 0 ? projects[index] : null;
-  const slideCount = project
-    ? project.images?.length ?? project.slides ?? 3
-    : 0;
+  const slideCount = project ? (project.images?.length ?? 0) : 0;
 
   // Reset the carousel whenever the project changes.
   useEffect(() => {

@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Nav from "@/components/Nav";
 import BlogsBody from "@/components/BlogsBody";
-import BlogsWatermark from "@/components/BlogsWatermark";
 import { blogsFromSanity } from "@/lib/blogsFromSanity";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 
-// Blogs & Media (Figma 318-5704 / 308-4566 + modals 16-570 / 504-16389). Two
-// tabs — ".blog" (writing list) and ".media" (talks/podcasts grid) — over the
-// receding "Blogs/Media" watermark. Both open a paged modal. Content is
+// Blogs & Media (Figma 2627-4448 / 2729-2736 / 308-4566). Three tabs —
+// ".blogs" (writing list), ".words" (books + journals), ".media" (talks grid).
 // Content from Sanity blogsPage only (empty Studio = empty UI).
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,12 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlogsPage() {
-  const { posts, media } = blogsFromSanity(await getBlogsPage());
+  const { posts, media, publications } = blogsFromSanity(await getBlogsPage());
   return (
     <>
       <Nav dark />
-      <BlogsWatermark />
-      <BlogsBody posts={posts} media={media} />
+      <Suspense fallback={null}>
+        <BlogsBody posts={posts} media={media} publications={publications} />
+      </Suspense>
     </>
   );
 }

@@ -29,6 +29,14 @@ export const teachingPage = defineType({
       group: "students",
     }),
     defineField({
+      name: "studentsWorkIntro",
+      title: "Student works intro",
+      type: "text",
+      rows: 5,
+      description: "Intro paragraph on /teaching/students/[slug] detail pages.",
+      group: "students",
+    }),
+    defineField({
       name: "exhibitionTitle",
       title: "Exhibition title",
       type: "string",

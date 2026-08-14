@@ -308,8 +308,7 @@ export interface SanityResearchPage {
 // --- Teaching / Build / Leadership (raw Sanity shapes) ---------------------
 // Prose fields come back as Portable Text; the interactive marks (pill /
 // expandPill / term / ref / action / link) live in each block's markDefs. The
-// `lib/*FromSanity.ts` mappers turn these into each page's token dialect and
-// fall back to the in-code copy when a field is empty.
+// `lib/*FromSanity.ts` mappers turn these into each page's token dialect.
 export type SpanTier = "sm" | "md" | "lg";
 
 export interface SanityStudentProject {
@@ -335,15 +334,17 @@ export interface SanityExhibitionTile {
   image?: string;
   label?: string;
   span?: SpanTier;
-  posTop?: number;
-  posLeft?: number;
-  posW?: number;
+  posX?: number;
+  posXAnchor?: "left" | "right";
+  posY?: number;
+  posYAnchor?: "top" | "center" | "bottom";
 }
 
 export interface SanityTeachingPage {
   intro?: PortableTextBlock[];
   sections?: SanityTeachingSection[];
   students?: SanityStudentProject[];
+  studentsWorkIntro?: string;
   exhibitionTitle?: string;
   exhibitionTiles?: SanityExhibitionTile[];
   seo?: SanityPageSeo;
@@ -465,8 +466,16 @@ export interface SanityMediaEntry {
   thumb?: string | null;
 }
 
+export interface SanityPublicationItem {
+  title?: string;
+  year?: string;
+  href?: string;
+}
+
 export interface SanityBlogsPage {
   posts?: SanityBlogPostItem[];
+  books?: SanityPublicationItem[];
+  journals?: SanityPublicationItem[];
   media?: SanityMediaEntry[];
   seo?: SanityPageSeo;
 }

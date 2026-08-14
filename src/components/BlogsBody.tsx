@@ -6,12 +6,15 @@ import BlogModal from "@/components/BlogModal";
 import BlogsWatermark from "@/components/BlogsWatermark";
 import MediaModal from "@/components/MediaModal";
 import ViewToggle from "@/components/ViewToggle";
+import WordsPublications from "@/components/WordsPublications";
+import { useBlogListScrollFade } from "@/hooks/useBlogListScrollFade";
+import { usePersistedView } from "@/hooks/usePersistedView";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
-import type { BlogPost, MediaItem } from "@/lib/blogs";
+import type { BlogPost, MediaItem, PublicationsData } from "@/lib/blogs";
 
-type Tab = "words" | "media";
+type Tab = "blogs" | "words" | "media";
 
 function PlayGlyph({ className = "" }: { className?: string }) {
   return (
@@ -24,11 +27,16 @@ function PlayGlyph({ className = "" }: { className?: string }) {
 export default function BlogsBody({
   posts,
   media,
+  publications,
 }: {
   posts: BlogPost[];
   media: MediaItem[];
+  publications: PublicationsData;
 }) {
-  const [tab, setTab] = useState<Tab>("words");
+  const [tab, setTab] = usePersistedView<Tab>(
+    ["blogs", "words", "media"] as const,
+    "blogs",
+  );
   const [openBlog, setOpenBlog] = useState<number | null>(null);
   const [openMedia, setOpenMedia] = useState<number | null>(null);
 
@@ -51,44 +59,56 @@ export default function BlogsBody({
     return out;
   }, [posts]);
 
+  // Live site: each blog row fades/scales toward viewport center on scroll.
+  useBlogListScrollFade(tab === "blogs");
+
   return (
     <div className="relative">
       {/* Figma 318:6052 / 308:4566 — large centered wordmark behind content. */}
       <BlogsWatermark />
 
       <div className={STICKY_UNDER_NAV}>
-        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-12 lg:px-12 lg:py-16">
+        {/* Toggle sits directly under the nav — same as Work/Build/Teaching (.txt/.img). */}
+        <div
+          style={{
+            opacity,
+            filter: blur,
+            pointerEvents: r < 0.7 ? "none" : undefined,
+          }}
+          className="will-change-[opacity,filter]"
+        >
+          <ViewToggle
+            views={["blogs", "words", "media"] as const}
+            value={tab}
+            onChange={setTab}
+            className="gap-8 sm:gap-12 lg:gap-[84px]"
+          />
+        </div>
+        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-12 pt-8 lg:px-12 lg:pb-16 lg:pt-12">
           <div
             style={{
               opacity,
               filter: blur,
               transform: contentDrift(r),
-              pointerEvents: r < 1 ? "none" : undefined,
+              pointerEvents: r < 0.7 ? "none" : undefined,
             }}
-            className="will-change-[opacity,filter,transform]"
+            className="flex w-full flex-col items-center will-change-[opacity,filter,transform]"
           >
-            {/* Tabs — shared switch so Blogs matches Work/Build/Leadership/
-                Teaching exactly (Fas 07/28). Sits in an already-padded wrapper,
-                so the component's own top padding is dropped. */}
-            <ViewToggle
-              views={["words", "media"] as const}
-              value={tab}
-              onChange={setTab}
-              className="pt-0 lg:pt-0"
-            />
-
-            {tab === "words" ? (
-              /* Figma 318:6052 — 18px meta, 42px red titles, ~105px stack gap. */
-              <div className="mx-auto mt-12 flex max-w-[700px] flex-col gap-[105px] lg:mt-10">
+            {tab === "blogs" ? (
+              /* Figma 2627:4448 — centered meta + red titles, ~105px stack gap. */
+              <div className="flex w-full max-w-[1129px] flex-col items-center gap-[105px]">
+                <div className="flex w-full max-w-[700px] flex-col gap-[105px]">
                 {groups.map((group) => (
                   <section
                     key={group.category}
                     className="flex flex-col gap-[105px]"
                   >
-                    {/* Category heading ("Design Muscle") removed — Fas 07/28.
-                        Grouping kept for order / restore if he wants it back. */}
                     {group.items.map(({ post, index }) => (
-                      <article key={post.slug} className="text-center">
+                      <article
+                        key={post.slug}
+                        data-blog-scroll-item
+                        className="origin-center text-center will-change-[transform,opacity] transition-[transform,opacity] duration-[250ms] ease-out"
+                      >
                         <p className="font-grotesk text-[16px] leading-[1.15] text-black md:text-[18px]">
                           {post.meta}
                         </p>
@@ -96,7 +116,7 @@ export default function BlogsBody({
                           type="button"
                           onClick={() => setOpenBlog(index)}
                           data-cursor="hover"
-                          className="mt-6 font-grotesk text-[28px] font-medium capitalize leading-[1.37] tracking-[-1.28px] text-accent underline decoration-1 underline-offset-[6px] transition-opacity hover:opacity-80 md:mt-7 md:text-[36px] lg:text-[42px]"
+                          className="mt-6 font-grotesk text-[28px] font-medium capitalize leading-[1.37] tracking-[-1.28px] text-accent underline decoration-1 underline-offset-[6px] md:mt-7 md:text-[36px] lg:text-[42px]"
                         >
                           {post.title}
                         </button>
@@ -104,10 +124,14 @@ export default function BlogsBody({
                     ))}
                   </section>
                 ))}
+                </div>
               </div>
+            ) : tab === "words" ? (
+              /* Figma 2729:2736 — centered 1129px block, numbered rows. */
+              <WordsPublications publications={publications} />
             ) : (
-              /* Figma 308:4566 — 4-col landscape thumbs (~333×260), italic titles. */
-              <div className="mt-12 grid grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-5 sm:gap-y-9 lg:mt-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-8">
+              /* Figma 2623:3908 — 4-col landscape thumbs (~333×260), centered grid. */
+              <div className="grid w-full max-w-[1408px] grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-5 sm:gap-y-9 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-8">
                 {media.map((item, index) => (
                   <button
                     key={item.slug}
@@ -149,7 +173,6 @@ export default function BlogsBody({
       <BlogModal
         index={openBlog}
         posts={posts}
-        onNavigate={setOpenBlog}
         onClose={() => setOpenBlog(null)}
       />
       <MediaModal

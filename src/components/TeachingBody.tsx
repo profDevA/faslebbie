@@ -1,13 +1,10 @@
 "use client";
 
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
-import { useState } from "react";
 import TeachingContent from "@/components/TeachingContent";
 import TeachingGallery from "@/components/TeachingGallery";
 import TeachingWatermark from "@/components/TeachingWatermark";
 import ViewToggle from "@/components/ViewToggle";
-import StudentModal from "@/components/StudentModal";
-import ExhibitionOverlay from "@/components/ExhibitionOverlay";
 import type { TeachingContentData } from "@/lib/teachingFromSanity";
 import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
@@ -18,15 +15,11 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import { usePersistedView } from "@/hooks/usePersistedView";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
 
-/**
- * Teaching / Pedagogy page (Figma 16-19731 / 16-22597 / 280-4434) — same
- * ".txt" / ".img" architecture as Work / Leadership / Build. Content comes
- * from Sanity only (no in-code seed fallback).
- */
 export default function TeachingBody({
   content,
 }: {
@@ -36,8 +29,9 @@ export default function TeachingBody({
     content;
 
   const [view, setView] = usePersistedView<View>(VIEWS, "txt");
-  const [openStudent, setOpenStudent] = useState<string | null>(null);
-  const [exhibitionOpen, setExhibitionOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { r, pin } = useReveal(view === "txt");
 
   const opacity = revealOpacity(r);
@@ -50,13 +44,21 @@ export default function TeachingBody({
     window.scrollTo({ top: 0 });
   };
 
+  const seeAllStudents = () => {
+    setView("img");
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", "img");
+    params.set("all", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    window.scrollTo({ top: 0 });
+  };
+
   const viewToggle = (
     <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
   );
 
   return (
     <div className="relative">
-      {/* Watermark: front→back reveal in ".txt", forced receded behind ".img". */}
       <TeachingWatermark receded={view === "img"} />
 
       {view === "txt" ? (
@@ -74,9 +76,6 @@ export default function TeachingBody({
             </div>
             <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-8 lg:pb-16 lg:pt-20`}>
               <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
-                {/* Portrait only — "Teaching" wordmark is the background layer
-                    (TeachingWatermark), sitting at the bottom of the photo on
-                    mobile too (Figma 1:44550 / Fas 07/30). */}
                 <h1 className="sr-only">Teaching</h1>
                 <PagePortrait
                   style={{ transform: portraitDrift(r) }}
@@ -97,9 +96,7 @@ export default function TeachingBody({
                   className="pb-24"
                   intro={intro}
                   sections={sections}
-                  onOpenStudent={setOpenStudent}
-                  onSeeAllStudents={() => switchView("img")}
-                  onOpenExhibition={() => setExhibitionOpen(true)}
+                  onSeeAllStudents={seeAllStudents}
                 />
               </div>
             </main>
@@ -114,30 +111,10 @@ export default function TeachingBody({
               students={students}
               exhibitionTitle={exhibitionTitle}
               exhibitionTiles={exhibitionTiles}
-              onOpenStudent={setOpenStudent}
-              onOpenExhibition={() => setExhibitionOpen(true)}
             />
           </main>
         </>
       )}
-
-      <StudentModal
-        projects={students}
-        openId={openStudent}
-        onNavigate={setOpenStudent}
-        onClose={() => setOpenStudent(null)}
-      />
-
-      <ExhibitionOverlay
-        open={exhibitionOpen}
-        title={exhibitionTitle}
-        tiles={exhibitionTiles}
-        onClose={() => setExhibitionOpen(false)}
-        onViewStudents={() => {
-          setExhibitionOpen(false);
-          switchView("img");
-        }}
-      />
     </div>
   );
 }

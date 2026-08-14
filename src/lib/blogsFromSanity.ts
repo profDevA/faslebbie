@@ -1,10 +1,19 @@
-import type { SanityBlogPostItem, SanityBlogsPage } from "@/sanity/types";
-import type { BlogBlock, BlogPost, MediaItem } from "@/lib/blogs";
+import type { SanityBlogPostItem, SanityBlogsPage, SanityPublicationItem } from "@/sanity/types";
+import type {
+  BlogBlock,
+  BlogPost,
+  MediaItem,
+  Publication,
+  PublicationsData,
+} from "@/lib/blogs";
 
 export type BlogsContentData = {
   posts: BlogPost[];
   media: MediaItem[];
+  publications: PublicationsData;
 };
+
+const emptyPublications: PublicationsData = { books: [], journals: [] };
 
 // Flatten the Sanity `body` (Portable Text + inline images) into the flat block
 // list the modal renders. Preserves strong/em/link marks as `parts`.
@@ -61,11 +70,26 @@ function toBlogBody(
   return out.length ? out : undefined;
 }
 
-/** Sanity Blogs & Media page only — no in-code seed fallback. */
+function mapPublications(
+  items: SanityPublicationItem[] | undefined,
+): Publication[] {
+  if (!items?.length) return [];
+  return items
+    .map((p) => ({
+      title: p.title?.trim() ?? "",
+      year: p.year?.trim() ?? "",
+      href: p.href?.trim() || undefined,
+    }))
+    .filter((p) => p.title);
+}
+
+/** Sanity Blogs & Media page. Empty Studio = empty UI. */
 export function blogsFromSanity(
   data: SanityBlogsPage | null | undefined,
 ): BlogsContentData {
-  if (!data) return { posts: [], media: [] };
+  if (!data) {
+    return { posts: [], media: [], publications: emptyPublications };
+  }
 
   const posts: BlogPost[] = (data.posts ?? []).map((p, i) => ({
     slug: p.slug ?? `post-${i}`,
@@ -96,5 +120,10 @@ export function blogsFromSanity(
     themes: m.themes ?? [],
   }));
 
-  return { posts, media };
+  const publications: PublicationsData = {
+    books: mapPublications(data.books),
+    journals: mapPublications(data.journals),
+  };
+
+  return { posts, media, publications };
 }

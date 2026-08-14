@@ -213,9 +213,21 @@ function renderKeyPill(
   const inlineOpen = ctx.open.has(tok.text)
   const panelOpen = ctx.activePanel === tok.text
   const isActive = opensPanel ? panelOpen : inlineOpen
-  const onClick = () => {
+  const onClick = (el?: HTMLElement | null) => {
+    const opening = !inlineOpen
     if (opensPanel) ctx.setActivePanel(panelOpen ? null : tok.text)
     else ctx.toggleInline(tok.text)
+    if (
+      opening &&
+      !opensPanel &&
+      el &&
+      typeof window !== 'undefined' &&
+      window.innerWidth < 1024
+    ) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      })
+    }
   }
   // Appearance follows the shared vocabulary (see InlineToken): a pill reveals
   // narrative in place, while the underline means a popup opens.
@@ -233,11 +245,11 @@ function renderKeyPill(
       data-about-key
       data-cursor="hover"
       aria-expanded={isActive}
-      onClick={onClick}
+      onClick={e => onClick(e.currentTarget)}
       onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          onClick()
+          onClick(e.currentTarget)
         }
       }}
       className={className}
@@ -292,7 +304,10 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
             {/* Fade/"load" the continuation in rather than snapping it open
                 (Israel 06/25: "it shouldn't just drop down… it loads, then
                 comes clear"). */}
-            <span className="animate-[panel-in_0.35s_ease-out]">
+            <span
+              data-about-expansion
+              className="animate-[panel-in_0.35s_ease-out]"
+            >
               {renderTokens(expansion, { ...ctx, expanded: true }, key)}
             </span>
           </>
@@ -448,7 +463,10 @@ function MeasuredParagraph({
                   expansion && (
                     <>
                       {' '}
-                      <span className="animate-[panel-in_0.35s_ease-out]">
+                      <span
+                        data-about-expansion
+                        className="animate-[panel-in_0.35s_ease-out]"
+                      >
                         {renderTokens(
                           expansion,
                           { ...ctx, expanded: true },
@@ -558,25 +576,32 @@ export default function AboutContent({
   }
 
   // A click outside any keyword/panel — or pressing Escape — closes all open
-  // expansions + the box.
+  // expansions + the box. Use `click` (not pointerdown): on mobile a scroll
+  // gesture starts with touch/pointerdown on the prose, which was collapsing
+  // the expansion before the user could read it (Fas 08/12 / 08/13).
   useEffect(() => {
     if (open.size === 0 && !activePanel) return
     const closeAll = () => {
       setOpen(new Set())
       setActivePanel(null)
     }
-    const onPointerDown = (e: PointerEvent) => {
+    const onOutside = (e: MouseEvent) => {
       const target = e.target as Element | null
-      if (target?.closest?.('[data-about-key], [data-about-panel]')) return
+      if (
+        target?.closest?.(
+          '[data-about-key], [data-about-panel], [data-about-expansion]',
+        )
+      )
+        return
       closeAll()
     }
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeAll()
     }
-    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('click', onOutside)
     document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('click', onOutside)
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [open, activePanel])

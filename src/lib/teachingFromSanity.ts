@@ -11,6 +11,7 @@ export interface TeachingContentData {
   intro: TeachToken[][];
   sections: TeachSection[];
   students: StudentProject[];
+  studentsWorkIntro: string;
   exhibitionTitle: string;
   exhibitionTiles: ExhibitionTile[];
 }
@@ -35,11 +36,12 @@ const empty: TeachingContentData = {
   intro: [],
   sections: [],
   students: [],
+  studentsWorkIntro: "",
   exhibitionTitle: "",
   exhibitionTiles: [],
 };
 
-/** Map the Sanity Teaching singleton. No in-code seed fallback — empty Studio = empty UI. */
+/** Map the Sanity Teaching singleton. Empty Studio = empty UI. */
 export function teachingFromSanity(
   data: SanityTeachingPage | null | undefined,
 ): TeachingContentData {
@@ -56,19 +58,22 @@ export function teachingFromSanity(
     },
   }));
 
-  const students: StudentProject[] = (data.students ?? []).map((p, i) => ({
-    id: p.id ?? `student-${i}`,
-    title: p.title ?? "",
-    headline: p.headline ?? "",
-    description: p.description ?? "",
-    span: p.span ?? "md",
-    tint: p.tint ?? "#8f8a82",
-    lightArt: p.lightArt,
-    images: p.images?.filter(Boolean),
-    slides: p.images?.length ? undefined : 4,
-  }));
+  const students: StudentProject[] = (data.students ?? []).map((p, i) => {
+    const images = p.images?.filter((u): u is string => Boolean(u)) ?? [];
+    return {
+      id: p.id ?? `student-${i}`,
+      title: p.title ?? "",
+      headline: p.headline ?? "",
+      description: p.description ?? "",
+      span: p.span ?? "md",
+      tint: p.tint ?? "#8f8a82",
+      lightArt: p.lightArt,
+      images: images.length ? images : undefined,
+      cover: images[0],
+    };
+  });
 
-  const exhibitionTitle = data.exhibitionTitle?.trim() || "";
+  const exhibitionTitle = data.exhibitionTitle?.trim() ?? "";
 
   const exhibitionTiles: ExhibitionTile[] = (data.exhibitionTiles ?? []).map(
     (t) => ({
@@ -77,12 +82,18 @@ export function teachingFromSanity(
       label: t.label,
       span: t.span ?? "md",
       pos: {
-        top: t.posTop ?? 10,
-        left: t.posLeft ?? 10,
-        w: t.posW ?? 11,
+        x: { anchor: t.posXAnchor ?? "left", pct: t.posX ?? 0 },
+        y: { anchor: t.posYAnchor ?? "top", pct: t.posY ?? 0 },
       },
     }),
   );
 
-  return { intro, sections, students, exhibitionTitle, exhibitionTiles };
+  return {
+    intro,
+    sections,
+    students,
+    studentsWorkIntro: data.studentsWorkIntro?.trim() ?? "",
+    exhibitionTitle,
+    exhibitionTiles,
+  };
 }

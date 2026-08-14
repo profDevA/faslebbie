@@ -39,23 +39,44 @@ export const exhibitionTile = defineType({
       initialValue: "md",
     }),
     defineField({
-      name: "posTop",
-      title: "Overlay top %",
+      name: "posX",
+      title: "Overlay X %",
       type: "number",
       description: "Scattered-collage placement (desktop overlay).",
       validation: (r) => r.min(0).max(100),
     }),
     defineField({
-      name: "posLeft",
-      title: "Overlay left %",
+      name: "posXAnchor",
+      title: "Overlay X anchor",
+      type: "string",
+      options: {
+        list: [
+          { title: "From left", value: "left" },
+          { title: "From right", value: "right" },
+        ],
+      },
+      initialValue: "left",
+    }),
+    defineField({
+      name: "posY",
+      title: "Overlay Y %",
       type: "number",
       validation: (r) => r.min(0).max(100),
     }),
     defineField({
-      name: "posW",
-      title: "Overlay width %",
-      type: "number",
-      validation: (r) => r.min(1).max(40),
+      name: "posYAnchor",
+      title: "Overlay Y anchor",
+      type: "string",
+      description:
+        "Anchoring from the bottom keeps a tile pinned whatever the photo's height.",
+      options: {
+        list: [
+          { title: "From top", value: "top" },
+          { title: "Centred on Y", value: "center" },
+          { title: "From bottom", value: "bottom" },
+        ],
+      },
+      initialValue: "top",
     }),
   ],
   preview: {

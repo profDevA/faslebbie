@@ -8,6 +8,7 @@ export const blogsPage = defineType({
   type: "document",
   groups: [
     { name: "blog", title: "Blog", default: true },
+    { name: "words", title: "Words (publications)" },
     { name: "media", title: "Media" },
     { name: "seo", title: "SEO" },
   ],
@@ -18,6 +19,20 @@ export const blogsPage = defineType({
       type: "array",
       of: [{ type: "blogPostItem" }],
       group: "blog",
+    }),
+    defineField({
+      name: "books",
+      title: "Books",
+      type: "array",
+      of: [{ type: "publicationItem" }],
+      group: "words",
+    }),
+    defineField({
+      name: "journals",
+      title: "Journals + Articles",
+      type: "array",
+      of: [{ type: "publicationItem" }],
+      group: "words",
     }),
     defineField({
       name: "media",

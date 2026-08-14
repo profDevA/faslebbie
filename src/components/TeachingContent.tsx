@@ -3,8 +3,9 @@
 import { Fragment } from "react";
 import {
   CYCLE_CHIP,
+  NavPill,
   NavPillButton,
-  PopupTrigger,
+  PopupLink,
 } from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
 
@@ -25,9 +26,7 @@ function Term({ text }: { text: string }) {
 function renderTokens(
   tokens: TeachToken[],
   prefix: string,
-  onOpenStudent: (id: string) => void,
   onSeeAll: () => void,
-  onExhibition: () => void,
 ) {
   return tokens.map((tok, j) => {
     const key = `${prefix}-${j}`;
@@ -35,23 +34,26 @@ function renderTokens(
     if (tok.t === "term") return <Term key={key} text={tok.text} />;
     if (tok.t === "student")
       return (
-        <PopupTrigger
+        <PopupLink
           key={key}
-          onClick={() => onOpenStudent(tok.id)}
+          href={`/teaching/students/${tok.id}`}
           className="whitespace-nowrap"
         >
           {tok.text}
-        </PopupTrigger>
+        </PopupLink>
       );
     if (tok.t === "action") {
-      // Figma 16:22597 — both CTAs are grey pills (students grid + exhibition overlay).
+      if (tok.kind === "students") {
+        return (
+          <NavPillButton key={key} onClick={onSeeAll}>
+            {tok.text}
+          </NavPillButton>
+        );
+      }
       return (
-        <NavPillButton
-          key={key}
-          onClick={tok.kind === "students" ? onSeeAll : onExhibition}
-        >
+        <NavPill key={key} href="/teaching/exhibition">
           {tok.text}
-        </NavPillButton>
+        </NavPill>
       );
     }
     return <Fragment key={key}>{tok.text}</Fragment>;
@@ -62,16 +64,12 @@ export default function TeachingContent({
   className = "",
   intro,
   sections,
-  onOpenStudent,
   onSeeAllStudents,
-  onOpenExhibition,
 }: {
   className?: string;
   intro: TeachToken[][];
   sections: TeachSection[];
-  onOpenStudent: (id: string) => void;
   onSeeAllStudents: () => void;
-  onOpenExhibition: () => void;
 }) {
   return (
     <section
@@ -79,13 +77,7 @@ export default function TeachingContent({
     >
       {intro.map((para, i) => (
         <p key={`intro-${i}`} className="mb-10">
-          {renderTokens(
-            para,
-            `intro-${i}`,
-            onOpenStudent,
-            onSeeAllStudents,
-            onOpenExhibition,
-          )}
+          {renderTokens(para, `intro-${i}`, onSeeAllStudents)}
         </p>
       ))}
 
@@ -96,25 +88,17 @@ export default function TeachingContent({
           </p>
           {section.paragraphs.map((para, i) => (
             <p key={`s${s}-p${i}`} className="mb-6 last:mb-0">
-              {renderTokens(
-                para,
-                `s${s}-p${i}`,
-                onOpenStudent,
-                onSeeAllStudents,
-                onOpenExhibition,
-              )}
+              {renderTokens(para, `s${s}-p${i}`, onSeeAllStudents)}
             </p>
           ))}
           <p className="mt-2">
-            <NavPillButton
-              onClick={
-                section.action.kind === "students"
-                  ? onSeeAllStudents
-                  : onOpenExhibition
-              }
-            >
-              {section.action.text}
-            </NavPillButton>
+            {section.action.kind === "students" ? (
+              <NavPillButton onClick={onSeeAllStudents}>
+                {section.action.text}
+              </NavPillButton>
+            ) : (
+              <NavPill href="/teaching/exhibition">{section.action.text}</NavPill>
+            )}
           </p>
         </div>
       ))}

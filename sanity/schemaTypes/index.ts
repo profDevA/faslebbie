@@ -41,6 +41,7 @@ import { buildProjectItem } from "./objects/buildProjectItem";
 import { leadershipMoment } from "./objects/leadershipMoment";
 import { blogPostItem } from "./objects/blogPostItem";
 import { mediaEntry } from "./objects/mediaEntry";
+import { publicationItem } from "./objects/publicationItem";
 import { toolStackItem } from "./objects/toolStackItem";
 
 // sections
@@ -137,5 +138,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   leadershipMoment,
   blogPostItem,
   mediaEntry,
+  publicationItem,
   toolStackItem,
 ];

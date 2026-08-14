@@ -166,6 +166,22 @@ export function NavPillButton({
   );
 }
 
+export function PopupLink({
+  href,
+  children,
+  className = "",
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Link href={href} data-cursor="hover" className={`${POPUP_LINK} ${className}`}>
+      {children}
+    </Link>
+  );
+}
+
 export function PopupTrigger({
   onClick,
   children,

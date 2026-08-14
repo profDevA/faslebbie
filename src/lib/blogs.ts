@@ -1,8 +1,5 @@
-// Blogs & Media content model (Figma 318-5704 / 308-4566 + modals 16-570 /
-// 504-16389). Two tabs: ".blog" (a centered list of writing, grouped by column)
-// and ".media" (a grid of talks / podcasts / interviews). Both open a paged
-// modal. Seed shapes + migrate-script data only; runtime UI reads Sanity via
-// blogsFromSanity (empty Studio = empty UI).
+// Blogs & Media content model (Figma 318-5704 / 308-4566 / 2729-2736 + modals).
+// Three tabs: ".blogs" (writing list), ".words" (books + journals), ".media".
 
 // Inline run inside a text block (from Sanity Portable Text marks).
 export type BlogInline = {
@@ -50,6 +47,18 @@ export type MediaItem = {
   detail: string; // "Spotify • Episode 32 • 2024"
   description: string;
   themes: string[]; // ["Design Systems", "Infrastructure", "Leadership"]
+};
+
+/** Figma 2729:2736 — Books + Journals rows on `.words`. */
+export type Publication = {
+  title: string;
+  year: string;
+  href?: string;
+};
+
+export type PublicationsData = {
+  books: Publication[];
+  journals: Publication[];
 };
 
 // Plural breadcrumb segment for a media format ("Podcast" → "Podcasts").

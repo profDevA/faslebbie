@@ -167,9 +167,10 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
     id, title, headline, description, span, tint, lightArt,
     "images": images[].asset->url
   },
+  studentsWorkIntro,
   exhibitionTitle,
   exhibitionTiles[]{
-    tint, label, span, posTop, posLeft, posW,
+    tint, label, span, posX, posXAnchor, posY, posYAnchor,
     "image": image.asset->url
   },
   ${seoProj}
@@ -232,6 +233,8 @@ export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order
 
 export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
   posts[]{ slug, category, meta, title, kicker, description, body[]{ ..., _type == "image" => { "url": asset->url } }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
+  books[]{ title, year, href },
+  journals[]{ title, year, href },
   media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "thumb": thumb.asset->url },
   ${seoProj}
 }`);

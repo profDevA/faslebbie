@@ -1,5 +1,7 @@
 import "server-only";
 
+import { buildFromSanity } from "@/lib/buildFromSanity";
+import { teachingFromSanity } from "@/lib/teachingFromSanity";
 import { client } from "./client";
 import {
   ABOUT_PAGE_QUERY,
@@ -131,5 +133,51 @@ export async function findStudy(slug: string) {
     project: studies[i],
     prev: studies[(i - 1 + n) % n],
     next: studies[(i + 1) % n],
+  };
+}
+
+export async function getStudentSlugs(): Promise<string[]> {
+  const page = await getTeachingPage();
+  return teachingFromSanity(page).students.map((s) => s.id);
+}
+
+export async function findStudent(id: string) {
+  const page = await getTeachingPage();
+  const { students } = teachingFromSanity(page);
+  const i = students.findIndex((s) => s.id === id);
+  if (i === -1) return null;
+  const n = students.length;
+  return {
+    project: students[i],
+    students,
+    prev: students[(i - 1 + n) % n],
+    next: students[(i + 1) % n],
+  };
+}
+
+export async function getTeachingExhibition() {
+  const page = await getTeachingPage();
+  const data = teachingFromSanity(page);
+  return {
+    title: data.exhibitionTitle,
+    tiles: data.exhibitionTiles,
+  };
+}
+
+export async function getBuildProjectSlugs(): Promise<string[]> {
+  const page = await getBuildPage();
+  return buildFromSanity(page).projects.map((p) => p.id);
+}
+
+export async function findBuildProject(id: string) {
+  const page = await getBuildPage();
+  const { projects } = buildFromSanity(page);
+  const i = projects.findIndex((p) => p.id === id);
+  if (i === -1) return null;
+  const n = projects.length;
+  return {
+    project: projects[i],
+    prev: projects[(i - 1 + n) % n],
+    next: projects[(i + 1) % n],
   };
 }

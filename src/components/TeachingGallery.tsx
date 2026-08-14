@@ -1,51 +1,87 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ExhibitionTile, StudentProject } from "@/lib/teaching";
 
-// ".img" view (Figma 280:4434 / 840:5714): Student Works masonry only.
-// Exhibitions open from the .txt CTA overlay (Figma 280:4634), not stacked here.
-/** Placeholder tiles only — real photos use natural aspect (match Work .img). */
 const PLACEHOLDER_H: Record<StudentProject["span"], string> = {
   sm: "h-[160px]",
   md: "h-[220px]",
   lg: "h-[280px]",
 };
 
+/** Figma 2823:2384 — ~2 rows visible, then underlined "See all student works". */
+const INITIAL_COUNT = 8;
+
 export default function TeachingGallery({
   students,
-  onOpenStudent,
+  exhibitionTitle,
 }: {
   students: StudentProject[];
-  /** Kept for call-site compatibility; exhibition lives in the .txt overlay. */
   exhibitionTitle?: string;
   exhibitionTiles?: ExhibitionTile[];
-  onOpenStudent: (id: string) => void;
-  onOpenExhibition?: () => void;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const startExpanded = searchParams.get("all") === "1";
+  const [showAll, setShowAll] = useState(startExpanded);
+  const visible = showAll ? students : students.slice(0, INITIAL_COUNT);
+  const hasMore = students.length > INITIAL_COUNT;
+
+  useEffect(() => {
+    if (searchParams.get("all") === "1") setShowAll(true);
+  }, [searchParams]);
+
+  const expandAll = () => {
+    setShowAll(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", "img");
+    params.set("all", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    requestAnimationFrame(() => {
+      document.getElementById("teaching-gallery-more")?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    });
+  };
+
   if (!students.length) return null;
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
-      <h2 className="mb-7 font-grotesk text-[18px] font-bold tracking-[0.02em] text-black">
-        Student Works
-      </h2>
+      <div className="mb-10 flex flex-wrap items-baseline justify-between gap-4">
+        <h2 className="font-grotesk text-[18px] font-bold tracking-[0.02em] text-black">
+          Student Works
+        </h2>
+        {exhibitionTitle ? (
+          <Link
+            href="/teaching/exhibition"
+            data-cursor="hover"
+            className="font-grotesk text-[14px] font-medium text-black underline underline-offset-4 transition-colors hover:text-accent"
+          >
+            {exhibitionTitle}
+          </Link>
+        ) : null}
+      </div>
       <div className="columns-2 gap-4 [column-fill:balance] lg:columns-4 lg:gap-6 *:mb-6 *:break-inside-avoid lg:*:mb-9">
-        {students.map((item) => {
-          const cover = item.images?.[0];
+        {visible.map((item) => {
+          const cover = item.cover ?? item.images?.[0];
           return (
-            <button
+            <Link
               key={item.id}
-              type="button"
-              onClick={() => onOpenStudent(item.id)}
+              href={`/teaching/students/${item.id}`}
               data-cursor="hover"
               className="group block w-full text-left"
             >
               {cover ? (
-                // eslint-disable-next-line @next/next/no-img-element -- student art
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={cover}
                   alt={item.title}
-                  className="h-auto w-full bg-[#f0f0f0] transition-opacity group-hover:opacity-90"
+                  className="h-auto w-full bg-[#f0f0f0] object-cover transition-opacity group-hover:opacity-90"
                 />
               ) : (
                 <div
@@ -61,13 +97,27 @@ export default function TeachingGallery({
                   </span>
                 </div>
               )}
-              <p className="mt-3 w-fit border-b border-black pb-1 font-grotesk text-[15px] font-bold leading-tight text-black transition-colors group-hover:text-accent">
+              <span className="mt-2.5 block font-grotesk text-[14px] font-medium capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
                 {item.title}
-              </p>
-            </button>
+              </span>
+            </Link>
           );
         })}
       </div>
+      {hasMore && !showAll ? (
+        <div id="teaching-gallery-more" className="mt-14 flex justify-center pb-8">
+          <button
+            type="button"
+            onClick={expandAll}
+            data-cursor="hover"
+            className="font-grotesk text-[22px] font-medium italic text-black underline underline-offset-4 lg:text-[27px]"
+          >
+            See all student works
+          </button>
+        </div>
+      ) : (
+        <div id="teaching-gallery-more" className="h-8" aria-hidden />
+      )}
     </div>
   );
 }

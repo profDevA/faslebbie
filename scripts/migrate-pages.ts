@@ -1,24 +1,27 @@
 /**
- * One-off migration: seed the teachingPage / buildPage / leadershipPage
- * singletons in Sanity from the in-code data models.
- * Idempotent: fixed _ids + createOrReplace. No images are uploaded (the pages
- * fall back to placeholder tints); the team adds real imagery in the Studio.
+ * Seed teachingPage / buildPage / leadershipPage in Sanity from live-site data.
+ * Uploads student-work + exhibition images from public/teaching/ (run
+ * `node scripts/download-teaching-assets.mjs` first).
  *
  * Run from frontend/:
  *   sanity exec scripts/migrate-pages.ts --with-user-token
  */
+import { createReadStream } from "node:fs";
+import { access, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
+import path from "node:path";
 
 import { getCliClient } from "sanity/cli";
 
+import { LIVE_EXHIBITION_TILES, tilePosFields } from "./seed/exhibition-live";
 import {
-  exhibitionTiles,
   exhibitionTitle,
   students,
+  studentsWorkIntro,
   teachingIntro,
   teachingSections,
   type TeachToken,
-} from "../src/lib/teaching";
+} from "./seed/teaching-seed";
 import { buildIntro, buildProjects, type BuildToken } from "../src/lib/build";
 import {
   leadershipClosing,
@@ -39,7 +42,55 @@ interface SpanBuild {
   markDef?: Omit<MarkDef, "_key">;
 }
 
-// Generic: build one Portable Text block from a list of {text, markDef} spans.
+const assetCache = new Map<string, string>();
+
+async function uploadPublicFile(relativePath: string): Promise<string | undefined> {
+  if (assetCache.has(relativePath)) return assetCache.get(relativePath);
+  const file = path.join(process.cwd(), "public", relativePath);
+  try {
+    await access(file);
+  } catch {
+    console.warn(`  ! missing: ${relativePath}`);
+    return undefined;
+  }
+  const asset = await client.assets.upload("image", createReadStream(file), {
+    filename: path.basename(file),
+  });
+  assetCache.set(relativePath, asset._id);
+  return asset._id;
+}
+
+function imageRef(assetId: string) {
+  return { _type: "image", asset: { _type: "reference", _ref: assetId } };
+}
+
+async function studentImageRefs(id: string) {
+  const dir = path.join(process.cwd(), "public", "teaching", "students", id);
+  let files: string[];
+  try {
+    files = await readdir(dir);
+  } catch {
+    return [];
+  }
+  const slides = files
+    .filter((f) => /^slide-\d+\./i.test(f))
+    .sort((a, b) => {
+      const na = Number(a.match(/\d+/)?.[0] ?? 0);
+      const nb = Number(b.match(/\d+/)?.[0] ?? 0);
+      return na - nb;
+    });
+  const refs = [];
+  const seen = new Set<string>();
+  for (const file of slides) {
+    const rel = `teaching/students/${id}/${file}`;
+    const assetId = await uploadPublicFile(rel);
+    if (!assetId || seen.has(assetId)) continue;
+    seen.add(assetId);
+    refs.push({ _key: key(), ...imageRef(assetId) });
+  }
+  return refs;
+}
+
 function block(spans: SpanBuild[]) {
   const markDefs: MarkDef[] = [];
   const children = spans.map((s) => {
@@ -54,7 +105,6 @@ function block(spans: SpanBuild[]) {
   return { _type: "block", _key: key(), style: "normal", markDefs, children };
 }
 
-// ── Teaching ────────────────────────────────────────────────────────────────
 function teachSpan(tok: TeachToken): SpanBuild {
   if (tok.t === "pill") return { text: tok.text, markDef: { _type: "pill" } };
   if (tok.t === "term") return { text: tok.text, markDef: { _type: "term" } };
@@ -75,6 +125,40 @@ const teachBlocks = (paras: TeachToken[][]) =>
   paras.map((p) => block(p.map(teachSpan)));
 
 async function seedTeaching() {
+  console.log("Seeding teachingPage (prose + images)…");
+
+  const studentDocs = [];
+  for (const p of students) {
+    const images = await studentImageRefs(p.id);
+    studentDocs.push({
+      _type: "studentProject",
+      _key: key(),
+      id: p.id,
+      title: p.title,
+      headline: p.headline,
+      description: p.description,
+      span: p.span,
+      tint: p.tint,
+      ...(p.lightArt ? { lightArt: true } : {}),
+      ...(images.length ? { images } : {}),
+    });
+    console.log(`  student ${p.id}: ${images.length} image(s)`);
+  }
+
+  const exhibitionTiles = [];
+  for (const t of LIVE_EXHIBITION_TILES) {
+    const rel = `teaching/exhibition/exhibition-${t.file}.jpg`;
+    const assetId = await uploadPublicFile(rel);
+    exhibitionTiles.push({
+      _type: "exhibitionTile",
+      _key: key(),
+      tint: "#e5e5de",
+      span: "md",
+      ...tilePosFields(t.pos),
+      ...(assetId ? { image: imageRef(assetId) } : {}),
+    });
+  }
+
   const doc = {
     _id: "teachingPage",
     _type: "teachingPage",
@@ -87,34 +171,17 @@ async function seedTeaching() {
       actionKind: s.action.kind,
       actionText: s.action.text,
     })),
-    students: students.map((p) => ({
-      _type: "studentProject",
-      _key: key(),
-      id: p.id,
-      title: p.title,
-      headline: p.headline,
-      description: p.description,
-      span: p.span,
-      tint: p.tint,
-      ...(p.lightArt ? { lightArt: true } : {}),
-    })),
+    students: studentDocs,
+    studentsWorkIntro,
     exhibitionTitle,
-    exhibitionTiles: exhibitionTiles.map((t) => ({
-      _type: "exhibitionTile",
-      _key: key(),
-      tint: t.tint,
-      span: t.span,
-      posTop: t.pos.top,
-      posLeft: t.pos.left,
-      posW: t.pos.w,
-      ...(t.label ? { label: t.label } : {}),
-    })),
+    exhibitionTiles,
   };
   await client.createOrReplace(doc);
-  console.log("✓ seeded teachingPage");
+  console.log(
+    `✓ teachingPage — ${studentDocs.length} students, ${exhibitionTiles.length} exhibition tiles, ${assetCache.size} assets uploaded`,
+  );
 }
 
-// ── Build ─────────────────────────────────────────────────────────────────
 function buildSpan(tok: BuildToken): SpanBuild {
   if (tok.t === "proj")
     return { text: tok.text, markDef: { _type: "ref", targetId: tok.id } };
@@ -122,33 +189,48 @@ function buildSpan(tok: BuildToken): SpanBuild {
 }
 
 async function seedBuild() {
+  const existing = await client.fetch<{
+    projects?: { id?: string; _key?: string; images?: unknown[] }[];
+  } | null>(
+    `*[_type == "buildPage"][0]{ projects[]{ id, _key, images } }`,
+  );
+
+  const keptById = new Map(
+    (existing?.projects ?? [])
+      .filter((p) => p.id)
+      .map((p) => [p.id!, p] as const),
+  );
+
   const doc = {
     _id: "buildPage",
     _type: "buildPage",
     intro: buildIntro.map((p) => block(p.map(buildSpan))),
-    projects: buildProjects.map((p) => ({
-      _type: "buildProjectItem",
-      _key: key(),
-      id: p.id,
-      title: p.title,
-      tech: p.tech,
-      span: p.span,
-      tint: p.tint,
-      ...(p.lightArt ? { lightArt: true } : {}),
-      kicker: p.kicker,
-      subtitle: p.subtitle,
-      blurb: p.blurb,
-      description: p.description,
-      howItWorks: p.howItWorks,
-      ...(p.note ? { note: p.note } : {}),
-      supportedTools: p.supportedTools,
-    })),
+    projects: buildProjects.map((p) => {
+      const kept = keptById.get(p.id);
+      return {
+        _type: "buildProjectItem",
+        _key: kept?._key ?? key(),
+        id: p.id,
+        title: p.title,
+        tech: p.tech,
+        span: p.span,
+        tint: p.tint,
+        ...(p.lightArt ? { lightArt: true } : {}),
+        kicker: p.kicker,
+        subtitle: p.subtitle,
+        blurb: p.subtitle,
+        description: p.description,
+        howItWorks: p.howItWorks,
+        ...(p.note ? { note: p.note } : {}),
+        supportedTools: p.supportedTools,
+        ...(kept?.images?.length ? { images: kept.images } : {}),
+      };
+    }),
   };
   await client.createOrReplace(doc);
   console.log("✓ seeded buildPage");
 }
 
-// ── Leadership ──────────────────────────────────────────────────────────────
 function leadSpan(tok: AboutToken): SpanBuild | null {
   if (tok.t === "key" && tok.tone === "gray") {
     const expansion = leadershipExpansions[tok.text];
@@ -158,7 +240,7 @@ function leadSpan(tok: AboutToken): SpanBuild | null {
     };
   }
   if (tok.t === "text") return { text: tok.text };
-  return null; // leadership prose only uses text + grey pills
+  return null;
 }
 
 const leadField = (tokens: AboutToken[]) => [

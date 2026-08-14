@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
-import { useState } from "react";
 import BuildContent from "@/components/BuildContent";
 import BuildGallery from "@/components/BuildGallery";
 import BuildProjectModal from "@/components/BuildProjectModal";
@@ -16,10 +17,6 @@ import { usePersistedView } from "@/hooks/usePersistedView";
 type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
 
-/**
- * Build / Play Ground page (Figma 16-2956 / 16-3007 / 16-2783).
- * Content from Sanity only — no in-code seed fallback.
- */
 export default function BuildBody({
   content,
 }: {
@@ -30,7 +27,24 @@ export default function BuildBody({
 
   const [view, setView] = usePersistedView<View>(VIEWS, "txt");
   const [openId, setOpenId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   const { r, pin } = useReveal(view === "txt");
+
+  useEffect(() => {
+    const project = searchParams.get("project");
+    if (project && buildProjects.some((p) => p.id === project)) {
+      setOpenId(project);
+    }
+  }, [searchParams, buildProjects]);
+
+  const closeModal = () => {
+    setOpenId(null);
+    if (searchParams.get("project")) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("project");
+      window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+    }
+  };
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
@@ -48,7 +62,6 @@ export default function BuildBody({
 
   return (
     <div className="relative">
-      {/* Watermark: front→back reveal in ".txt", forced receded behind ".img". */}
       <BuildWatermark receded={view === "img"} />
 
       {view === "txt" ? (
@@ -65,7 +78,6 @@ export default function BuildBody({
               {viewToggle}
             </div>
             <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} py-8 lg:py-16`}>
-              {/* Figma 16:3407 — portrait centered above prose on mobile. */}
               <div
                 className={`flex flex-col items-center lg:sticky lg:items-stretch lg:self-start ${PORTRAIT_STICKY_TOP}`}
               >
@@ -108,7 +120,7 @@ export default function BuildBody({
         projects={buildProjects}
         openId={openId}
         onNavigate={setOpenId}
-        onClose={() => setOpenId(null)}
+        onClose={closeModal}
       />
     </div>
   );
