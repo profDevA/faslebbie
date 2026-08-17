@@ -1,5 +1,13 @@
 /** Books + journals for Words tab — from live faslebbie.com / Figma 2729:2736. */
-export const seedBooks = [
+
+/** Mirrors the `publicationItem` schema, where `href` is optional. */
+export interface SeedPublication {
+  title: string;
+  year: string;
+  href?: string;
+}
+
+export const seedBooks: SeedPublication[] = [
   { title: "Souvenirs of my Awakening, Memoir", year: "2020" },
   {
     title: "Mineral Choreography: Extraction Sites Vol 1",
@@ -7,7 +15,7 @@ export const seedBooks = [
   },
 ];
 
-export const seedJournals = [
+export const seedJournals: SeedPublication[] = [
   {
     title: "Mineral Choreography: A Post-Extractive Design For Transition",
     year: "2025",
