@@ -21,6 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ExhibitionPage() {
-  const { tiles } = await getTeachingExhibition();
-  return <ExhibitionPageView tiles={tiles} />;
+  const { tiles, heading, intro, cta } = await getTeachingExhibition();
+  return (
+    <ExhibitionPageView
+      tiles={tiles}
+      heading={heading}
+      intro={intro}
+      cta={cta}
+    />
+  );
 }

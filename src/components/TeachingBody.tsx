@@ -1,6 +1,7 @@
 "use client";
 
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
+import StudentModal from "@/components/StudentModal";
 import TeachingContent from "@/components/TeachingContent";
 import TeachingGallery from "@/components/TeachingGallery";
 import TeachingWatermark from "@/components/TeachingWatermark";
@@ -16,9 +17,12 @@ import {
 import { useReveal } from "@/lib/useReveal";
 import { usePersistedView } from "@/hooks/usePersistedView";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { EXTRA_STUDENT_WORKS } from "@/lib/studentWorksLayout";
 
-type View = "txt" | "img";
-const VIEWS = ["txt", "img"] as const;
+type View = "philosophy" | "works";
+const VIEWS = ["philosophy", "works"] as const;
+const VIEW_ALIASES: Record<string, View> = { txt: "philosophy", img: "works" };
 
 export default function TeachingBody({
   content,
@@ -28,11 +32,11 @@ export default function TeachingBody({
   const { intro, sections, students, exhibitionTitle, exhibitionTiles } =
     content;
 
-  const [view, setView] = usePersistedView<View>(VIEWS, "txt");
+  const [view, setView] = usePersistedView<View>(VIEWS, "philosophy", VIEW_ALIASES);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { r, pin } = useReveal(view === "txt");
+  const { r, pin } = useReveal(view === "philosophy");
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
@@ -44,24 +48,47 @@ export default function TeachingBody({
     window.scrollTo({ top: 0 });
   };
 
+  const studentId = searchParams.get("student");
+  const openId =
+    studentId && students.some((s) => s.id === studentId) ? studentId : null;
+
+  useEffect(() => {
+    if (openId && view !== "works") setView("works");
+  }, [openId, view, setView]);
+
   const seeAllStudents = () => {
-    setView("img");
+    setView("works");
     const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "img");
+    params.set("view", "works");
     params.set("all", "1");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     window.scrollTo({ top: 0 });
   };
 
+  const openStudent = (id: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", "works");
+    params.set("student", id);
+    if (EXTRA_STUDENT_WORKS.some((s) => s.id === id)) params.set("all", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const closeStudent = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("student");
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const viewToggle = (
-    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
+    <ViewToggle views={VIEWS} value={view} onChange={switchView} />
   );
 
   return (
     <div className="relative">
-      <TeachingWatermark receded={view === "img"} />
+      <TeachingWatermark receded={view === "works"} />
 
-      {view === "txt" ? (
+      {view === "philosophy" ? (
         <>
           <div className={STICKY_UNDER_NAV}>
             <div
@@ -111,10 +138,17 @@ export default function TeachingBody({
               students={students}
               exhibitionTitle={exhibitionTitle}
               exhibitionTiles={exhibitionTiles}
+              onOpenStudent={openStudent}
             />
           </main>
         </>
       )}
+
+      <StudentModal
+        projects={students}
+        openId={openId}
+        onClose={closeStudent}
+      />
     </div>
   );
 }

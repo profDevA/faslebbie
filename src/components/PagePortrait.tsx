@@ -66,7 +66,7 @@ export default function PagePortrait({
       width={LISTING_PORTRAIT_WIDTH}
       height={LISTING_PORTRAIT_HEIGHT}
       quality={92}
-      sizes="(max-width: 1024px) 220px, 271px"
+      sizes="271px"
       priority
       style={style}
       className={`${LISTING_PORTRAIT_IMAGE_CLASS} ${className}`}

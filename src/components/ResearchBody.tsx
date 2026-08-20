@@ -66,6 +66,7 @@ export default function ResearchBody({
 
       <ResearchModal
         openId={openId}
+        onNavigate={setOpenId}
         onClose={() => setOpenId(null)}
         sections={sections}
       />

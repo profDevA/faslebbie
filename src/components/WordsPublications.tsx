@@ -6,6 +6,10 @@ function padIndex(n: number) {
   return String(n).padStart(2, "0");
 }
 
+function titleWithoutOrphan(title: string) {
+  return title.replace(/\s+(\S{1,3})$/, "\u00A0$1");
+}
+
 function PublicationRow({
   index,
   item,
@@ -18,8 +22,8 @@ function PublicationRow({
       <span className="font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
         {padIndex(index)}
       </span>
-      <span className="font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
-        {item.title}
+      <span className="text-pretty font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
+        {titleWithoutOrphan(item.title)}
       </span>
       <span className="text-right font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
         {item.year}
@@ -59,7 +63,7 @@ function PublicationSection({
 
   return (
     <section className="w-full">
-      <h2 className="font-grotesk text-[20px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[24px]">
+      <h2 className="font-grotesk text-[20px] font-bold leading-[1.6] tracking-[0.5px] text-black md:text-[24px]">
         {title}
       </h2>
       <div className="mt-[22px] flex w-full flex-col">
@@ -78,7 +82,7 @@ export default function WordsPublications({
   publications: PublicationsData;
 }) {
   return (
-    <div className="flex w-full max-w-[1129px] flex-col gap-14 lg:gap-[57px]">
+    <div className="flex w-full max-w-[1129px] flex-col gap-14 pt-10 lg:gap-[57px] lg:pt-16">
       <PublicationSection title="Books" items={publications.books} />
       <PublicationSection
         title="Journals + Articles"

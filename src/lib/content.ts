@@ -918,7 +918,7 @@ const baseWorkProjects: WorkProject[] = [
   },
   {
     slug: 'snapback-lifestyle',
-    name: 'Snapback Lifestyle',
+    name: 'Snapback Watch',
     tagline: 'Artist & community-led brand storytelling',
     categories: ['Branding'],
     accent: '#f2c14e',
@@ -970,7 +970,7 @@ const baseWorkProjects: WorkProject[] = [
   },
   {
     slug: 'design-assist-ai',
-    name: 'Design Assist AI',
+    name: 'Mosaic',
     tagline: 'AI UX Assistant for product designers',
     categories: ['Product Design'],
     accent: '#db2777',
@@ -1032,7 +1032,7 @@ const baseWorkProjects: WorkProject[] = [
   },
   {
     slug: 'oc-digital-resource-navigator',
-    name: 'OC Digital Resource Navigator',
+    name: 'OC Navigator',
     tagline: 'Improving Mental Health Resource Access',
     categories: ['Product Design', 'Service Design'],
     accent: '#0ea5e9',
@@ -1041,7 +1041,7 @@ const baseWorkProjects: WorkProject[] = [
   },
   {
     slug: '2020-us-census-benefit-calculator',
-    name: '2020 US Census Benefit Calculator',
+    name: 'US Census',
     tagline:
       'Resource locator increasing Immigrant families census participation',
     categories: ['Product Design', 'Service Design'],

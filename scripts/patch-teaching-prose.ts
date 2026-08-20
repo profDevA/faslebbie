@@ -1,6 +1,6 @@
 /**
- * Patch only the Teaching `.txt` prose (Figma 2829:2920) on the teachingPage
- * singleton.
+ * Patch only the Teaching `.philosophy` prose on the teachingPage singleton.
+ * Copy: collaboration doc Teaching tab (teachingIntro in teaching-seed.ts).
  *
  * Deliberately a patch, not a re-seed: migrate-pages.ts `seedTeaching()` does a
  * createOrReplace and rebuilds `students` / `exhibitionTiles` from
@@ -45,7 +45,13 @@ function block(spans: SpanBuild[]) {
 }
 
 function teachSpan(tok: TeachToken): SpanBuild {
-  if (tok.t === "pill") return { text: tok.text, markDef: { _type: "pill" } };
+  if (tok.t === "pill")
+    return {
+      text: tok.text,
+      markDef: tok.expansion
+        ? { _type: "expandPill", expansion: tok.expansion }
+        : { _type: "pill" },
+    };
   if (tok.t === "term") return { text: tok.text, markDef: { _type: "term" } };
   if (tok.t === "student")
     return { text: tok.text, markDef: { _type: "ref", targetId: tok.id } };

@@ -2,32 +2,37 @@
 
 import { useEffect } from "react";
 
-/** Live faslebbie.com/blogs — item scale/opacity vs viewport center (reference JS). */
+/** Live faslebbie.com/blogs `smoothScrollAnimation` — linear scale/opacity
+ *  plus a light blur (max 1.5px). CSS 250ms ease-out on transform/opacity
+ *  is what makes it feel like a flow rather than a snap. */
 function metricsForDistance(
   factor: number,
   width: number,
-): { scale: number; opacity: number } {
+): { scale: number; opacity: number; blur: number } {
   if (width > 1024) {
     return {
       scale: 0.8 + (1 - factor) * 0.2,
       opacity: 0.7 + (1 - factor) * 0.3,
+      blur: factor * 1.5,
     };
   }
   if (width > 768) {
     return {
       scale: 0.85 + (1 - factor) * 0.15,
       opacity: 0.75 + (1 - factor) * 0.25,
+      blur: factor * 1.5,
     };
   }
   return {
     scale: 0.9 + (1 - factor) * 0.1,
     opacity: 0.8 + (1 - factor) * 0.2,
+    blur: factor * 1.5,
   };
 }
 
 /**
- * Scroll-driven fade + scale on `.blogs` list items — parity with live site
- * faslebbie.com/blogs (see docs/reference/faslebbie scroll-item animation).
+ * Scroll-driven fade + scale on `.blogs` list items — parity with live
+ * faslebbie.com/blogs (inner-column `smoothScrollAnimation`).
  */
 export function useBlogListScrollFade(active: boolean) {
   useEffect(() => {
@@ -52,15 +57,17 @@ export function useBlogListScrollFade(active: boolean) {
         const itemCenter = rect.top + rect.height / 2;
         const distance = Math.abs(center - itemCenter);
         const factor = Math.min(distance / maxDistance, 1);
-        let { scale, opacity } = metricsForDistance(factor, winW);
+        let { scale, opacity, blur } = metricsForDistance(factor, winW);
 
         if (index === 0 && atTop) {
           scale = 1;
           opacity = 1;
+          blur = 0;
         }
 
         el.style.transform = `scale(${scale.toFixed(3)})`;
         el.style.opacity = opacity.toFixed(3);
+        el.style.filter = `blur(${blur.toFixed(2)}px)`;
       });
     };
 
@@ -81,6 +88,7 @@ export function useBlogListScrollFade(active: boolean) {
         .forEach((el) => {
           el.style.transform = "";
           el.style.opacity = "";
+          el.style.filter = "";
         });
     };
   }, [active]);

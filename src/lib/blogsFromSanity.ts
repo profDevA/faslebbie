@@ -114,6 +114,7 @@ export function blogsFromSanity(
     year: m.year ?? "",
     thumb: m.thumb ?? undefined,
     video: m.video ?? undefined,
+    videoFile: m.videoFile ?? undefined,
     source: m.source ?? "",
     detail: m.detail ?? "",
     description: m.description ?? "",

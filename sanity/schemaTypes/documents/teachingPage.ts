@@ -44,6 +44,27 @@ export const teachingPage = defineType({
       group: "exhibition",
     }),
     defineField({
+      name: "exhibitionHeading",
+      title: "Exhibition page heading",
+      type: "string",
+      initialValue: "My Student Exhibitions",
+      group: "exhibition",
+    }),
+    defineField({
+      name: "exhibitionIntro",
+      title: "Exhibition page intro",
+      type: "text",
+      rows: 4,
+      group: "exhibition",
+    }),
+    defineField({
+      name: "exhibitionCta",
+      title: "Exhibition page CTA",
+      type: "string",
+      initialValue: "See their case studies",
+      group: "exhibition",
+    }),
+    defineField({
       name: "exhibitionTiles",
       title: "Exhibition tiles",
       type: "array",

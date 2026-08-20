@@ -346,6 +346,9 @@ export interface SanityTeachingPage {
   students?: SanityStudentProject[];
   studentsWorkIntro?: string;
   exhibitionTitle?: string;
+  exhibitionHeading?: string;
+  exhibitionIntro?: string;
+  exhibitionCta?: string;
   exhibitionTiles?: SanityExhibitionTile[];
   seo?: SanityPageSeo;
 }
@@ -463,6 +466,7 @@ export interface SanityMediaEntry {
   description?: string;
   themes?: string[];
   video?: string | null;
+  videoFile?: string | null;
   thumb?: string | null;
 }
 

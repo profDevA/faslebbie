@@ -2,7 +2,8 @@
 
 /**
  * The dot-prefixed view switch shared by every listing page — ".txt / .img" on
- * Work, Build, Leadership and Teaching, ".blogs / .words / .media" on Blogs.
+ * Work and Build, ".philosophy / .works" on Teaching, ".blogs / .words / .media"
+ * on Blogs.
  *
  * Fas 07/28: these had drifted apart (Blogs was smaller, with a dimmed inactive
  * state and a different underline) — "blogs and media… it's different from

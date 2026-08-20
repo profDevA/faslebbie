@@ -4,9 +4,7 @@ import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import { LISTING_PORTRAIT_COLUMN_CLASS } from "@/lib/portraitLayout";
 import {
   Fragment,
-  useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -59,14 +57,11 @@ const WALL_WHEEL_SCALE = 0.65; // how strongly the wheel scrolls the wall
 // category list 1251:6335 — 207px wide, ~44px row pitch).
 const WALL_MENU_W = 480;
 const WALL_MENU_INNER_W = 207;
-/** Mobile menu width; open gap = this + 10px each side. */
-const WALL_MENU_INNER_W_MOBILE = 168;
+/** Mobile menu = desktop list width (Figma 2869:63796). Gap = this + 10px/side. */
+const WALL_MENU_INNER_W_MOBILE = 207;
 const WALL_MENU_W_MOBILE = WALL_MENU_INNER_W_MOBILE + 20;
 // Closed state widens the centre gutter for the vertical "FILTER WORK" tab.
 const WALL_TAB_LANE = 24;
-/** Masonry reorder on filter — matches column slide + live site PopsIn (~500ms). */
-const WALL_FILTER_MOVE_MS = 500;
-const WALL_FILTER_MOVE_EASE = "cubic-bezier(0, 0, 0.2, 1)";
 
 type WorkProject = Study;
 
@@ -145,8 +140,7 @@ export default function WorkBody({
   const wallOffset = useRef(0);
   /** When set, ease wallOffset toward this value (filter scroll-to-top). */
   const wallScrollTarget = useRef<number | null>(null);
-  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const flipFromRef = useRef<Map<string, DOMRect> | null>(null);
+  const [popsNonce, setPopsNonce] = useState(0);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -280,58 +274,14 @@ export default function WorkBody({
     return cols;
   }, [projects, wide, blurFilter]);
 
-  const registerCardRef = useCallback(
-    (slug: string, el: HTMLDivElement | null) => {
-      if (el) cardRefs.current.set(slug, el);
-      else cardRefs.current.delete(slug);
-    },
-    [],
-  );
-
-  const queueWallFlip = useCallback(() => {
-    const map = new Map<string, DOMRect>();
-    cardRefs.current.forEach((el, slug) => {
-      map.set(slug, el.getBoundingClientRect());
-    });
-    flipFromRef.current = map;
-  }, []);
-
-  useLayoutEffect(() => {
-    if (view !== "img") return;
-    const first = flipFromRef.current;
-    if (!first) return;
-    flipFromRef.current = null;
-
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (reduce) return;
-
-    cardRefs.current.forEach((el, slug) => {
-      const from = first.get(slug);
-      if (!from) return;
-      const to = el.getBoundingClientRect();
-      const dx = from.left - to.left;
-      const dy = from.top - to.top;
-      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-
-      el.getAnimations().forEach((anim) => anim.cancel());
-      el.animate(
-        [
-          { transform: `translate(${dx}px, ${dy}px)` },
-          { transform: "translate(0, 0)" },
-        ],
-        {
-          duration: WALL_FILTER_MOVE_MS,
-          easing: WALL_FILTER_MOVE_EASE,
-        },
-      );
-    });
-  }, [wallColumns, view]);
+  const bumpPops = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setPopsNonce((n) => n + 1);
+  };
 
   const selectPendingFilter = (cat: Filter) => {
     if (cat === pendingFilter) return;
-    queueWallFlip();
+    bumpPops();
     setPendingFilter(cat);
   };
 
@@ -341,20 +291,19 @@ export default function WorkBody({
   };
 
   const closeFilter = () => {
-    if (pendingFilter !== appliedFilter) queueWallFlip();
+    if (pendingFilter !== appliedFilter) bumpPops();
     setPendingFilter(appliedFilter);
     setFilterOpen(false);
   };
 
   const applyFilter = () => {
-    // Preview already reordered the wall while the panel was open.
     setAppliedFilter(pendingFilter);
     setFilterOpen(false);
   };
 
   const clearFilter = () => {
     if (appliedFilter === "All" && pendingFilter === "All") return;
-    queueWallFlip();
+    bumpPops();
     setAppliedFilter("All");
     setPendingFilter("All");
   };
@@ -367,11 +316,11 @@ export default function WorkBody({
   const menuInnerW = wide ? WALL_MENU_INNER_W : WALL_MENU_INNER_W_MOBILE;
 
   // Scroll-triggered reveal for the `.img` grid: each card fades up as it
-  // enters the viewport (faslebbie.com/works fades on load, but our 17-card
-  // grid is taller than one screen, so we tie it to scroll). Re-runs when the
-  // view/filter changes (cards remount via their key and start hidden again).
+  // enters the viewport. Skipped after a filter change — those remounts use
+  // PopsIn instead (same as faslebbie.com/works).
   useEffect(() => {
     if (view !== "img") return;
+    if (popsNonce > 0) return;
     const root = gridRef.current;
     if (!root) return;
     const cards = Array.from(
@@ -397,7 +346,7 @@ export default function WorkBody({
     );
     cards.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [view, appliedFilter]);
+  }, [view, wallColumns, popsNonce]);
 
   // Soft password gate for NDA studies (Fas 08/09). One unlock lasts the tab.
   const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate();
@@ -538,10 +487,17 @@ export default function WorkBody({
         </>
       ) : (
         <>
-          {showToggle && viewToggle}
+          {showToggle && (
+            <ViewToggle
+              views={["txt", "img"] as const}
+              value={view}
+              onChange={switchView}
+              className="max-lg:!pt-[43px]"
+            />
+          )}
           {appliedFilter !== "All" && !filterOpen && (
-            <div className="relative z-10 flex items-center gap-[10px] px-2 pb-3 pt-1 lg:px-6">
-              <span className="font-grotesk text-[24px] tracking-[0.5px] text-black/50">
+            <div className="relative z-10 flex items-center gap-[10px] px-2 pt-[55px] lg:px-6 lg:pt-1">
+              <span className="font-grotesk text-[20px] tracking-[0.5px] text-black/50 lg:text-[24px]">
                 {appliedFilter}
                 <span className="ml-6 tabular-nums">{counts[appliedFilter]}</span>
               </span>
@@ -550,7 +506,7 @@ export default function WorkBody({
                 data-cursor="hover"
                 onClick={clearFilter}
                 aria-label={`Clear ${appliedFilter} filter`}
-                className="flex size-[18px] shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60"
+                className="flex size-3 shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60 lg:size-[18px]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -559,6 +515,7 @@ export default function WorkBody({
                   viewBox="0 0 18 18"
                   fill="none"
                   aria-hidden
+                  className="size-full"
                 >
                   <path
                     d="M0.832031 16.8324L8.83203 8.8324L16.832 0.832397M8.83203 8.8324L0.832031 0.832397L16.832 16.8324"
@@ -570,7 +527,10 @@ export default function WorkBody({
               </button>
             </div>
           )}
-          <main ref={gridRef} className="relative z-10 w-full pb-0 pt-6 lg:pt-4">
+          <main
+            ref={gridRef}
+            className={`relative z-10 w-full pb-0 lg:pt-4 ${appliedFilter !== "All" && !filterOpen ? "pt-5" : "pt-[62px]"}`}
+          >
           {/* Shared wall (Figma mobile 1:17564 / 1:19168 + desktop 1111:4653):
               2 cols mobile / 4 desktop. On open, left slides left and right
               slides right — same Filter Work interaction on every breakpoint. */}
@@ -588,8 +548,8 @@ export default function WorkBody({
                     key={`col-${ci}-${wide ? "d" : "m"}`}
                     col={wallColumns[ci] ?? []}
                     blurFilter={blurFilter}
+                    popsNonce={popsNonce}
                     showMeta={wide}
-                    registerCardRef={registerCardRef}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -606,8 +566,8 @@ export default function WorkBody({
                     key={`col-${ci}-${wide ? "d" : "m"}`}
                     col={wallColumns[ci] ?? []}
                     blurFilter={blurFilter}
+                    popsNonce={popsNonce}
                     showMeta={wide}
-                    registerCardRef={registerCardRef}
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
@@ -637,7 +597,7 @@ export default function WorkBody({
                     onClick={closeFilter}
                     data-cursor="hover"
                     aria-label="Close filter"
-                    className="mb-[18px] flex items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black lg:mb-[22px]"
+                    className="mb-[18px] hidden items-center justify-between gap-6 border-b border-black/15 pb-[14px] font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 transition-colors hover:text-black lg:mb-[22px] lg:flex"
                   >
                     <span>Close</span>
                     <svg
@@ -678,11 +638,7 @@ export default function WorkBody({
                           }`}
                         >
                           <span>{isAll ? "ALL" : cat}</span>
-                          <span
-                            className={`tabular-nums ${active ? "text-accent" : "text-black/45"}`}
-                          >
-                            {counts[cat]}
-                          </span>
+                          <span className="tabular-nums">{counts[cat]}</span>
                         </button>
                       );
                     })}
@@ -692,7 +648,7 @@ export default function WorkBody({
                       type="button"
                       data-cursor="hover"
                       onClick={applyFilter}
-                      className="mx-auto mt-6 h-[34px] min-w-[120px] rounded-[39px] bg-black px-6 font-grotesk text-[14px] font-medium leading-none text-white transition-opacity hover:opacity-85 lg:mt-8"
+                      className="mx-auto mt-6 h-[37px] min-w-[175px] rounded-[35px] bg-black px-6 font-grotesk text-[14px] font-medium leading-none text-white transition-opacity hover:opacity-85 lg:mt-8 lg:h-[34px] lg:min-w-[120px] lg:rounded-[39px]"
                     >
                       Apply
                     </button>
@@ -753,15 +709,15 @@ export default function WorkBody({
 function WallColumn({
   col,
   blurFilter,
+  popsNonce,
   trackRef,
-  registerCardRef,
   onOpen,
   showMeta = true,
 }: {
   col: WorkProject[];
   blurFilter: Filter;
+  popsNonce: number;
   trackRef: (el: HTMLDivElement | null) => void;
-  registerCardRef: (slug: string, el: HTMLDivElement | null) => void;
   onOpen: (slug: string) => void;
   showMeta?: boolean;
 }) {
@@ -770,9 +726,8 @@ function WallColumn({
       <div ref={trackRef} className="work-wall-track">
         {col.map((p) => (
           <div
-            key={p.slug}
-            ref={(el) => registerCardRef(p.slug, el)}
-            className="work-card-flip-item mb-4 lg:mb-5"
+            key={`${p.slug}-${popsNonce}`}
+            className={`work-card-item mb-4 lg:mb-5${popsNonce > 0 ? " work-card-pops" : ""}`}
           >
             <ProjectCard
               project={p}

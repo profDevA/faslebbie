@@ -11,20 +11,25 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export function usePersistedView<T extends string>(
   views: readonly T[],
   fallback: T,
+  aliases?: Record<string, T>,
 ): [T, (next: T) => void] {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const fromUrl = searchParams.get("view");
-  const initial = (
-    fromUrl && views.includes(fromUrl as T) ? fromUrl : fallback
-  ) as T;
-  const [view, setViewState] = useState<T>(initial);
+
+  const resolve = (v: string | null): T | null => {
+    if (!v) return null;
+    if (views.includes(v as T)) return v as T;
+    return aliases?.[v] ?? null;
+  };
+
+  const fromUrl = resolve(searchParams.get("view"));
+  const [view, setViewState] = useState<T>(fromUrl ?? fallback);
 
   useEffect(() => {
-    const v = searchParams.get("view");
-    if (v && views.includes(v as T) && v !== view) setViewState(v as T);
-  }, [searchParams, views, view]);
+    const next = resolve(searchParams.get("view"));
+    if (next && next !== view) setViewState(next);
+  }, [searchParams, views, aliases, view]);
 
   const setView = (next: T) => {
     if (next === view) return;

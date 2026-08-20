@@ -19,6 +19,9 @@
 # pre-migration Sanity document snapshots (Sanity keeps its own history)
 /.backup/
 
+# local patch assets (Figma exports, not committed)
+/tmp/
+
 # next.js
 /.next/
 /out/

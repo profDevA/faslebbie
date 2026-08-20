@@ -6,7 +6,7 @@ import LeadershipContent from "@/components/LeadershipContent";
 import LeadershipGallery from "@/components/LeadershipGallery";
 import LeadershipMomentPopup from "@/components/LeadershipMomentPopup";
 import LeadershipWatermark from "@/components/LeadershipWatermark";
-import ViewToggle from "@/components/ViewToggle";
+import { NavPillButton } from "@/components/InlineToken";
 import type { Testimonial } from "@/lib/content";
 import type { LeadershipContentData } from "@/lib/leadershipFromSanity";
 import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
@@ -49,10 +49,6 @@ export default function LeadershipBody({
     window.scrollTo({ top: 0 });
   };
 
-  const viewToggle = (
-    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
-  );
-
   return (
     <div className="relative">
       {/* Watermark: front→back reveal in ".txt", forced receded behind ".img". */}
@@ -61,19 +57,8 @@ export default function LeadershipBody({
       {view === "txt" ? (
         <>
           {/* Desktop pin: sticks under the nav so the content brightens in place
-              before the page scrolls (same as About/Work). The toggle sits inside
-              the dim back layer and only goes live once ~70% revealed. */}
+              before the page scrolls (same as About/Work). */}
           <div className={STICKY_UNDER_NAV}>
-            <div
-              style={{
-                opacity,
-                filter: blur,
-                pointerEvents: r < 0.7 ? "none" : undefined,
-              }}
-              className="will-change-[opacity,filter]"
-            >
-              {viewToggle}
-            </div>
             <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} py-12 lg:py-16`}>
               <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
                 {/* Mobile (Figma 1-45348): portrait first, then the "Leadership"
@@ -118,7 +103,11 @@ export default function LeadershipBody({
         </>
       ) : (
         <>
-          {viewToggle}
+          <div className="relative z-20 flex items-center justify-center pt-9 lg:pt-12">
+            <NavPillButton onClick={() => switchView("txt")}>
+              Back to Approach
+            </NavPillButton>
+          </div>
           <main className="relative z-10 w-full pb-24 pt-6 lg:pt-10">
             <LeadershipGallery items={moments} onOpen={setOpenId} />
           </main>

@@ -41,7 +41,8 @@ export type MediaItem = {
   platform: string; // "Spotify", "MIT Media Lab", …
   year: string;
   thumb?: string; // optional card/preview thumbnail
-  video?: string; // optional embed URL (else a black play placeholder)
+  video?: string; // optional embed URL
+  videoFile?: string; // uploaded mp4 (preferred over embed URL)
   // Modal detail panel:
   source: string; // "The Design Leadership Podcast"
   detail: string; // "Spotify • Episode 32 • 2024"
@@ -158,11 +159,12 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "design-systems-in-practice",
     format: "Podcast",
-    title: "Design Systems In Practice",
-    platform: "Spotify",
+    title:
+      "Sustainable Jewelry: Artisanal Diamond Mining in Sierra Leone as a Means for Change",
+    platform: "Living Room sessions",
     year: "2024",
-    source: "The Design Leadership Podcast",
-    detail: "Spotify • Episode 32 • 2024",
+    source: "Living Room sessions",
+    detail: "Living Room sessions · 2024",
     description:
       "A conversation on building design systems that scale across products and teams. We explore practical approaches, organizational dynamics, and the infrastructure that makes systems work.",
     themes: ["Design Systems", "Infrastructure", "Leadership"],
@@ -170,11 +172,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "designing-ai-infrastructure",
     format: "Podcast",
-    title: "Designing AI Infrastructure",
-    platform: "Apple Podcasts",
-    year: "2025",
-    source: "The Design Leadership Podcast",
-    detail: "Apple Podcasts • Episode 41 • 2025",
+    title: "Current Practice and Future of Strategic Design",
+    platform: "Parsons School of Design Alumni Panel Series",
+    year: "2024",
+    source: "Parsons School of Design Alumni Panel Series",
+    detail: "Parsons School of Design Alumni Panel Series · 2024",
     description:
       "What it means to design for AI systems as infrastructure — the interfaces, guardrails, and human trust that determine whether the technology is actually usable.",
     themes: ["AI", "Infrastructure", "Design"],
@@ -182,11 +184,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "the-practice-of-leadership",
     format: "Podcast",
-    title: "The Practice Of Leadership",
-    platform: "YouTube",
+    title: "African Mineral Resources: Its Promises and Current",
+    platform: "The Nordic Africa Institute",
     year: "2024",
-    source: "Design Leadership Series",
-    detail: "YouTube • 2024",
+    source: "The Nordic Africa Institute",
+    detail: "The Nordic Africa Institute · 2024",
     description:
       "Leadership treated as a practice rather than a title — the daily habits, decisions, and repair work that build a healthy, high-output design organization.",
     themes: ["Leadership", "Teams", "Practice"],
@@ -194,11 +196,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "design-leadership-in-complex-systems",
     format: "Talk",
-    title: "Design Leadership In Complex Systems",
-    platform: "Google Design Conference",
-    year: "2025",
-    source: "Google Design Conference",
-    detail: "Google Design Conference • 2025",
+    title: "Technology, Humanity, and Social Justice",
+    platform: "University of Pittsburgh",
+    year: "2023",
+    source: "University of Pittsburgh",
+    detail: "University of Pittsburgh · 2023",
     description:
       "A talk on leading design where the system is bigger than any one team — aligning intent, navigating ambiguity, and keeping craft alive at scale.",
     themes: ["Systems", "Leadership", "Scale"],
@@ -206,11 +208,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "post-extractive-futures",
     format: "Panel",
-    title: "Post-Extractive Futures",
-    platform: "The New School",
+    title: "Leading Through a System Design Lens",
+    platform: "MIT",
     year: "2023",
-    source: "The New School",
-    detail: "The New School • 2023",
+    source: "MIT",
+    detail: "MIT · 2023",
     description:
       "A panel on what comes after extraction — design's role in imagining and building futures that are regenerative rather than depleting.",
     themes: ["Extractives", "Futures", "Design"],
@@ -218,11 +220,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "ai-infrastructure-and-society",
     format: "Talk",
-    title: "AI Infrastructure & Society",
-    platform: "MIT Media Lab",
-    year: "2024",
-    source: "MIT Media Lab",
-    detail: "MIT Media Lab • 2024",
+    title: "Sustainability and Design Alumni Engagement",
+    platform: "parsons School of Design · Celebrate Parsons",
+    year: "2023",
+    source: "parsons School of Design · Celebrate Parsons",
+    detail: "parsons School of Design · Celebrate Parsons · 2023",
     description:
       "How the infrastructure choices behind AI shape society — access, accountability, and the design decisions that quietly set the terms.",
     themes: ["AI", "Society", "Infrastructure"],
@@ -230,11 +232,11 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "design-leadership-in-transition",
     format: "Interview",
-    title: "Design Leadership In Transition",
-    platform: "Design Observer",
+    title: "Innovations in Design Leadership",
+    platform: "UCLA",
     year: "2023",
-    source: "Design Observer",
-    detail: "Design Observer • 2023",
+    source: "UCLA",
+    detail: "UCLA · 2023",
     description:
       "An interview on leading design teams through transition — reorgs, AI shifts, and changing mandates — without losing the people or the craft.",
     themes: ["Leadership", "Transition", "Teams"],
@@ -242,11 +244,12 @@ export const mediaItems: MediaItem[] = [
   {
     slug: "systems-thinking-in-practice",
     format: "Interview",
-    title: "Systems Thinking In Practice",
-    platform: "AIGA",
-    year: "2024",
-    source: "AIGA",
-    detail: "AIGA • 2024",
+    title:
+      "The Current State of Artisanal and Small Scale Diamond Mining",
+    platform: "Chicago Jewelry Conference",
+    year: "2022",
+    source: "Chicago Jewelry Conference",
+    detail: "Chicago Jewelry Conference · 2022",
     description:
       "Putting systems thinking to work in everyday design decisions — seeing the whole, finding the leverage points, and designing the feedback loops.",
     themes: ["Systems", "Practice", "Method"],

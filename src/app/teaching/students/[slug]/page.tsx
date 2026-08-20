@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import StudentWorksPageView from "@/components/StudentWorksPageView";
+import { notFound, redirect } from "next/navigation";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
-import { teachingFromSanity } from "@/lib/teachingFromSanity";
 import {
   findStudent,
   getSiteSettings,
   getStudentSlugs,
-  getTeachingPage,
 } from "@/sanity/fetch";
 
 export const revalidate = 60;
@@ -39,17 +36,7 @@ export default async function StudentProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [found, content] = await Promise.all([
-    findStudent(slug),
-    teachingFromSanity(await getTeachingPage()),
-  ]);
+  const found = await findStudent(slug);
   if (!found) notFound();
-
-  return (
-    <StudentWorksPageView
-      students={found.students}
-      activeId={found.project.id}
-      studentsWorkIntro={content.studentsWorkIntro}
-    />
-  );
+  redirect(`/teaching?view=works&student=${encodeURIComponent(slug)}`);
 }

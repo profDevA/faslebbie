@@ -75,7 +75,7 @@ export default function PasswordGate({
         onClick={onClose}
         className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
       />
-      <div className="relative w-full max-w-[440px] border-b-[6px] border-black bg-close px-7 py-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:px-10 sm:py-10">
+      <div className="relative w-full max-w-[440px] bg-close px-7 py-8 sm:px-10 sm:py-10">
         <button
           type="button"
           aria-label="Close"

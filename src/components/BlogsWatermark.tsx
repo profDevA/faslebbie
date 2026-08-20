@@ -8,7 +8,7 @@ import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
  * as the other pages: sharp + near-black ON TOP of the content at the top of the
  * page, then it fades toward the page grey and drops behind everything as you
  * scroll. Unlike the other pages this one is centered and shown on mobile too
- * (the mobile frames center the same wordmark rather than a top heading).
+ * (mobile 16:2335 parks 58px type lower on the canvas, not over the first title).
  */
 
 function ramp(a: number, b: number, t: number) {
@@ -57,9 +57,11 @@ export default function BlogsWatermark() {
     <div
       aria-hidden
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none absolute inset-0 flex select-none items-start justify-center overflow-hidden px-4 pt-45 font-grotesk font-bold leading-[0.9] tracking-[-0.022em] will-change-[color,opacity] lg:fixed lg:items-center lg:pt-0"
+      className="pointer-events-none absolute inset-0 flex select-none items-start justify-start overflow-hidden px-5 pt-[640px] font-grotesk font-bold leading-[0.98] tracking-[1px] will-change-[color,opacity] lg:fixed lg:items-center lg:justify-center lg:px-4 lg:pt-0 lg:leading-[0.9] lg:tracking-[-0.022em]"
     >
-      <span className="text-[clamp(40px,12vw,190px)]">Blogs/Media</span>
+      <span className="text-[58px] lg:text-[clamp(40px,12vw,190px)]">
+        Blogs/Media
+      </span>
     </div>
   );
 }

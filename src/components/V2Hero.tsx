@@ -165,10 +165,17 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
       )}
 
       {/* Same fixed shell for first visit AND return-to-Home — previously the
-          settled path used in-flow h-full and looked tighter under the sticky nav. */}
+          settled path used in-flow h-full and looked tighter under the sticky nav.
+          During the intro the shell must not be a scroll container: overflow-y-auto
+          on a full-viewport overlay ate the touch pan on phones, so the wordmark
+          never receded. Pointer events pass through except on the keyword links. */}
       <div
         ref={boxRef}
-        className={`fixed inset-x-0 bottom-0 ${NAV_TOP} flex items-start justify-start overflow-y-auto px-6 pt-10 pb-12 md:pt-12 md:pb-14 lg:items-center lg:justify-center lg:px-[5vw] lg:py-0`}
+        className={`fixed inset-x-0 bottom-0 ${NAV_TOP} flex items-start justify-start px-6 pt-10 pb-12 md:pt-12 md:pb-14 lg:items-center lg:justify-center lg:px-[5vw] lg:py-0 ${
+          introActive
+            ? `pointer-events-none overflow-hidden${contentFront ? " [&_a]:pointer-events-auto" : ""}`
+            : "overflow-y-auto"
+        }`}
       >
         <div
           ref={paraRef}
@@ -187,12 +194,12 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
             style={{
               opacity: contentOpacity,
               filter: contentBlur ? `blur(${contentBlur}px)` : undefined,
-              pointerEvents: contentFront ? "auto" : "none",
+              pointerEvents: contentFront ? undefined : "none",
             }}
             className="w-full will-change-[opacity,filter]"
           >
             <HeroParagraph
-              className="max-w-272 text-center leading-[1.35] tracking-[1.65px] text-shadow-token"
+              className="max-w-272 text-left leading-[1.35] tracking-[1.65px] text-shadow-token md:text-center"
               storyHref={content?.storyHref ?? "/about"}
               segments={content?.segments ?? []}
             />

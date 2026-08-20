@@ -43,7 +43,15 @@ export const mediaEntry = defineType({
       title: "Embed URL",
       type: "url",
       description:
-        "YouTube / Vimeo / Spotify URL for the modal player. Without this the modal shows a black play placeholder.",
+        "YouTube / Vimeo / Spotify URL. Optional if a video file is uploaded. The file wins when both are set.",
+    }),
+    defineField({
+      name: "videoFile",
+      title: "Video file",
+      type: "file",
+      options: { accept: "video/*" },
+      description:
+        "Upload an mp4 (or similar) so the clip stays on this site even if the original URL is taken down.",
     }),
     defineField({ name: "source", title: "Source", type: "string", description: 'e.g. "The Design Leadership Podcast".' }),
     defineField({ name: "detail", title: "Detail line", type: "string", description: 'e.g. "Spotify • Episode 32 • 2024".' }),

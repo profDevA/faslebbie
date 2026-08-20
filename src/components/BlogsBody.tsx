@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import BlogModal from "@/components/BlogModal";
 import BlogsWatermark from "@/components/BlogsWatermark";
@@ -45,21 +45,6 @@ export default function BlogsBody({
   const blurPx = revealBlur(r);
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
 
-  // Group blog posts by their column heading, preserving order.
-  const groups = useMemo(() => {
-    const out: { category: string; items: { post: BlogPost; index: number }[] }[] = [];
-    posts.forEach((post, index) => {
-      let g = out.find((x) => x.category === post.category);
-      if (!g) {
-        g = { category: post.category, items: [] };
-        out.push(g);
-      }
-      g.items.push({ post, index });
-    });
-    return out;
-  }, [posts]);
-
-  // Live site: each blog row fades/scales toward viewport center on scroll.
   useBlogListScrollFade(tab === "blogs");
 
   return (
@@ -95,36 +80,39 @@ export default function BlogsBody({
             className="flex w-full flex-col items-center will-change-[opacity,filter,transform]"
           >
             {tab === "blogs" ? (
-              /* Figma 2627:4448 — centered meta + red titles, ~105px stack gap. */
-              <div className="flex w-full max-w-[1129px] flex-col items-center gap-[105px]">
-                <div className="flex w-full max-w-[700px] flex-col gap-[105px]">
-                {groups.map((group) => (
-                  <section
-                    key={group.category}
-                    className="flex flex-col gap-[105px]"
+              /* Mobile 16:2335 — 85px stack. Desktop keeps vh rhythm. */
+              <div className="flex w-full max-w-[700px] flex-col gap-[85px] pt-[52px] pb-[28vh] lg:gap-[12vh] lg:pt-[10vh] lg:pb-[32vh]">
+                {posts.map((post, index) => {
+                  const category =
+                    post.category &&
+                    post.category !== posts[index - 1]?.category
+                      ? post.category
+                      : null;
+                  return (
+                  <article
+                    key={post.slug}
+                    data-blog-scroll-item
+                    className="flex flex-col items-center origin-center text-center will-change-[transform,opacity] transition-[transform,opacity] duration-[250ms] ease-out"
                   >
-                    {group.items.map(({ post, index }) => (
-                      <article
-                        key={post.slug}
-                        data-blog-scroll-item
-                        className="origin-center text-center will-change-[transform,opacity] transition-[transform,opacity] duration-[250ms] ease-out"
-                      >
-                        <p className="font-grotesk text-[16px] leading-[1.15] text-black md:text-[18px]">
-                          {post.meta}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setOpenBlog(index)}
-                          data-cursor="hover"
-                          className="mt-6 font-grotesk text-[28px] font-medium capitalize leading-[1.37] tracking-[-1.28px] text-accent underline decoration-1 underline-offset-[6px] md:mt-7 md:text-[36px] lg:text-[42px]"
-                        >
-                          {post.title}
-                        </button>
-                      </article>
-                    ))}
-                  </section>
-                ))}
-                </div>
+                    {category ? (
+                      <p className="mb-[79px] font-grotesk text-[16px] font-medium capitalize leading-[1.04] text-black lg:mb-[98px] lg:text-[20px] lg:leading-[1.03]">
+                        {category}
+                      </p>
+                    ) : null}
+                    <p className="font-grotesk text-[14px] leading-[1.19] text-black lg:text-[18px] lg:leading-[1.15]">
+                      {post.meta}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setOpenBlog(index)}
+                      data-cursor="hover"
+                      className="mt-[21px] font-grotesk text-[28px] font-medium capitalize leading-[1.67] tracking-[-1.04px] text-accent underline decoration-1 underline-offset-[6px] lg:mt-7 lg:text-[42px] lg:leading-[1.37] lg:tracking-[-1.28px]"
+                    >
+                      {post.title}
+                    </button>
+                  </article>
+                  );
+                })}
               </div>
             ) : tab === "words" ? (
               /* Figma 2729:2736 — centered 1129px block, numbered rows. */
@@ -158,7 +146,7 @@ export default function BlogsBody({
                       {item.title}
                     </p>
                     <p className="mt-3.5 font-grotesk text-[14px] capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
-                      {item.format} · {item.platform} · {item.year}
+                      {item.platform} · {item.year}
                     </p>
                   </button>
                 ))}

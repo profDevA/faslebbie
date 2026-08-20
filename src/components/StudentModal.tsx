@@ -1,20 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import PopupShell, { PopupPagerButton } from "@/components/PopupShell";
+import PopupShell from "@/components/PopupShell";
 import type { StudentProject } from "@/lib/teaching";
 
-// Placeholder image slide (real student photos pending) — a tinted block with
-// the project title; the shade shifts per slide so the carousel reads as paging.
 function Slide({ project, index }: { project: StudentProject; index: number }) {
-  const src = project.images?.[index];
+  const src = project.images?.[index] ?? (index === 0 ? project.cover : undefined);
   if (src)
-    // eslint-disable-next-line @next/next/no-img-element -- carousel image
-    return <img src={src} alt={project.headline} className="h-full w-full object-cover" />;
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- carousel image
+      <img
+        src={src}
+        alt={project.headline || project.title}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    );
   return (
     <div
       style={{ backgroundColor: project.tint, filter: `brightness(${1 - index * 0.06})` }}
-      className="flex h-full w-full items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center"
     >
       <span
         className={`px-6 text-center font-logo text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
@@ -27,64 +31,108 @@ function Slide({ project, index }: { project: StudentProject; index: number }) {
   );
 }
 
-// Paged Student Works modal (Figma 158-10172 / 1-43869 desktop, 1-44911 mobile).
-// Breadcrumb + close; a left image carousel (arrows + dots page the project's
-// images) beside a dark meta panel; a "Previous / Next Project" footer pages
-// between the 14 students. Mobile stacks: meta panel on top, image below.
-export default function StudentModal({
-  projects,
-  openId,
-  onNavigate,
-  onClose,
-}: {
-  projects: StudentProject[];
-  openId: string | null;
-  onNavigate: (id: string) => void;
-  onClose: () => void;
-}) {
-  const [mounted, setMounted] = useState(false);
+function Carousel({ project }: { project: StudentProject }) {
   const [slide, setSlide] = useState(0);
-  useEffect(() => setMounted(true), []);
-
-  const index = openId ? projects.findIndex((p) => p.id === openId) : -1;
-  const project = index >= 0 ? projects[index] : null;
-  const slideCount = project ? (project.images?.length ?? 0) : 0;
-
-  // Reset the carousel whenever the project changes.
-  useEffect(() => {
-    setSlide(0);
-  }, [openId]);
-
-  const goProject = useCallback(
-    (dir: 1 | -1) => {
-      if (index < 0) return;
-      const n = projects.length;
-      onNavigate(projects[(index + dir + n) % n].id);
-    },
-    [index, projects, onNavigate],
+  const slideCount = Math.max(
+    project.images?.length ?? 0,
+    project.cover ? 1 : 0,
   );
 
   const goSlide = useCallback(
     (dir: 1 | -1) => {
-      if (slideCount <= 0) return;
+      if (slideCount <= 1) return;
       setSlide((s) => (s + dir + slideCount) % slideCount);
     },
     [slideCount],
   );
 
-  // Arrows page the image carousel — the prominent control on the frame.
-  // (Escape / scroll lock live in the shared shell.)
   useEffect(() => {
-    if (!openId) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goSlide(1);
       else if (e.key === "ArrowLeft") goSlide(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openId, goSlide]);
+  }, [goSlide]);
 
-  if (!mounted || !project) return null;
+  return (
+    <>
+      {/* Figma 2971:218674 mobile: ~538px image below meta. Desktop 3060:7200: left column. */}
+      <div className="relative order-2 h-[538px] shrink-0 overflow-hidden bg-[#e5eff1] lg:order-1 lg:h-auto lg:min-h-0">
+        <Slide project={project} index={slide} />
+        {slideCount > 1 && (
+          <div className="absolute inset-x-0 bottom-0 flex h-[54px] items-center justify-center gap-9 bg-gradient-to-t from-black/55 to-transparent lg:h-[74px] lg:gap-10">
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={() => goSlide(-1)}
+              data-cursor="hover"
+              className="font-grotesk text-[16px] font-medium tracking-[0.32px] text-white transition-opacity hover:opacity-70 lg:text-[22px] lg:tracking-[0.45px]"
+            >
+              {"<"}
+            </button>
+            <div className="flex items-center gap-[5px]">
+              {Array.from({ length: slideCount }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Image ${i + 1}`}
+                  aria-current={i === slide || undefined}
+                  onClick={() => setSlide(i)}
+                  data-cursor="hover"
+                  className={`size-2 rounded-full transition-colors ${
+                    i === slide ? "bg-accent" : "bg-white/80 hover:bg-white"
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={() => goSlide(1)}
+              data-cursor="hover"
+              className="font-grotesk text-[16px] font-medium tracking-[0.32px] text-white transition-opacity hover:opacity-70 lg:text-[22px] lg:tracking-[0.45px]"
+            >
+              {">"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="order-1 flex h-[538px] shrink-0 flex-col items-center justify-center gap-2.5 bg-[#1a1a1a] px-8 py-10 text-center capitalize text-[#e0e0d7] lg:order-2 lg:h-auto lg:min-h-0 lg:overflow-y-auto lg:gap-3.5 lg:px-20 lg:py-12">
+        <p className="font-grotesk text-[12px] font-light tracking-[-0.08px] lg:text-[11px] lg:tracking-[-0.11px]">
+          Student Works
+        </p>
+        <h2 className="font-grotesk text-[36px] font-normal leading-[1.1] tracking-[-0.4px] lg:text-[50px] lg:leading-[1.09] lg:tracking-[-0.55px]">
+          {project.title}:
+        </h2>
+        {project.headline ? (
+          <p className="max-w-[282px] font-grotesk text-[14px] font-bold leading-4 tracking-[0.72px] lg:max-w-[406px] lg:leading-[17px] lg:tracking-[1px]">
+            {project.headline}
+          </p>
+        ) : null}
+        {project.description ? (
+          <p className="max-w-[282px] font-grotesk text-[14px] font-light leading-4 tracking-[0.72px] lg:max-w-[406px] lg:leading-[17px] lg:tracking-[1px]">
+            {project.description}
+          </p>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+/** Student work detail popup — desktop 3060:7200, mobile 2971:218674. */
+export default function StudentModal({
+  projects,
+  openId,
+  onClose,
+}: {
+  projects: StudentProject[];
+  openId: string | null;
+  onClose: () => void;
+}) {
+  const project = openId ? projects.find((p) => p.id === openId) : null;
+  if (!project) return null;
 
   return (
     <PopupShell
@@ -92,74 +140,12 @@ export default function StudentModal({
       label={`Student Works: ${project.title}`}
       crumbs={[
         { label: "Teaching", hideOnMobile: true },
-        { label: "Student Works", hideOnMobile: true },
+        { label: "Student Works" },
         { label: project.title },
       ]}
       bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
-      footer={
-        <div className="flex w-full max-w-[620px] items-center justify-between">
-          <PopupPagerButton onClick={() => goProject(-1)}>
-            {"< Previous"}
-          </PopupPagerButton>
-          <PopupPagerButton onClick={() => goProject(1)}>
-            {"Next >"}
-          </PopupPagerButton>
-        </div>
-      }
     >
-      {/* Image carousel */}
-      <div className="relative order-2 h-[320px] min-h-0 overflow-hidden bg-black sm:h-[420px] lg:order-1 lg:h-auto">
-        <Slide project={project} index={slide} />
-        {slideCount > 1 && (
-          <>
-            <button
-              type="button"
-              aria-label="Previous image"
-              onClick={() => goSlide(-1)}
-              data-cursor="hover"
-              className="absolute left-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:left-6"
-            >
-              {"<"}
-            </button>
-            <button
-              type="button"
-              aria-label="Next image"
-              onClick={() => goSlide(1)}
-              data-cursor="hover"
-              className="absolute right-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:right-6"
-            >
-              {">"}
-            </button>
-            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
-              {Array.from({ length: slideCount }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Image ${i + 1}`}
-                  onClick={() => setSlide(i)}
-                  data-cursor="hover"
-                  className={`size-2 rounded-full transition-colors ${
-                    i === slide ? "bg-accent" : "bg-white/50 hover:bg-white/80"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Meta panel (near-black) */}
-      <div className="order-1 flex flex-col items-center justify-center gap-5 bg-[#1c1c1c] px-6 py-12 text-center lg:order-2 lg:overflow-y-auto lg:px-12 lg:py-14">
-        <p className="font-grotesk text-[13px] font-light tracking-[0.14em] text-white/70">
-          Student Works
-        </p>
-        <h2 className="font-serif text-[36px] font-medium leading-[1.05] text-white lg:text-[48px]">
-          {project.title}:
-        </h2>
-        <p className="max-w-[440px] font-grotesk text-[15px] font-light capitalize leading-[1.7] text-white/75 lg:text-[16px]">
-          {project.description}
-        </p>
-      </div>
+      <Carousel key={project.id} project={project} />
     </PopupShell>
   );
 }

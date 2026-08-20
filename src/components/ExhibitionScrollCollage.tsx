@@ -3,12 +3,13 @@
 import { useEffect, useRef } from "react";
 import type { ExhibitionTile, TilePos } from "@/lib/teaching";
 
-// Live faslebbie.com exhibition scroller: the band creeps upward on its own,
-// the wheel adds to that speed and it decays back, hovering a photo pauses it,
-// and reaching the bottom hands scrolling back to the page.
+// Live faslebbie.com/sfk-beijeing-exhibition/: the band creeps upward on its
+// own, the wheel (or a touch drag) adds to that speed and it decays back,
+// hovering a photo pauses it, and reaching the bottom hands scrolling back.
 const BASE_SPEED = 0.5;
 const MAX_SPEED = 15;
 const WHEEL_STEP = 2;
+const TOUCH_STEP = 0.08;
 const DECAY_MS = 200;
 const NAV_H = 82;
 
@@ -31,7 +32,7 @@ function tileStyle(pos: TilePos) {
 
 function PhotoBand({ tiles, suffix }: { tiles: ExhibitionTile[]; suffix: string }) {
   return (
-    <div className="relative h-[calc(100dvh-82px)] min-h-[560px] w-full">
+    <div className="relative hidden h-[calc(100dvh-82px)] min-h-[560px] w-full lg:block">
       {tiles.map((tile, i) => (
         <div
           key={`${suffix}-${i}`}
@@ -58,6 +59,51 @@ function PhotoBand({ tiles, suffix }: { tiles: ExhibitionTile[]; suffix: string 
   );
 }
 
+function MobilePhoto({ tile }: { tile: ExhibitionTile }) {
+  return (
+    <div data-collage-tile className="w-[135px]">
+      {tile.image ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
+        <img
+          src={tile.image}
+          alt={tile.label ?? ""}
+          className="h-auto w-[135px]"
+        />
+      ) : (
+        <div
+          style={{ backgroundColor: tile.tint }}
+          className="aspect-4/3 w-[135px]"
+        />
+      )}
+    </div>
+  );
+}
+
+function MobilePhotoBand({
+  tiles,
+  suffix,
+}: {
+  tiles: ExhibitionTile[];
+  suffix: string;
+}) {
+  const left = tiles.filter((_, i) => i % 2 === 0);
+  const right = tiles.filter((_, i) => i % 2 === 1);
+  return (
+    <div className="mx-auto grid max-w-[402px] grid-cols-2 px-7 pb-24 pt-[220px] lg:hidden">
+      <div className="flex flex-col items-start gap-[220px] pt-[71px]">
+        {left.map((tile, i) => (
+          <MobilePhoto key={`${suffix}-l-${i}`} tile={tile} />
+        ))}
+      </div>
+      <div className="flex flex-col items-end gap-[220px]">
+        {right.map((tile, i) => (
+          <MobilePhoto key={`${suffix}-r-${i}`} tile={tile} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ExhibitionScrollCollage({
   tiles,
 }: {
@@ -76,6 +122,7 @@ export default function ExhibitionScrollCollage({
     let maxScroll = 0;
     let frame = 0;
     let decay: number | undefined;
+    let lastTouchY = 0;
     let paused = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const measure = () => {
@@ -85,9 +132,10 @@ export default function ExhibitionScrollCollage({
     };
     measure();
     window.addEventListener("resize", measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(inner);
 
     const tick = () => {
-      // Settling at the bottom releases the page; scrolling up re-engages.
       if (!paused && !(pos >= maxScroll && speed > 0)) {
         pos = Math.min(maxScroll, Math.max(0, pos + speed));
         inner.style.transform = `translate3d(0, ${-pos}px, 0)`;
@@ -96,6 +144,14 @@ export default function ExhibitionScrollCollage({
     };
     frame = requestAnimationFrame(tick);
 
+    const nudge = (delta: number) => {
+      speed = Math.min(MAX_SPEED, Math.max(-MAX_SPEED, speed + delta));
+      window.clearTimeout(decay);
+      decay = window.setTimeout(() => {
+        speed = BASE_SPEED;
+      }, DECAY_MS);
+    };
+
     const onWheel = (e: WheelEvent) => {
       const rect = viewport.getBoundingClientRect();
       if (rect.bottom <= NAV_H || rect.top >= window.innerHeight) return;
@@ -103,14 +159,25 @@ export default function ExhibitionScrollCollage({
       if (pos >= maxScroll && e.deltaY > 0) return;
 
       e.preventDefault();
-      const nudge = e.deltaY > 0 ? WHEEL_STEP : -WHEEL_STEP;
-      speed = Math.min(MAX_SPEED, Math.max(-MAX_SPEED, speed + nudge));
-      window.clearTimeout(decay);
-      decay = window.setTimeout(() => {
-        speed = BASE_SPEED;
-      }, DECAY_MS);
+      nudge(e.deltaY > 0 ? WHEEL_STEP : -WHEEL_STEP);
     };
     window.addEventListener("wheel", onWheel, { passive: false });
+
+    const onTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if ((e.target as Element | null)?.closest?.("a")) return;
+      const y = e.touches[0]?.clientY ?? lastTouchY;
+      const delta = lastTouchY - y;
+      lastTouchY = y;
+      if (pos <= 0 && delta < 0) return;
+      if (pos >= maxScroll && delta > 0) return;
+      e.preventDefault();
+      nudge(delta * TOUCH_STEP);
+    };
+    viewport.addEventListener("touchstart", onTouchStart, { passive: true });
+    viewport.addEventListener("touchmove", onTouchMove, { passive: false });
 
     const onOver = (e: Event) => {
       if ((e.target as HTMLElement).closest("[data-collage-tile]")) paused = true;
@@ -126,6 +193,9 @@ export default function ExhibitionScrollCollage({
       window.clearTimeout(decay);
       window.removeEventListener("resize", measure);
       window.removeEventListener("wheel", onWheel);
+      ro.disconnect();
+      viewport.removeEventListener("touchstart", onTouchStart);
+      viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("mouseover", onOver);
       viewport.removeEventListener("mouseout", onOut);
     };
@@ -136,9 +206,11 @@ export default function ExhibitionScrollCollage({
   return (
     <div
       ref={viewportRef}
-      className="relative hidden h-[calc(100dvh-82px)] overflow-hidden lg:block"
+      className="relative h-[calc(100dvh-82px)] overflow-hidden"
     >
       <div ref={innerRef} className="will-change-transform">
+        <MobilePhotoBand tiles={tiles} suffix="top" />
+        <MobilePhotoBand tiles={tiles} suffix="bottom" />
         <PhotoBand tiles={tiles} suffix="top" />
         <PhotoBand tiles={tiles} suffix="bottom" />
       </div>

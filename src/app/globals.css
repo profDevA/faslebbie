@@ -263,9 +263,19 @@ body {
   pointer-events: none;
 }
 
-/* Filter reorder — FLIP target; transform driven by WAAPI during moves. */
-.work-card-flip-item {
-  will-change: transform;
+.work-card-pops {
+  animation: workPopsIn 1s ease 0.5s both;
+}
+
+@keyframes workPopsIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .work-card-dimmed .work-card-meta {
@@ -278,6 +288,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .work-card-pops {
+    animation: none;
+  }
+
   .work-card-media img,
   .work-card-media-blur {
     transition: none;

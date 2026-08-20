@@ -13,7 +13,7 @@ export const LISTING_PORTRAIT_HEIGHT = Math.round(
 );
 
 export const LISTING_PORTRAIT_IMAGE_CLASS =
-  "aspect-[956/1076] w-full bg-[#f0f0f0] object-cover object-top sm:w-[271px]";
+  "mx-auto aspect-[956/1076] w-full max-w-[271px] bg-[#f0f0f0] object-cover object-top lg:mx-0";
 
 /** Work `.txt` column — portrait + Stack share this width. */
 export const LISTING_PORTRAIT_COLUMN_CLASS = "sm:w-[271px]";

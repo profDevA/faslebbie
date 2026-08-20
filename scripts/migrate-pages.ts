@@ -106,7 +106,13 @@ function block(spans: SpanBuild[]) {
 }
 
 function teachSpan(tok: TeachToken): SpanBuild {
-  if (tok.t === "pill") return { text: tok.text, markDef: { _type: "pill" } };
+  if (tok.t === "pill")
+    return {
+      text: tok.text,
+      markDef: tok.expansion
+        ? { _type: "expandPill", expansion: tok.expansion }
+        : { _type: "pill" },
+    };
   if (tok.t === "term") return { text: tok.text, markDef: { _type: "term" } };
   if (tok.t === "student")
     return { text: tok.text, markDef: { _type: "ref", targetId: tok.id } };

@@ -6,6 +6,7 @@ import type {
   TeachSection,
   TeachToken,
 } from "@/lib/teaching";
+import { hiResUrl } from "@/sanity/image";
 
 export interface TeachingContentData {
   intro: TeachToken[][];
@@ -13,12 +14,22 @@ export interface TeachingContentData {
   students: StudentProject[];
   studentsWorkIntro: string;
   exhibitionTitle: string;
+  exhibitionHeading: string;
+  exhibitionIntro: string;
+  exhibitionCta: string;
   exhibitionTiles: ExhibitionTile[];
 }
 
 function runToToken(run: ProseRun): TeachToken {
   const m = run.mark;
-  if (m?._type === "pill") return { t: "pill", text: run.text };
+  if (m?._type === "expandPill" || m?._type === "pill")
+    return {
+      t: "pill",
+      text: run.text,
+      ...(m._type === "expandPill" && m.expansion
+        ? { expansion: m.expansion }
+        : {}),
+    };
   if (m?._type === "term") return { t: "term", text: run.text };
   if (m?._type === "ref")
     return { t: "student", id: m.targetId ?? "", text: run.text };
@@ -38,6 +49,9 @@ const empty: TeachingContentData = {
   students: [],
   studentsWorkIntro: "",
   exhibitionTitle: "",
+  exhibitionHeading: "",
+  exhibitionIntro: "",
+  exhibitionCta: "",
   exhibitionTiles: [],
 };
 
@@ -59,7 +73,10 @@ export function teachingFromSanity(
   }));
 
   const students: StudentProject[] = (data.students ?? []).map((p, i) => {
-    const images = p.images?.filter((u): u is string => Boolean(u)) ?? [];
+    const raw = p.images?.filter((u): u is string => Boolean(u)) ?? [];
+    const images = raw
+      .map((u) => hiResUrl(u, 2400))
+      .filter((u): u is string => Boolean(u));
     return {
       id: p.id ?? `student-${i}`,
       title: p.title ?? "",
@@ -69,7 +86,7 @@ export function teachingFromSanity(
       tint: p.tint ?? "#8f8a82",
       lightArt: p.lightArt,
       images: images.length ? images : undefined,
-      cover: images[0],
+      cover: hiResUrl(raw[0], 1200) ?? images[0],
     };
   });
 
@@ -94,6 +111,9 @@ export function teachingFromSanity(
     students,
     studentsWorkIntro: data.studentsWorkIntro?.trim() ?? "",
     exhibitionTitle,
+    exhibitionHeading: data.exhibitionHeading?.trim() ?? "",
+    exhibitionIntro: data.exhibitionIntro?.trim() ?? "",
+    exhibitionCta: data.exhibitionCta?.trim() ?? "",
     exhibitionTiles,
   };
 }

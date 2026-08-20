@@ -2,7 +2,7 @@
 
 export type TeachToken =
   | { t: "text"; text: string }
-  | { t: "pill"; text: string }
+  | { t: "pill"; text: string; expansion?: string }
   | { t: "term"; text: string }
   | { t: "student"; id: string; text: string }
   | { t: "action"; kind: "students" | "exhibition"; text: string };

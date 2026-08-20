@@ -48,12 +48,22 @@ function renderProse(
   return tokens.map((tok, j) => {
     const key = `${prefix}-${j}`
     if (tok.t === 'key' && tok.tone === 'gray' && interactive) {
-      const isOpen = openKey === tok.text
       const expansion = expansions[tok.text]
+      if (!expansion) {
+        return (
+          <span
+            key={key}
+            className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token"
+          >
+            {tok.text}
+          </span>
+        )
+      }
+      const isOpen = openKey === tok.text
       return (
         <Fragment key={key}>
           <GrayPill text={tok.text} open={isOpen} onToggle={() => toggle(tok.text)} />
-          {isOpen && expansion && (
+          {isOpen && (
             <>
               {' '}
               <span className="animate-[panel-in_0.35s_ease-out] font-normal">
@@ -153,6 +163,13 @@ export default function LeadershipContent({
               ))}
             </div>
           ))}
+          {/* The sections layout dropped the old "moments" block, so this pill is
+              the only way into the .img gallery now that the view toggle is gone. */}
+          {exploreText ? (
+            <p className="mb-12 lg:mb-16">
+              <NavPillButton onClick={onExplore}>{exploreText}</NavPillButton>
+            </p>
+          ) : null}
           <p>
             <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
           </p>

@@ -57,6 +57,7 @@ function Tokens({
       {tokens.map((tok, j) => {
         const key = `${prefix}-${j}`;
         if (tok.t === "text") return <Fragment key={key}>{tok.text}</Fragment>;
+        if (tok.t === "break") return null;
         if (tok.t === "hl") {
           const open = openKey === tok.text;
           const expansion = tok.expansion;
@@ -123,6 +124,18 @@ function Tokens({
   );
 }
 
+function splitParas(tokens: ResearchToken[]): ResearchToken[][] {
+  const out: ResearchToken[][] = [[]];
+  for (const tok of tokens) {
+    if (tok.t === "break") {
+      if (out[out.length - 1].length) out.push([]);
+      continue;
+    }
+    out[out.length - 1].push(tok);
+  }
+  return out.filter((p) => p.length > 0);
+}
+
 export default function ResearchContent({
   className = "",
   onOpen,
@@ -167,22 +180,24 @@ export default function ResearchContent({
 
   return (
     <section
-      className={`font-grotesk text-[26px] font-medium leading-[1.6] tracking-[0.5px] text-black md:text-[30px] lg:text-[36px] lg:leading-[1.6] ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {areas.map((area, i) => (
         <div key={area.kicker} className="mb-12 lg:mb-16">
-          <p className="mb-5 font-grotesk text-[16px] font-medium capitalize text-black lg:text-[18px]">
+          <p className="mb-5 font-grotesk text-[18px] font-medium capitalize leading-[1.6] tracking-[0.5px] text-black md:text-[20px] lg:text-[24px]">
             {area.kicker}
           </p>
-          <p>
-            <Tokens
-              tokens={area.body}
-              prefix={`a${i}`}
-              openKey={openKey}
-              onToggleKey={toggleKey}
-              onOpenSection={onOpen}
-            />
-          </p>
+          {splitParas(area.body).map((para, pi) => (
+            <p key={pi} className={pi > 0 ? "mt-7" : undefined}>
+              <Tokens
+                tokens={para}
+                prefix={`a${i}p${pi}`}
+                openKey={openKey}
+                onToggleKey={toggleKey}
+                onOpenSection={onOpen}
+              />
+            </p>
+          ))}
         </div>
       ))}
       <p>

@@ -36,6 +36,7 @@ function blocksToTokens(blocks?: PortableTextBlock[]): ResearchToken[] {
   const tokens: ResearchToken[] = [];
   for (const block of blocks) {
     if (block._type !== "block") continue;
+    if (tokens.length) tokens.push({ t: "break" });
     const markDefs = (block.markDefs ?? []) as MarkDef[];
     const children = (block.children ?? []) as Span[];
     for (const span of children) {

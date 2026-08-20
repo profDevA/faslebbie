@@ -133,7 +133,7 @@ const BIO: AboutToken[][] = [
       text: " across product design, research, entrepreneurship, and academia. See ",
     },
     { t: "key", text: "what people are saying" },
-    { t: "text", text: " →" },
+    { t: "text", text: "." },
   ],
   [
     { t: "text", text: "I speak and consult on " },

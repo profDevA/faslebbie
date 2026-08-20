@@ -162,24 +162,40 @@ export const students: SeedStudentProject[] = [
   },
 ];
 
-// Teaching `.txt` prose — holistic Figma 2829:2920. Three paragraphs, no
-// kickers and no trailing action pills: the only link out is the red
-// `exhibitions` token, and Student Works is reached via the view toggle.
+// Teaching `.philosophy` prose — collaboration doc Teaching tab
+// (`docs/reference/teaching-final-copy-extract.txt`). Layout still follows
+// Figma 2829:2920: three paragraphs, no kickers, red `exhibitions` link.
+// Grey institution pills expand to the Reveal Narrative copy.
+const teachingReveals = {
+  "Carnegie Mellon":
+    "Undergraduate design studies as Lead Instructor. Persuasion, on how design shapes attitudes, emotions, and behavior, and how designers communicate ideas and advocate for user needs. Place, on physical environments as dynamic conditions shaped by design, applying abstract concepts to site-specific projects. Plus two graduate seminars.",
+  "MIT GOV/LAB":
+    "Design Advisor on civic innovation with African governments, developing frameworks to repair trust between citizens and the state. I run co-design workshops that put officials, civil society, and residents in the same room, then build the training so local teams can carry it without me. Policy design that is culturally grounded rather than imported.",
+  "SFK International":
+    "Visiting Professor in Beijing, teaching Design for the 21st Century. A lecture and seminar course examining art, design, and technology from individual, systemic, and global perspectives: digital inclusion, biometrics, AI and racial bias, privacy and surveillance, environmental disruption, and global migration. Students grapple with ethical questions and harness imagination for change.",
+  "Njala University":
+    "Lead Instructor in Sierra Leone, teaching Sustainable Foundations for Mineral Design. The course examines mineral resource systems within a design studies framework: the taxonomy of place-based minerals, their societal and ecological roles, and the material-relational dimensions of communities that depend on them. Students learn to advocate for fair valuation and sustainable development.",
+  "PhD advisor":
+    "Graduate Coach and PhD Advisor at InGenius Prep, working with students on graduate admissions, research positioning, and doctoral preparation. It extends the mentorship practice beyond the classroom into one-on-one advising, helping the next generation of researchers find and articulate their intellectual identity.",
+  "LTP cycle":
+    "Learn it: Develops strategies for students to build theoretical capacity through readings and discussions in class and their translation into practical concepts. Teach it: Builds communication and knowledge capacities through in-class sessions that allow students to teach, discuss, and present class materials to their peers. Practice it: Challenges students to apply the class’s theoretical concepts in practical ways, resulting in tangible learning portfolios.",
+} as const;
+
 export const teachingIntro: TeachToken[][] = [
   [
     {
       t: "text",
       text: "I teach design, social innovation, and sustainable transitions in the extractive sector across ",
     },
-    { t: "pill", text: "Carnegie Mellon" },
+    { t: "pill", text: "Carnegie Mellon", expansion: teachingReveals["Carnegie Mellon"] },
     { t: "text", text: ", " },
-    { t: "pill", text: "MIT GOV/LAB" },
+    { t: "pill", text: "MIT GOV/LAB", expansion: teachingReveals["MIT GOV/LAB"] },
     { t: "text", text: ", " },
-    { t: "pill", text: "SFK International" },
+    { t: "pill", text: "SFK International", expansion: teachingReveals["SFK International"] },
     { t: "text", text: ", and " },
-    { t: "pill", text: "Njala University" },
+    { t: "pill", text: "Njala University", expansion: teachingReveals["Njala University"] },
     { t: "text", text: ", and as a " },
-    { t: "pill", text: "PhD advisor" },
+    { t: "pill", text: "PhD advisor", expansion: teachingReveals["PhD advisor"] },
     { t: "text", text: " at InGenius Prep." },
   ],
   [
@@ -187,7 +203,7 @@ export const teachingIntro: TeachToken[][] = [
       t: "text",
       text: "I bring a teaching philosophy rooted in entrepreneurial practice, critique, prototyping, and systems thinking. Knowledge is co-created, not delivered, through active learning, reflective assessment, learning portfolios, and studio-like approaches. I practice a pedagogical structure I call the ",
     },
-    { t: "pill", text: "LTP cycle" },
+    { t: "pill", text: "LTP cycle", expansion: teachingReveals["LTP cycle"] },
     {
       t: "text",
       text: ": learn it, teach it, practice it. The work students make should never end with a submission. It should travel into portfolios, exhibitions, communities, and public conversations. Across these settings, students move from ideas into systems, translating research into artifacts, services, and speculative futures.",
@@ -195,7 +211,7 @@ export const teachingIntro: TeachToken[][] = [
   ],
   [
     { t: "text", text: "Their " },
-    { t: "pill", text: "projects" },
+    { t: "action", kind: "students", text: "projects" },
     {
       t: "text",
       text: " demonstrate how students learn to frame problems, build interventions, and communicate ideas through design. Many of my students have gone on to Google, Apple, and top design firms, entered graduate programs at leading universities, and shown work in ",

@@ -160,6 +160,9 @@ export async function getTeachingExhibition() {
   const data = teachingFromSanity(page);
   return {
     title: data.exhibitionTitle,
+    heading: data.exhibitionHeading,
+    intro: data.exhibitionIntro,
+    cta: data.exhibitionCta,
     tiles: data.exhibitionTiles,
   };
 }

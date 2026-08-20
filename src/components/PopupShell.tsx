@@ -7,8 +7,7 @@ import { createPortal } from "react-dom";
  * the same shell and spacing — consistent breadcrumbs, close button, padding
  * and overlay treatment"). Adopted from the approved Student Works / Build
  * popup: a centred card over a light scrim, a white breadcrumb header with the
- * ✕, an internally scrolling body, and an optional white footer pager. The 6px
- * black rule always sits on the bottom edge of the card.
+ * ✕, an internally scrolling body, and an optional white footer pager.
  *
  * Mobile (Figma 1:37279): inset centred card (~20px margin, ~80vh tall) — not
  * full-bleed. From `sm` up it stays a wide centred overlay with margin.
@@ -55,6 +54,7 @@ export default function PopupShell({
   crumbs,
   children,
   footer,
+  footerClassName = "",
   label,
   bodyClassName = "min-h-0 flex-1 overflow-y-auto",
   bodyRef,
@@ -67,6 +67,8 @@ export default function PopupShell({
   children: ReactNode;
   /** Pager row; rendered inside the standard white footer bar. */
   footer?: ReactNode;
+  /** Extra classes on the footer bar (e.g. `lg:hidden` for mobile-only pagers). */
+  footerClassName?: string;
   /** Accessible name for the dialog; defaults to the last breadcrumb. */
   label?: string;
   /** Override when the body is a full-bleed split rather than a scroll area. */
@@ -116,7 +118,9 @@ export default function PopupShell({
         onClick={onClose}
         className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
       />
-      <div className="relative flex h-[min(684px,80dvh)] min-h-0 w-full flex-col overflow-hidden border-b-[6px] border-black bg-close shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:h-[min(880px,92vh)]">
+      <div
+        className="relative flex h-[min(684px,80dvh)] max-h-full min-h-0 w-full flex-col overflow-hidden border border-[#bebebe] bg-close sm:h-[min(880px,92vh)]"
+      >
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <Breadcrumbs crumbs={crumbs} />
           <button
@@ -135,7 +139,9 @@ export default function PopupShell({
         </div>
 
         {footer && (
-          <div className="flex h-16 shrink-0 items-center justify-center border-t border-black bg-white px-6 sm:px-10">
+          <div
+            className={`flex h-16 shrink-0 items-center justify-center border-t border-black/15 bg-white px-6 sm:px-10 ${footerClassName}`}
+          >
             {footer}
           </div>
         )}
@@ -151,11 +157,13 @@ export function PopupPagerButton({
   onClick,
   disabled,
   ariaLabel,
+  className = "text-[15px] lg:text-[18px]",
 }: {
   children: ReactNode;
   onClick: () => void;
   disabled?: boolean;
   ariaLabel?: string;
+  className?: string;
 }) {
   return (
     <button
@@ -164,7 +172,7 @@ export function PopupPagerButton({
       disabled={disabled}
       aria-label={ariaLabel}
       data-cursor="hover"
-      className="font-grotesk text-[15px] font-bold text-accent transition-opacity enabled:hover:opacity-70 disabled:opacity-30 lg:text-[18px]"
+      className={`font-grotesk font-bold text-accent transition-opacity enabled:hover:opacity-70 disabled:opacity-30 ${className}`}
     >
       {children}
     </button>
@@ -177,14 +185,18 @@ export function PopupDots({
   active,
   onSelect,
   labelFor,
+  className = "hidden sm:flex",
 }: {
   count: number;
   active: number;
   onSelect: (index: number) => void;
   labelFor?: (index: number) => string;
+  className?: string;
 }) {
   return (
-    <div className="hidden max-w-full flex-wrap items-center justify-center gap-2.5 sm:flex">
+    <div
+      className={`max-w-full items-center justify-center gap-2.5 ${className}`}
+    >
       {Array.from({ length: count }).map((_, i) => (
         <button
           key={i}
