@@ -35,7 +35,9 @@ const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
 // so red modal-section links inside a grey-pill reveal survive the round-trip.
 function proseBlock(tokens: ResearchToken[], allowNested = true) {
   const markDefs: Record<string, unknown>[] = [];
-  const children = tokens.map((tok) => {
+  const children = tokens
+    .filter((tok) => tok.t !== "break")
+    .map((tok) => {
     const marks: string[] = [];
     if (tok.t === "hl") {
       const _key = key();
@@ -74,7 +76,15 @@ function proseBlock(tokens: ResearchToken[], allowNested = true) {
       markDefs.push({ _key, _type: "link", href: tok.href });
       marks.push(_key);
     }
-    return { _type: "span", _key: key(), text: tok.text, marks };
+    return {
+      _type: "span",
+      _key: key(),
+      text:
+        tok.t === "text" || tok.t === "hl" || tok.t === "link" || tok.t === "ext"
+          ? tok.text
+          : "",
+      marks,
+    };
   });
   return {
     _type: "block",
