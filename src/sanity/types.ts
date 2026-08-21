@@ -447,7 +447,7 @@ export interface SanityBlogPostItem {
   title?: string;
   kicker?: string;
   description?: string;
-  body?: (PortableTextBlock | { _type: "image"; url?: string | null })[];
+  body?: PortableTextBlock[];
   url?: string;
   cover?: string | null;
   coverBg?: string;

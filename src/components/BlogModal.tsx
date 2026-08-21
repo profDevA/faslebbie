@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { ExternalTextLink } from "@/components/InlineToken";
+import BlogArticleBody, { isPortableTextBody } from "@/components/BlogArticleBody";
 import PopupShell from "@/components/PopupShell";
 import type { BlogBlock, BlogInline, BlogPost } from "@/lib/blogs";
 
@@ -11,30 +12,87 @@ function RichText({ parts, text }: { parts?: BlogInline[]; text: string }) {
   return (
     <>
       {parts.map((p, i) => {
+        if (!p.text) return null;
         let node: ReactNode = p.text;
+        if (p.code)
+          node = (
+            <code className="rounded bg-black/5 px-1 font-mono text-[0.92em]">
+              {node}
+            </code>
+          );
+        if (p.sup) node = <sup>{node}</sup>;
+        if (p.sub) node = <sub>{node}</sub>;
         if (p.bold) node = <strong className="font-medium">{node}</strong>;
         if (p.italic) node = <em>{node}</em>;
+        if (p.underline) node = <span className="underline">{node}</span>;
+        if (p.strike) node = <span className="line-through">{node}</span>;
+        if (p.highlight)
+          node = (
+            <mark
+              style={{ backgroundColor: p.highlight }}
+              className="rounded-sm px-0.5"
+            >
+              {node}
+            </mark>
+          );
         if (p.href)
           node = (
             <a
               href={p.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              target={p.linkBlank === false ? undefined : "_blank"}
+              rel={
+                p.linkBlank === false ? undefined : "noopener noreferrer"
+              }
               data-cursor="hover"
               className="text-accent underline underline-offset-2"
             >
               {node}
             </a>
           );
+        if (p.color) node = <span style={{ color: p.color }}>{node}</span>;
         return <span key={i}>{node}</span>;
       })}
     </>
   );
 }
 
+const IMG_WIDTH: Record<string, string> = {
+  full: "w-full",
+  medium: "w-[85%]",
+  small: "w-[60%]",
+};
+
+const IMG_ALIGN: Record<string, string> = {
+  left: "mr-auto ml-0",
+  center: "mx-auto",
+  right: "ml-auto mr-0",
+};
+
+function ArticleFigure({ block }: { block: BlogBlock }) {
+  const w = IMG_WIDTH[block.size ?? "full"];
+  const align = IMG_ALIGN[block.align ?? "center"];
+  return (
+    <figure className={`my-8 ${align} max-w-full`}>
+      <Image
+        src={block.text}
+        alt={block.alt ?? block.caption ?? ""}
+        width={1200}
+        height={800}
+        sizes="(max-width: 768px) 90vw, 440px"
+        className={`${w} h-auto`}
+      />
+      {block.caption ? (
+        <figcaption className="mt-2 font-grotesk text-[13px] leading-snug text-black/55">
+          {block.caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
 function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
   return (
-    <article className="mx-auto w-full max-w-[420px] px-6 py-12 lg:max-w-[440px] lg:px-0 lg:py-16">
+    <article className="mx-auto w-full max-w-[420px] px-6 py-12 [counter-reset:blog-oli] lg:max-w-[440px] lg:px-0 lg:py-16">
       {blocks.map((b, i) => {
         if (b.kind === "h2")
           return (
@@ -54,6 +112,51 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               <RichText parts={b.parts} text={b.text} />
             </p>
           );
+        if (b.kind === "h4")
+          return (
+            <p
+              key={i}
+              className="mt-6 font-grotesk text-[16px] font-bold leading-snug text-black/85"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
+          );
+        if (b.kind === "lead")
+          return (
+            <p
+              key={i}
+              className="mt-4 font-grotesk text-[17px] leading-[1.65] text-black/90 md:text-[18px]"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
+          );
+        if (b.kind === "center")
+          return (
+            <p
+              key={i}
+              className="mt-4 text-center font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
+          );
+        if (b.kind === "right")
+          return (
+            <p
+              key={i}
+              className="mt-4 text-right font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
+          );
+        if (b.kind === "small")
+          return (
+            <p
+              key={i}
+              className="mt-3 font-grotesk text-[13px] leading-[1.65] text-black/65"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
+          );
         if (b.kind === "li")
           return (
             <p
@@ -63,18 +166,31 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
               <RichText parts={b.parts} text={b.text} />
             </p>
           );
-        if (b.kind === "img")
+        if (b.kind === "oli")
           return (
-            <Image
+            <p
               key={i}
-              src={b.text}
-              alt=""
-              width={1200}
-              height={800}
-              sizes="(max-width: 768px) 90vw, 440px"
-              className="mx-auto my-8 h-auto w-full"
-            />
+              className="relative mt-2 pl-6 font-grotesk text-[15px] leading-[1.7] text-black/80 [counter-increment:blog-oli] before:absolute before:left-0 before:w-5 before:text-right before:content-[counter(blog-oli)'.']"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </p>
           );
+        if (b.kind === "quote")
+          return (
+            <blockquote
+              key={i}
+              className="mt-6 border-l-2 border-black/20 pl-4 font-grotesk text-[15px] italic leading-[1.7] text-black/70"
+            >
+              <RichText parts={b.parts} text={b.text} />
+            </blockquote>
+          );
+        if (b.kind === "hr")
+          return b.divider === "space" ? (
+            <div key={i} className="my-10" aria-hidden />
+          ) : (
+            <hr key={i} className="my-10 border-black/15" />
+          );
+        if (b.kind === "img") return <ArticleFigure key={i} block={b} />;
         return (
           <p
             key={i}
@@ -159,7 +275,11 @@ export default function BlogModal({
         </div>
 
         <div className="order-3 bg-close lg:order-none">
-          {hasBody ? <ArticleBody blocks={post.body!} /> : null}
+          {hasBody && isPortableTextBody(post.body) ? (
+            <BlogArticleBody value={post.body} />
+          ) : hasBody ? (
+            <ArticleBody blocks={post.body as BlogBlock[]} />
+          ) : null}
 
           {!hasBody && post.url ? (
             <div className="pb-12 text-center">

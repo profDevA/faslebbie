@@ -48,27 +48,8 @@ export const blogPostItem = defineType({
       name: "body",
       title: "Article body",
       description:
-        "Full article, shown below the hero in the modal (scrolls). Use Section for major headings, Subheading for smaller ones. Add images for in-article diagrams.",
-      type: "array",
-      of: [
-        {
-          type: "block",
-          styles: [
-            { title: "Normal", value: "normal" },
-            { title: "Section", value: "h2" },
-            { title: "Subheading", value: "h3" },
-          ],
-          lists: [{ title: "Bullet", value: "bullet" }],
-          marks: {
-            decorators: [
-              { title: "Bold", value: "strong" },
-              { title: "Italic", value: "em" },
-            ],
-            annotations: [],
-          },
-        },
-        { type: "image", options: { hotspot: true } },
-      ],
+        "Full article editor: styles, lists, B/I/U, links, colors, images (caption/size), video, code, tables, callouts, pull quotes, CTAs, dividers. Use + to insert blocks.",
+      type: "blogPortableText",
     }),
     defineField({
       name: "url",

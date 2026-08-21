@@ -1,21 +1,53 @@
 // Blogs & Media content model (Figma 318-5704 / 308-4566 / 2729-2736 + modals).
 // Three tabs: ".blogs" (writing list), ".words" (books + journals), ".media".
 
+import type { PortableTextBlock } from "@portabletext/types";
+
 // Inline run inside a text block (from Sanity Portable Text marks).
 export type BlogInline = {
   text: string;
   bold?: boolean;
   italic?: boolean;
+  underline?: boolean;
+  strike?: boolean;
+  code?: boolean;
+  sup?: boolean;
+  sub?: boolean;
   href?: string;
+  linkBlank?: boolean;
+  /** Hex from Sanity `textColor` annotation. */
+  color?: string;
+  /** Hex from Sanity `highlight` annotation. */
+  highlight?: string;
 };
 
+export type BlogImageSize = "full" | "medium" | "small";
+export type BlogImageAlign = "left" | "center" | "right";
+
 // A block in the full article body rendered inside the (scrollable) modal.
-// For `img`, `text` holds the image src (a /blog/… path or a Sanity URL).
-// `parts` carries bold/italic/link spans when present; otherwise use `text`.
 export type BlogBlock = {
-  kind: "h2" | "h3" | "p" | "li" | "img";
+  kind:
+    | "h2"
+    | "h3"
+    | "h4"
+    | "p"
+    | "lead"
+    | "center"
+    | "right"
+    | "small"
+    | "li"
+    | "oli"
+    | "quote"
+    | "img"
+    | "hr";
   text: string;
   parts?: BlogInline[];
+  alt?: string;
+  caption?: string;
+  size?: BlogImageSize;
+  align?: BlogImageAlign;
+  /** Divider: line vs extra space. */
+  divider?: "line" | "space";
 };
 
 export type BlogPost = {
@@ -26,7 +58,8 @@ export type BlogPost = {
   // Modal (cover slide + maroon caption panel):
   kicker: string; // e.g. "Design · 5 Min Read"
   description: string;
-  body?: BlogBlock[]; // full article, shown below the hero (scrolls)
+  /** Sanity portable text, or legacy flat blocks from blogBodies.ts. */
+  body?: BlogBlock[] | PortableTextBlock[];
   url?: string; // optional "Read blog" link to the full article
   cover?: string; // optional cover image URL (else a themed placeholder)
   coverBg: string; // placeholder cover background

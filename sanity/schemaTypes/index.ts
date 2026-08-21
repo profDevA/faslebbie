@@ -40,6 +40,15 @@ import { teachingSection } from "./objects/teachingSection";
 import { buildProjectItem } from "./objects/buildProjectItem";
 import { leadershipMoment } from "./objects/leadershipMoment";
 import { blogPostItem } from "./objects/blogPostItem";
+import { blogPortableText } from "./objects/blogPortableText";
+import { blogBodyImage } from "./objects/blogBodyImage";
+import { blogDivider } from "./objects/blogDivider";
+import { blogInlineBlocks, blogCallout } from "./objects/blogCallout";
+import { blogCodeBlock } from "./objects/blogCodeBlock";
+import { blogVideoEmbed } from "./objects/blogVideoEmbed";
+import { blogTable, blogTableRow } from "./objects/blogTable";
+import { blogCta } from "./objects/blogCta";
+import { blogPullQuote } from "./objects/blogPullQuote";
 import { mediaEntry } from "./objects/mediaEntry";
 import { publicationItem } from "./objects/publicationItem";
 import { toolStackItem } from "./objects/toolStackItem";
@@ -136,6 +145,17 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   teachingSection,
   buildProjectItem,
   leadershipMoment,
+  blogPortableText,
+  blogInlineBlocks,
+  blogBodyImage,
+  blogDivider,
+  blogCodeBlock,
+  blogVideoEmbed,
+  blogTable,
+  blogTableRow,
+  blogCallout,
+  blogCta,
+  blogPullQuote,
   blogPostItem,
   mediaEntry,
   publicationItem,

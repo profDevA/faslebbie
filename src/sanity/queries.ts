@@ -235,7 +235,33 @@ export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order
 }`);
 
 export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
-  posts[]{ slug, category, meta, title, kicker, description, body[]{ ..., _type == "image" => { "url": asset->url } }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
+  posts[]{ slug, category, meta, title, kicker, description, body[]{
+    ...,
+    markDefs[]{ ... },
+    _type == "image" => { "url": asset->url, alt },
+    _type == "blogBodyImage" => {
+      "url": image.asset->url,
+      alt,
+      caption,
+      size,
+      align
+    },
+    _type == "blogDivider" => { style },
+    _type == "blogCodeBlock" => { language, filename, code },
+    _type == "blogVideoEmbed" => { url, caption, aspect },
+    _type == "blogCta" => { label, href, style, blank },
+    _type == "blogPullQuote" => { quote, attribution, cite },
+    _type == "blogTable" => {
+      caption,
+      headerRow,
+      rows[]{ cells[] }
+    },
+    _type == "blogCallout" => {
+      tone,
+      title,
+      body[]{ ..., markDefs[]{ ... } }
+    }
+  }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
   books[]{ title, year, href },
   journals[]{ title, year, href },
   media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "videoFile": videoFile.asset->url, "thumb": thumb.asset->url },
