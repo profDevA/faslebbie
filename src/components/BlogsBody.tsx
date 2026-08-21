@@ -28,14 +28,18 @@ export default function BlogsBody({
   posts,
   media,
   publications,
+  viewFromUrl = null,
 }: {
   posts: BlogPost[];
   media: MediaItem[];
   publications: PublicationsData;
+  viewFromUrl?: string | null;
 }) {
   const [tab, setTab] = usePersistedView<Tab>(
     ["blogs", "words", "media"] as const,
     "blogs",
+    { blog: "blogs" },
+    viewFromUrl,
   );
   const [openBlog, setOpenBlog] = useState<number | null>(null);
   const [openMedia, setOpenMedia] = useState<number | null>(null);

@@ -22,13 +22,23 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function BlogsPage() {
+export default async function BlogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view: viewFromUrl } = await searchParams;
   const { posts, media, publications } = blogsFromSanity(await getBlogsPage());
   return (
     <>
       <Nav dark />
       <Suspense fallback={null}>
-        <BlogsBody posts={posts} media={media} publications={publications} />
+        <BlogsBody
+          posts={posts}
+          media={media}
+          publications={publications}
+          viewFromUrl={viewFromUrl ?? null}
+        />
       </Suspense>
     </>
   );

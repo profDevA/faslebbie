@@ -81,8 +81,17 @@ export default function WordsPublications({
 }: {
   publications: PublicationsData;
 }) {
+  const empty =
+    !publications.books.length && !publications.journals.length;
+
   return (
     <div className="flex w-full max-w-[1129px] flex-col gap-14 pt-10 lg:gap-[57px] lg:pt-16">
+      {empty ? (
+        <p className="text-center font-grotesk text-[15px] leading-relaxed text-black/55">
+          Books and journals will appear here once added in Studio → Blogs &amp;
+          Media → Words.
+        </p>
+      ) : null}
       <PublicationSection title="Books" items={publications.books} />
       <PublicationSection
         title="Journals + Articles"
