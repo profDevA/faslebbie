@@ -59,6 +59,7 @@ export default function PopupShell({
   bodyClassName = "min-h-0 flex-1 overflow-y-auto",
   bodyRef,
   overlayProps,
+  cardClassName,
 }: {
   /** Render nothing while false (the caller can stay mounted). */
   open?: boolean;
@@ -77,6 +78,8 @@ export default function PopupShell({
   bodyRef?: React.Ref<HTMLDivElement>;
   /** Hooks some pages use to detect their own popup (e.g. data-research-modal). */
   overlayProps?: Record<string, string>;
+  /** Card fill. Defaults to `bg-close`. */
+  cardClassName?: string;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -119,7 +122,7 @@ export default function PopupShell({
         className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
       />
       <div
-        className="relative flex h-[min(684px,80dvh)] max-h-full min-h-0 w-full flex-col overflow-hidden border border-[#bebebe] bg-close sm:h-[min(880px,92vh)]"
+        className={`relative flex h-[min(684px,80dvh)] max-h-full min-h-0 w-full flex-col overflow-hidden sm:h-[min(880px,92vh)] ${cardClassName ?? "bg-close"}`}
       >
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <Breadcrumbs crumbs={crumbs} />

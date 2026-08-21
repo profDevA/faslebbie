@@ -3,10 +3,10 @@
 // prose is a stream of tokens where a `proj` token is a red underlined link
 // that opens the project modal (which also opens from the ".img" grid).
 //
-// Copy is seeded from Figma where the design has real text (the intro prose,
-// Leoney's subtitle, the modal "How it Works" body) and placeholder elsewhere
-// until Fas finalizes it. Kept in-code for now (like Leadership) — easy to
-// migrate to Sanity later.
+// Listing copy + modal hero fields: collaboration doc via buildProjectDetails.
+// Long popup bodies: BUILD_PROJECT_DETAILS in buildProjectDetails.ts.
+
+import { BUILD_PROJECT_COPY } from "./buildProjectDetails";
 
 export type BuildToken =
   | { t: "text"; text: string }
@@ -67,151 +67,127 @@ export const buildProjects: BuildProject[] = [
   {
     id: "leoney",
     title: "Leoney",
-    tech: ["Claude", "GPT", "Figma"],
     span: "md",
     tint: "#17322c",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "A research-to-practice studio bridging post-extractive design frameworks and African mining communities.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY.leoney,
     ...PLACEHOLDER_BODY,
   },
   {
     id: "pebble",
     title: "Pebble",
-    tech: ["Claude", "GPT", "Figma"],
     span: "lg",
     tint: "#c9a892",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "A venture exploring how families save, share, and build wealth together.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY.pebble,
     ...PLACEHOLDER_BODY,
   },
   {
     id: "gradstudio",
     title: "Gradstudio",
-    tech: ["Claude", "GPT", "Figma"],
     span: "lg",
     tint: "#eef0ea",
     lightArt: true,
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "Infrastructure for organizing knowledge, cohorts, and creative practice.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY.gradstudio,
     ...PLACEHOLDER_BODY,
   },
   {
     id: "rookieball",
     title: "Rookieball",
-    tech: ["Claude", "GPT", "Figma"],
     span: "md",
     tint: "#9db3c4",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "An early system for reimagining how young athletes train and compete.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY.rookieball,
     ...PLACEHOLDER_BODY,
   },
   {
-    id: "root-diamonds",
-    title: "Root Diamonds",
-    tech: ["Claude", "GPT", "Figma"],
-    span: "sm",
-    tint: "#8a8f86",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "A prototype tracing provenance and value across extractive supply chains.",
-    blurb: BUILD_LOREM,
+    id: "sensespace-ai",
+    title: "SenseSpace AI",
+    span: "md",
+    tint: "#545064",
+    ...BUILD_PROJECT_COPY["sensespace-ai"],
     ...PLACEHOLDER_BODY,
   },
   {
     id: "deepsocal-agent",
     title: "DeepSoCal Agent",
-    tech: ["Claude", "GPT", "Figma"],
     span: "md",
     tint: "#2f3b4a",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "An AI-native agent experiment for place-based knowledge and logistics.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY["deepsocal-agent"],
     ...PLACEHOLDER_BODY,
   },
   {
     id: "mineral-pulse",
     title: "Mineral Pulse",
-    tech: ["Claude", "GPT", "Figma"],
     span: "sm",
     tint: "#eef0ea",
     lightArt: true,
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "A working prototype visualizing mineral flows and market signals.",
-    blurb: BUILD_LOREM,
-    ...PLACEHOLDER_BODY,
-  },
-  {
-    id: "provify",
-    title: "Provify",
-    tech: ["Claude", "GPT", "Figma"],
-    span: "md",
-    tint: "#c98f5a",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "A thinking record for proving out consumer-facing AI experiences.",
-    blurb: BUILD_LOREM,
-    ...PLACEHOLDER_BODY,
-  },
-  {
-    id: "model-affiliate",
-    title: "Model Affiliate",
-    tech: ["Claude", "GPT", "Figma"],
-    span: "lg",
-    tint: "#3a2a24",
-    kicker: "Design · 5 Min Read",
-    subtitle:
-      "An OpenAgency experiment in AI-mediated representation and trust.",
-    blurb: BUILD_LOREM,
+    ...BUILD_PROJECT_COPY["mineral-pulse"],
     ...PLACEHOLDER_BODY,
   },
 ];
 
-// ".txt" prose (Figma 16-3007 / 16-3407). Red `proj` tokens open the modal.
+// ".txt" prose — collaboration doc Build tab (final copy). Red `proj`
+// tokens open the project modal (which also opens from the ".img" grid).
 export const buildIntro: BuildToken[][] = [
   [
     {
       t: "text",
-      text: "I build prototypes, ventures, and AI-native systems as a way of testing what design can become when ideas move from theory into working tools.",
+      text: "The Playground is a living archive of small experiments: questions, observations, and experiments shaping how I think, and they are still expanding across branding, code, UI, motion, or illustration.",
     },
   ],
   [
-    { t: "text", text: "Some of this work lives as venture infrastructure, including " },
-    { t: "proj", id: "leoney", text: "Leoney" },
-    { t: "text", text: ", " },
+    {
+      t: "text",
+      text: "Where they come from matters more than what they become.",
+    },
+  ],
+  [
+    {
+      t: "text",
+      text: "Necessity is the mother of innovation. Frustration is the father. Everything here started as one or the other, not as a gap in a market I went looking for.",
+    },
+  ],
+  [
+    { t: "text", text: "Some of it started at home. " },
     { t: "proj", id: "pebble", text: "Pebble" },
-    { t: "text", text: ", " },
-    { t: "proj", id: "gradstudio", text: "Gradstudio" },
-    { t: "text", text: " and " },
+    {
+      t: "text",
+      text: " came from researching homeschooling for my son. Every tool on the market taught the child. Nothing helped the mom hold the morning together, so Pebble became a shared daily rhythm instead of another curriculum. ",
+    },
+    { t: "proj", id: "leoney", text: "Leoney" },
+    {
+      t: "text",
+      text: " came from sending remittances to Sierra Leone and wanting that money to become something more durable: reliable access to goods despite a broken shipping infrastructure, and income streams that make remittances a choice instead of the only option. ",
+    },
     { t: "proj", id: "rookieball", text: "Rookieball" },
     {
       t: "text",
-      text: ". These projects explore how design can organize knowledge, leadership, resources, and post-extractive futures.",
+      text: " came from watching my son play sports and thinking about what his game footage could become if it were captured as data from day one.",
     },
   ],
   [
-    { t: "text", text: "Other builds are closer to experiments and working prototypes: " },
-    { t: "proj", id: "root-diamonds", text: "Root Diamonds" },
-    { t: "text", text: ", " },
-    { t: "proj", id: "deepsocal-agent", text: "DeepSoCal Agent" },
-    { t: "text", text: ", " },
-    { t: "proj", id: "mineral-pulse", text: "Mineral Pulse" },
-    { t: "text", text: ", " },
-    { t: "proj", id: "model-affiliate", text: "Model Affiliate" },
-    { t: "text", text: " and " },
-    { t: "proj", id: "provify", text: "Provify" },
+    { t: "text", text: "Some of it started in the practice. " },
+    { t: "proj", id: "gradstudio", text: "Gradstudio" },
     {
       t: "text",
-      text: ". They are not traditional portfolio pieces; they are thinking records, technical sketches, and early systems for seeing how ideas behave when they become usable.",
+      text: " came from a decade of teaching design students in China each summer and watching them treat my own path as a checklist. SenseSpace AI came from years of watching design teams drown in research data they didn't have time to make sense of. ",
+    },
+    { t: "proj", id: "deepsocal-agent", text: "DeepSoCal Agent" },
+    {
+      t: "text",
+      text: " came from running client engagements across Southern California and getting tired of rebuilding context from zero every time.",
+    },
+  ],
+  [
+    { t: "text", text: "One came from research. " },
+    { t: "proj", id: "mineral-pulse", text: "Mineral Pulse" },
+    {
+      t: "text",
+      text: " extends my PhD work into a working prototype, mapping mineral producing nations across Africa so communities and investors can see conditions that are currently hidden.",
+    },
+  ],
+  [
+    {
+      t: "text",
+      text: "Not everything here is finished. Some of it is an idea I am still circling. This page is a thinking record, not a portfolio.",
     },
   ],
 ];
