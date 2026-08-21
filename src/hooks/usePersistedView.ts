@@ -23,16 +23,20 @@ export function usePersistedView<T extends string>(
     return aliases?.[v] ?? null;
   };
 
-  const fromUrl = resolve(searchParams.get("view"));
+  const viewParam = searchParams.get("view");
+  const fromUrl = resolve(viewParam);
   const [view, setViewState] = useState<T>(fromUrl ?? fallback);
 
+  // URL → state only. Do not depend on local `view` or unstable `views` refs.
   useEffect(() => {
-    const next = resolve(searchParams.get("view"));
-    if (next && next !== view) setViewState(next);
-  }, [searchParams, views, aliases, view]);
+    setViewState(resolve(viewParam) ?? fallback);
+    // views/aliases are fixed per page mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewParam, fallback]);
 
   const setView = (next: T) => {
-    if (next === view) return;
+    const current = resolve(viewParam) ?? view;
+    if (next === current) return;
     setViewState(next);
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", next);
