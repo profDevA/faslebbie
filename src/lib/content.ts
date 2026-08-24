@@ -605,8 +605,7 @@ export const leadershipIntro: AboutToken[] = [
   },
 ]
 
-// Lead paragraph — plain prose (no pills in the holistic design). It ends on the
-// red "Explore my leadership moments" link (renders separately, opens ".img").
+// Lead paragraph — plain prose (no pills in the holistic design).
 export const leadershipLead: AboutToken[] = [
   {
     t: 'text',
@@ -635,43 +634,6 @@ export const leadershipExpansions: Record<string, string> = {
   'civic systems':
     'public-sector platforms where design has to earn trust across governments, institutions, and communities,',
 }
-
-// "My leadership moments" ".img" gallery (Figma 1-45118). A masonry of moment
-// cards; clicking one opens the unified popup (image / name / role /
-// testimonial). Copy + art are placeholders until Fas finalizes them.
-export interface LeadershipGalleryItem {
-  id: string
-  /** Caption under the card. */
-  label: string
-  /** Card height tier for the masonry rhythm. */
-  span: 'sm' | 'md' | 'lg'
-  /** The single light-blue emphasized card in the Figma. */
-  highlight?: boolean
-  popup: {
-    image?: string
-    name: string
-    role: string
-    testimonial: string
-  }
-}
-
-const LEAD_LOREM =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-
-export const leadershipGallery: LeadershipGalleryItem[] = [
-  { id: 'm1', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Group Design Manager', testimonial: LEAD_LOREM } },
-  { id: 'm2', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Research Director', testimonial: LEAD_LOREM } },
-  { id: 'm3', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Senior Product Designer', testimonial: LEAD_LOREM } },
-  { id: 'm4', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Advisor', testimonial: LEAD_LOREM } },
-  { id: 'm5', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Lead', testimonial: LEAD_LOREM } },
-  { id: 'm6', label: 'Lorem Ipsum', span: 'lg', popup: { name: 'Lorem Ipsum', role: 'Principal Designer', testimonial: LEAD_LOREM } },
-  { id: 'm7', label: 'Lorem Ipsum', span: 'sm', popup: { name: 'Lorem Ipsum', role: 'Head of Design', testimonial: LEAD_LOREM } },
-  { id: 'm8', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Design Manager', testimonial: LEAD_LOREM } },
-  { id: 'm9', label: 'Nudge', span: 'md', popup: { name: 'Nudge', role: 'Case Study', testimonial: LEAD_LOREM } },
-  { id: 'm10', label: 'Lorem Ipsum', span: 'sm', popup: { name: 'Lorem Ipsum', role: 'Design Director', testimonial: LEAD_LOREM } },
-  { id: 'm11', label: 'Lorem Ipsum', span: 'md', popup: { name: 'Lorem Ipsum', role: 'Staff Designer', testimonial: LEAD_LOREM } },
-  { id: 'm12', label: 'Lorem Ipsum', span: 'lg', highlight: true, popup: { name: 'Lorem Ipsum', role: 'VP of Design', testimonial: LEAD_LOREM } },
-]
 
 // Red boxed panels (same chrome as aboutPanels). "Get in touch" copy is a
 // placeholder until Fas finalizes it.

@@ -1,6 +1,6 @@
 import type { SanityLeadershipPage } from "@/sanity/types";
 import { proseRuns, type ProseRun } from "@/lib/sanityProse";
-import type { AboutToken, LeadershipGalleryItem } from "@/lib/content";
+import type { AboutToken } from "@/lib/content";
 
 export interface LeadershipSectionBlock {
   subheading?: string;
@@ -15,13 +15,7 @@ export interface LeadershipSection {
 
 export interface LeadershipContentData {
   sections: LeadershipSection[];
-  intro: AboutToken[];
-  lead: AboutToken[];
-  closing: AboutToken[];
   expansions: Record<string, string>;
-  moments: LeadershipGalleryItem[];
-  momentsHeading: string;
-  exploreText: string;
   contactText: string;
 }
 
@@ -42,13 +36,7 @@ function fieldToTokens(
 
 const empty: LeadershipContentData = {
   sections: [],
-  intro: [],
-  lead: [],
-  closing: [],
   expansions: {},
-  moments: [],
-  momentsHeading: "",
-  exploreText: "",
   contactText: "",
 };
 
@@ -73,32 +61,9 @@ export function leadershipFromSanity(
         })),
     }));
 
-  const intro = fieldToTokens(proseRuns(data.intro), expansions);
-  const lead = fieldToTokens(proseRuns(data.lead), expansions);
-  const closing = fieldToTokens(proseRuns(data.closing), expansions);
-
-  const moments: LeadershipGalleryItem[] = (data.moments ?? []).map((m, i) => ({
-    id: m.id ?? `m${i + 1}`,
-    label: m.label ?? "",
-    span: m.span ?? "md",
-    highlight: m.highlight,
-    popup: {
-      image: m.image,
-      name: m.name ?? "",
-      role: m.role ?? "",
-      testimonial: m.testimonial ?? "",
-    },
-  }));
-
   return {
     sections,
-    intro,
-    lead,
-    closing,
     expansions,
-    moments,
-    momentsHeading: data.momentsHeading ?? "",
-    exploreText: data.exploreText ?? "",
     contactText: data.contactText?.trim() || "Get in touch",
   };
 }

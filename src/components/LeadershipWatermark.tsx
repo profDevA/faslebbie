@@ -5,7 +5,7 @@ import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
 
 /**
- * Big "Leadership" watermark (Figma 1-44995). Mobile (Fas 07/30): background
+ * Big "Approach" watermark (Figma 2930:210990). Mobile (Fas 07/30): background
  * wordmark at the bottom of the portrait, matching Work/Teaching.
  */
 
@@ -72,7 +72,7 @@ export default function LeadershipWatermark({
       className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-logo font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[5.6vw] lg:leading-[0.9] lg:tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
     >
       <span className="text-[52px] sm:text-[58px] lg:text-[clamp(48px,13vw,190px)]">
-        Leadership
+        Approach
       </span>
     </div>
   );

@@ -61,6 +61,9 @@ export type BlogPost = {
   /** Sanity portable text, or legacy flat blocks from blogBodies.ts. */
   body?: BlogBlock[] | PortableTextBlock[];
   url?: string; // optional "Read blog" link to the full article
+  publishedAt?: string; // ISO date for footer, e.g. 2025-09-24
+  authorName?: string;
+  authorAvatar?: string;
   cover?: string; // optional cover image URL (else a themed placeholder)
   coverBg: string; // placeholder cover background
   panelBg: string; // caption panel background
@@ -83,14 +86,28 @@ export type MediaItem = {
   themes: string[]; // ["Design Systems", "Infrastructure", "Leadership"]
 };
 
+/** Design Again hero on `.media` (Figma 3323:9065 / popup 3323:10268). */
+export type MediaFeatured = {
+  title: string;
+  listingBlurb: string;
+  tag: string;
+  heroImage?: string;
+  comingSoonTitle: string;
+  comingSoonBody: string;
+  earlyAccessLabel: string;
+  earlyAccessUrl?: string;
+};
+
 /** Figma 2729:2736 — Books + Journals rows on `.words`. */
 export type Publication = {
   title: string;
   year: string;
+  tag?: string;
   href?: string;
 };
 
 export type PublicationsData = {
+  currentProjects: Publication[];
   books: Publication[];
   journals: Publication[];
 };

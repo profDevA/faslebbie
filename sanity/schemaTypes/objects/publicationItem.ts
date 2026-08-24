@@ -1,9 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-/** Books / journals row on Words + Media → .words (Figma 2729:2736). */
+/** Books / journals / current projects — Figma 3315:4124 (.words tab). */
 export const publicationItem = defineType({
   name: "publicationItem",
-  title: "Publication",
+  title: "Publication row",
   type: "object",
   fields: [
     defineField({
@@ -11,6 +11,13 @@ export const publicationItem = defineType({
       title: "Title",
       type: "string",
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "tag",
+      title: "Tag line",
+      type: "string",
+      description:
+        'Italic line under the title, e.g. "Initiative", "Journal · Transition Design", "Panel · Carnegie Mellon University". Leave empty for Books rows.',
     }),
     defineField({
       name: "year",
@@ -25,10 +32,10 @@ export const publicationItem = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", year: "year" },
-    prepare: ({ title, year }) => ({
+    select: { title: "title", tag: "tag", year: "year" },
+    prepare: ({ title, tag, year }) => ({
       title: title || "Publication",
-      subtitle: year || undefined,
+      subtitle: [tag, year].filter(Boolean).join(" · ") || undefined,
     }),
   },
 });

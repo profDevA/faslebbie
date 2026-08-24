@@ -195,8 +195,7 @@ export const LEADERSHIP_PAGE_QUERY = defineQuery(`*[_type == "leadershipPage"][0
     static,
     blocks[]{ subheading, body }
   },
-  intro, lead, closing, momentsHeading, exploreText, contactText,
-  moments[]{ id, label, span, highlight, name, role, testimonial, "image": image.asset->url },
+  contactText,
   ${seoProj}
 }`);
 
@@ -261,9 +260,15 @@ export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
       title,
       body[]{ ..., markDefs[]{ ... } }
     }
-  }, url, coverBg, panelBg, panelText, "cover": cover.asset->url },
-  books[]{ title, year, href },
-  journals[]{ title, year, href },
+  }, url, publishedAt, authorName, "authorAvatar": authorAvatar.asset->url, coverBg, panelBg, panelText, "cover": cover.asset->url },
+  currentProjects[]{ title, tag, year, href },
+  books[]{ title, tag, year, href },
+  journals[]{ title, tag, year, href },
+  mediaFeatured{
+    title, listingBlurb, tag, comingSoonTitle, comingSoonBody,
+    earlyAccessLabel, earlyAccessUrl,
+    "heroImage": heroImage.asset->url
+  },
   media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "videoFile": videoFile.asset->url, "thumb": thumb.asset->url },
   ${seoProj}
 }`);

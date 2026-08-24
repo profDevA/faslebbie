@@ -1,11 +1,34 @@
-/** Books + journals for Words tab — from live faslebbie.com / Figma 2729:2736. */
+/** Words tab rows — collab doc SITE FINAL COPY (5); layout Figma 3315:4124. */
 
-/** Mirrors the `publicationItem` schema, where `href` is optional. */
 export interface SeedPublication {
   title: string;
   year: string;
+  tag?: string;
   href?: string;
 }
+
+export const seedCurrentProjects: SeedPublication[] = [
+  {
+    title: "Root Foundation, Co-Design System & Makers' Space",
+    tag: "Initiative",
+    year: "2024",
+  },
+  {
+    title: "Transition Design, African Mineral Pulse",
+    tag: "Panel · Carnegie Mellon University",
+    year: "2025",
+  },
+  {
+    title: "AI As Raw Materials for Design",
+    tag: "Conference · Design Research Society",
+    year: "2025",
+  },
+  {
+    title: "Selecting Diamond Rough, A Guide for Artisanal Miners",
+    tag: "Partnership · Pact + GIA",
+    year: "2025",
+  },
+];
 
 export const seedBooks: SeedPublication[] = [
   { title: "Souvenirs of my Awakening, Memoir", year: "2020" },
@@ -18,52 +41,52 @@ export const seedBooks: SeedPublication[] = [
 export const seedJournals: SeedPublication[] = [
   {
     title: "Mineral Choreography: A Post-Extractive Design For Transition",
+    tag: "Journal · Transition Design",
     year: "2025",
   },
   {
     title:
-      "The Embedded Ally: A Methodological Orientation for Relational Research Engagement CoDesign",
+      "The Embedded Ally: A Methodological Orientation for Relational Research Engagement",
+    tag: "Journal · Codesign",
     year: "2025",
   },
   {
     title:
       "An Archaeological & Visual Narrative of Extractive, Pre-Extractive and Post-Extractive Worldviews",
+    tag: "Journal · Historical Analysis",
     year: "2025",
   },
   {
     title:
       "Scalar Framework: A Multi-Level Leadership Tool Towards Design Excellence & Transitions",
+    tag: "Journal · Design Leadership",
     year: "2024",
   },
   {
-    title:
-      "Peace, Hope, and Prosperity through Diamond Cutting, Summer 2023 Volume 32S",
+    title: "Peace, Hope, and Prosperity through Diamond Cutting",
+    tag: "Publication · Vol. 32S",
     year: "2023",
   },
   {
     title:
       "Modeling Sustainability and Equity: Artisanal Mining New Realities, Future Possibilities for Sustainable Development",
-    year: "—",
+    tag: "Article",
+    year: "2023",
   },
   {
     title:
       "Storied Ontologies: The Power of Storytelling to Shape Culture, Marketplace, and Consumer Behavior",
+    tag: "Article",
     year: "2022",
   },
   {
-    title:
-      "Creating Climate Justice, Parsons School of Design (Sustainability & Equity, re: D)",
+    title: "Creating Climate Justice",
+    tag: "Publication · Parsons School of Design",
     year: "2022",
   },
-  { title: "Equitable Capitalism, Parsons Transdisciplinary Design", year: "2022" },
-  { title: "A Journey of Self Decolonization", year: "2022" },
   {
-    title: "How Transdisciplinary Design Liberated Me to be a Better Entrepreneur",
+    title: "Equitable Capitalism",
+    tag: "Publication · Parsons Transdisciplinary Design",
     year: "2022",
-  },
-  { title: "Why I Remain Hopeful amid Racial Violence in 2020", year: "2020" },
-  {
-    title: "Racial Injustice 2.0: Race and Design in the Age of Algorithms",
-    year: "2020",
   },
 ];

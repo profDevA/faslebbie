@@ -1,6 +1,7 @@
-import type { SanityBlogPostItem, SanityBlogsPage, SanityPublicationItem } from "@/sanity/types";
+import type { SanityBlogsPage, SanityPublicationItem } from "@/sanity/types";
 import type {
   BlogPost,
+  MediaFeatured,
   MediaItem,
   Publication,
   PublicationsData,
@@ -8,11 +9,16 @@ import type {
 
 export type BlogsContentData = {
   posts: BlogPost[];
+  mediaFeatured: MediaFeatured | null;
   media: MediaItem[];
   publications: PublicationsData;
 };
 
-const emptyPublications: PublicationsData = { books: [], journals: [] };
+const emptyPublications: PublicationsData = {
+  currentProjects: [],
+  books: [],
+  journals: [],
+};
 
 function mapPublications(
   items: SanityPublicationItem[] | undefined,
@@ -22,6 +28,7 @@ function mapPublications(
     .map((p) => ({
       title: p.title?.trim() ?? "",
       year: p.year?.trim() ?? "",
+      tag: p.tag?.trim() || undefined,
       href: p.href?.trim() || undefined,
     }))
     .filter((p) => p.title);
@@ -32,7 +39,12 @@ export function blogsFromSanity(
   data: SanityBlogsPage | null | undefined,
 ): BlogsContentData {
   if (!data) {
-    return { posts: [], media: [], publications: emptyPublications };
+    return {
+      posts: [],
+      mediaFeatured: null,
+      media: [],
+      publications: emptyPublications,
+    };
   }
 
   const posts: BlogPost[] = (data.posts ?? []).map((p, i) => ({
@@ -44,11 +56,29 @@ export function blogsFromSanity(
     description: p.description ?? "",
     body: p.body?.length ? p.body : undefined,
     url: p.url ?? undefined,
+    publishedAt: p.publishedAt ?? undefined,
+    authorName: p.authorName?.trim() || undefined,
+    authorAvatar: p.authorAvatar ?? undefined,
     cover: p.cover ?? undefined,
     coverBg: p.coverBg ?? "#eaa31e",
     panelBg: p.panelBg ?? "#3a1618",
     panelText: p.panelText ?? "#e8917b",
   }));
+
+  const mediaFeatured: MediaFeatured | null = data.mediaFeatured?.title
+    ? {
+        title: data.mediaFeatured.title.trim(),
+        listingBlurb: data.mediaFeatured.listingBlurb?.trim() ?? "",
+        tag: data.mediaFeatured.tag?.trim() ?? "Podcast · Ongoing",
+        heroImage: data.mediaFeatured.heroImage ?? undefined,
+        comingSoonTitle:
+          data.mediaFeatured.comingSoonTitle?.trim() ?? "Coming Soon",
+        comingSoonBody: data.mediaFeatured.comingSoonBody?.trim() ?? "",
+        earlyAccessLabel:
+          data.mediaFeatured.earlyAccessLabel?.trim() ?? "Get early access",
+        earlyAccessUrl: data.mediaFeatured.earlyAccessUrl?.trim() || undefined,
+      }
+    : null;
 
   const media: MediaItem[] = (data.media ?? []).map((m, i) => ({
     slug: m.slug ?? `media-${i}`,
@@ -66,9 +96,10 @@ export function blogsFromSanity(
   }));
 
   const publications: PublicationsData = {
+    currentProjects: mapPublications(data.currentProjects),
     books: mapPublications(data.books),
     journals: mapPublications(data.journals),
   };
 
-  return { posts, media, publications };
+  return { posts, mediaFeatured, media, publications };
 }

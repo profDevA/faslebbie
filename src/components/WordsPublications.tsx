@@ -10,6 +10,10 @@ function titleWithoutOrphan(title: string) {
   return title.replace(/\s+(\S{1,3})$/, "\u00A0$1");
 }
 
+// Figma 3315:4149 — index · title (capped, not full-bleed) · year right.
+const ROW_GRID =
+  "grid w-full grid-cols-[2.5rem_minmax(0,1fr)_auto] items-start gap-x-4 sm:gap-x-6 lg:grid-cols-[40px_minmax(0,680px)_1fr] lg:gap-x-6";
+
 function PublicationRow({
   index,
   item,
@@ -17,23 +21,37 @@ function PublicationRow({
   index: number;
   item: Publication;
 }) {
-  const content = (
+  const tag = item.tag?.trim();
+
+  const inner = (
     <>
-      <span className="font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
-        {padIndex(index)}
-      </span>
-      <span className="text-pretty font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
-        {titleWithoutOrphan(item.title)}
-      </span>
-      <span className="text-right font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
-        {item.year}
-      </span>
+      <div className={ROW_GRID}>
+        <span className="font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
+          {padIndex(index)}
+        </span>
+        <span className="min-w-0 font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
+          {titleWithoutOrphan(item.title)}
+        </span>
+        <span className="justify-self-end shrink-0 text-right font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
+          {item.year}
+        </span>
+      </div>
+      {tag ? (
+        <div className={`mt-px ${ROW_GRID}`}>
+          <span aria-hidden className="opacity-0">
+            {padIndex(index)}
+          </span>
+          <p className="font-grotesk text-[18px] font-light italic leading-[1.2] tracking-[1px] text-[#1a1a1a] md:text-[20px]">
+            {tag}
+          </p>
+          <span aria-hidden className="hidden lg:block" />
+        </div>
+      ) : null}
     </>
   );
 
-  // Figma 2729:2759 — 40px index · 624px title · 417px year (right-aligned).
   const rowClass =
-    "grid w-full grid-cols-[2.5rem_minmax(0,1fr)_auto] items-start gap-x-4 border-b border-black pb-[22px] pt-[15px] sm:gap-x-6 lg:grid-cols-[40px_minmax(0,624px)_minmax(5rem,417px)] lg:gap-x-6";
+    "flex w-full flex-col border-b border-black pb-[22px] pt-[15px]";
 
   if (item.href) {
     return (
@@ -44,12 +62,12 @@ function PublicationRow({
         data-cursor="hover"
         className={`group transition-opacity hover:opacity-80 ${rowClass}`}
       >
-        {content}
+        {inner}
       </a>
     );
   }
 
-  return <div className={rowClass}>{content}</div>;
+  return <div className={rowClass}>{inner}</div>;
 }
 
 function PublicationSection({
@@ -75,23 +93,29 @@ function PublicationSection({
   );
 }
 
-/** Figma 2729:2736 — centered 1129px block, numbered Books + Journals rows. */
+/** Figma 3315:4124 — Current Projects, Books, Journals + tag lines. */
 export default function WordsPublications({
   publications,
 }: {
   publications: PublicationsData;
 }) {
   const empty =
-    !publications.books.length && !publications.journals.length;
+    !publications.currentProjects.length &&
+    !publications.books.length &&
+    !publications.journals.length;
 
   return (
     <div className="flex w-full max-w-[1129px] flex-col gap-14 pt-10 lg:gap-[57px] lg:pt-16">
       {empty ? (
         <p className="text-center font-grotesk text-[15px] leading-relaxed text-black/55">
-          Books and journals will appear here once added in Studio → Blogs &amp;
-          Media → Words.
+          Words content will appear here once added in Studio → Blogs &amp; Media
+          → Words.
         </p>
       ) : null}
+      <PublicationSection
+        title="Current Projects"
+        items={publications.currentProjects}
+      />
       <PublicationSection title="Books" items={publications.books} />
       <PublicationSection
         title="Journals + Articles"

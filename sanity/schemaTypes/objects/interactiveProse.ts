@@ -55,7 +55,6 @@ export const interactiveProse = defineType({
                   list: [
                     { title: "See all student works", value: "see-students" },
                     { title: "Explore student exhibitions", value: "explore-exhibition" },
-                    { title: "Explore leadership moments", value: "explore-moments" },
                     { title: "Get in touch", value: "contact" },
                   ],
                 },

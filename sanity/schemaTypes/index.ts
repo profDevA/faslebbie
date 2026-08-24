@@ -38,7 +38,6 @@ import { aboutExpansion } from "./objects/aboutExpansion";
 import { studentProject } from "./objects/studentProject";
 import { teachingSection } from "./objects/teachingSection";
 import { buildProjectItem } from "./objects/buildProjectItem";
-import { leadershipMoment } from "./objects/leadershipMoment";
 import { blogPostItem } from "./objects/blogPostItem";
 import { blogPortableText } from "./objects/blogPortableText";
 import { blogBodyImage } from "./objects/blogBodyImage";
@@ -50,6 +49,7 @@ import { blogTable, blogTableRow } from "./objects/blogTable";
 import { blogCta } from "./objects/blogCta";
 import { blogPullQuote } from "./objects/blogPullQuote";
 import { mediaEntry } from "./objects/mediaEntry";
+import { mediaFeatured } from "./objects/mediaFeatured";
 import { publicationItem } from "./objects/publicationItem";
 import { toolStackItem } from "./objects/toolStackItem";
 
@@ -144,7 +144,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   studentProject,
   teachingSection,
   buildProjectItem,
-  leadershipMoment,
   blogPortableText,
   blogInlineBlocks,
   blogBodyImage,
@@ -158,6 +157,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   blogPullQuote,
   blogPostItem,
   mediaEntry,
+  mediaFeatured,
   publicationItem,
   toolStackItem,
 ];

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { ExternalTextLink } from "@/components/InlineToken";
 import BlogArticleBody, { isPortableTextBody } from "@/components/BlogArticleBody";
+import BlogArticleFooter from "@/components/BlogArticleFooter";
 import PopupShell from "@/components/PopupShell";
 import type { BlogBlock, BlogInline, BlogPost } from "@/lib/blogs";
 
@@ -204,23 +205,26 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
   );
 }
 
-// Figma 318:6158 desktop / 16:997 mobile. Single article — no list pager or share
-// (Aug 13: stray Next / Share / old link targets removed).
+// Figma 318:6158 desktop / 16:997 mobile. Article footer: 16:1581.
 export default function BlogModal({
   index,
   posts,
   onClose,
+  defaultAuthorAvatar = "/portrait-master.png",
 }: {
   index: number | null;
   posts: BlogPost[];
   onClose: () => void;
+  defaultAuthorAvatar?: string;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
   useEffect(() => setMounted(true), []);
   const shellScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
 
   const open = index !== null;
+  const post = open ? posts[index!] : null;
 
   useEffect(() => {
     if (!open) return;
@@ -228,8 +232,13 @@ export default function BlogModal({
     if (rightScrollRef.current) rightScrollRef.current.scrollTop = 0;
   }, [index, open]);
 
-  if (!mounted || !open) return null;
-  const post = posts[index!];
+  useEffect(() => {
+    if (!open || index === null) return;
+    const current = posts[index];
+    setShareUrl(current.url ?? window.location.href);
+  }, [open, index, posts]);
+
+  if (!mounted || !open || !post) return null;
   const hasBody = Boolean(post.body?.length);
 
   return (
@@ -279,6 +288,15 @@ export default function BlogModal({
             <BlogArticleBody value={post.body} />
           ) : hasBody ? (
             <ArticleBody blocks={post.body as BlogBlock[]} />
+          ) : null}
+
+          {hasBody && shareUrl ? (
+            <BlogArticleFooter
+              publishedAt={post.publishedAt}
+              authorName={post.authorName ?? "Fas Lebbie"}
+              authorAvatar={post.authorAvatar ?? defaultAuthorAvatar}
+              shareUrl={shareUrl}
+            />
           ) : null}
 
           {!hasBody && post.url ? (

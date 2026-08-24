@@ -29,8 +29,7 @@ export default function TeachingBody({
 }: {
   content: TeachingContentData;
 }) {
-  const { intro, sections, students, exhibitionTitle, exhibitionTiles } =
-    content;
+  const { intro, sections, students } = content;
 
   const [view, setView] = usePersistedView<View>(VIEWS, "philosophy", VIEW_ALIASES);
   const router = useRouter();
@@ -136,8 +135,6 @@ export default function TeachingBody({
           <main className="relative z-10 w-full pb-24 pt-8 lg:pt-12">
             <TeachingGallery
               students={students}
-              exhibitionTitle={exhibitionTitle}
-              exhibitionTiles={exhibitionTiles}
               onOpenStudent={openStudent}
             />
           </main>

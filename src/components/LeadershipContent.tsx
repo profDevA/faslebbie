@@ -1,16 +1,10 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
-import {
-  NavPillButton,
-  PopupTrigger,
-  expandPillClass,
-  onActivateKey,
-} from '@/components/InlineToken'
-import TestimonialsFooterLink from '@/components/TestimonialsFooterLink'
+import { PopupTrigger, expandPillClass, onActivateKey } from '@/components/InlineToken'
 import { openContactDrawer } from '@/lib/contactDrawer'
 import type { LeadershipSection } from '@/lib/leadershipFromSanity'
-import type { AboutToken, Testimonial } from '@/lib/content'
+import type { AboutToken } from '@/lib/content'
 
 function GrayPill({
   text,
@@ -88,27 +82,13 @@ const subheadingClass =
 export default function LeadershipContent({
   className = '',
   sections = [],
-  intro = [],
-  lead = [],
-  closing = [],
   expansions = {},
-  momentsHeading = '',
-  exploreText = '',
   contactText = '',
-  onExplore,
-  testimonials = [],
 }: {
   className?: string
   sections?: LeadershipSection[]
-  intro?: AboutToken[]
-  lead?: AboutToken[]
-  closing?: AboutToken[]
   expansions?: Record<string, string>
-  momentsHeading?: string
-  exploreText?: string
   contactText?: string
-  onExplore: () => void
-  testimonials?: Testimonial[]
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) =>
@@ -133,80 +113,35 @@ export default function LeadershipContent({
     }
   }, [openKey])
 
-  const useSections = sections.length > 0
-
   return (
     <section
       className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
-      {useSections ? (
-        <>
-          {sections.map((section, si) => (
-            <div key={section.title} className="mb-12 lg:mb-16">
-              <p className={sectionTitleClass}>{section.title}</p>
-              {section.blocks.map((block, bi) => (
-                <Fragment key={`${si}-${bi}`}>
-                  {block.subheading ? (
-                    <p className={subheadingClass}>{block.subheading}</p>
-                  ) : null}
-                  <p className="mb-7">
-                    {renderProse(
-                      block.tokens,
-                      `s${si}b${bi}`,
-                      openKey,
-                      toggle,
-                      expansions,
-                      !section.static,
-                    )}
-                  </p>
-                </Fragment>
-              ))}
-            </div>
-          ))}
-          {/* The sections layout dropped the old "moments" block, so this pill is
-              the only way into the .img gallery now that the view toggle is gone. */}
-          {exploreText ? (
-            <p className="mb-12 lg:mb-16">
-              <NavPillButton onClick={onExplore}>{exploreText}</NavPillButton>
-            </p>
-          ) : null}
-          <p>
-            <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="mb-12 lg:mb-16">
-            {renderProse(intro, 'intro', openKey, toggle, expansions, true)}
-          </p>
-
-          <div className="mb-12 lg:mb-16">
-            <p className={sectionTitleClass}>{momentsHeading}</p>
-            <p className="mb-2">
-              {renderProse(lead, 'lead', openKey, toggle, expansions, true)}
-            </p>
-            {exploreText ? (
-              <p>
-                <NavPillButton onClick={onExplore}>{exploreText}</NavPillButton>
+      {sections.map((section, si) => (
+        <div key={section.title} className="mb-12 lg:mb-16">
+          <p className={sectionTitleClass}>{section.title}</p>
+          {section.blocks.map((block, bi) => (
+            <Fragment key={`${si}-${bi}`}>
+              {block.subheading ? (
+                <p className={subheadingClass}>{block.subheading}</p>
+              ) : null}
+              <p className="mb-7">
+                {renderProse(
+                  block.tokens,
+                  `s${si}b${bi}`,
+                  openKey,
+                  toggle,
+                  expansions,
+                  !section.static,
+                )}
               </p>
-            ) : null}
-          </div>
-
-          <div className="mb-12 lg:mb-16">
-            <p className="mb-2">
-              {renderProse(closing, 'closing', openKey, toggle, expansions, true)}
-            </p>
-            <p>
-              <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
-            </p>
-          </div>
-
-          <TestimonialsFooterLink
-            testimonials={testimonials}
-            section="Leadership"
-          />
-        </>
-      )}
+            </Fragment>
+          ))}
+        </div>
+      ))}
+      <p>
+        <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
+      </p>
     </section>
   )
 }

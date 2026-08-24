@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { ExhibitionTile, StudentProject } from "@/lib/teaching";
+import type { StudentProject } from "@/lib/teaching";
 import {
   INITIAL_STUDENT_COUNT,
   STUDENT_COVER_BOX,
@@ -75,12 +74,9 @@ function StudentCard({
 
 export default function TeachingGallery({
   students,
-  exhibitionTitle,
   onOpenStudent,
 }: {
   students: StudentProject[];
-  exhibitionTitle?: string;
-  exhibitionTiles?: ExhibitionTile[];
   onOpenStudent: (id: string) => void;
 }) {
   const searchParams = useSearchParams();
@@ -126,19 +122,10 @@ export default function TeachingGallery({
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
-      <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
+      <div className="mb-8">
         <h2 className="font-grotesk text-[24px] font-medium tracking-[0.5px] text-black">
           Student Works
         </h2>
-        {exhibitionTitle ? (
-          <Link
-            href="/teaching/exhibition"
-            data-cursor="hover"
-            className="font-grotesk text-[14px] font-medium text-black underline underline-offset-4 transition-colors hover:text-accent"
-          >
-            {exhibitionTitle}
-          </Link>
-        ) : null}
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:hidden">
         {mobileColumns.map((col, i) => (

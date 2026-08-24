@@ -38,9 +38,10 @@ export const teachingPage = defineType({
     }),
     defineField({
       name: "exhibitionTitle",
-      title: "Exhibition title",
+      title: "Exhibition page title (SEO)",
       type: "string",
-      initialValue: "SFK Beijing Exhibition",
+      description:
+        "Browser tab title for /teaching/exhibition only. Not shown on the Student Works grid (Figma has no link there).",
       group: "exhibition",
     }),
     defineField({

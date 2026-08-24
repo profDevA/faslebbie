@@ -23,14 +23,6 @@ import {
   type TeachToken,
 } from "./seed/teaching-seed";
 import { buildIntro, buildProjects, type BuildToken } from "../src/lib/build";
-import {
-  leadershipClosing,
-  leadershipExpansions,
-  leadershipGallery,
-  leadershipIntro,
-  leadershipLead,
-  type AboutToken,
-} from "../src/lib/content";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
@@ -237,46 +229,15 @@ async function seedBuild() {
   console.log("✓ seeded buildPage");
 }
 
-function leadSpan(tok: AboutToken): SpanBuild | null {
-  if (tok.t === "key" && tok.tone === "gray") {
-    const expansion = leadershipExpansions[tok.text];
-    return {
-      text: tok.text,
-      markDef: { _type: "expandPill", ...(expansion ? { expansion } : {}) },
-    };
-  }
-  if (tok.t === "text") return { text: tok.text };
-  return null;
-}
-
-const leadField = (tokens: AboutToken[]) => [
-  block(tokens.map(leadSpan).filter((s): s is SpanBuild => s !== null)),
-];
-
 async function seedLeadership() {
   const doc = {
     _id: "leadershipPage",
     _type: "leadershipPage",
-    intro: leadField(leadershipIntro),
-    momentsHeading: "My leadership moments",
-    lead: leadField(leadershipLead),
-    exploreText: "Explore my leadership moments",
-    closing: leadField(leadershipClosing),
+    sections: [],
     contactText: "Get in touch",
-    moments: leadershipGallery.map((m) => ({
-      _type: "leadershipMoment",
-      _key: key(),
-      id: m.id,
-      label: m.label,
-      span: m.span,
-      ...(m.highlight ? { highlight: true } : {}),
-      name: m.popup.name,
-      role: m.popup.role,
-      testimonial: m.popup.testimonial,
-    })),
   };
   await client.createOrReplace(doc);
-  console.log("✓ seeded leadershipPage");
+  console.log("✓ seeded leadershipPage (stub — run patch-approach-final-copy.ts for copy)");
 }
 
 async function main() {

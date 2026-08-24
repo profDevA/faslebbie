@@ -28,16 +28,21 @@ export default async function BlogsPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { view: viewFromUrl } = await searchParams;
-  const { posts, media, publications } = blogsFromSanity(await getBlogsPage());
+  const [blogsPage, site] = await Promise.all([getBlogsPage(), getSiteSettings()]);
+  const { posts, mediaFeatured, media, publications } = blogsFromSanity(blogsPage);
+  const defaultAuthorAvatar =
+    site?.masterPortrait?.trim() || "/portrait-master.png";
   return (
     <>
       <Nav dark />
       <Suspense fallback={null}>
         <BlogsBody
           posts={posts}
+          mediaFeatured={mediaFeatured}
           media={media}
           publications={publications}
           viewFromUrl={viewFromUrl ?? null}
+          defaultAuthorAvatar={defaultAuthorAvatar}
         />
       </Suspense>
     </>

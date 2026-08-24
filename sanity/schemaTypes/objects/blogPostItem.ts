@@ -5,6 +5,15 @@ export const blogPostItem = defineType({
   name: "blogPostItem",
   title: "Blog post",
   type: "object",
+  fieldsets: [
+    {
+      name: "footer",
+      title: "Article footer",
+      description:
+        "Avatar, date, and author line below the article body (Figma 16:1581). Share buttons (LinkedIn, X, Threads, Copy link) are automatic on the site — not edited here.",
+      options: { collapsible: false },
+    },
+  ],
   fields: [
     defineField({
       name: "slug",
@@ -55,7 +64,7 @@ export const blogPostItem = defineType({
       name: "url",
       title: "Read blog URL",
       type: "url",
-      description: "Optional link to the full article.",
+      description: "Optional link to the full article. Also used as the share link when set.",
     }),
     defineField({
       name: "cover",
@@ -82,6 +91,30 @@ export const blogPostItem = defineType({
       title: "Caption text color",
       type: "string",
       initialValue: "#e8917b",
+    }),
+    defineField({
+      name: "authorAvatar",
+      title: "Footer avatar",
+      type: "image",
+      fieldset: "footer",
+      options: { hotspot: true },
+      description:
+        "Square photo above the date line. Empty = Site Settings → Master portrait.",
+    }),
+    defineField({
+      name: "publishedAt",
+      title: "Published date",
+      type: "date",
+      fieldset: "footer",
+      description: 'Footer line, e.g. "September 24, 2025 . Written by …".',
+    }),
+    defineField({
+      name: "authorName",
+      title: "Author name",
+      type: "string",
+      fieldset: "footer",
+      initialValue: "Fas Lebbie",
+      description: 'Footer line, e.g. "… . Written by Fas Lebbie".',
     }),
   ],
   preview: { select: { title: "title", subtitle: "category" } },

@@ -21,6 +21,13 @@ export const blogsPage = defineType({
       group: "blog",
     }),
     defineField({
+      name: "currentProjects",
+      title: "Current Projects",
+      type: "array",
+      of: [{ type: "publicationItem" }],
+      group: "words",
+    }),
+    defineField({
       name: "books",
       title: "Books",
       type: "array",
@@ -35,8 +42,16 @@ export const blogsPage = defineType({
       group: "words",
     }),
     defineField({
+      name: "mediaFeatured",
+      title: "Design Again (featured)",
+      type: "mediaFeatured",
+      group: "media",
+      description:
+        "Hero podcast block at the top of `.media` (Figma 3323:9065). Talks use Media entries below.",
+    }),
+    defineField({
       name: "media",
-      title: "Media entries",
+      title: "Talks & videos",
       type: "array",
       of: [{ type: "mediaEntry" }],
       group: "media",

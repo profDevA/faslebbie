@@ -376,20 +376,10 @@ export interface SanityBuildPage {
   seo?: SanityPageSeo;
 }
 
-export interface SanityLeadershipMoment {
-  id?: string;
-  label?: string;
-  span?: SpanTier;
-  highlight?: boolean;
-  name?: string;
-  role?: string;
-  testimonial?: string;
-  image?: string;
-}
-
-export interface SanityApproachBlock {
-  subheading?: string;
-  body?: PortableTextBlock[];
+export interface SanityLeadershipPage {
+  sections?: SanityApproachSection[];
+  contactText?: string;
+  seo?: SanityPageSeo;
 }
 
 export interface SanityApproachSection {
@@ -398,16 +388,9 @@ export interface SanityApproachSection {
   blocks?: SanityApproachBlock[];
 }
 
-export interface SanityLeadershipPage {
-  sections?: SanityApproachSection[];
-  intro?: PortableTextBlock[];
-  lead?: PortableTextBlock[];
-  closing?: PortableTextBlock[];
-  momentsHeading?: string;
-  exploreText?: string;
-  contactText?: string;
-  moments?: SanityLeadershipMoment[];
-  seo?: SanityPageSeo;
+export interface SanityApproachBlock {
+  subheading?: string;
+  body?: PortableTextBlock[];
 }
 
 export interface SanityAboutExpansion {
@@ -449,6 +432,9 @@ export interface SanityBlogPostItem {
   description?: string;
   body?: PortableTextBlock[];
   url?: string;
+  publishedAt?: string;
+  authorName?: string;
+  authorAvatar?: string | null;
   cover?: string | null;
   coverBg?: string;
   panelBg?: string;
@@ -473,13 +459,27 @@ export interface SanityMediaEntry {
 export interface SanityPublicationItem {
   title?: string;
   year?: string;
+  tag?: string;
   href?: string;
+}
+
+export interface SanityMediaFeatured {
+  title?: string;
+  listingBlurb?: string;
+  tag?: string;
+  comingSoonTitle?: string;
+  comingSoonBody?: string;
+  earlyAccessLabel?: string;
+  earlyAccessUrl?: string | null;
+  heroImage?: string | null;
 }
 
 export interface SanityBlogsPage {
   posts?: SanityBlogPostItem[];
+  currentProjects?: SanityPublicationItem[];
   books?: SanityPublicationItem[];
   journals?: SanityPublicationItem[];
+  mediaFeatured?: SanityMediaFeatured | null;
   media?: SanityMediaEntry[];
   seo?: SanityPageSeo;
 }

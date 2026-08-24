@@ -22,6 +22,7 @@ import { useAccessGate } from '@/hooks/useAccessGate'
 import type { AboutLink } from '@/lib/aboutFromSanity'
 import type { AboutToken, Testimonial } from '@/lib/content'
 import { aboutLogos } from '@/lib/content'
+import { hiResUrl } from '@/sanity/image'
 import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
 const TESTIMONIAL_KEY = 'what people are saying'
@@ -97,13 +98,15 @@ function LogoChip({ svg }: { svg: string }) {
 
 // Inline personal photo — small rounded thumbnail that pops up on hover.
 function PhotoChip({ src, alt }: { src: string; alt: string }) {
+  const imgSrc = hiResUrl(src, 1200) ?? src
+
   return (
     <span
       data-cursor="hover"
       className="group relative mx-1 inline-block h-[1.25em] w-[1.4em] translate-y-[-0.3em] overflow-hidden rounded-md align-middle shadow-[0_1px_9px_2px_rgba(0,0,0,0.25)] transition-transform duration-200 ease-out will-change-transform hover:z-30 hover:scale-[4]"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- small static photo */}
-      <img src={src} alt={alt} className="h-full w-full object-cover" />
+      <img src={imgSrc} alt={alt} className="h-full w-full object-cover" />
     </span>
   )
 }

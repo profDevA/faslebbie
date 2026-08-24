@@ -1,6 +1,5 @@
 /**
- * Patch leadershipPage (Approach) from holistic Figma `2890:74211`.
- * Preserves existing leadership moments for the gallery.
+ * Patch leadershipPage (Approach) from collaboration doc (6) + Figma `2930:210988`.
  *
  * Run from frontend/:
  *   sanity exec scripts/patch-approach-final-copy.ts --with-user-token
@@ -48,18 +47,13 @@ function proseBlock(parts: ProsePart[]) {
   };
 }
 
-/** Fallback if the page has never had a pill label set. */
-const EXPLORE_TEXT = "Explore my leadership moments";
-
 async function main() {
-  const existing = await client.fetch<{
-    moments?: unknown[];
-    exploreText?: string;
-    sections?: { title?: string }[];
-  }>(`*[_id == "leadershipPage"][0]{ moments, exploreText, "sections": sections[]{ title } }`);
+  const existing = await client.fetch<{ sections?: { title?: string }[] }>(
+    `*[_id == "leadershipPage"][0]{ "sections": sections[]{ title } }`,
+  );
 
   console.log(
-    `before: ${existing?.sections?.length ?? 0} sections [${(existing?.sections ?? []).map((s) => s.title).join(", ")}], ${existing?.moments?.length ?? 0} moments`,
+    `before: ${existing?.sections?.length ?? 0} sections [${(existing?.sections ?? []).map((s) => s.title).join(", ")}]`,
   );
 
   const sections = APPROACH_SECTIONS.map((section) => ({
@@ -80,19 +74,9 @@ async function main() {
     _type: "leadershipPage",
     sections,
     contactText: "Get in touch",
-    // Keep the pill label: the `.txt`/`.img` toggle was removed for QA `p`, so
-    // this is the only route into the moments gallery. Blanking it orphans them.
-    exploreText: existing?.exploreText || EXPLORE_TEXT,
-    intro: [],
-    lead: [],
-    closing: [],
-    momentsHeading: "",
-    moments: existing?.moments ?? [],
   });
 
-  console.log(
-    `✓ patched leadershipPage (Approach) — ${sections.length} sections, ${existing?.moments?.length ?? 0} moments kept`,
-  );
+  console.log(`✓ patched leadershipPage (Approach) — ${sections.length} sections`);
 }
 
 main().catch((err) => {
