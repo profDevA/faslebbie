@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { orderRankField } from "@sanity/orderable-document-list";
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 
 // The one flexible case-study template. Body is an ordered array of optional
 // section blocks (the page builder). Card + SEO + design references live in
@@ -8,6 +8,7 @@ export const caseStudy = defineType({
   name: "caseStudy",
   title: "Case Study",
   type: "document",
+  orderings: [orderRankOrdering],
   groups: [
     { name: "content", title: "Content", default: true },
     { name: "card", title: "Card" },

@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { orderRankField } from "@sanity/orderable-document-list";
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 
 // Work filter taxonomy (Product Design, Design Research, Design Technology,
 // Service Design, Branding, …). Unlimited + reorderable.
@@ -7,6 +7,7 @@ export const category = defineType({
   name: "category",
   title: "Category",
   type: "document",
+  orderings: [orderRankOrdering],
   fields: [
     orderRankField({ type: "category" }),
     defineField({

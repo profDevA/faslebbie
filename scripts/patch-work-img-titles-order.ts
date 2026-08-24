@@ -10,6 +10,8 @@
  */
 import { getCliClient } from "sanity/cli";
 
+import { nextLexoRanks } from "./lib/lexorank-order";
+
 console.log("patch-work-img-titles-order starting");
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
@@ -86,9 +88,11 @@ async function main() {
   const extras = [...bySlug.keys()].filter((s) => !ORDER.includes(s));
   const finalOrder = [...ORDER, ...extras];
 
+  const ranks = nextLexoRanks(finalOrder.length);
+
   let tx = client.transaction();
   finalOrder.forEach((slug, i) => {
-    const rank = String(i + 1).padStart(5, "0");
+    const rank = ranks[i];
     const title = TITLES[slug];
     for (const doc of bySlug.get(slug) ?? []) {
       const patch: { orderRank: string; title?: string } = { orderRank: rank };

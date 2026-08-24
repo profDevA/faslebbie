@@ -11,6 +11,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { basename, join } from "node:path";
 import { randomUUID } from "node:crypto";
 
+import { LexoRank } from "lexorank";
 import { getCliClient } from "sanity/cli";
 
 import {
@@ -415,14 +416,16 @@ const catId = (c: WorkCategory) => `category-${catSlug(c)}`;
 
 async function migrate() {
   console.log("→ categories");
+  let rank = LexoRank.min();
   for (let i = 0; i < workCategories.length; i++) {
     const c = workCategories[i];
+    rank = rank.genNext().genNext();
     await client.createOrReplace({
       _id: catId(c),
       _type: "category",
       title: c,
       slug: { _type: "slug", current: catSlug(c) },
-      orderRank: String(i + 1).padStart(5, "0"),
+      orderRank: rank.toString(),
     });
   }
 
@@ -437,8 +440,10 @@ async function migrate() {
   });
 
   console.log(`→ ${workProjects.length} case studies`);
+  rank = LexoRank.min();
   for (let i = 0; i < workProjects.length; i++) {
     const p = workProjects[i];
+    rank = rank.genNext().genNext();
     console.log(`  [${i + 1}/${workProjects.length}] ${p.slug}`);
     const sections = p.caseStudy ? await buildSections(p.caseStudy) : [];
     const doc = {
@@ -457,7 +462,7 @@ async function migrate() {
       cardTags: p.categories,
       accent: hexColor(normalizeHex(p.accent)),
       span: p.span,
-      orderRank: String(i + 1).padStart(5, "0"),
+      orderRank: rank.toString(),
       sections,
     };
     await client.createOrReplace(doc);
