@@ -28,13 +28,18 @@ function proseBlock(parts: ProsePart[]) {
       children.push({ _type: "span", _key: key(), text: part, marks: [] });
       continue;
     }
-    const [text, expansion] = part;
+    const [text, meta] = part;
     const mk = key();
-    markDefs.push(
-      expansion
-        ? { _key: mk, _type: "expandPill", expansion }
-        : { _key: mk, _type: "pill" },
-    );
+    if (meta && typeof meta === "object" && "contact" in meta) {
+      markDefs.push({ _key: mk, _type: "action", kind: "contact" });
+    } else {
+      const expansion = meta as string | undefined;
+      markDefs.push(
+        expansion
+          ? { _key: mk, _type: "expandPill", expansion }
+          : { _key: mk, _type: "pill" },
+      );
+    }
     children.push({ _type: "span", _key: key(), text, marks: [mk] });
   }
 
@@ -73,7 +78,7 @@ async function main() {
     _id: "leadershipPage",
     _type: "leadershipPage",
     sections,
-    contactText: "Get in touch",
+    contactText: "",
   });
 
   console.log(`✓ patched leadershipPage (Approach) — ${sections.length} sections`);

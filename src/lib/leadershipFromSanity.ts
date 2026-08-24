@@ -30,6 +30,8 @@ function fieldToTokens(
         expansions[run.text] = m.expansion;
       return { t: "key", text: run.text, tone: "gray" };
     }
+    if (m?._type === "action" && m.kind === "contact")
+      return { t: "contact", text: run.text };
     return { t: "text", text: run.text };
   });
 }
@@ -64,6 +66,6 @@ export function leadershipFromSanity(
   return {
     sections,
     expansions,
-    contactText: data.contactText?.trim() || "Get in touch",
+    contactText: data.contactText?.trim() || "",
   };
 }

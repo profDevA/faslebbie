@@ -52,7 +52,6 @@ export default function LeadershipBody({
               className="pb-24"
               sections={content.sections}
               expansions={content.expansions}
-              contactText={content.contactText}
             />
           </div>
         </main>

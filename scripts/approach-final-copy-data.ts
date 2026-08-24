@@ -1,6 +1,9 @@
 /** Approach copy — collaboration doc (6) + Figma `2930:210988`. Five sections, 29 reveal panels. */
 
-export type ProsePart = string | readonly [pill: string, expansion: string];
+export type ProsePart =
+  | string
+  | readonly [pill: string, expansion: string]
+  | readonly [label: string, { contact: true }];
 
 export type ApproachBlockDef = {
   subheading?: string;
@@ -76,8 +79,8 @@ export const APPROACH_SECTIONS: ApproachSectionDef[] = [
       { parts:
 [
           "My research background lets me find the ",
-          ["real signal", "The raw, early, often ambiguous information everything else is built from. A signal is the input. What you do with it once you have decided it matters is the work. At PTC that meant reading the manufacturing floor instead of a research report, and finding a specific dollar figure in inefficiency directly from fieldwork."],
-          " and turn it into ",
+          ["signals", "The raw, early, often ambiguous information everything else is built from. A signal is the input. What you do with it once you have decided it matters is the work. At PTC that meant reading the manufacturing floor instead of a research report, and finding a specific dollar figure in inefficiency directly from fieldwork."],
+          " and turn them into ",
           ["evidence or foresight", "Evidence is a structured argument that guides a decision and holds up when someone pushes back. The test is not that you have data, it is that you have built the framework connecting it to a specific recommendation. At Coral Health that meant a design KPI framework that moved the organization off engagement metrics and onto screening completion and trust. Foresight is reading an early signal correctly before it is obvious, and staying disciplined about the difference between something genuinely new and something that only looks new. Foresight without structure is a guess with confidence."],
           ", which becomes product innovation or ",
           ["system change", "Some contexts need the current model to end before a better one can start. A transition primer maps what has to be dismantled, what can be repaired, and what has to be built new, on a horizon longer than most projects allow. Developed for mineral systems in Sierra Leone. The logic transfers anywhere lock-in is the problem."],
@@ -111,7 +114,10 @@ export const APPROACH_SECTIONS: ApproachSectionDef[] = [
       },
       {
         subheading: "Mentoring and Coaching",
-        parts: ["For designers stepping into leadership, and for practitioners from underrepresented communities in design, technology, and the extractive sector. This work is free and always will be. Book here"],
+        parts: [
+          "For designers stepping into leadership, and for practitioners from underrepresented communities in design, technology, and the extractive sector. This work is free and always will be. ",
+          ["Book here", { contact: true }],
+        ],
       },
     ],
   },
@@ -120,7 +126,13 @@ export const APPROACH_SECTIONS: ApproachSectionDef[] = [
     static: true,
     blocks: [
       { parts: ["I am most useful when you are pre-product-market fit and need to know whether the idea survives. When you are at scale and the system underneath has to hold. When you are mid-transition, clear on where you are going and wanting a strategy you can carry. Or when there is no direction yet, and the work is figuring out what you value before you can act on it."] },
-      { parts: ["If that is where you are, let's talk."] },
+      {
+        parts: [
+          "If that is where you are, ",
+          ["let's talk", { contact: true }],
+          ".",
+        ],
+      },
     ],
   },
 ];

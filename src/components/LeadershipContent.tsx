@@ -68,6 +68,13 @@ function renderProse(
         </Fragment>
       )
     }
+    if (tok.t === 'contact') {
+      return (
+        <PopupTrigger key={key} onClick={openContactDrawer}>
+          {tok.text}
+        </PopupTrigger>
+      )
+    }
     if (tok.t === 'text') return <Fragment key={key}>{tok.text}</Fragment>
     return null
   })
@@ -77,18 +84,16 @@ const sectionTitleClass =
   'mb-5 font-grotesk text-[20px] font-bold capitalize leading-[1.6] tracking-[0.5px] text-black lg:text-[24px]'
 
 const subheadingClass =
-  'mb-3 font-grotesk text-[18px] font-bold leading-[1.5] tracking-[0.5px] text-black lg:text-[22px]'
+  'mb-3 font-grotesk text-[18px] font-normal italic leading-[1.5] tracking-[0.5px] text-black lg:text-[24px]'
 
 export default function LeadershipContent({
   className = '',
   sections = [],
   expansions = {},
-  contactText = '',
 }: {
   className?: string
   sections?: LeadershipSection[]
   expansions?: Record<string, string>
-  contactText?: string
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) =>
@@ -139,9 +144,6 @@ export default function LeadershipContent({
           ))}
         </div>
       ))}
-      <p>
-        <PopupTrigger onClick={openContactDrawer}>{contactText}</PopupTrigger>
-      </p>
     </section>
   )
 }
