@@ -9,6 +9,7 @@
 import { createReadStream, existsSync } from "node:fs";
 import { basename, join } from "node:path";
 
+import { LexoRank } from "lexorank";
 import { getCliClient } from "sanity/cli";
 
 import { testimonials } from "../src/lib/content";
@@ -41,8 +42,10 @@ const slugify = (s: string) =>
 
 async function migrate() {
   console.log(`→ ${testimonials.length} testimonials`);
+  let rank = LexoRank.min();
   for (let i = 0; i < testimonials.length; i++) {
     const t = testimonials[i];
+    rank = rank.genNext().genNext();
     console.log(`  [${i + 1}/${testimonials.length}] ${t.name}`);
     await client.createOrReplace({
       _id: `testimonial-${slugify(t.name)}`,
@@ -52,7 +55,7 @@ async function migrate() {
       role: t.role.replace(/^[-\u2013\s]+/, ""),
       quote: t.quote,
       photo: await uploadImage(t.avatar),
-      orderRank: String(i + 1).padStart(5, "0"),
+      orderRank: rank.toString(),
     });
   }
   console.log("✓ testimonials migrated");

@@ -1,11 +1,12 @@
 import { defineField, defineType } from "sanity";
-import { orderRankField } from "@sanity/orderable-document-list";
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 
 // Orderable testimonial shown on the About page.
 export const testimonial = defineType({
   name: "testimonial",
   title: "Testimonial",
   type: "document",
+  orderings: [orderRankOrdering],
   fields: [
     orderRankField({ type: "testimonial" }),
     defineField({
