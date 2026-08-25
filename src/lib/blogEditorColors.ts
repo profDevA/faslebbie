@@ -45,33 +45,64 @@ export function parseVideoEmbed(
   url: string,
 ): { src: string; title: string } | null {
   try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtube.com")) {
+    const trimmed = url.trim();
+    const u = new URL(trimmed);
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
+      const embedId = u.pathname.match(/^\/embed\/([^/?]+)/)?.[1];
+      if (embedId) {
+        return { src: trimmed, title: "YouTube video" };
+      }
       const id = u.searchParams.get("v");
-      if (id)
+      if (id) {
         return {
           src: `https://www.youtube.com/embed/${id}`,
           title: "YouTube video",
         };
+      }
     }
-    if (u.hostname === "youtu.be") {
-      const id = u.pathname.replace(/^\//, "");
-      if (id)
+    if (host === "youtu.be") {
+      const id = u.pathname.replace(/^\//, "").split("/")[0];
+      if (id) {
         return {
           src: `https://www.youtube.com/embed/${id}`,
           title: "YouTube video",
         };
+      }
     }
-    if (u.hostname.includes("vimeo.com")) {
+    if (host === "player.vimeo.com") {
+      return { src: trimmed, title: "Vimeo video" };
+    }
+    if (host === "vimeo.com") {
       const id = u.pathname.split("/").filter(Boolean).pop();
-      if (id)
+      if (id && /^\d+$/.test(id)) {
         return {
           src: `https://player.vimeo.com/video/${id}`,
           title: "Vimeo video",
         };
+      }
+    }
+    if (host === "open.spotify.com") {
+      const parts = u.pathname.split("/").filter(Boolean);
+      if (parts[0] === "embed") {
+        return { src: trimmed, title: "Spotify embed" };
+      }
+      if (parts.length >= 2 && ["episode", "show", "track"].includes(parts[0]!)) {
+        return {
+          src: `https://open.spotify.com/embed/${parts[0]}/${parts[1]}${u.search}`,
+          title: "Spotify embed",
+        };
+      }
     }
   } catch {
     /* invalid URL */
   }
   return null;
+}
+
+/** Watch/share URLs → iframe-safe embed src; passthrough when already embeddable. */
+export function mediaEmbedSrc(url: string | undefined): string | undefined {
+  if (!url?.trim()) return undefined;
+  return parseVideoEmbed(url)?.src ?? url.trim();
 }

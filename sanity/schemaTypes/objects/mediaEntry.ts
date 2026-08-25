@@ -43,7 +43,7 @@ export const mediaEntry = defineType({
       title: "Embed URL",
       type: "url",
       description:
-        "YouTube / Vimeo / Spotify URL. Optional if a video file is uploaded. The file wins when both are set.",
+        "YouTube / Vimeo / Spotify URL (watch or embed link). Optional if a video file is uploaded. The file wins when both are set.",
     }),
     defineField({
       name: "videoFile",

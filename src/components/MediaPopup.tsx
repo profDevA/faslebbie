@@ -12,6 +12,7 @@ import {
   type MediaFeatured,
   type MediaItem,
 } from "@/lib/blogs";
+import { mediaEmbedSrc } from "@/lib/blogEditorColors";
 
 const DEFAULT_HERO = "/media/design-again-hero.png";
 
@@ -61,6 +62,8 @@ function DesignAgainPanel({ featured }: { featured: MediaFeatured }) {
 }
 
 function TalkPanel({ item }: { item: MediaItem }) {
+  const embedSrc = mediaEmbedSrc(item.video);
+
   return (
     <>
       <div className="order-1 bg-close px-[21px] pt-14 pb-12 lg:flex lg:h-full lg:items-center lg:px-[50px] lg:py-[50px]">
@@ -73,9 +76,9 @@ function TalkPanel({ item }: { item: MediaItem }) {
               playsInline
               className="size-full object-cover"
             />
-          ) : item.video ? (
+          ) : embedSrc ? (
             <iframe
-              src={item.video}
+              src={embedSrc}
               title={item.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
