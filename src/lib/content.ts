@@ -162,8 +162,6 @@ export type AboutToken =
   // "link" = gray rounded pill, red text — navigates to an internal page on
   // click (no popup/expansion). Figma "Component Interaction" 823:70182.
   | { t: 'link'; text: string; href: string }
-  // Opens the global Contact drawer (no /contact page).
-  | { t: 'contact'; text: string }
   | { t: 'term'; text: string }
   | { t: 'logo'; name: keyof typeof aboutLogos }
   | { t: 'photo'; src: string; alt: string } // inline personal photo (hover-pops)

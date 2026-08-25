@@ -2,9 +2,13 @@ import type { SanityLeadershipPage } from "@/sanity/types";
 import { proseRuns, type ProseRun } from "@/lib/sanityProse";
 import type { AboutToken } from "@/lib/content";
 
+export type LeadershipToken =
+  | AboutToken
+  | { t: "contact"; text: string };
+
 export interface LeadershipSectionBlock {
   subheading?: string;
-  tokens: AboutToken[];
+  tokens: LeadershipToken[];
 }
 
 export interface LeadershipSection {
@@ -22,7 +26,7 @@ export interface LeadershipContentData {
 function fieldToTokens(
   runs: ProseRun[],
   expansions: Record<string, string>,
-): AboutToken[] {
+): LeadershipToken[] {
   return runs.map((run) => {
     const m = run.mark;
     if (m?._type === "expandPill" || m?._type === "pill") {

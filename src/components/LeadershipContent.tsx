@@ -3,8 +3,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { PopupTrigger, expandPillClass, onActivateKey } from '@/components/InlineToken'
 import { openContactDrawer } from '@/lib/contactDrawer'
-import type { LeadershipSection } from '@/lib/leadershipFromSanity'
-import type { AboutToken } from '@/lib/content'
+import type { LeadershipSection, LeadershipToken } from '@/lib/leadershipFromSanity'
 
 function GrayPill({
   text,
@@ -32,7 +31,7 @@ function GrayPill({
 }
 
 function renderProse(
-  tokens: AboutToken[],
+  tokens: LeadershipToken[],
   prefix: string,
   openKey: string | null,
   toggle: (key: string) => void,
