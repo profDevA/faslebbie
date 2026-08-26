@@ -12,6 +12,36 @@ import type {
   ResearchSectionId,
   ResearchToken,
 } from "@/lib/research";
+import { hiResUrl } from "@/sanity/image";
+
+// Figma 3393:3429 — inline book before paradigms; About-style hover preview.
+function InlineBookThumb({ src, alt }: { src: string; alt: string }) {
+  const imgSrc = hiResUrl(src, 2400) ?? src;
+  const [hot, setHot] = useState(false);
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return (
+    <span
+      data-cursor="hover"
+      data-hot={hot ? "" : undefined}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+      className="logo-chip relative z-0 mx-1 inline-flex h-6 translate-y-[-0.1em] items-center justify-center overflow-visible align-middle hover:z-40"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN URL */}
+      <img
+        src={imgSrc}
+        alt={alt}
+        className="h-full w-auto object-contain"
+        onError={() => setFailed(true)}
+      />
+      <span aria-hidden className="logo-chip-preview">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN URL */}
+        <img src={imgSrc} alt="" className="h-auto w-full object-contain" />
+      </span>
+    </span>
+  );
+}
 
 // Reveal-narrative keyword — the shared grey pill (see InlineToken).
 function KeyPill({
@@ -99,6 +129,10 @@ function Tokens({
             </Fragment>
           );
         }
+        if (tok.t === "photo")
+          return tok.src ? (
+            <InlineBookThumb key={key} src={tok.src} alt={tok.alt} />
+          ) : null;
         // `ext` hrefs are internal routes (/leadership, /blogs). Drawn as red
         // underlined copy, as the Research page has always rendered them —
         // the nav pill is only used where a page frame actually draws one.
@@ -180,7 +214,7 @@ export default function ResearchContent({
 
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {areas.map((area, i) => (
         <div key={area.kicker} className="mb-12 lg:mb-16">

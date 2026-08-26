@@ -114,7 +114,7 @@ const BIO: AboutToken[][] = [
   ],
   [
     { t: "text", text: "I " },
-    { t: "link", text: "teach", href: "/teaching" },
+    { t: "text", text: "teach" },
     { t: "text", text: " design at " },
     { t: "key", text: "Carnegie Mellon University", tone: "gray" },
     { t: "text", text: " and serve as a mentor and " },
@@ -150,8 +150,7 @@ const BIO: AboutToken[][] = [
       ],
     },
     { t: "text", text: " and offer free mentorship " },
-    // Doc: Calendly / booking — still /teaching until Fas confirms URL.
-    { t: "link", text: "monthly", href: "/teaching" },
+    { t: "text", text: "monthly" },
     { t: "text", text: " to " },
     {
       t: "typer",

@@ -95,7 +95,8 @@ const cardProj = `
 
 const studyPdfProj = `
   "fullCaseStudyPdfUrl": fullCaseStudyPdf.asset->url,
-  fullCaseStudyLabel
+  fullCaseStudyLabel,
+  fullCaseStudyIntro
 `;
 
 const seoProj = `seo{
@@ -158,11 +159,19 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
 
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);
 
+const researchProseProj = `{
+  ...,
+  children[]{
+    ...,
+    _type == "aboutPhoto" => { "src": image.asset->url, alt }
+  }
+}`;
+
 export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
-  areas[]{ kicker, body },
-  closing,
-  paradigms{ label, intro, items[]{ title, body } },
-  principles{ label, intro, items[]{ title, body }, conclusionKicker, conclusionBody },
+  areas[]{ kicker, "body": body[]${researchProseProj} },
+  "closing": closing[]${researchProseProj},
+  paradigms{ label, intro, "image": image.asset->url, items[]{ title, body } },
+  principles{ label, intro, "image": image.asset->url, items[]{ title, body }, conclusionKicker, conclusionBody },
   modalities{ kicker, statement, items, groups[]{ title, items }, footnote },
   manifesto,
   fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url },
@@ -193,7 +202,9 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
   projects[]{
     id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
     description, howItWorks, note, supportedTools,
-    "images": images[].asset->url
+    "images": images[].asset->url,
+    "outputVisual": outputVisual.asset->url,
+    "conceptPreview": conceptPreview.asset->url
   },
   ${seoProj}
 }`);
@@ -270,9 +281,9 @@ export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
       body[]{ ..., markDefs[]{ ... } }
     }
   }, url, publishedAt, authorName, "authorAvatar": authorAvatar.asset->url, coverBg, panelBg, panelText, "cover": cover.asset->url },
-  currentProjects[]{ title, tag, year, href },
-  books[]{ title, tag, year, href },
-  journals[]{ title, tag, year, href },
+  currentProjects[]{ title, tag, year, href, "cover": cover.asset->url },
+  books[]{ title, tag, year, href, "cover": cover.asset->url },
+  journals[]{ title, tag, year, href, "cover": cover.asset->url },
   mediaFeatured{
     title, listingBlurb, tag, comingSoonTitle, comingSoonBody,
     earlyAccessLabel, earlyAccessUrl,

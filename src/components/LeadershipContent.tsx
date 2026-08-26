@@ -119,7 +119,7 @@ export default function LeadershipContent({
 
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
       {sections.map((section, si) => (
         <div key={section.title} className="mb-12 lg:mb-16">

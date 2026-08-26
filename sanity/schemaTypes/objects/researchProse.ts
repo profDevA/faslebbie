@@ -12,6 +12,7 @@ export const researchProse = defineType({
       type: "block",
       styles: [{ title: "Normal", value: "normal" }],
       lists: [],
+      of: [{ type: "aboutPhoto" }],
       marks: {
         decorators: [],
         annotations: [

@@ -41,7 +41,8 @@ export type ResearchToken =
   | { t: "break" }
   | { t: "hl"; text: string; expansion?: string; expand?: ResearchToken[] }
   | { t: "link"; text: string; opens: ResearchSectionId }
-  | { t: "ext"; text: string; href: string };
+  | { t: "ext"; text: string; href: string }
+  | { t: "photo"; src: string; alt: string };
 
 export type ResearchArea = {
   kicker: string;
@@ -78,8 +79,9 @@ export const researchAreas: ResearchArea[] = [
       },
       {
         t: "text",
-        text: " around them. A decade of fieldwork in African mining communities and a PhD from Carnegie Mellon, developing ",
+        text: " around them. A decade of fieldwork in African mining communities and a PhD from Carnegie Mellon",
       },
+      { t: "text", text: ", developing " },
       {
         t: "hl",
         text: "post-extractive frameworks",
@@ -209,6 +211,7 @@ export type ParadigmsContent = {
   kind: "paradigms";
   label: string;
   intro: string;
+  image?: string;
   items: NumberedItem[];
 };
 
@@ -216,6 +219,7 @@ export type PrinciplesContent = {
   kind: "principles";
   label: string;
   intro: string;
+  image?: string;
   items: NumberedItem[];
   conclusion: { kicker: string; body: string };
 };

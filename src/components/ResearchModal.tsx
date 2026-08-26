@@ -17,6 +17,7 @@ import {
   type ResearchSectionContent,
   type ResearchSectionId,
 } from "@/lib/research";
+import { hiResUrl } from "@/sanity/image";
 
 // Research section popups (Figma 2854:1464–1925 desktop, 2869:* mobile).
 // Paradigms / Principles / Modalities / Manifesto share a 4-dot pager.
@@ -24,6 +25,29 @@ import {
 
 function SquarePlaceholder({ className = "" }: { className?: string }) {
   return <div className={`aspect-square bg-white ${className}`} />;
+}
+
+function SectionCover({
+  src,
+  alt,
+  className = "",
+}: {
+  src?: string;
+  alt: string;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const url = hiResUrl(src, 2400);
+  if (!url || failed) return <SquarePlaceholder className={className} />;
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN URL */
+    <img
+      src={url}
+      alt={alt}
+      className={`block h-auto max-w-full ${className}`}
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 function NumberedList({
@@ -58,9 +82,11 @@ function NumberedList({
 function ParadigmsView({ c }: { c: ParadigmsContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[207px_minmax(0,1fr)] lg:gap-12">
-      <div>
-        <SquarePlaceholder className="mx-auto w-[232px] max-w-full lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]" />
-      </div>
+      <SectionCover
+        src={c.image}
+        alt={c.label}
+        className="mx-auto w-[232px] lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]"
+      />
       <div>
           <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
             {c.label}
@@ -79,9 +105,11 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
 function PrinciplesView({ c }: { c: PrinciplesContent }) {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[207px_minmax(0,1fr)] lg:gap-12">
-      <div>
-        <SquarePlaceholder className="mx-auto w-[232px] max-w-full lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]" />
-      </div>
+      <SectionCover
+        src={c.image}
+        alt={c.label}
+        className="mx-auto w-[232px] lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]"
+      />
       <div>
           <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
             {c.label}
@@ -508,7 +536,7 @@ export default function ResearchModal({
       bodyClassName={
         isFieldNotes
           ? "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
-          : "min-h-0 flex-1 overflow-y-auto bg-bg px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
+          : "min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
       }
       footer={sectionFooter}
     >

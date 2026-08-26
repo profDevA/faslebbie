@@ -342,8 +342,8 @@ export const aboutAwards = [
 ] as const
 
 // Keywords that open a BOXED panel (title, body, CTA, × close). No keyword
-// currently uses one: "recognized and awarded" now expands inline, "monthly"
-// and "teach" navigate to /teaching, and "what people are saying" uses the
+// currently uses one: "recognized and awarded" expands inline, "monthly"
+// and "teach" are plain sentence text, and "what people are saying" uses the
 // centered testimonials modal. Kept for when a boxed panel is designed.
 export const aboutPanels: Record<
   string,
@@ -404,7 +404,7 @@ export const aboutParagraphs: AboutToken[][] = [
   ],
   [
     { t: 'text', text: 'I ' },
-    { t: 'link', text: 'teach', href: '/teaching' },
+    { t: 'text', text: 'teach' },
     { t: 'text', text: ' design at ' },
     { t: 'key', text: 'Carnegie Mellon University', tone: 'gray' },
     { t: 'text', text: ' and serve as a mentor and advisor at ' },
@@ -429,8 +429,7 @@ export const aboutParagraphs: AboutToken[][] = [
     { t: 'text', text: 'I speak & consult on ' },
     { t: 'typer', words: consultWords },
     { t: 'text', text: ' and offer free mentorship ' },
-    // Grey pill, red text — navigates to the Teaching / Mentorship page.
-    { t: 'link', text: 'monthly', href: '/teaching' },
+    { t: 'text', text: 'monthly' },
     { t: 'text', text: ' to ' },
     { t: 'typer', words: communityWords },
     { t: 'text', text: ' in design and tech.' },

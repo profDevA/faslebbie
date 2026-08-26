@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import HeroParagraph from "@/components/HeroParagraph";
 import { useSite } from "@/components/SiteProvider";
 import type { HomeContentData } from "@/lib/homeFromSanity";
-import { NAV_H_PX, NAV_TOP } from "@/lib/navLayout";
+import { NAV_H_PX, NAV_TOP, LISTING_INSET_X, SITE_MAX_W } from "@/lib/navLayout";
 import {
   HOME_PORTRAIT_HEIGHT,
   HOME_PORTRAIT_IMAGE_CLASS,
@@ -145,11 +145,13 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
         }}
         className="pointer-events-none fixed inset-0 flex select-none flex-col justify-center overflow-hidden font-grotesk font-bold leading-[0.8] tracking-[-0.03em] will-change-[color,opacity]"
       >
-        <div className="w-full translate-y-[20vh] px-[4vw]">
-          <span className="block whitespace-nowrap text-[clamp(40px,13vw,250px)] lg:text-[clamp(72px,15vw,250px)]">
+        <div
+          className={`mx-auto w-full ${SITE_MAX_W} ${LISTING_INSET_X} translate-y-[20vh]`}
+        >
+          <span className="block whitespace-nowrap text-[clamp(40px,13vw,250px)] lg:text-[216px]">
             {brand.logoName}
           </span>
-          <span className="mt-[0.34em] block text-right text-[clamp(40px,13vw,250px)] lg:text-[clamp(72px,15vw,250px)]">
+          <span className="mt-[0.34em] block text-right text-[clamp(40px,13vw,250px)] lg:text-[216px]">
             {brand.logoSuffix}
           </span>
         </div>

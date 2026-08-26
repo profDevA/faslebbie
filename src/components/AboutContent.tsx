@@ -28,6 +28,8 @@ import { hiResUrl } from '@/sanity/image'
 import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
 const TESTIMONIAL_KEY = 'what people are saying'
+const TESTIMONIAL_LINK =
+  'cursor-pointer text-accent text-shadow-token transition-opacity duration-200 hover:opacity-70'
 
 // --- Inline-expansion accordion ---------------------------------------------
 // Gray keywords expand inline, and some expansions contain nested gray keywords.
@@ -84,17 +86,26 @@ function AboutPanel(_props: { keyword: string; onClose: () => void }) {
   return null
 }
 
-// Inline brand logo chip. The SVG is a self-contained chip (background + logo
-// baked in), rendered inline — no <img>, no wrapper background. Sized by height;
-// width:auto on the inner <svg> preserves its native aspect ratio. On hover it
-// pops up ~4x and wobbles (Emily-Campbell-style image pop-up).
 function LogoChip({ svg }: { svg: string }) {
+  const [hot, setHot] = useState(false)
   return (
     <span
       data-cursor="hover"
-      className="group relative mx-1 inline-flex h-[1.15em] translate-y-[-0.2em] items-center justify-center align-middle transition-transform duration-200 ease-out will-change-transform [&>svg]:h-full [&>svg]:w-auto hover:z-30 hover:scale-[1.5] group-hover:[&>svg]:animate-[logo-wobble_0.5s_ease-in-out_infinite]"
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+      data-hot={hot ? '' : undefined}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+      className="logo-chip relative z-0 mx-1 inline-flex h-6 translate-y-[-0.1em] items-center justify-center overflow-visible align-middle hover:z-40"
+    >
+      <span
+        className="inline-flex h-full items-center [&>svg]:h-full [&>svg]:w-auto"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+      <span
+        aria-hidden
+        className="logo-chip-preview [&>svg]:h-auto [&>svg]:w-full"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+    </span>
   )
 }
 
@@ -238,7 +249,9 @@ function renderKeyPill(
   // narrative in place, while the underline means a popup opens.
   const className = isPill
     ? expandPillClass(isActive)
-    : `box-decoration-clone ${POPUP_LINK}`
+    : tok.text === TESTIMONIAL_KEY
+      ? `box-decoration-clone ${TESTIMONIAL_LINK}`
+      : `box-decoration-clone ${POPUP_LINK}`
   return (
     // Span (not <button>): a <button> is an atomic inline box and won't break
     // across lines, so a long pill couldn't wrap. A span + box-decoration-clone
@@ -323,11 +336,57 @@ function renderToken(tok: AboutToken, ctx: RenderCtx, key: string) {
 }
 
 function renderTokens(tokens: AboutToken[], ctx: RenderCtx, prefix: string) {
-  return tokens.flatMap((tok, j) => {
-    if (tok.t === "text" && j > 0) {
-      const prev = tokens[j - 1];
+  const out: ReactNode[] = []
+  const textClass = ctx.expanded ? 'font-normal' : undefined
+  for (let j = 0; j < tokens.length; j++) {
+    const tok = tokens[j]
+    const next = tokens[j + 1]
+    if (tok.t === 'text' && next?.t === 'photo') {
+      const m = tok.text.match(/^(.*?)(\S+)(\s*)$/)
+      if (m) {
+        const [, lead, word, sp] = m
+        const after = tokens[j + 2]
+        let punct = ''
+        let rest = ''
+        let skip = 1
+        if (after?.t === 'text') {
+          const pm = after.text.match(/^([.,;:!?]+)([\s\S]*)$/)
+          if (pm) {
+            punct = pm[1]
+            rest = pm[2]
+            skip = 2
+          }
+        }
+        if (lead) {
+          out.push(
+            <span key={`${prefix}-${j}-lead`} className={textClass}>
+              {lead}
+            </span>,
+          )
+        }
+        out.push(
+          <span key={`${prefix}-${j}-photo`} className="whitespace-nowrap">
+            {word}
+            {sp}
+            <PhotoChip src={next.src} alt={next.alt} />
+            {punct}
+          </span>,
+        )
+        if (rest) {
+          out.push(
+            <span key={`${prefix}-${j}-rest`} className={textClass}>
+              {rest}
+            </span>,
+          )
+        }
+        j += skip
+        continue
+      }
+    }
+    if (tok.t === 'text' && j > 0) {
+      const prev = tokens[j - 1]
       if (
-        prev.t === "key" &&
+        prev.t === 'key' &&
         ctx.open.has(prev.text) &&
         !keyOpensPanel(prev) &&
         ctx.expansions[prev.text]
@@ -335,22 +394,21 @@ function renderTokens(tokens: AboutToken[], ctx: RenderCtx, prefix: string) {
         const trimmed = textAfterExpandedKey(
           tok.text,
           ctx.expansions[prev.text],
-        );
-        if (trimmed === null) return [];
+        )
+        if (trimmed === null) continue
         if (trimmed !== tok.text) {
-          return [
-            <span
-              key={`${prefix}-${j}`}
-              className={ctx.expanded ? "font-normal" : undefined}
-            >
+          out.push(
+            <span key={`${prefix}-${j}`} className={textClass}>
               {trimmed}
             </span>,
-          ];
+          )
+          continue
         }
       }
     }
-    return [renderToken(tok, ctx, `${prefix}-${j}`)];
-  });
+    out.push(renderToken(tok, ctx, `${prefix}-${j}`))
+  }
+  return out
 }
 
 // Where the boxed panel lands within the keyword's paragraph:
@@ -682,9 +740,9 @@ export default function AboutContent({
   return (
     <section
       id="about"
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[42px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
     >
-      {/* Figma 2632:1716 — headline 24px Medium + intro 42px Medium, same block. */}
+      {/* Headline 24px Medium + intro 32px Medium (Fas 08/25 — Emily Campbell). */}
       {(headline || intro.length > 0) && (
         <div className="mb-7">
           {headline ? (
@@ -751,7 +809,7 @@ export default function AboutContent({
           the modal via the in-bio “what people are saying” keyword. */}
       {/* Figma 2562:36424 — CV / Resume / LinkedIn / Email on #e3e3db pills. */}
       <div className="@container/about-links mt-8">
-        <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,42px)]">
+        <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,32px)]">
           {links.map(link =>
             link.passwordProtected ? (
               <AboutFooterButton

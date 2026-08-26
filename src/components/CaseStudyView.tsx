@@ -103,22 +103,22 @@ function csProseInner(
   if (v === 'page') {
     if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
     if (widthKey === 'full') return 'mx-auto w-full max-w-none'
-    if (align === 'center') return 'mx-auto w-full max-w-[min(920px,100%)]'
-    return 'mx-auto w-full max-w-[min(920px,100%)]'
+    if (align === 'center') return 'mx-auto w-full max-w-[min(1000px,100%)]'
+    return 'mx-auto w-full max-w-[min(1000px,100%)]'
   }
   return `mx-auto ${align === 'center' ? 'lg:max-w-[60%]' : MAXW[widthKey]}`
 }
 
 function csBodyText(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `text-[18px] font-light leading-[1.65] tracking-[0.01em] lg:text-[19px] ${extra}`
+    return `text-[17px] font-light leading-[1.65] tracking-[0.01em] lg:text-[18px] ${extra}`
   }
   return `text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw] ${extra}`
 }
 
 function csSectionTitle(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `font-normal capitalize leading-tight text-[22px] lg:text-[26px] ${extra}`
+    return `font-light capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
   }
   return `font-medium capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
 }
@@ -130,10 +130,14 @@ function csBandGutter(v: CsVariant, extra = '') {
 
 function csPagerShell(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `flex w-full items-center justify-between px-6 sm:px-10 ${extra}`
+    return `flex w-full items-center justify-between ${extra}`
   }
   return `mx-auto flex w-full max-w-225 items-center justify-between px-6 ${extra}`
 }
+
+/** Shared vertical rhythm for grouped prose bands on full page (Figma 2110:39490). */
+const PAGE_PROSE_BAND_PAD = 'pt-20 pb-20 lg:pt-28 lg:pb-28'
+const PAGE_PROSE_INNER_GAP = 'gap-24'
 
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
   const style: React.CSSProperties = {}
@@ -337,7 +341,7 @@ export default function CaseStudyView({
   // bar of its own on the standalone route.
   const pager = (
     <div
-      className={`${csPagerShell(variant)} font-grotesk font-medium text-[16px] lg:text-[17px]`}
+      className={`${csPagerShell(variant)} font-grotesk font-medium ${variant === 'page' ? 'text-[15px]' : 'text-[16px] lg:text-[17px]'}`}
       style={{ color: RED }}
     >
       <Link
@@ -365,7 +369,7 @@ export default function CaseStudyView({
       {/* Overlay mode gets the shared popup header instead. */}
       {!overlay && (
         <div className="sticky top-0 z-50 border-b border-black/15 bg-white">
-          <div className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-8 lg:py-4">
+          <div className={`flex items-center justify-between gap-4 ${csShell(variant, 'py-3 lg:py-3.5')}`}>
           <nav
             aria-label="Breadcrumb"
             className="flex min-w-0 items-center gap-2 font-grotesk text-[15px] font-light lg:text-[16px]"
@@ -415,13 +419,14 @@ export default function CaseStudyView({
       {p.fullCaseStudyPdfUrl ? (
         <FullCaseStudyPdfLink
           url={p.fullCaseStudyPdfUrl}
-          label={p.fullCaseStudyLabel?.trim() || 'Read the Full Case Study'}
+          label={p.fullCaseStudyLabel?.trim() || 'Full Case Study'}
+          intro={p.fullCaseStudyIntro?.trim()}
         />
       ) : null}
 
       {!overlay && (
-        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-3 lg:py-3.5">
-          {pager}
+        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-2.5 lg:py-3">
+          <div className={csShell(variant)}>{pager}</div>
         </div>
       )}
       </>
@@ -454,24 +459,42 @@ export default function CaseStudyView({
 }
 
 // ── per-section dispatch ──────────────────────────────────────────────────────
-/** Figma 2110:41721 — centered red “Read the Full Case Study ↗” on black band. */
-function FullCaseStudyPdfLink({ url, label }: { url: string; label: string }) {
+/** Figma 2110:41721 — intro copy + inline red “Full Case Study ↗” on black band. */
+const FULL_CASE_STUDY_INTRO_DEFAULT =
+  'This case study is intentionally condensed for a quick overview. Explore the complete research, process and outcomes in the'
+
+function FullCaseStudyPdfLink({
+  url,
+  label,
+  intro,
+}: {
+  url: string
+  label: string
+  intro?: string
+}) {
   const v = useCsVariant()
+  const lead = intro || FULL_CASE_STUDY_INTRO_DEFAULT
   return (
-    <section className="bg-black py-12 text-center text-white lg:py-16">
+    <section className="border-t border-[#323232] bg-black py-12 text-white lg:py-16">
       <div className={csShell(v)}>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cursor="hover"
-          className="group inline-flex items-center gap-0 font-grotesk text-[20px] font-normal leading-snug text-accent lg:text-[24px]"
+        <p
+          className={`mx-auto max-w-[min(606px,100%)] text-center font-light italic leading-[1.6] tracking-[0.38px] ${v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px]'}`}
         >
-          <span className="underline decoration-from-font underline-offset-[6px] transition-opacity group-hover:opacity-80">
-            {label}
-          </span>
-          <ExternalArrow />
-        </a>
+          {lead}{' '}
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cursor="hover"
+            className="group inline text-accent not-italic transition-opacity hover:opacity-80"
+          >
+            <span className="underline decoration-from-font underline-offset-[4px]">
+              {label}
+            </span>
+            <ExternalArrow />
+          </a>
+          .
+        </p>
       </div>
     </section>
   )
@@ -574,7 +597,7 @@ function ProseGroupBlock({
   const allProse = sections.every(s => s._type === 'proseSection')
   const pad =
     page && allProse
-      ? 'pt-24 pb-24 lg:pt-36 lg:pb-36'
+      ? PAGE_PROSE_BAND_PAD
       : proseGroupPad(sections, page)
   return (
     <section
@@ -582,7 +605,7 @@ function ProseGroupBlock({
       style={bandStyle(first.appearance)}
     >
       <div className={csShell(v)}>
-        <div className={`flex flex-col ${page && allProse ? 'gap-24' : 'gap-12'} ${csProseInner(v, align, width)}`}>
+        <div className={`flex flex-col ${page && allProse ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
           {sections.map(s => (
             <div key={s._key}>
               {s.sectionTitle && (
@@ -618,11 +641,16 @@ function HeroBlock({
   section: Of<'heroSection'>
   project: Study
 }) {
+  const v = useCsVariant()
+  const page = v === 'page'
   if (!s.image && !s.imageMobile) return null
   const title = s.headingOverride ?? p.name
+  const capSize = page
+    ? 'text-[16px] leading-[1.6] lg:text-[17px]'
+    : 'text-[16px] leading-[1.6] xl:text-[1.3vw]'
   const caption = (
     <>
-      <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
+      <p className={capSize}>
         <strong className="font-bold">{title}</strong> · {s.caption ?? p.tagline}
       </p>
       {/* Fas 08/05: the project's before/after framing belongs here, under the
@@ -631,7 +659,7 @@ function HeroBlock({
          per 2110:39398; the labels carry a single weight step rather than the
          accent red, which the site reserves for interactive tokens. */}
       {(p.from || p.to) && (
-        <p className="mt-0.5 flex flex-wrap gap-x-14 text-[16px] leading-[1.6] xl:text-[1.3vw]">
+        <p className={`mt-0.5 flex flex-wrap gap-x-14 ${capSize}`}>
           <span>
             <span className="font-medium">From:</span> {p.from}
           </span>
@@ -971,7 +999,7 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
   const pad =
     v === 'page'
-      ? 'pt-24 pb-24 lg:pt-36 lg:pb-36'
+      ? PAGE_PROSE_BAND_PAD
       : padClasses(s.appearance, 'md')
   return (
     <section
@@ -979,7 +1007,7 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
       style={bandStyle(s.appearance)}
     >
       <div className={csShell(v)}>
-        <div className={`flex flex-col ${v === 'page' ? 'gap-24' : 'gap-12'} ${csProseInner(v, align, width)}`}>
+        <div className={`flex flex-col ${v === 'page' ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
           <div>
             {s.problemHeading && (
               <h2 className={`mb-5 ${titleClass}`}>{s.problemHeading}</h2>
@@ -1566,7 +1594,7 @@ function Label({
   const page = useCsVariant() === 'page'
   return (
     <h2
-      className={`mb-5 capitalize leading-tight ${page ? 'text-[22px] font-normal lg:text-[26px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 capitalize leading-tight ${page ? 'text-[20px] font-light lg:text-[24px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
@@ -1608,7 +1636,7 @@ function Accordion({
               type="button"
               onClick={() => setOpen(isOpen ? -1 : i)}
               data-cursor="hover"
-              className={`flex w-full items-center justify-between gap-6 py-6.25 text-left font-normal xl:py-[0.9vw] ${headSize}`}
+              className={`flex w-full items-center justify-between gap-6 text-left font-normal ${page ? 'py-5' : 'py-6.25 xl:py-[0.9vw]'} ${headSize}`}
             >
               <span>{it.title}</span>
               {/* Thin hairline +/− per Figma (stroke 0.7625 on a 12u grid). */}
@@ -2196,6 +2224,7 @@ function ImageGrid({
 function Stat({ stat }: { stat: StatItem }) {
   const ref = useRef<HTMLDivElement>(null)
   const [n, setN] = useState(0)
+  const page = useCsVariant() === 'page'
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -2228,15 +2257,15 @@ function Stat({ stat }: { stat: StatItem }) {
           that's our weight 400 (font-normal). font-medium (500) would load the
           Text-Pro cut, a different family. Note is 35 Thin in Figma; we only
           ship the Display 55 Roman, so it falls back to that weight. */}
-      <p className="text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]">
+      <p className={`font-normal leading-none ${page ? 'text-[64px] sm:text-[80px] lg:text-[96px]' : 'text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]'}`}>
         {n}
         {stat.suffix}
       </p>
-      <p className="mt-5 text-[18px] font-normal leading-[1.245] xl:text-[1.15vw]">
+      <p className={`mt-5 font-normal leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
         {stat.label}
       </p>
       {stat.note && (
-        <p className="mt-2.5 max-w-64 text-[18px] font-light leading-[1.245] xl:text-[1.15vw]">
+        <p className={`mt-2.5 max-w-64 font-light leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
           {stat.note}
         </p>
       )}

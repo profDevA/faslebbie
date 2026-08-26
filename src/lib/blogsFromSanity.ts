@@ -30,6 +30,7 @@ function mapPublications(
       year: p.year?.trim() ?? "",
       tag: p.tag?.trim() || undefined,
       href: p.href?.trim() || undefined,
+      cover: p.cover?.trim() || undefined,
     }))
     .filter((p) => p.title);
 }

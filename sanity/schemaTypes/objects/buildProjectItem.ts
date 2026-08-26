@@ -55,16 +55,35 @@ export const buildProjectItem = defineType({
     }),
     defineField({
       name: "images",
-      title: "Images",
+      title: "Card cover + hero",
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
+      validation: (r) => r.max(1),
       description:
-        "First image is the gallery card cover and modal hero. Additional images appear in the modal body.",
+        "Gallery `.img` thumb and modal teal-band hero (first slide). One image only.",
       group: "card",
     }),
     defineField({ name: "kicker", title: "Modal kicker", type: "string", initialValue: "Design · 5 Min Read", group: "modal" }),
     defineField({ name: "subtitle", title: "Modal subtitle", type: "text", rows: 2, group: "modal" }),
     defineField({ name: "description", title: "Description", type: "text", rows: 4, group: "modal" }),
+    defineField({
+      name: "outputVisual",
+      title: "Output visual",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Popup scroll — “Output visuals” block (Figma 3540:1192). Middle screenshot Israel uploads.",
+      group: "modal",
+    }),
+    defineField({
+      name: "conceptPreview",
+      title: "Concept preview",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Full-screen Concept Preview overlay (Figma 16:2613 desktop / 16:3697 mobile).",
+      group: "modal",
+    }),
     defineField({
       name: "howItWorks",
       title: "How it works (steps)",

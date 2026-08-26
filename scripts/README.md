@@ -15,11 +15,13 @@ npx sanity exec scripts/<name>.ts --with-user-token
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
 | Research copy | `patch-research-final-copy.ts` |
+| Research Paradigms/Principles covers | `patch-research-section-covers.ts` |
+| Research artifacts inline book (Figma 3393:3429) | `patch-research-artifacts-chip.ts` |
 | Teaching prose / students / slides / exhibition | `patch-teaching-prose.ts`, `patch-teaching-student-extras.ts`, `patch-student-popup-slides.ts`, `patch-exhibition-tiles.ts` |
 | Work `.img` titles/order/covers, tool stack | `patch-work-img-titles-order.ts`, `patch-work-img-covers.ts`, `patch-work-tool-stack*.ts` |
-| Build listing, covers, popup copy | `patch-build-final-copy.ts`, `patch-build-covers.ts`, `patch-build-project-copy.ts`, `patch-build-leoney-concept.ts` |
-| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-family-photo.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, … |
-| Blogs / media / publications | `patch-blogs-publications.ts`, `patch-media-redesign.ts`, `patch-blog-footers.ts` |
+| Build listing, covers, popup copy | `patch-build-final-copy.ts`, `patch-build-covers.ts`, `patch-build-project-copy.ts`, `patch-build-leoney-concept.ts`, `patch-build-popup-images-migrate.ts`, `patch-build-output-visuals.ts` |
+| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-plain-tokens.ts`, `patch-about-family-photo.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, … |
+| Blogs / media / publications | `patch-blogs-publications.ts`, `patch-books-covers.ts`, `patch-media-redesign.ts`, `patch-blog-footers.ts` |
 | Testimonial photos only | `patch-testimonial-photos.ts` |
 
 Copy data modules (imported by patches, not run directly): `approach-final-copy-data.ts`, `about-expansions-data.ts`, `seed/*`.

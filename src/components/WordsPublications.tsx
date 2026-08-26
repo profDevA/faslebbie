@@ -1,6 +1,7 @@
 "use client";
 
 import type { Publication, PublicationsData } from "@/lib/blogs";
+import { hiResUrl } from "@/sanity/image";
 
 function padIndex(n: number) {
   return String(n).padStart(2, "0");
@@ -8,6 +9,24 @@ function padIndex(n: number) {
 
 function titleWithoutOrphan(title: string) {
   return title.replace(/\s+(\S{1,3})$/, "\u00A0$1");
+}
+
+// Figma 3393:3510 — inline cover after book title; About-style hover preview.
+function BookCoverThumb({ src, alt }: { src: string; alt: string }) {
+  const imgSrc = hiResUrl(src, 2400) ?? src;
+  return (
+    <span
+      data-cursor="hover"
+      className="logo-chip relative z-0 ml-2 inline-flex h-6 shrink-0 translate-y-[0.05em] items-center justify-center overflow-visible align-middle hover:z-40"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN URL */}
+      <img src={imgSrc} alt={alt} className="h-full w-auto object-contain" />
+      <span aria-hidden className="logo-chip-preview">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN URL */}
+        <img src={imgSrc} alt="" className="h-auto w-full object-contain" />
+      </span>
+    </span>
+  );
 }
 
 // Figma 3315:4149 — index · title (capped, not full-bleed) · year right.
@@ -30,7 +49,10 @@ function PublicationRow({
           {padIndex(index)}
         </span>
         <span className="min-w-0 font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
-          {titleWithoutOrphan(item.title)}
+          <span className="inline">{titleWithoutOrphan(item.title)}</span>
+          {item.cover ? (
+            <BookCoverThumb src={item.cover} alt={item.title} />
+          ) : null}
         </span>
         <span className="justify-self-end shrink-0 text-right font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
           {item.year}

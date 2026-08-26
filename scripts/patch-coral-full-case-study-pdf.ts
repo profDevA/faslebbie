@@ -12,7 +12,9 @@ import { getCliClient } from "sanity/cli";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const SLUG = "coral-health";
-const LABEL = "Read the Full Case Study";
+const LABEL = "Full Case Study";
+const INTRO =
+  "This case study is intentionally condensed for a quick overview. Explore the complete research, process and outcomes in the";
 const OUT = join(process.cwd(), "tmp", "coral-health-full-case-study-test.pdf");
 
 function escapePdfText(text: string) {
@@ -104,6 +106,7 @@ async function main() {
         asset: { _type: "reference", _ref: asset._id },
       },
       fullCaseStudyLabel: LABEL,
+      fullCaseStudyIntro: INTRO,
     })
     .commit();
 

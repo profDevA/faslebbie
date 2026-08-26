@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
+import WordmarkFrame from "@/components/WordmarkFrame";
 
 /**
  * Big "About Me" watermark (Figma 807:19241). Fixed parallax layer — fades to
@@ -58,17 +59,14 @@ export default function AboutWatermark() {
   const desktopFront = fade < 0.5;
 
   return (
-    <div
-      aria-hidden
+    <WordmarkFrame
       style={{ color, textShadow: shadow, opacity }}
-      className={`pointer-events-none absolute inset-0 -z-10 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[6.4vw] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP} ${
+      className={`font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP} ${
         desktopFront ? "lg:z-30" : "lg:-z-10"
       }`}
     >
       {/* About has no .txt/.img toggle — slightly lower pt than Work/Teaching. */}
-      <span className="text-[58px] lg:text-[clamp(48px,14vw,200px)]">
-        About Me
-      </span>
-    </div>
+      <span className="text-[58px] lg:text-[200px]">About Me</span>
+    </WordmarkFrame>
   );
 }

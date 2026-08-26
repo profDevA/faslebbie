@@ -117,7 +117,7 @@ function CaseStudyArticle({
           <img
             src={outputSrc}
             alt=""
-            className="aspect-454/376 w-full object-cover"
+            className="w-full h-auto"
           />
         ) : (
           <div className="aspect-454/376 w-full bg-white" />
@@ -216,7 +216,7 @@ function BuildProjectDetailBody({
           {BUILD_PROJECT_DETAILS[project.id] ? (
             <CaseStudyArticle
               detail={BUILD_PROJECT_DETAILS[project.id]}
-              outputSrc={project.images?.[1]}
+              outputSrc={project.outputVisual}
               onViewConcept={onViewConcept}
             />
           ) : null}
@@ -242,7 +242,8 @@ function ConceptPreview({
     return () => mq.removeEventListener('change', sync)
   }, [])
 
-  const shot = project.images?.[1] ?? project.images?.[0]
+  const shot =
+    project.conceptPreview ?? project.outputVisual ?? project.images?.[0]
   const crumbs = desktopCrumbs
     ? [
         { label: 'Build', href: '/build?view=img' },

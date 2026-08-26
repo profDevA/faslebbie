@@ -206,9 +206,10 @@ export interface SanityPageSeo {
 export interface Study extends StudyCard {
   seo?: SanityPageSeo;
   sections: Section[];
-  /** Sanity PDF asset URL for the bottom “Read the Full Case Study” link. */
+  /** Sanity PDF asset URL for the bottom inline “Full Case Study” link. */
   fullCaseStudyPdfUrl?: string;
   fullCaseStudyLabel?: string;
+  fullCaseStudyIntro?: string;
 }
 
 export interface ToolStackItem {
@@ -288,11 +289,13 @@ export interface SanityResearchPage {
   paradigms?: {
     label?: string;
     intro?: string;
+    image?: string;
     items?: SanityNumberedItem[];
   };
   principles?: {
     label?: string;
     intro?: string;
+    image?: string;
     items?: SanityNumberedItem[];
     conclusionKicker?: string;
     conclusionBody?: string;
@@ -379,6 +382,8 @@ export interface SanityBuildProject {
   note?: string;
   supportedTools?: string[];
   images?: string[];
+  outputVisual?: string;
+  conceptPreview?: string;
 }
 
 export interface SanityBuildPage {
@@ -472,6 +477,7 @@ export interface SanityPublicationItem {
   year?: string;
   tag?: string;
   href?: string;
+  cover?: string;
 }
 
 export interface SanityMediaFeatured {

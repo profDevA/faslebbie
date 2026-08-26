@@ -1,6 +1,7 @@
 /**
  * Patch researchPage copy from the collaboration doc Research tab.
- * Preserves SEO and field-note images. Do not run migrate-research.ts.
+ * Preserves SEO, field-note images, and Paradigms/Principles side images.
+ * Do not run migrate-research.ts.
  *
  * Run from frontend/:
  *   sanity exec scripts/patch-research-final-copy.ts --with-user-token
@@ -24,6 +25,45 @@ import {
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
+
+type Child = {
+  _type?: string;
+  _key?: string;
+  text?: string;
+  marks?: string[];
+  alt?: string;
+  image?: unknown;
+};
+
+type Block = { children?: Child[]; [k: string]: unknown };
+
+const ARTIFACTS_NEEDLE = "The work produced a set of artifacts:";
+
+function insertArtifactsChip(blocks: Block[], image: unknown) {
+  for (const block of blocks) {
+    block.children = (block.children ?? []).filter((c) => c._type !== "aboutPhoto");
+    const children = block.children;
+    for (let i = 0; i < children.length; i++) {
+      const text = children[i].text ?? "";
+      const at = text.indexOf(ARTIFACTS_NEEDLE);
+      if (at === -1) continue;
+      const before = text.slice(0, at + ARTIFACTS_NEEDLE.length);
+      const after = text.slice(at + ARTIFACTS_NEEDLE.length);
+      children[i] = { ...children[i], text: before };
+      const insert: Child[] = [
+        {
+          _type: "aboutPhoto",
+          _key: key(),
+          alt: "Mineral Choreography book cover",
+          image,
+        },
+      ];
+      if (after) insert.push({ ...children[i], _key: key(), text: after });
+      children.splice(i + 1, 0, ...insert);
+      return;
+    }
+  }
+}
 
 function splitParas(tokens: ResearchToken[]): ResearchToken[][] {
   const out: ResearchToken[][] = [[]];
@@ -86,9 +126,10 @@ function proseBlock(tokens: ResearchToken[], allowNested = true) {
       return {
         _type: "span",
         _key: key(),
-        text: tok.t === "text" || tok.t === "hl" || tok.t === "link" || tok.t === "ext"
-          ? tok.text
-          : "",
+        text:
+          tok.t === "text" || tok.t === "hl" || tok.t === "link" || tok.t === "ext"
+            ? tok.text
+            : "",
         marks,
       };
     });
@@ -122,9 +163,27 @@ function manifestoBlocks() {
 
 async function main() {
   const existing = await client.fetch<{
-    areas?: unknown[];
+    areas?: { body?: Block[] }[];
     fieldNotes?: Record<string, unknown>[];
-  }>(`*[_id == "researchPage"][0]{ areas, fieldNotes }`);
+    paradigmsImage?: unknown;
+    principlesImage?: unknown;
+  }>(`*[_id == "researchPage"][0]{
+    areas,
+    fieldNotes,
+    "paradigmsImage": paradigms.image,
+    "principlesImage": principles.image
+  }`);
+
+  let artifactsImage: unknown;
+  for (const block of existing?.areas?.[0]?.body ?? []) {
+    for (const child of block.children ?? []) {
+      if (child._type === "aboutPhoto" && child.image) {
+        artifactsImage = child.image;
+        break;
+      }
+    }
+    if (artifactsImage) break;
+  }
 
   const p = researchSections.paradigms as ParadigmsContent;
   const pr = researchSections.principles as PrinciplesContent;
@@ -144,17 +203,22 @@ async function main() {
   });
 
   await client.patch("researchPage").set({
-    areas: researchAreas.map((a) => ({
-      _type: "researchArea",
-      _key: key(),
-      kicker: a.kicker,
-      body: prose(a.body),
-    })),
+    areas: researchAreas.map((a, i) => {
+      const body = prose(a.body);
+      if (i === 0 && artifactsImage) insertArtifactsChip(body, artifactsImage);
+      return {
+        _type: "researchArea",
+        _key: key(),
+        kicker: a.kicker,
+        body,
+      };
+    }),
     closing: prose(researchClosing),
     paradigms: {
       _type: "researchParadigms",
       label: p.label,
       intro: p.intro,
+      ...(existing?.paradigmsImage ? { image: existing.paradigmsImage } : {}),
       items: p.items.map((it) => ({
         _type: "researchNumberedItem",
         _key: key(),
@@ -166,6 +230,7 @@ async function main() {
       _type: "researchPrinciples",
       label: pr.label,
       intro: pr.intro,
+      ...(existing?.principlesImage ? { image: existing.principlesImage } : {}),
       items: pr.items.map((it) => ({
         _type: "researchNumberedItem",
         _key: key(),
@@ -196,7 +261,7 @@ async function main() {
     `before: ${existing?.areas?.length ?? 0} areas, ${existing?.fieldNotes?.length ?? 0} field notes`,
   );
   console.log(
-    `✓ patched researchPage — ${researchAreas.length} areas, ${p.items.length} paradigms, ${pr.items.length} principles, ${fieldNotes.length} field notes (images kept)`,
+    `✓ patched researchPage — ${researchAreas.length} areas, ${p.items.length} paradigms, ${pr.items.length} principles, ${fieldNotes.length} field notes (images kept, including section covers)`,
   );
 }
 

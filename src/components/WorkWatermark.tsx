@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
+import WordmarkFrame from "@/components/WordmarkFrame";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 
 /**
  * Big "Design Work" watermark (Figma 807:2979 desktop / 1:14815 mobile).
@@ -73,12 +74,10 @@ export default function WorkWatermark({
   const z = effFade < 0.5 ? 30 : -10;
 
   return (
-    <div
-      aria-hidden
+    <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none absolute inset-0 select-none flex-col items-start overflow-hidden px-5 will-change-[color,opacity] sm:px-6 lg:fixed lg:flex lg:px-[5.6vw] pt-[402px] ${WORDMARK_TOP} ${
-        receded ? 'hidden' : 'flex'
-      }`}
+      className={`pt-[402px] ${WORDMARK_TOP} ${receded ? "hidden" : ""}`}
+      innerClassName="flex flex-col items-start"
     >
       {/* Mobile: `absolute`, so the block is anchored to the page and scrolls
           away with the photo instead of sitting under whatever prose happens to
@@ -86,9 +85,9 @@ export default function WorkWatermark({
           lands in the gap at the bottom of the photo (Figma 1:14815 — wordmark
           @ ~643 / photo ends ~569). lg:pt-120 (WORDMARK_TOP) takes over on
           desktop, where the wordmark is a fixed layer in the left column. */}
-      <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[clamp(48px,13vw,200px)] lg:leading-[0.88] lg:tracking-[-0.021em]">
+      <span className="block whitespace-nowrap font-grotesk text-[60px] font-bold capitalize leading-[0.95] tracking-[1px] lg:text-[187px] lg:leading-[0.88] lg:tracking-[-0.021em]">
         {title}
       </span>
-    </div>
+    </WordmarkFrame>
   );
 }

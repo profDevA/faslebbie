@@ -35,6 +35,8 @@ export function buildFromSanity(
       tint: p.tint || "#2f3b4a",
       lightArt: p.lightArt,
       images,
+      outputVisual: p.outputVisual?.trim() || undefined,
+      conceptPreview: p.conceptPreview?.trim() || undefined,
       kicker: p.kicker || "Design · 5 Min Read",
       subtitle: p.subtitle ?? "",
       blurb: p.blurb ?? "",

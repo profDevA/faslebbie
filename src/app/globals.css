@@ -65,14 +65,62 @@ body {
   }
 }
 
-/* Gentle continuous wobble for the popped About logos (Emily-Campbell style) */
-@keyframes logo-wobble {
-  0%,
-  100% {
-    transform: rotate(-5deg);
+@keyframes logo-preview-intro {
+  0% {
+    opacity: 0;
+    transform: rotate(-6deg) scale(0.9);
   }
-  50% {
-    transform: rotate(5deg);
+  60% {
+    opacity: 1;
+    transform: rotate(3deg) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes logo-preview-sway {
+  0%,
+  50%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2.2deg);
+  }
+  75% {
+    transform: rotate(-2.2deg);
+  }
+}
+
+.logo-chip-preview {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 30;
+  width: 180px;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.logo-chip:hover .logo-chip-preview,
+.logo-chip[data-hot] .logo-chip-preview {
+  animation:
+    logo-preview-intro 0.55s cubic-bezier(0.22, 1, 0.36, 1) both,
+    logo-preview-sway 3.2s ease-in-out 0.55s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-chip:hover .logo-chip-preview,
+  .logo-chip[data-hot] .logo-chip-preview {
+    opacity: 1;
+    animation: none;
   }
 }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
+import WordmarkFrame from "@/components/WordmarkFrame";
 
 /**
  * Big centered "Words + Media" watermark (Figma 318-5704 / 16-951). Same recede
@@ -54,14 +55,12 @@ export default function BlogsWatermark() {
   const z = fade < 0.5 ? 30 : -10;
 
   return (
-    <div
-      aria-hidden
+    <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className="pointer-events-none absolute inset-0 flex select-none items-start justify-start overflow-hidden px-5 pt-[640px] font-grotesk font-bold leading-[0.98] tracking-[1px] will-change-[color,opacity] lg:fixed lg:items-center lg:justify-center lg:px-4 lg:pt-0 lg:leading-[0.9] lg:tracking-[-0.022em]"
+      className="font-grotesk font-bold leading-[0.98] tracking-[1px] pt-[640px] lg:items-center lg:pt-0 lg:leading-[0.9] lg:tracking-[-0.022em]"
+      innerClassName="lg:flex lg:items-center lg:justify-center"
     >
-      <span className="text-[58px] lg:text-[clamp(40px,12vw,190px)]">
-        Words + Media
-      </span>
-    </div>
+      <span className="text-[58px] lg:text-[173px]">Words + Media</span>
+    </WordmarkFrame>
   );
 }

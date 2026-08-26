@@ -1,6 +1,6 @@
 /**
- * Upload Leoney concept screenshot (Figma 16:2615 / 16:2613) as images[1].
- * Keeps images[0] gallery cover untouched.
+ * Upload Leoney concept screenshot (Figma 16:2615 / 16:2613) as conceptPreview.
+ * Keeps card cover (images[0]) untouched.
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-build-leoney-concept.ts --with-user-token
@@ -55,7 +55,11 @@ async function main() {
 
   const projects = (page.projects ?? []).map((p) =>
     p.id === "leoney"
-      ? { ...p, images: cover ? [cover, concept] : [concept] }
+      ? {
+          ...p,
+          images: cover ? [cover] : [],
+          conceptPreview: concept,
+        }
       : p,
   );
 
@@ -63,7 +67,7 @@ async function main() {
     autoGenerateArrayKeys: true,
   });
 
-  console.log(`✓ leoney images[1] concept set on ${page._id}`);
+  console.log(`✓ leoney conceptPreview set on ${page._id}`);
 }
 
 main().catch((e) => {

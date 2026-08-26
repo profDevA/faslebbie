@@ -22,6 +22,8 @@ interface Span {
   _type?: string;
   text?: string;
   marks?: string[];
+  src?: string;
+  alt?: string;
 }
 interface MarkDef {
   _key?: string;
@@ -40,6 +42,10 @@ function blocksToTokens(blocks?: PortableTextBlock[]): ResearchToken[] {
     const markDefs = (block.markDefs ?? []) as MarkDef[];
     const children = (block.children ?? []) as Span[];
     for (const span of children) {
+      if (span._type === "aboutPhoto") {
+        if (span.src) tokens.push({ t: "photo", src: span.src, alt: span.alt ?? "" });
+        continue;
+      }
       const text = span.text ?? "";
       if (!text) continue;
       const def = (span.marks ?? [])
@@ -108,6 +114,7 @@ export function researchFromSanity(
       kind: "paradigms",
       label: data.paradigms.label ?? "Paradigms",
       intro: data.paradigms.intro ?? "",
+      image: data.paradigms.image,
       items: data.paradigms.items.map((it, i) => ({
         n: padN(i),
         title: it.title ?? "",
@@ -121,6 +128,7 @@ export function researchFromSanity(
       kind: "principles",
       label: data.principles.label ?? "Principles",
       intro: data.principles.intro ?? "",
+      image: data.principles.image,
       items: data.principles.items.map((it, i) => ({
         n: padN(i),
         title: it.title ?? "",

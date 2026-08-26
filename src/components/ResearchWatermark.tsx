@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
+import WordmarkFrame from "@/components/WordmarkFrame";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 
 /**
  * Big "Research" watermark (Figma 1-40936). Mobile (Fas 07/30): background
@@ -50,14 +51,11 @@ export default function ResearchWatermark() {
   const z = fade < 0.5 ? 30 : -10;
 
   return (
-    <div
-      aria-hidden
+    <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`pointer-events-none absolute inset-0 flex select-none items-start overflow-hidden px-5 font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[5.6vw] lg:leading-[0.9] lg:tracking-[-0.022em] pt-[404px] ${WORDMARK_TOP}`}
+      className={`font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.9] lg:tracking-[-0.022em] pt-[404px] ${WORDMARK_TOP}`}
     >
-      <span className="text-[58px] lg:text-[clamp(48px,13vw,190px)]">
-        Research
-      </span>
-    </div>
+      <span className="text-[58px] lg:text-[187px]">Research</span>
+    </WordmarkFrame>
   );
 }

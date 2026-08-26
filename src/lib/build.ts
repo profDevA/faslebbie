@@ -26,11 +26,13 @@ export interface BuildProject {
   /** Whether the placeholder art is light (title/label goes dark). */
   lightArt?: boolean;
   /**
-   * Project images from Sanity. First image is the `.img` card cover and the
-   * modal concept frame; further images feed the concept preview. Empty/absent
-   * → tinted title placeholder.
+   * Card cover + modal hero (Sanity `images[0]` only).
    */
   images?: string[];
+  /** Popup scroll — Output visuals block. */
+  outputVisual?: string;
+  /** Concept Preview overlay. */
+  conceptPreview?: string;
   /** Modal hero kicker, e.g. "Design · 5 Min Read". */
   kicker: string;
   /** Modal hero subtitle. */

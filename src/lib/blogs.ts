@@ -104,6 +104,7 @@ export type Publication = {
   year: string;
   tag?: string;
   href?: string;
+  cover?: string;
 };
 
 export type PublicationsData = {

@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { FilteredResponseQueryOptions } from "next-sanity";
 import { buildFromSanity } from "@/lib/buildFromSanity";
 import { teachingFromSanity } from "@/lib/teachingFromSanity";
 import { client } from "./client";
@@ -35,92 +36,108 @@ import type {
 const studyOptions = { next: { revalidate: 60, tags: ["caseStudy"] } };
 const workPageOptions = { next: { revalidate: 60, tags: ["workPage"] } };
 
+/** Avoid crashing SSR when api.sanity.io is briefly unreachable (DNS / timeout). */
+async function safeSanityFetch<T>(
+  query: string,
+  params: Record<string, unknown> = {},
+  options?: FilteredResponseQueryOptions,
+): Promise<T | null> {
+  try {
+    return (await client.fetch(query, params, options)) as T;
+  } catch (err) {
+    console.error("[sanity] fetch failed:", err);
+    return null;
+  }
+}
+
 export async function getAllStudies(): Promise<Study[]> {
-  return client.fetch(ALL_STUDIES_QUERY, {}, studyOptions) as Promise<Study[]>;
+  return (await safeSanityFetch<Study[]>(ALL_STUDIES_QUERY, {}, studyOptions)) ?? [];
 }
 
 export async function getCategories(): Promise<string[]> {
-  return client.fetch(CATEGORIES_QUERY, {}, studyOptions) as Promise<string[]>;
+  return (await safeSanityFetch<string[]>(CATEGORIES_QUERY, {}, studyOptions)) ?? [];
 }
 
 export async function getWorkPage(): Promise<WorkPageConfig | null> {
-  return client.fetch(WORK_PAGE_QUERY, {}, workPageOptions) as Promise<WorkPageConfig | null>;
+  return safeSanityFetch<WorkPageConfig>(WORK_PAGE_QUERY, {}, workPageOptions);
 }
 
 export async function getStudySlugs(): Promise<string[]> {
-  return client.fetch(STUDY_SLUGS_QUERY, {}, studyOptions) as Promise<string[]>;
+  return (await safeSanityFetch<string[]>(STUDY_SLUGS_QUERY, {}, studyOptions)) ?? [];
 }
 
 export async function getResearchPage(): Promise<SanityResearchPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityResearchPage>(
     RESEARCH_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["researchPage"] } },
-  ) as Promise<SanityResearchPage | null>;
+  );
 }
 
 export async function getTeachingPage(): Promise<SanityTeachingPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityTeachingPage>(
     TEACHING_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["teachingPage"] } },
-  ) as Promise<SanityTeachingPage | null>;
+  );
 }
 
 export async function getBuildPage(): Promise<SanityBuildPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityBuildPage>(
     BUILD_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["buildPage"] } },
-  ) as Promise<SanityBuildPage | null>;
+  );
 }
 
 export async function getAboutPage(): Promise<SanityAboutPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityAboutPage>(
     ABOUT_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["aboutPage"] } },
-  ) as Promise<SanityAboutPage | null>;
+  );
 }
 
 export async function getLeadershipPage(): Promise<SanityLeadershipPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityLeadershipPage>(
     LEADERSHIP_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["leadershipPage"] } },
-  ) as Promise<SanityLeadershipPage | null>;
+  );
 }
 
 export async function getBlogsPage(): Promise<SanityBlogsPage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityBlogsPage>(
     BLOGS_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["blogsPage"] } },
-  ) as Promise<SanityBlogsPage | null>;
+  );
 }
 
 export async function getTestimonials(): Promise<SanityTestimonial[]> {
-  return client.fetch(
-    TESTIMONIALS_QUERY,
-    {},
-    { next: { revalidate: 60, tags: ["testimonial"] } },
-  ) as Promise<SanityTestimonial[]>;
+  return (
+    (await safeSanityFetch<SanityTestimonial[]>(
+      TESTIMONIALS_QUERY,
+      {},
+      { next: { revalidate: 60, tags: ["testimonial"] } },
+    )) ?? []
+  );
 }
 
 export async function getHomePage(): Promise<SanityHomePage | null> {
-  return client.fetch(
+  return safeSanityFetch<SanityHomePage>(
     HOME_PAGE_QUERY,
     {},
     { next: { revalidate: 60, tags: ["homePage"] } },
-  ) as Promise<SanityHomePage | null>;
+  );
 }
 
 export async function getSiteSettings(): Promise<SanitySiteSettings | null> {
-  return client.fetch(
+  return safeSanityFetch<SanitySiteSettings>(
     SITE_SETTINGS_QUERY,
     {},
     { next: { revalidate: 60, tags: ["siteSettings"] } },
-  ) as Promise<SanitySiteSettings | null>;
+  );
 }
 
 /** Resolve a study + its wrap-around previous/next neighbours by slug. */

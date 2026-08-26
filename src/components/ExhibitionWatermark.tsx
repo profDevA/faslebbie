@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 import { WORDMARK_TOP } from "@/components/PagePortrait";
+import WordmarkFrame from "@/components/WordmarkFrame";
+import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 
 /** Figma 2823:2700 — same scroll-fade wordmark pattern as Teaching / Work. */
 function ramp(a: number, b: number, t: number) {
@@ -52,15 +53,13 @@ export default function ExhibitionWatermark() {
   const opacity = wordmarkOpacity(effFade);
 
   return (
-    <div
-      aria-hidden
+    <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: -10, opacity }}
-      className={`pointer-events-none absolute inset-0 flex select-none flex-col items-start overflow-hidden px-5 font-logo font-bold capitalize leading-[0.88] tracking-[-0.022em] will-change-[color,opacity] sm:px-6 lg:fixed lg:px-[5.6vw] pt-[402px] ${WORDMARK_TOP}`}
+      className={`font-logo font-bold capitalize leading-[0.88] tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
+      innerClassName="flex flex-col items-start"
     >
-      <span className="text-[58px] lg:text-[clamp(48px,13vw,200px)]">Student</span>
-      <span className="text-[58px] lg:text-[clamp(48px,13vw,200px)] lg:pl-[12vw]">
-        Exhibitions
-      </span>
-    </div>
+      <span className="text-[58px] lg:text-[187px]">Student</span>
+      <span className="text-[58px] lg:text-[187px] lg:pl-[12%]">Exhibitions</span>
+    </WordmarkFrame>
   );
 }
