@@ -167,6 +167,22 @@ body {
   }
 }
 
+/* Full-page case studies — fade in only; translateY leaves white gaps at the
+   top of each band (page bg shows through the untransformed layout box). */
+.cs-root.cs-page section > * {
+  transform: none;
+}
+
+.cs-root.cs-page > section {
+  min-height: 0;
+}
+
+/* Hero sits flush under the sticky breadcrumb — visible immediately. */
+.cs-root.cs-page > section:first-of-type > * {
+  opacity: 1;
+  transition: none;
+}
+
 /* Work `.img` grid reveal — clones faslebbie.com/works: cards fade up from
    opacity 0 + ~28px. Triggered as each card scrolls into view (JS adds `.is-in`)
    with a small per-card stagger (transition-delay set inline by index). */

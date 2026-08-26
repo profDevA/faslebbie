@@ -10,6 +10,8 @@ npx sanity exec scripts/<name>.ts --with-user-token
 
 | When | Script |
 |------|--------|
+| Case study media wiped by bad patch | `restore-case-study-sections-from-history.ts` then `patch-problem-context-sections.ts` |
+| Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
 | Research copy | `patch-research-final-copy.ts` |

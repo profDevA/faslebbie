@@ -42,6 +42,23 @@ export const caseStudy = defineType({
         "When on, visitors must enter the Site Settings → Access password before opening this case study.",
     }),
     defineField({
+      name: "fullCaseStudyPdf",
+      title: "Full case study PDF",
+      type: "file",
+      group: "content",
+      options: { accept: "application/pdf" },
+      description:
+        "Optional PDF for the “Read the Full Case Study” link at the bottom (Figma 2110:41721).",
+    }),
+    defineField({
+      name: "fullCaseStudyLabel",
+      title: "Full case study link label",
+      type: "string",
+      group: "content",
+      initialValue: "Read the Full Case Study",
+      description: "Leave blank to use the default label.",
+    }),
+    defineField({
       name: "sections",
       title: "Sections",
       type: "array",
@@ -51,6 +68,7 @@ export const caseStudy = defineType({
         { type: "overviewSection" },
         { type: "accordionSection" },
         { type: "proseSection" },
+        { type: "problemContextSection" },
         { type: "coreExperience" },
         { type: "mediaSection" },
         { type: "gallerySection" },
@@ -75,14 +93,14 @@ export const caseStudy = defineType({
       title: "From",
       type: "string",
       group: ["content", "card"],
-      description: 'Where the project started, e.g. "Jargon".',
+      description: 'Where the project started, e.g. "Jargon". Shown on the hero and Work card.',
     }),
     defineField({
       name: "to",
       title: "To",
       type: "string",
       group: ["content", "card"],
-      description: 'Where it landed, e.g. "Insightful".',
+      description: 'Where it landed, e.g. "Insightful". Shown on the hero and Work card.',
     }),
     defineField({
       name: "categories",

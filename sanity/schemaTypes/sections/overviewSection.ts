@@ -1,7 +1,7 @@
 import { defineField, defineType } from "sanity";
 
-// Project Overview: intro prose + a metadata column (service list, duration,
-// team, optional CTA + confidentiality note) and a side feature image.
+// Project Overview: intro prose + metadata (discipline, duration, team,
+// disclaimer) and side feature art — From/To/Credit live on the case study doc.
 export const overviewSection = defineType({
   name: "overviewSection",
   title: "Overview",
@@ -9,28 +9,41 @@ export const overviewSection = defineType({
   fields: [
     defineField({
       name: "sectionTitle",
-      title: "Section title",
+      title: "Overview heading",
       type: "string",
       initialValue: "Overview",
     }),
-    defineField({ name: "body", title: "Overview body", type: "portableText" }),
-    defineField({ name: "ctaLabel", title: "CTA label", type: "string" }),
+    defineField({
+      name: "body",
+      title: "Overview description",
+      type: "portableText",
+    }),
+    defineField({ name: "ctaLabel", title: "Visit site / external link label", type: "string" }),
     defineField({
       name: "ctaUrl",
-      title: "CTA URL",
+      title: "Visit site / external link URL",
       type: "url",
       validation: (r) => r.uri({ scheme: ["http", "https"] }),
     }),
     defineField({
       name: "serviceCategoryLabel",
-      title: "Service category label",
+      title: "Discipline / role label",
       type: "string",
       description: 'e.g. "Research & Design".',
     }),
-    defineField({ name: "serviceList", title: "Service list", type: "text", rows: 2 }),
+    defineField({
+      name: "serviceList",
+      title: "Discipline / role list",
+      type: "text",
+      rows: 2,
+    }),
     defineField({ name: "duration", title: "Duration", type: "string" }),
-    defineField({ name: "team", title: "Team members", type: "text", rows: 2 }),
-    defineField({ name: "confidentialityNote", title: "Confidentiality note", type: "string" }),
+    defineField({ name: "team", title: "Team", type: "text", rows: 2 }),
+    defineField({
+      name: "confidentialityNote",
+      title: "Confidentiality / disclaimer",
+      type: "string",
+    }),
     defineField({
       name: "sideImage",
       title: "Side feature image",
@@ -42,8 +55,7 @@ export const overviewSection = defineType({
       title: "Side feature video (looping)",
       type: "file",
       options: { accept: "video/*" },
-      description:
-        "Optional looping video. Replaces the side image when set.",
+      description: "Optional looping video. Replaces the side image when set.",
     }),
     defineField({
       name: "sideImageFit",
@@ -64,6 +76,7 @@ export const overviewSection = defineType({
       name: "sideImageBackgroundColor",
       title: "Side feature image background color",
       type: "color",
+      description: "Panel colour behind the side mockup when fit is Contain (e.g. Coral teal #52747E).",
       options: { disableAlpha: false },
     }),
     defineField({ name: "appearance", type: "appearance" }),

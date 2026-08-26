@@ -28,6 +28,9 @@ const sectionsProj = `sections[]{
     items[]{ _key, title, body, defaultOpen }
   },
   _type == "proseSection" => { sectionTitle, body },
+  _type == "problemContextSection" => {
+    problemHeading, problemBody, broughtHeading, broughtBody, supportingCopy
+  },
   _type == "coreExperience" => {
     sectionTitle, body,
     "image": image.asset->url,
@@ -90,6 +93,11 @@ const cardProj = `
   passwordProtected
 `;
 
+const studyPdfProj = `
+  "fullCaseStudyPdfUrl": fullCaseStudyPdf.asset->url,
+  fullCaseStudyLabel
+`;
+
 const seoProj = `seo{
   title, description, ogImageAlt,
   "ogImage": ogImage.asset->url,
@@ -101,6 +109,7 @@ const seoProj = `seo{
 // in-page popup (which needs each study's full body ready without a round-trip).
 export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy"] | order(orderRank asc){
   ${cardProj},
+  ${studyPdfProj},
   ${seoProj},
   ${sectionsProj}
 }`);

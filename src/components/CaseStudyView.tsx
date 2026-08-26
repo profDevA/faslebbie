@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import PopupShell from '@/components/PopupShell'
+import { ExternalArrow } from '@/components/InlineToken'
 import type { PortableTextBlock } from '@portabletext/types'
 
 import type {
@@ -80,6 +81,60 @@ const MAXW = {
 }
 const ALIGN = { left: 'text-left', center: 'text-center', right: 'text-right' }
 
+type CsVariant = 'page' | 'overlay'
+const CsVariantContext = createContext<CsVariant>('overlay')
+function useCsVariant() {
+  return useContext(CsVariantContext)
+}
+
+/** Full-page shell (Fas Aug 2026) — wide + responsive; overlay keeps popup widths. */
+function csShell(v: CsVariant, extra = '') {
+  if (v === 'page') {
+    return `mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12 ${extra}`
+  }
+  return `mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw] ${extra}`
+}
+
+function csProseInner(
+  v: CsVariant,
+  align: 'left' | 'center' | 'right',
+  widthKey: keyof typeof MAXW,
+) {
+  if (v === 'page') {
+    if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
+    if (widthKey === 'full') return 'mx-auto w-full max-w-none'
+    if (align === 'center') return 'mx-auto w-full max-w-[min(920px,100%)]'
+    return 'mx-auto w-full max-w-[min(920px,100%)]'
+  }
+  return `mx-auto ${align === 'center' ? 'lg:max-w-[60%]' : MAXW[widthKey]}`
+}
+
+function csBodyText(v: CsVariant, extra = '') {
+  if (v === 'page') {
+    return `text-[18px] font-light leading-[1.65] tracking-[0.01em] lg:text-[19px] ${extra}`
+  }
+  return `text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw] ${extra}`
+}
+
+function csSectionTitle(v: CsVariant, extra = '') {
+  if (v === 'page') {
+    return `font-normal capitalize leading-tight text-[22px] lg:text-[26px] ${extra}`
+  }
+  return `font-medium capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
+}
+
+function csBandGutter(v: CsVariant, extra = '') {
+  if (v === 'page') return `px-5 sm:px-8 lg:px-12 ${extra}`
+  return `px-6 sm:px-10 xl:px-[3.5vw] ${extra}`
+}
+
+function csPagerShell(v: CsVariant, extra = '') {
+  if (v === 'page') {
+    return `flex w-full items-center justify-between px-6 sm:px-10 ${extra}`
+  }
+  return `mx-auto flex w-full max-w-225 items-center justify-between px-6 ${extra}`
+}
+
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
   const style: React.CSSProperties = {}
   const bg = colorToCss(a?.backgroundColor) ?? defaultBg
@@ -91,6 +146,39 @@ function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
 
 function padClasses(a?: Appearance, natural: PaddingToken = 'md') {
   return `${PAD_T[a?.paddingTop ?? natural]} ${PAD_B[a?.paddingBottom ?? natural]}`
+}
+
+/** Grouped prose bands: top pad from first block, bottom from last (Coral PC + WIB). */
+function proseGroupPad(
+  sections: (Of<'proseSection'> | Of<'bulletSection'>)[],
+  page: boolean,
+) {
+  const first = sections[0]
+  const last = sections[sections.length - 1]
+  const top = first.appearance?.paddingTop ?? 'md'
+  const bottom =
+    last.appearance?.paddingBottom ??
+    first.appearance?.paddingBottom ??
+    'md'
+  if (page) {
+    // Full page — fixed rem rhythm; no popup vw padding or one-screen centering.
+    const PAGE_PAD_T: Record<PaddingToken, string> = {
+      none: 'pt-0',
+      sm: 'pt-10',
+      md: 'pt-12 lg:pt-14',
+      lg: 'pt-16 lg:pt-20',
+      xl: 'pt-20 lg:pt-24',
+    }
+    const PAGE_PAD_B: Record<PaddingToken, string> = {
+      none: 'pb-0',
+      sm: 'pb-10',
+      md: 'pb-12 lg:pb-14',
+      lg: 'pb-16 lg:pb-20',
+      xl: 'pb-20 lg:pb-24',
+    }
+    return `${PAGE_PAD_T[top]} ${PAGE_PAD_B[bottom]}`
+  }
+  return `${PAD_T[top]} ${PAD_B[bottom]}`
 }
 
 /** True when a band should treat its text as light (for default label colour). */
@@ -249,7 +337,7 @@ export default function CaseStudyView({
   // bar of its own on the standalone route.
   const pager = (
     <div
-      className="mx-auto flex w-full max-w-225 items-center justify-between px-6 font-grotesk text-[18px] font-bold xl:text-[20px]"
+      className={`${csPagerShell(variant)} font-grotesk font-medium text-[16px] lg:text-[17px]`}
       style={{ color: RED }}
     >
       <Link
@@ -272,13 +360,15 @@ export default function CaseStudyView({
   )
 
   const inner = (
-    <>
+    <CsVariantContext.Provider value={variant}>
+      <>
       {/* Overlay mode gets the shared popup header instead. */}
       {!overlay && (
-        <div className="sticky top-0 z-50 flex items-center justify-between gap-4 bg-white px-6 py-3.5 xl:px-10">
+        <div className="sticky top-0 z-50 border-b border-black/15 bg-white">
+          <div className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-8 lg:py-4">
           <nav
             aria-label="Breadcrumb"
-            className="flex items-center gap-2 font-grotesk text-[15px] xl:text-[17px]"
+            className="flex min-w-0 items-center gap-2 font-grotesk text-[15px] font-light lg:text-[16px]"
           >
             <Link
               href="/work"
@@ -298,10 +388,11 @@ export default function CaseStudyView({
             href="/work"
             aria-label="Close"
             data-cursor="hover"
-            className="font-grotesk text-[26px] leading-none text-black transition-transform hover:scale-110"
+            className="font-grotesk text-[22px] leading-none text-black transition-opacity hover:opacity-60"
           >
             ×
           </Link>
+          </div>
         </div>
       )}
 
@@ -321,12 +412,20 @@ export default function CaseStudyView({
         ),
       )}
 
+      {p.fullCaseStudyPdfUrl ? (
+        <FullCaseStudyPdfLink
+          url={p.fullCaseStudyPdfUrl}
+          label={p.fullCaseStudyLabel?.trim() || 'Read the Full Case Study'}
+        />
+      ) : null}
+
       {!overlay && (
-        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-5">
+        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-3 lg:py-3.5">
           {pager}
         </div>
       )}
-    </>
+      </>
+    </CsVariantContext.Provider>
   )
 
   if (overlay) {
@@ -347,7 +446,7 @@ export default function CaseStudyView({
   return (
     <div
       ref={setScrollNode}
-      className="cs-root min-h-screen bg-white font-grotesk text-black"
+      className="cs-root cs-page min-h-screen bg-white font-grotesk text-black"
     >
       {inner}
     </div>
@@ -355,6 +454,29 @@ export default function CaseStudyView({
 }
 
 // ── per-section dispatch ──────────────────────────────────────────────────────
+/** Figma 2110:41721 — centered red “Read the Full Case Study ↗” on black band. */
+function FullCaseStudyPdfLink({ url, label }: { url: string; label: string }) {
+  const v = useCsVariant()
+  return (
+    <section className="bg-black py-12 text-center text-white lg:py-16">
+      <div className={csShell(v)}>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cursor="hover"
+          className="group inline-flex items-center gap-0 font-grotesk text-[20px] font-normal leading-snug text-accent lg:text-[24px]"
+        >
+          <span className="underline decoration-from-font underline-offset-[6px] transition-opacity group-hover:opacity-80">
+            {label}
+          </span>
+          <ExternalArrow />
+        </a>
+      </div>
+    </section>
+  )
+}
+
 function SectionBlock({
   section,
   project,
@@ -373,6 +495,8 @@ function SectionBlock({
       return <AccordionBlock section={section} />
     case 'proseSection':
       return <ProseBlock section={section} />
+    case 'problemContextSection':
+      return <ProblemContextBlock section={section} />
     case 'coreExperience':
       return <CoreExperienceBlock section={section} />
     case 'mediaSection':
@@ -400,9 +524,10 @@ type Of<T extends Section['_type']> = Extract<Section, { _type: T }>
  * Coalesce consecutive text bands that share the same background into a single
  * group. In the modal every section is forced to its own full-height screen
  * (`.cs-fullheight`), so separate bands land on separate screens. Figma shows
- * "Problem Context" + "What I Brought" (600:12516) and "Reflections" + "Next
- * Steps" (600:14126) each together on one band, so we render such runs inside
- * ONE <section>.
+ * Figma shows "Problem Context" + "What I Brought" (600:12516) and "Reflections" +
+ * "Next Steps" (600:14126) each together on one band. Problem Context / What I
+ * Brought should be authored as `problemContextSection` in Sanity; legacy paired
+ * `proseSection`s are still coalesced here until patched.
  *
  * `proseSection`s group on matching background (incl. none). A `bulletSection`
  * (Next Steps) joins a run only when it shares an *explicit* background with it
@@ -439,25 +564,30 @@ function ProseGroupBlock({
 }: {
   sections: (Of<'proseSection'> | Of<'bulletSection'>)[]
 }) {
+  const v = useCsVariant()
+  const page = v === 'page'
   const first = sections[0]
   const light = isLight(first.appearance)
   const align = first.appearance?.contentAlignment ?? 'center'
-  const width = MAXW[first.appearance?.maxWidth ?? 'default']
-  const body = 'text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw]'
+  const width = first.appearance?.maxWidth ?? 'default'
+  const body = csBodyText(v)
+  const allProse = sections.every(s => s._type === 'proseSection')
+  const pad =
+    page && allProse
+      ? 'pt-24 pb-24 lg:pt-36 lg:pb-36'
+      : proseGroupPad(sections, page)
   return (
     <section
-      className={`${padClasses(first.appearance, 'md')} ${ALIGN[align]}`}
+      className={`${pad} ${ALIGN[align]}`}
       style={bandStyle(first.appearance)}
     >
-      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
-        <div
-          className={`mx-auto flex flex-col gap-12 ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
-        >
+      <div className={csShell(v)}>
+        <div className={`flex flex-col ${page && allProse ? 'gap-24' : 'gap-12'} ${csProseInner(v, align, width)}`}>
           {sections.map(s => (
             <div key={s._key}>
               {s.sectionTitle && (
                 <h2
-                  className={`mb-5 text-[24px] font-medium capitalize leading-tight ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+                  className={`mb-5 ${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
                 >
                   {s.sectionTitle}
                 </h2>
@@ -488,12 +618,12 @@ function HeroBlock({
   section: Of<'heroSection'>
   project: Study
 }) {
-  if (!s.image) return null
+  if (!s.image && !s.imageMobile) return null
+  const title = s.headingOverride ?? p.name
   const caption = (
     <>
       <p className="text-[16px] leading-[1.6] xl:text-[1.3vw]">
-        <strong className="font-bold">{s.headingOverride ?? p.name}</strong> ·{' '}
-        {s.caption ?? p.tagline}
+        <strong className="font-bold">{title}</strong> · {s.caption ?? p.tagline}
       </p>
       {/* Fas 08/05: the project's before/after framing belongs here, under the
          hero title line — not in the Overview metadata column where Israel's
@@ -512,20 +642,56 @@ function HeroBlock({
       )}
     </>
   )
+  const mobileArt = s.imageMobile?.trim() || s.image
   return (
     <section className="relative">
-      {/* Mobile (Figma 344:19457): black tall frame; photo sits in lower ~73%
-         (img layer y≈257/791); title near top. Desktop keeps full-bleed hero. */}
-      <div className="relative aspect-[360/791] overflow-hidden bg-black lg:hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-        <img
-          src={s.image}
-          alt={p.name}
-          className="absolute inset-x-0 bottom-0 h-[73.5%] w-full object-cover object-[82%_30%]"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.25)_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0)_72%,rgba(0,0,0,0.4)_100%)]" />
-        <div className="absolute left-4.5 top-[10%] max-w-[92%] p-2.5 text-white">{caption}</div>
-      </div>
+      {s.imageMobile ? (
+        /* Mobile hero art + caption below (Figma 2079:26236). */
+        <div className="flex flex-col gap-2.5 bg-white lg:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+          <img
+            src={mobileArt}
+            alt={p.name}
+            className="block h-auto w-full bg-[#ededed] object-cover object-center"
+          />
+          <div className="px-5 pb-4 pt-1 text-black">
+            <p className="text-[18px] font-bold leading-[1.35] tracking-[0.09em]">
+              <span className="underline decoration-from-font underline-offset-[6px]">
+                {title}
+              </span>
+            </p>
+            {(p.from || p.to) && (
+              <p className="mt-2 text-[18px] leading-[1.35] tracking-[0.09em]">
+                {p.from && (
+                  <>
+                    <span className="font-medium italic">From</span>
+                    <span>: {p.from}</span>
+                    <span aria-hidden className="inline-block w-6" />
+                  </>
+                )}
+                {p.to && (
+                  <>
+                    <span className="font-medium italic">To</span>
+                    <span>: {p.to}</span>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Legacy mobile — desktop art cropped in black frame (Figma 344:19457). */
+        <div className="relative aspect-[360/791] overflow-hidden bg-black lg:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+          <img
+            src={s.image}
+            alt={p.name}
+            className="absolute inset-x-0 bottom-0 h-[73.5%] w-full object-cover object-[82%_30%]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.25)_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0)_72%,rgba(0,0,0,0.4)_100%)]" />
+          <div className="absolute left-4.5 top-[10%] max-w-[92%] p-2.5 text-white">{caption}</div>
+        </div>
+      )}
       <div className="relative hidden lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
@@ -541,30 +707,39 @@ function HeroBlock({
 }
 
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
+  const v = useCsVariant()
+  const page = v === 'page'
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
   const contain = s.sideImageFit === 'contain'
   const cta = s.ctaLabel ?? 'Visit Site'
+  const gutter = csBandGutter(v)
+  const body = csBodyText(v, dark)
+  const metaSm = page
+    ? 'text-[14px] font-light leading-[1.6]'
+    : 'text-[14px] font-light leading-[1.6] xl:text-[0.95vw]'
+  const metaXs = page
+    ? 'text-[12px] font-light italic leading-4.25 tracking-[1px]'
+    : 'text-[12px] font-light italic leading-4.25 tracking-[1px] xl:text-[0.82vw]'
+  const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
   return (
     <section
-      data-cs-stretch
-      className="grid grid-cols-1 lg:grid-cols-2"
+      data-cs-stretch={page ? undefined : true}
+      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 ${page ? 'lg:items-stretch' : ''}`}
       style={bandStyle(s.appearance)}
     >
-      {/* Mobile (Figma 344:19467): copy first, then portrait device band.
-          Desktop: copy | media side-by-side. */}
-      <div className="flex flex-col justify-between gap-10 px-6 py-12 sm:px-10 lg:py-14 xl:px-[3.5vw] xl:py-[3.8rem]">
-        <div>
-          {/* Figma 600:12509 — Neue Haas 55 Roman 24px, capitalize. */}
-          <h2 className={`text-[24px] font-normal capitalize leading-tight xl:text-[1.5vw] ${dark}`}>
+      <div
+        className={`flex min-h-0 flex-col gap-10 ${
+          page
+            ? 'justify-start px-5 py-12 sm:px-8 lg:pl-12 lg:pr-16 lg:pt-14 lg:pb-20 xl:pl-16 xl:pr-20 xl:pb-24'
+            : `justify-between py-12 lg:py-14 xl:py-[3.8rem] ${gutter}`
+        }`}
+      >
+        <div className={page ? 'max-w-[min(580px,100%)]' : undefined}>
+          <h2 className={`${csSectionTitle(v)} ${dark}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
-          {/* Figma 600:12510 — body 35 Thin 18px / lh 160% / +0.382px tracking
-             (Thin cut not shipped; font-light stands in). */}
-          <Prose
-            value={s.body}
-            className={`mt-[1em] text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.2vw] ${dark}`}
-          />
+          <Prose value={s.body} className={`mt-[1em] ${body}`} />
           {s.ctaUrl && (
             // Mobile Figma uses "Visit SITE"; desktop stays sentence case.
             <a
@@ -572,28 +747,30 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent xl:text-[1.15vw] ${dark} max-lg:uppercase max-lg:tracking-[0.04em] lg:capitalize`}
+              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase max-lg:tracking-[0.04em] lg:capitalize ${page ? '' : 'xl:text-[1.15vw]'}`}
             >
               {cta}
             </a>
           )}
         </div>
-        <div className="flex flex-col gap-5">
+        <div className={`flex flex-col gap-5 ${page ? 'max-w-[min(580px,100%)]' : ''}`}>
           {(s.serviceCategoryLabel || s.serviceList) && (
             <div className="max-w-85">
               {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
-              <h3 className={`text-[18px] font-light capitalize leading-tight xl:text-[1.15vw] ${dark}`}>
+              <h3
+                className={`text-[18px] font-light capitalize leading-tight ${dark} ${page ? '' : 'xl:text-[1.15vw]'}`}
+              >
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
               {s.serviceList && (
-                <p className={`mt-2 text-[14px] font-light leading-[1.6] xl:text-[0.95vw] ${dark}`}>
+                <p className={`mt-2 ${metaSm} ${dark}`}>
                   {s.serviceList}
                 </p>
               )}
             </div>
           )}
           {/* Figma 600:12514 — 45 Light 14px, labels 55 Roman. */}
-          <div className={`max-w-85 space-y-1 text-[14px] font-light leading-[1.6] xl:text-[0.95vw] ${dark}`}>
+          <div className={`max-w-85 space-y-1 ${metaSm} ${dark}`}>
             {s.duration && (
               <p>
                 <span className="font-normal">Duration</span>: {s.duration}
@@ -607,7 +784,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           </div>
           {/* Figma 600:12515 — 36 Thin Italic 12px / +1px tracking. */}
           {s.confidentialityNote && (
-            <p className={`mt-4 max-w-100 text-[12px] font-light italic leading-4.25 tracking-[1px] xl:text-[0.82vw] ${light ? 'text-white/70' : 'text-black/70'}`}>
+            <p className={`mt-4 max-w-100 ${metaXs} ${light ? 'text-white/70' : 'text-black/70'}`}>
               {s.confidentialityNote}
             </p>
           )}
@@ -617,9 +794,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           Band ~360×552; media contained + centred (phone, laptop, or collage). */}
       <div
         className="relative flex aspect-[360/552] items-center justify-center px-[10%] py-[10%] lg:hidden"
-        style={{
-          backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
-        }}
+        style={{ backgroundColor: sideBg }}
       >
         {s.sideImage ? (
           // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -644,7 +819,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       {/* Desktop: video if set, else image fill / contain (Figma 600:12450). */}
       {s.sideVideo ? (
         <div
-          className="relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]"
+          className={
+            page
+              ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
+              : 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
+          }
           style={{
             backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? '#fff',
           }}
@@ -655,15 +834,21 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             loop
             muted
             playsInline
-            className="h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]"
+            className={
+              page
+                ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
+                : 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
+            }
           />
         </div>
       ) : (
         <div
-          className="relative hidden lg:block lg:min-h-full"
-          style={{
-            backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? TEAL,
-          }}
+          className={
+            page
+              ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
+              : 'relative hidden lg:block lg:min-h-full'
+          }
+          style={{ backgroundColor: sideBg }}
         >
           {s.sideImage && (
             // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -671,9 +856,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               src={s.sideImage}
               alt=""
               className={
-                contain
-                  ? 'absolute inset-0 h-full w-full object-contain object-center'
-                  : 'absolute inset-0 h-full w-full object-cover object-center'
+                page
+                  ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
+                  : contain
+                    ? 'absolute inset-0 h-full w-full object-contain object-center'
+                    : 'absolute inset-0 h-full w-full object-cover object-center'
               }
             />
           )}
@@ -684,27 +871,28 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
 }
 
 function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
+  const v = useCsVariant()
   const light = isLight(s.appearance)
   const items = s.items ?? []
+  const page = v === 'page'
   if (s.variant === 'split') {
     return (
       <section
         data-cs-stretch
-        className={`grid grid-cols-1 gap-10 px-6 sm:px-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] xl:px-[3.5vw] ${padClasses(s.appearance, 'md')}`}
+        className={padClasses(s.appearance, 'md')}
         style={bandStyle(s.appearance, SAGE)}
       >
+        <div
+          className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${page ? csShell(v) : csBandGutter(v)}`}
+        >
         <div className="flex flex-col justify-end">
-          <div className="max-w-111.25">
-            {/* Figma "My Approach": Neue Haas 18px / 500 / lh 160% / +0.382px / capitalize */}
+          <div className={page ? 'max-w-[min(560px,100%)]' : 'max-w-111.25'}>
             <h2
-              className={`mb-4 text-[18px] font-medium capitalize leading-[1.6] tracking-[0.382px] xl:text-[1.15vw] ${light ? 'text-white' : ''}`}
+              className={`mb-4 ${csSectionTitle(v, 'text-[18px] lg:text-[20px]')} ${light ? 'text-white' : ''}`}
             >
               {s.sideTitle ?? 'My Approach'}
             </h2>
-            <Prose
-              value={s.sideBody}
-              className="mt-3 text-[18px] leading-normal xl:text-[1.25vw]"
-            />
+            <Prose value={s.sideBody} className={`mt-3 ${csBodyText(v)}`} />
           </div>
         </div>
         <div
@@ -713,7 +901,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
-            <h2 className="mb-5 text-center text-[20px] font-medium capitalize leading-[14.64px] text-black xl:text-[1.15vw]">
+            <h2 className={`mb-5 text-center ${csSectionTitle(v, 'text-[20px] lg:text-[22px]')} text-black`}>
               {s.sectionTitle}
             </h2>
           )}
@@ -721,16 +909,18 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
             <Accordion items={items} variant="process" />
           </div>
         </div>
+        </div>
       </section>
     )
   }
+  const pageInner = v === 'page'
   return (
     <section
       className={padClasses(s.appearance, 'md')}
       style={bandStyle(s.appearance, SAGE)}
     >
-      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
-        <div className="mx-auto max-w-120">
+      <div className={csShell(v)}>
+        <div className={`mx-auto ${pageInner ? 'max-w-[min(720px,100%)]' : 'max-w-120'}`}>
           {s.sectionTitle && (
             <Label center light={light}>
               {s.sectionTitle}
@@ -746,31 +936,65 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
 }
 
 function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
+  const v = useCsVariant()
   const light = isLight(s.appearance)
   const align = s.appearance?.contentAlignment ?? 'center'
-  const width = MAXW[s.appearance?.maxWidth ?? 'default']
+  const width = s.appearance?.maxWidth ?? 'default'
   return (
     <section
       className={`${padClasses(s.appearance, 'md')} ${ALIGN[align]}`}
       style={bandStyle(s.appearance)}
     >
-      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
-        <div
-          className={`mx-auto ${align === 'center' ? 'lg:max-w-[60%]' : width}`}
-        >
+      <div className={csShell(v)}>
+        <div className={csProseInner(v, align, width)}>
           {s.sectionTitle && (
-            // Figma spec (600:12520): Neue Haas 24px / weight 500 / Title-case
-            // (inherits font-grotesk from cs-root — no Helvetica override).
             <h2
-              className={`mb-5 text-[24px] font-medium capitalize leading-tight ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+              className={`mb-5 ${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
             >
               {s.sectionTitle}
             </h2>
           )}
-          <Prose
-            value={s.body}
-            className="mt-5 text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw]"
-          />
+          <Prose value={s.body} className={`mt-5 ${csBodyText(v)}`} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/** Figma 03 — Problem Context / What I Brought (600:12516): one centred band. */
+function ProblemContextBlock({ section: s }: { section: Of<'problemContextSection'> }) {
+  const v = useCsVariant()
+  const light = isLight(s.appearance)
+  const align = s.appearance?.contentAlignment ?? 'center'
+  const width = s.appearance?.maxWidth ?? 'default'
+  const body = csBodyText(v)
+  const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
+  const pad =
+    v === 'page'
+      ? 'pt-24 pb-24 lg:pt-36 lg:pb-36'
+      : padClasses(s.appearance, 'md')
+  return (
+    <section
+      className={`${pad} ${ALIGN[align]}`}
+      style={bandStyle(s.appearance)}
+    >
+      <div className={csShell(v)}>
+        <div className={`flex flex-col ${v === 'page' ? 'gap-24' : 'gap-12'} ${csProseInner(v, align, width)}`}>
+          <div>
+            {s.problemHeading && (
+              <h2 className={`mb-5 ${titleClass}`}>{s.problemHeading}</h2>
+            )}
+            <Prose value={s.problemBody} className={body} />
+          </div>
+          <div>
+            {s.broughtHeading && (
+              <h2 className={`mb-5 ${titleClass}`}>{s.broughtHeading}</h2>
+            )}
+            <Prose value={s.broughtBody} className={body} />
+          </div>
+          {s.supportingCopy?.length ? (
+            <Prose value={s.supportingCopy} className={body} />
+          ) : null}
         </div>
       </div>
     </section>
@@ -782,6 +1006,7 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
 // edge on the band colour — deliberately a single image rather than authored
 // per screen, so Fas and Israel can iterate the composition in Figma.
 function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) {
+  const v = useCsVariant()
   const light = isLight(s.appearance)
   if (!s.image) return null
   return (
@@ -791,11 +1016,11 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
       style={bandStyle(s.appearance)}
     >
       {(s.sectionTitle || s.body) && (
-        <div className="mx-auto w-full max-w-285 px-6 text-center sm:px-10 xl:px-[3.5vw]">
+        <div className={`${csShell(v)} text-center`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.body}
-            className="mx-auto mt-3 max-w-[70ch] text-[18px] font-light leading-[1.6] xl:text-[1.2vw]"
+            className={`mx-auto mt-3 max-w-[70ch] ${csBodyText(v)}`}
           />
         </div>
       )}
@@ -821,9 +1046,11 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
 }
 
 function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
+  const v = useCsVariant()
   const light = isLight(s.appearance)
   const items = s.items ?? []
   const multi = items.length > 1
+  const page = v === 'page'
   return (
     <section
       data-cs-stretch
@@ -834,8 +1061,10 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
         <div
           className={
             multi
-              ? 'mx-auto grid w-full max-w-285 gap-6 px-6 sm:grid-cols-2 sm:px-10 xl:px-[3.5vw]'
-              : 'mx-auto w-full max-w-225 px-6 sm:px-10 xl:px-[3.5vw]'
+              ? `${csShell(v)} grid w-full gap-6 sm:grid-cols-2`
+              : page
+                ? csShell(v)
+                : 'mx-auto w-full max-w-225 px-6 sm:px-10 xl:px-[3.5vw]'
           }
         >
           {items.map(m => (
@@ -844,7 +1073,7 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
         </div>
       )}
       {(s.sectionTitle || s.body) && (
-        <div className="ml-auto w-full max-w-110 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div className={`${csShell(v)} ml-auto max-w-[min(440px,100%)]`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.body}
@@ -910,22 +1139,20 @@ function MediaUnit({ item }: { item: MediaItem }) {
 }
 
 function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
+  const v = useCsVariant()
   const light = isLight(s.appearance)
   const initial = s.itemsBeforeViewMore ?? 6
   const tan = colorToCss(s.appearance?.backgroundColor)
   const tile = !!s.useDeviceTabs // device-tab flows use the framed tile style
   return (
     <section
-      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'md')}`}
+      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}
       style={bandStyle(s.appearance)}
     >
       {(s.sectionTitle || s.body) && (
-        <div className="mb-2">
+        <div className={`mb-2 ${v === 'page' ? csShell(v, '!px-0') : ''}`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose
-            value={s.body}
-            className="max-w-[70ch] text-[18px] leading-[1.6] xl:text-[1.25vw]"
-          />
+          <Prose value={s.body} className={`max-w-[70ch] ${csBodyText(v)}`} />
         </div>
       )}
       {s.useDeviceTabs && s.tabs?.length ? (
@@ -955,6 +1182,7 @@ function ShowcaseBlock({
   section: Of<'showcaseGallery'>
   scrollRoot?: React.RefObject<HTMLDivElement | null>
 }) {
+  const v = useCsVariant()
   const items = s.items ?? []
   const images = imgUrls(items)
   const light = isLight(s.appearance, true)
@@ -979,18 +1207,15 @@ function ShowcaseBlock({
           />
         )}
         {(s.sectionTitle || s.introBody) && (
-          <div className="w-full max-w-160 px-6 sm:px-10 xl:px-[3.5vw]">
+          <div className={csShell(v)}>
             {s.sectionTitle && (
-              // Figma "Research Artifacts": Neue Haas 24px / 500 / capitalize.
-              <h2
-                className={`text-[24px] font-medium capitalize leading-tight xl:text-[1.5vw] ${light ? 'text-white' : ''}`}
-              >
+              <h2 className={`${csSectionTitle(v)} ${light ? 'text-white' : ''}`}>
                 {s.sectionTitle}
               </h2>
             )}
             <Prose
               value={s.introBody}
-              className="mt-4 text-[16px] font-light leading-[1.6] xl:text-[1.05vw]"
+              className={`mt-4 ${csBodyText(v, 'text-[16px] lg:text-[17px]')}`}
             />
           </div>
         )}
@@ -1006,11 +1231,11 @@ function ShowcaseBlock({
       style={bandStyle(s.appearance, '#000000', true)}
     >
       {(s.sectionTitle || s.introBody) && (
-        <div className="w-full max-w-160 px-6 sm:px-10 xl:px-[3.5vw]">
+        <div className={csShell(v)}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.introBody}
-            className="mt-3 text-[15px] leading-normal xl:text-[1vw]"
+            className={`mt-3 ${csBodyText(v, 'text-[15px] lg:text-[16px]')}`}
           />
         </div>
       )}
@@ -1029,31 +1254,25 @@ function MotionShowcaseBlock({
 }: {
   section: Of<'motionShowcase'>
 }) {
+  const v = useCsVariant()
   const rows = s.rows ?? []
   if (!rows.length) return null
   return (
     <section
-      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
+      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'lg')}`}
       style={bandStyle(s.appearance, MOTION_BG)}
     >
-      {/* Figma 600:12946 — centered, Neue Haas 55 Roman 24px, capitalize, black. */}
       {s.sectionTitle && (
-        <h2 className="mb-14 text-center text-[24px] font-normal capitalize leading-tight xl:mb-[4.5vw] xl:text-[1.5vw]">
+        <h2 className={`mb-10 text-center lg:mb-14 ${csSectionTitle(v)}`}>
           {s.sectionTitle}
         </h2>
       )}
       {s.intro && (
-        <div className="mx-auto mb-10 max-w-160 text-center">
-          <Prose
-            value={s.intro}
-            className="text-[15px] leading-normal xl:text-[1vw]"
-          />
+        <div className={`mx-auto mb-10 max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')}`}>
+          <Prose value={s.intro} className={csBodyText(v, 'text-[15px] lg:text-[16px]')} />
         </div>
       )}
-      {/* Staggered (Figma 600:12632 Coral, 600:31818 Experian): rows alternate,
-          the first hugging left; each group's label/caption sits left-aligned
-          beneath it. */}
-      <div className="mx-auto flex max-w-247 flex-col gap-16 xl:gap-[6vw]">
+      <div className={`mx-auto flex max-w-[min(1280px,100%)] flex-col gap-12 lg:gap-16 ${csShell(v, '!px-0')}`}>
         {rows.map((row, i) => (
           <MotionRowView
             key={row._key}
@@ -1280,20 +1499,20 @@ function HighlightCellView({
 
 const IMPACT_BG = 'rgba(214,224,216,0.6)'
 function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
+  const v = useCsVariant()
   const items = s.items ?? []
   if (!items.length) return null
   return (
     <section
-      className={`px-6 text-center sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
+      className={`${csBandGutter(v)} text-center ${padClasses(s.appearance, 'lg')}`}
       style={bandStyle(s.appearance, IMPACT_BG)}
     >
-      {/* Figma 600:13127 — Neue Haas 45 Light 24px, capitalize, black. */}
       {s.sectionTitle && (
-        <h2 className="mb-16 text-[24px] font-light capitalize leading-tight xl:mb-[4.2vw] xl:text-[1.5vw]">
+        <h2 className={`mb-12 lg:mb-16 ${csSectionTitle(v)}`}>
           {s.sectionTitle}
         </h2>
       )}
-      <div className="mx-auto grid max-w-240 grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 xl:gap-[2.6vw]">
+      <div className={`mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 lg:gap-14`}>
         {items.map(st => (
           <Stat key={st._key} stat={st} />
         ))}
@@ -1303,6 +1522,7 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
 }
 
 function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
+  const v = useCsVariant()
   const items = s.items ?? []
   if (!items.length) return null
   return (
@@ -1310,12 +1530,12 @@ function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
       className={padClasses(s.appearance, 'md')}
       style={bandStyle(s.appearance)}
     >
-      <div className="mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw]">
-        <div className="mx-auto max-w-160">
+      <div className={csShell(v)}>
+        <div className={`mx-auto ${v === 'page' ? 'max-w-[min(720px,100%)]' : 'max-w-160'}`}>
           <Label light={isLight(s.appearance)}>
             {s.sectionTitle ?? 'Next Steps'}
           </Label>
-          <ul className="mt-5 list-disc space-y-3 pl-5 text-[18px] leading-[1.6] xl:text-[1.1vw]">
+          <ul className={`mt-5 list-disc space-y-3 pl-5 ${csBodyText(v)}`}>
             {items.map((it, i) => (
               <li key={i}>{it}</li>
             ))}
@@ -1343,9 +1563,10 @@ function Label({
   center?: boolean
   light?: boolean
 }) {
+  const page = useCsVariant() === 'page'
   return (
     <h2
-      className={`mb-5 text-[20px] font-normal capitalize leading-tight xl:mb-[0.5vw] xl:text-[1vw] ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 capitalize leading-tight ${page ? 'text-[22px] font-normal lg:text-[26px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
@@ -1364,12 +1585,17 @@ function Accordion({
     items.findIndex(i => i.defaultOpen),
   )
   const [open, setOpen] = useState(initial === -1 ? 0 : initial)
-  const headSize =
-    variant === 'brought'
+  const page = useCsVariant() === 'page'
+  const headSize = page
+    ? variant === 'brought'
+      ? 'text-[18px] lg:text-[19px]'
+      : 'text-[17px] lg:text-[18px]'
+    : variant === 'brought'
       ? 'text-[18px] xl:text-[1.4vw]'
       : 'text-[18px] xl:text-[1.05vw]'
-  const bodySize =
-    variant === 'brought'
+  const bodySize = page
+    ? 'text-[16px] lg:text-[17px]'
+    : variant === 'brought'
       ? 'text-[16px] xl:text-[1.25vw]'
       : 'text-[16px] xl:text-[0.9vw]'
   return (

@@ -1,7 +1,6 @@
-// Work layout. Case studies now open as a client-side popup rendered inside
-// WorkBody (no intercepting/parallel routes — that was flaky under Turbopack and
-// fell back to the full-width page). `app/work/[slug]` remains as a shareable
-// deep-link page for direct visits.
+// Work layout. Listing clicks go to `/work/[slug]` (full page). Popup overlay
+// code remains in WorkBody until Fas signs off removal. This layout wraps both
+// the listing and shareable deep-link case-study pages.
 export default function WorkLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

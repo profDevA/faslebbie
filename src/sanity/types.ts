@@ -113,6 +113,14 @@ export type Section =
       body?: PortableTextBlock[];
     })
   | (Base & {
+      _type: "problemContextSection";
+      problemHeading?: string;
+      problemBody?: PortableTextBlock[];
+      broughtHeading?: string;
+      broughtBody?: PortableTextBlock[];
+      supportingCopy?: PortableTextBlock[];
+    })
+  | (Base & {
       _type: "coreExperience";
       sectionTitle?: string;
       body?: PortableTextBlock[];
@@ -198,6 +206,9 @@ export interface SanityPageSeo {
 export interface Study extends StudyCard {
   seo?: SanityPageSeo;
   sections: Section[];
+  /** Sanity PDF asset URL for the bottom “Read the Full Case Study” link. */
+  fullCaseStudyPdfUrl?: string;
+  fullCaseStudyLabel?: string;
 }
 
 export interface ToolStackItem {

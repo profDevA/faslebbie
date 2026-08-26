@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 import { type Testimonial, type WorkToken } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
 import CaseStudyView from "@/components/CaseStudyView";
@@ -148,9 +149,9 @@ export default function WorkBody({
   const narrative = work.narrative;
   const wordmarkTitle = work.sectionTitle?.trim() || "Design Work";
 
-  // Case studies open as a pure client-side popup (Israel 07/07: "just make it a
-  // popup, don't create a new path"). No route change — `openSlug` drives the
-  // overlay, so there's no full-page fallback and no intercepting-route flakiness.
+  // Aug 2026 — card / narrative clicks navigate to `/work/[slug]` (Coral template
+  // QA on full page). Popup overlay code kept below until Fas signs off removal.
+  const router = useRouter();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
   const [view, setView] = usePersistedView<View>(
@@ -385,14 +386,14 @@ export default function WorkBody({
   // Soft password gate for NDA studies (Fas 08/09). One unlock lasts the tab.
   const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate();
 
-  // Open the case study as an in-page popup (no navigation).
-  const openProject = (slug: string) => {
+  const goToStudy = (slug: string) => {
     const study = projects.find((p) => p.slug === slug);
+    const nav = () => router.push(`/work/${slug}`);
     if (study?.passwordProtected) {
-      requestAccess(() => setOpenSlug(slug));
+      requestAccess(nav);
       return;
     }
-    setOpenSlug(slug);
+    nav();
   };
 
   // --- token renderer for the .txt narrative ---
@@ -411,7 +412,7 @@ export default function WorkBody({
       );
     // project → red underlined, opens the case study over the page.
     return (
-      <PopupTrigger key={key} onClick={() => openProject(tok.slug)}>
+      <PopupTrigger key={key} onClick={() => goToStudy(tok.slug)}>
         {tok.text}
       </PopupTrigger>
     );
@@ -587,7 +588,7 @@ export default function WorkBody({
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
-                    onOpen={openProject}
+                    onOpen={goToStudy}
                   />
                 ))}
               </div>
@@ -605,7 +606,7 @@ export default function WorkBody({
                     trackRef={(el) => {
                       trackRefs.current[ci] = el;
                     }}
-                    onOpen={openProject}
+                    onOpen={goToStudy}
                   />
                 ))}
               </div>
@@ -706,9 +707,7 @@ export default function WorkBody({
         </>
       )}
 
-      {/* Case-study popup (client-side, portalled to <body>). Prev/Next/Next-up
-          swap the open slug in place via onNavigate, so paging never stacks
-          modals and × always closes back to the works page. */}
+      {/* Legacy in-page popup — unused while listing navigates to `/work/[slug]`. */}
       {openSlug &&
         (() => {
           const found = neighbors(projects, openSlug);
@@ -720,7 +719,7 @@ export default function WorkBody({
               next={found.next}
               variant="overlay"
               onClose={() => setOpenSlug(null)}
-              onNavigate={openProject}
+              onNavigate={goToStudy}
             />
           );
         })()}
