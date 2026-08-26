@@ -369,7 +369,7 @@ export default function CaseStudyView({
       {/* Overlay mode gets the shared popup header instead. */}
       {!overlay && (
         <div className="sticky top-0 z-50 border-b border-black/15 bg-white">
-          <div className={`flex items-center justify-between gap-4 ${csShell(variant, 'py-3 lg:py-3.5')}`}>
+          <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
           <nav
             aria-label="Breadcrumb"
             className="flex min-w-0 items-center gap-2 font-grotesk text-[15px] font-light lg:text-[16px]"
@@ -392,7 +392,7 @@ export default function CaseStudyView({
             href="/work"
             aria-label="Close"
             data-cursor="hover"
-            className="font-grotesk text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            className="shrink-0 font-grotesk text-[22px] leading-none text-black transition-opacity hover:opacity-60"
           >
             ×
           </Link>
