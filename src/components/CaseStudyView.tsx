@@ -334,7 +334,7 @@ export default function CaseStudyView({
       <PopupShell
         onClose={onClose ?? (() => {})}
         label={p.name}
-        crumbs={[{ label: 'Work', hideOnMobile: true }, { label: p.name }]}
+        crumbs={[{ label: 'Work', href: '/work', hideOnMobile: true }, { label: p.name }]}
         bodyRef={setScrollNode}
         bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black"
         footer={pager}

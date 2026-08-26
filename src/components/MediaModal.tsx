@@ -63,8 +63,8 @@ export default function MediaModal({
       onClose={onClose}
       label={item.title}
       crumbs={[
-        { label: "Blogs", hideOnMobile: true },
-        { label: "Media", hideOnMobile: true },
+        { label: "Words + Media", href: "/blogs?view=media", hideOnMobile: true },
+        { label: "Media", href: "/blogs?view=media", hideOnMobile: true },
         { label: mediaCategory(item.format) },
         { label: item.title },
       ]}

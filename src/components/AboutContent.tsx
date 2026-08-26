@@ -7,11 +7,13 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from 'react'
 import {
-  ArrowTrigger,
   CYCLE_CHIP,
-  ExternalTextLink,
+  EXTERNAL_LINK,
+  ExternalArrow,
+  normalizeHref,
   NavPill,
   POPUP_LINK,
   expandPillClass,
@@ -509,6 +511,65 @@ function MeasuredParagraph({
   )
 }
 
+/** Figma 2562:36424 / 807:19218 — red ↗ row on #e3e3db pills. */
+const ABOUT_FOOTER_PILL = `inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5 ${EXTERNAL_LINK}`
+
+function AboutFooterPillLabel({ children }: { children: ReactNode }) {
+  return (
+    <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
+      {children}
+    </span>
+  )
+}
+
+function AboutFooterLink({
+  href,
+  children,
+  showArrow = true,
+}: {
+  href: string
+  children: ReactNode
+  showArrow?: boolean
+}) {
+  const resolved = normalizeHref(href)
+  const sameTab =
+    resolved.startsWith('mailto:') || resolved.startsWith('tel:')
+  return (
+    <a
+      href={resolved}
+      target={sameTab ? undefined : '_blank'}
+      rel={sameTab ? undefined : 'noopener noreferrer'}
+      data-cursor="hover"
+      className={ABOUT_FOOTER_PILL}
+    >
+      <AboutFooterPillLabel>{children}</AboutFooterPillLabel>
+      {showArrow ? <ExternalArrow /> : null}
+    </a>
+  )
+}
+
+function AboutFooterButton({
+  children,
+  onClick,
+  showArrow = true,
+}: {
+  children: ReactNode
+  onClick: () => void
+  showArrow?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      data-cursor="hover"
+      className={ABOUT_FOOTER_PILL}
+    >
+      <AboutFooterPillLabel>{children}</AboutFooterPillLabel>
+      {showArrow ? <ExternalArrow /> : null}
+    </button>
+  )
+}
+
 export default function AboutContent({
   className = '',
   logoSvgs,
@@ -693,23 +754,18 @@ export default function AboutContent({
         <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,42px)]">
           {links.map(link =>
             link.passwordProtected ? (
-              <ArrowTrigger
+              <AboutFooterButton
                 key={link.label}
-                className="inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5"
                 onClick={() =>
                   requestAccess(() => openProtectedHref(link.href))
                 }
               >
                 {link.label}
-              </ArrowTrigger>
+              </AboutFooterButton>
             ) : (
-              <ExternalTextLink
-                key={link.label}
-                href={link.href}
-                className="inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5"
-              >
+              <AboutFooterLink key={link.label} href={link.href}>
                 {link.label}
-              </ExternalTextLink>
+              </AboutFooterLink>
             ),
           )}
         </div>

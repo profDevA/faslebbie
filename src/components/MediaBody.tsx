@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import type { MediaFeatured, MediaItem } from "@/lib/blogs";
+import { hiResUrl } from "@/sanity/image";
 
 const DEFAULT_HERO = "/media/design-again-hero.png";
+const HERO_DISPLAY_W = 1400;
 
 function PlayGlyph({ className = "" }: { className?: string }) {
   return (
@@ -123,7 +125,8 @@ function FeaturedCard({
   featured: MediaFeatured;
   onClick: () => void;
 }) {
-  const heroSrc = featured.heroImage?.trim() || DEFAULT_HERO;
+  const heroSrc =
+    hiResUrl(featured.heroImage?.trim(), HERO_DISPLAY_W) || DEFAULT_HERO;
 
   return (
     <button
@@ -138,6 +141,7 @@ function FeaturedCard({
           alt={featured.title}
           fill
           priority
+          quality={90}
           sizes="(max-width: 1024px) 100vw, 687px"
           className="object-cover transition-opacity group-hover:opacity-95"
         />

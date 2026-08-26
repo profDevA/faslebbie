@@ -13,8 +13,10 @@ import {
   type MediaItem,
 } from "@/lib/blogs";
 import { mediaEmbedSrc } from "@/lib/blogEditorColors";
+import { hiResUrl } from "@/sanity/image";
 
 const DEFAULT_HERO = "/media/design-again-hero.png";
+const HERO_DISPLAY_W = 1400;
 
 function PlayGlyph({ className = "" }: { className?: string }) {
   return (
@@ -25,7 +27,8 @@ function PlayGlyph({ className = "" }: { className?: string }) {
 }
 
 function DesignAgainPanel({ featured }: { featured: MediaFeatured }) {
-  const heroSrc = featured.heroImage?.trim() || DEFAULT_HERO;
+  const heroSrc =
+    hiResUrl(featured.heroImage?.trim(), HERO_DISPLAY_W) || DEFAULT_HERO;
 
   return (
     <>
@@ -34,6 +37,7 @@ function DesignAgainPanel({ featured }: { featured: MediaFeatured }) {
           src={heroSrc}
           alt={featured.title}
           fill
+          quality={90}
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
@@ -184,13 +188,13 @@ export default function MediaPopup({
   const label = isPodcast ? featured!.title : talk!.title;
   const crumbs = isPodcast
     ? [
-        { label: "Words + Media", hideOnMobile: true },
-        { label: "Media", hideOnMobile: true },
+        { label: "Words + Media", href: "/blogs?view=media", hideOnMobile: true },
+        { label: "Media", href: "/blogs?view=media", hideOnMobile: true },
         { label: featured!.title },
       ]
     : [
-        { label: "Words + Media", hideOnMobile: true },
-        { label: "Media", hideOnMobile: true },
+        { label: "Words + Media", href: "/blogs?view=media", hideOnMobile: true },
+        { label: "Media", href: "/blogs?view=media", hideOnMobile: true },
         { label: mediaCategory(talk!.format) },
         { label: talk!.title },
       ];

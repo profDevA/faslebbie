@@ -207,7 +207,7 @@ export function PopupTrigger({
   );
 }
 
-function normalizeHref(href: string) {
+export function normalizeHref(href: string) {
   const t = href.trim();
   // Bare email addresses from Studio should still open the mail client.
   if (t && !/^[a-z][a-z0-9+.-]*:/i.test(t) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t))
@@ -234,15 +234,6 @@ export function ExternalTextLink({
       rel={sameTab ? undefined : "noopener noreferrer"}
       data-cursor="hover"
       className={`${EXTERNAL_LINK} ${className}`}
-      onClick={
-        sameTab
-          ? (e) => {
-              // Some environments ignore plain mailto <a> clicks; force navigate.
-              e.preventDefault();
-              window.location.href = resolved;
-            }
-          : undefined
-      }
     >
       <span className="border-b-2 border-transparent transition-colors group-hover:border-current">
         {children}

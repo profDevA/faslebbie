@@ -4,14 +4,17 @@ import type { SanitySiteSettings } from "@/sanity/types";
 const FALLBACK_TITLE = "Fas Lebbie, Ph.D.";
 // Figma 2632:1680 share preview.
 const FALLBACK_DESCRIPTION = "Designer · Researcher · Educator";
-const FALLBACK_FAVICON_LIGHT_SCHEME = "/favicon.png";
-/** Figma 2632:1708 — cream circle for dark browser chrome. */
-const FALLBACK_FAVICON_DARK_SCHEME = "/favicon-cream.png";
-const FALLBACK_APPLE_ICON = "/apple-touch-icon.png";
+const FALLBACK_FAVICON = "/favicon.svg";
 const FALLBACK_OG_IMAGE = "/og-share.png";
 const FALLBACK_OG_ALT = "Fas Lebbie";
 const FALLBACK_OG_WIDTH = 620;
 const FALLBACK_OG_HEIGHT = 576;
+
+function faviconMime(url: string): string {
+  if (url.endsWith(".svg")) return "image/svg+xml";
+  if (url.endsWith(".ico")) return "image/x-icon";
+  return "image/png";
+}
 
 /** Build root metadata from Site Settings, with local fallbacks. */
 export function siteMetadataFromSanity(
@@ -23,9 +26,8 @@ export function siteMetadataFromSanity(
   const ogDescription = data?.ogDescription?.trim() || description;
   const ogImage = data?.ogImage?.trim() || FALLBACK_OG_IMAGE;
   const ogAlt = data?.ogImageAlt?.trim() || FALLBACK_OG_ALT;
-  const faviconFromSanity = data?.favicon?.trim();
-  const faviconLight =
-    faviconFromSanity || FALLBACK_FAVICON_LIGHT_SCHEME;
+  const favicon = data?.favicon?.trim() || FALLBACK_FAVICON;
+  const faviconType = faviconMime(favicon);
 
   const ogImageEntry = {
     url: ogImage,
@@ -43,19 +45,19 @@ export function siteMetadataFromSanity(
     description,
     icons: {
       icon: [
-        { url: faviconLight, type: "image/png" },
+        { url: favicon, type: faviconType },
         {
-          url: faviconLight,
-          type: "image/png",
+          url: favicon,
+          type: faviconType,
           media: "(prefers-color-scheme: light)",
         },
         {
-          url: FALLBACK_FAVICON_DARK_SCHEME,
-          type: "image/png",
+          url: favicon,
+          type: faviconType,
           media: "(prefers-color-scheme: dark)",
         },
       ],
-      apple: [{ url: FALLBACK_APPLE_ICON, sizes: "180x180" }],
+      apple: [{ url: favicon, type: faviconType, sizes: "180x180" }],
     },
     openGraph: {
       title: ogTitle,

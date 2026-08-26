@@ -7,7 +7,7 @@
  * Run from frontend/:
  *   npx sanity exec scripts/patch-work-img-covers.ts --with-user-token
  *
- * Expects files in tmp/work-covers/<slug>.png
+ * Expects files in tmp/work-covers/<slug>.png (≥1200px wide for sharp `.img` cards).
  */
 import { createReadStream, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -92,6 +92,11 @@ async function main() {
   }
 
   for (const card of CARDS) {
+    const abs = join(DIR, card.file);
+    if (!existsSync(abs)) {
+      console.log(`  skip ${card.slug} — no ${card.file}`);
+      continue;
+    }
     const doc = docs.find((d) => d.slug === card.slug);
     if (!doc) throw new Error(`No caseStudy for ${card.slug}`);
     const image = await uploadCover(card.file);
@@ -102,16 +107,23 @@ async function main() {
     console.log(`  ✓ ${card.slug} → ${card.title}`);
   }
 
-  const after: { slug: string; title?: string; hasThumb: boolean }[] =
+  const patchedSlugs = CARDS.filter((c) => existsSync(join(DIR, c.file))).map(
+    (c) => c.slug,
+  );
+  const after: { slug: string; title?: string; hasThumb: boolean; w?: number; h?: number }[] =
     await client.fetch(
       `*[_type == "caseStudy" && slug.current in $slugs]{
-        "slug": slug.current, title, "hasThumb": defined(cardThumbnail.asset)
+        "slug": slug.current, title, "hasThumb": defined(cardThumbnail.asset),
+        "w": cardThumbnail.asset->metadata.dimensions.width,
+        "h": cardThumbnail.asset->metadata.dimensions.height
       }`,
-      { slugs: CARDS.map((c) => c.slug) },
+      { slugs: patchedSlugs },
     );
   console.log("after:");
   for (const row of after) {
-    console.log(`  ${row.slug}: ${row.title} thumb=${row.hasThumb ? "yes" : "NO"}`);
+    console.log(
+      `  ${row.slug}: ${row.title} thumb=${row.hasThumb ? "yes" : "NO"} ${row.w ?? "?"}x${row.h ?? "?"}`,
+    );
   }
 }
 

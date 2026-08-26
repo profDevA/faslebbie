@@ -97,6 +97,8 @@ export const caseStudy = defineType({
       type: "image",
       group: "card",
       options: { hotspot: true },
+      description:
+        "Work `.img` grid cover. Upload ≥1200px wide — smaller assets look soft on retina.",
     }),
     defineField({
       name: "cardCreditNames",

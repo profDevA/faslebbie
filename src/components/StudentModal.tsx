@@ -139,8 +139,8 @@ export default function StudentModal({
       onClose={onClose}
       label={`Student Works: ${project.title}`}
       crumbs={[
-        { label: "Teaching", hideOnMobile: true },
-        { label: "Student Works" },
+        { label: "Teaching", href: "/teaching", hideOnMobile: true },
+        { label: "Student Works", href: "/teaching?view=works" },
         { label: project.title },
       ]}
       bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"

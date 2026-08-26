@@ -44,7 +44,7 @@ export default function TestimonialsModal({
       label="Testimonials"
       overlayProps={{ "data-about-panel": "" }}
       crumbs={[
-        { label: section },
+        { label: section, href: "/about" },
         { label: "Testimonials" },
       ]}
       bodyClassName="min-h-0 flex-1 overflow-y-auto lg:grid lg:grid-cols-2 lg:overflow-hidden"

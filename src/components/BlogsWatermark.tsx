@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { INTRO_REVEAL, PIN_VH, wordmarkOpacity } from "@/lib/reveal";
 
 /**
- * Big centered "Blogs/Media" watermark (Figma 318-5704 / 16-951). Same recede
+ * Big centered "Words + Media" watermark (Figma 318-5704 / 16-951). Same recede
  * as the other pages: sharp + near-black ON TOP of the content at the top of the
  * page, then it fades toward the page grey and drops behind everything as you
  * scroll. Unlike the other pages this one is centered and shown on mobile too
@@ -60,7 +60,7 @@ export default function BlogsWatermark() {
       className="pointer-events-none absolute inset-0 flex select-none items-start justify-start overflow-hidden px-5 pt-[640px] font-grotesk font-bold leading-[0.98] tracking-[1px] will-change-[color,opacity] lg:fixed lg:items-center lg:justify-center lg:px-4 lg:pt-0 lg:leading-[0.9] lg:tracking-[-0.022em]"
     >
       <span className="text-[58px] lg:text-[clamp(40px,12vw,190px)]">
-        Blogs/Media
+        Words + Media
       </span>
     </div>
   );

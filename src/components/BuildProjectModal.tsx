@@ -200,7 +200,7 @@ function BuildProjectDetailBody({
 
       {/* Hero then article. First fold on mobile is the title slide (Figma 16:3649). */}
       <div className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close">
-        <div className="order-1 flex flex-col items-center justify-center gap-2.5 bg-[#1a1a1a] px-[39px] py-12 text-center max-lg:h-[calc(min(684px,80dvh)-11rem)] lg:order-none lg:min-h-[45vh] lg:gap-5 lg:px-14 lg:py-14">
+        <div className="order-1 flex flex-col items-center justify-center gap-2.5 bg-[#1a1a1a] px-[39px] py-12 text-center max-lg:h-[calc(100dvh-11rem)] lg:order-none lg:min-h-[45vh] lg:gap-5 lg:px-14 lg:py-14">
           <p className="font-grotesk text-[12px] font-light tracking-[-0.08px] text-[#e0e0d7] lg:text-[14px] lg:tracking-[0.14em] lg:text-white/70">
             {project.kicker}
           </p>
@@ -245,12 +245,12 @@ function ConceptPreview({
   const shot = project.images?.[1] ?? project.images?.[0]
   const crumbs = desktopCrumbs
     ? [
-        { label: 'Build' },
+        { label: 'Build', href: '/build?view=img' },
         { label: project.title },
         { label: 'Concept Preview' },
       ]
     : [
-        { label: 'Build' },
+        { label: 'Build', href: '/build?view=img' },
         { label: 'Concept Preview' },
         { label: project.title },
       ]
@@ -350,7 +350,7 @@ export default function BuildProjectModal({
       open={Boolean(openId)}
       onClose={onClose}
       label={project.title}
-      crumbs={[{ label: 'Build' }, { label: project.title }]}
+      crumbs={[{ label: 'Build', href: '/build?view=img' }, { label: project.title }]}
       bodyRef={shellScrollRef}
       bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
       footer={

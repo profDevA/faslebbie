@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 /**
@@ -9,21 +10,32 @@ import { createPortal } from "react-dom";
  * popup: a centred card over a light scrim, a white breadcrumb header with the
  * ✕, an internally scrolling body, and an optional white footer pager.
  *
- * Mobile (Figma 1:37279): inset centred card (~20px margin, ~80vh tall) — not
- * full-bleed. From `sm` up it stays a wide centred overlay with margin.
+ * Mobile + desktop (Fas Aug 24–25): near-full viewport — thin ~10–12px scrim
+ * margin on all sides (screenshot red-box QA). Inset ~16px mobile / ~20px desktop.
  */
 
 export type PopupCrumb = {
   label: string;
   /** Drop the crumb on phones, where the header only fits the last one or two. */
   hideOnMobile?: boolean;
+  /** Navigate when clicked; the popup closes first. Omit to close only. */
+  href?: string;
 };
 
-function Breadcrumbs({ crumbs }: { crumbs: PopupCrumb[] }) {
+function Breadcrumbs({
+  crumbs,
+  onClose,
+}: {
+  crumbs: PopupCrumb[];
+  onClose: () => void;
+}) {
   return (
     <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[16px]">
       {crumbs.map((crumb, i) => {
         const last = i === crumbs.length - 1;
+        const crumbClass = last
+          ? "truncate underline underline-offset-2"
+          : "truncate transition-opacity hover:opacity-60";
         return (
           // The separator belongs to the crumb it follows, so hiding a crumb on
           // mobile hides its slash too.
@@ -33,13 +45,27 @@ function Breadcrumbs({ crumbs }: { crumbs: PopupCrumb[] }) {
               crumb.hideOnMobile ? "hidden sm:flex" : "flex"
             }`}
           >
-            <span
-              className={
-                last ? "truncate underline underline-offset-2" : "truncate"
-              }
-            >
-              {crumb.label}
-            </span>
+            {last ? (
+              <span className={crumbClass}>{crumb.label}</span>
+            ) : crumb.href ? (
+              <Link
+                href={crumb.href}
+                onClick={onClose}
+                data-cursor="hover"
+                className={crumbClass}
+              >
+                {crumb.label}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={onClose}
+                data-cursor="hover"
+                className={`${crumbClass} text-left`}
+              >
+                {crumb.label}
+              </button>
+            )}
             {!last && <span className="text-black/40">/</span>}
           </span>
         );
@@ -113,7 +139,7 @@ export default function PopupShell({
       role="dialog"
       aria-modal="true"
       aria-label={label ?? crumbs[crumbs.length - 1]?.label}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.2s_ease-out] items-center justify-center p-5 sm:p-10 lg:p-16"
+      className="fixed inset-0 z-100 animate-[panel-in_0.2s_ease-out]"
     >
       <button
         type="button"
@@ -122,10 +148,10 @@ export default function PopupShell({
         className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
       />
       <div
-        className={`relative flex h-[min(684px,80dvh)] max-h-full min-h-0 w-full flex-col overflow-hidden sm:h-[min(880px,92vh)] ${cardClassName ?? "bg-close"}`}
+        className={`absolute inset-4 flex min-h-0 flex-col overflow-hidden sm:inset-5 ${cardClassName ?? "bg-close"}`}
       >
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
-          <Breadcrumbs crumbs={crumbs} />
+          <Breadcrumbs crumbs={crumbs} onClose={onClose} />
           <button
             type="button"
             aria-label="Close"

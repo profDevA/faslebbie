@@ -501,7 +501,7 @@ export default function ResearchModal({
       label={researchSectionLabel[openId]}
       overlayProps={{ "data-research-modal": "" }}
       crumbs={[
-        { label: "Research", hideOnMobile: true },
+        { label: "Research", href: "/research", hideOnMobile: true },
         { label: researchBreadcrumbRoot },
         { label: researchSectionLabel[openId] },
       ]}

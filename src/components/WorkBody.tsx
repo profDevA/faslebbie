@@ -69,20 +69,54 @@ function matchesFilter(project: WorkProject, filter: Filter) {
   return filter === "All" || project.categories.includes(filter);
 }
 
-// Card thumbnails come back as the full-resolution original asset URL. Serve a
-// resized, auto-format (webp/avif) variant off the Sanity CDN so the `.img`
-// wall paints fast instead of downloading multi-MB originals, and pull the
-// intrinsic WxH (Sanity encodes it in the filename) so each card reserves its
-// aspect-ratio and never collapses to a text-only row while the image loads.
-function cardImage(url: string | undefined, width: number) {
-  if (!url) return { src: undefined, w: undefined, h: undefined };
+// Desktop wall columns are ~330px; 1200 covers ~3× DPR. Never request wider
+// than the Sanity original — CDN upscale softens ~325px Figma exports further.
+const CARD_IMAGE_MAX = 1200;
+const CARD_IMAGE_SRCSET = [480, 960, CARD_IMAGE_MAX] as const;
+const CARD_IMAGE_SIZES = "(min-width: 1024px) 22vw, 46vw";
+
+function cardImage(url: string | undefined) {
+  if (!url) {
+    return {
+      src: undefined,
+      w: undefined,
+      h: undefined,
+      srcSet: undefined as string | undefined,
+    };
+  }
   const m = /-(\d+)x(\d+)\.\w+$/.exec(url);
   const w = m ? Number(m[1]) : undefined;
   const h = m ? Number(m[2]) : undefined;
-  const src = url.includes("cdn.sanity.io")
-    ? `${url}?w=${width}&auto=format&fit=max&q=75`
-    : url;
-  return { src, w, h };
+
+  if (!url.includes("cdn.sanity.io")) {
+    return { src: url, w, h, srcSet: undefined };
+  }
+
+  const maxDeliver = w ? Math.min(CARD_IMAGE_MAX, w) : CARD_IMAGE_MAX;
+  const quality = maxDeliver < 600 ? 92 : 88;
+
+  const cdnUrl = (width: number) => {
+    const rw = w ? Math.min(width, w) : width;
+    return `${url}?w=${rw}&auto=format&fit=max&q=${quality}`;
+  };
+
+  const srcSetWidths = CARD_IMAGE_SRCSET.map((tw) =>
+    w ? Math.min(tw, w) : tw,
+  )
+    .filter((tw, i, arr) => tw > 0 && arr.indexOf(tw) === i)
+    .sort((a, b) => a - b);
+
+  const srcSet =
+    srcSetWidths.length > 1
+      ? srcSetWidths.map((tw) => `${cdnUrl(tw)} ${tw}w`).join(", ")
+      : undefined;
+
+  return {
+    src: cdnUrl(maxDeliver),
+    w,
+    h,
+    srcSet,
+  };
 }
 
 // Wrap-around previous/next for the in-page popup + Next-up band.
@@ -765,7 +799,7 @@ function ProjectCard({
   const accent = project.accent?.hex ?? "#999999";
   // The wall (reveal=false) is the first paint when `.img` opens, so load its
   // art eagerly; the mobile masonry (reveal=true) can lazy-load below the fold.
-  const { src, w, h } = cardImage(project.image, 760);
+  const { src, w, h, srcSet } = cardImage(project.image);
   return (
     <button
       type="button"
@@ -791,6 +825,8 @@ function ProjectCard({
           {/* eslint-disable-next-line @next/next/no-img-element -- static design asset */}
           <img
             src={src}
+            srcSet={srcSet}
+            sizes={CARD_IMAGE_SIZES}
             width={w}
             height={h}
             alt={project.name}

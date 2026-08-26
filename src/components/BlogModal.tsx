@@ -245,7 +245,7 @@ export default function BlogModal({
     <PopupShell
       onClose={onClose}
       label={post.title}
-      crumbs={[{ label: "Blogs", hideOnMobile: true }, { label: post.title }]}
+      crumbs={[{ label: "Blogs", href: "/blogs?view=blogs", hideOnMobile: true }, { label: post.title }]}
       bodyRef={shellScrollRef}
       bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
     >
