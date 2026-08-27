@@ -1,25 +1,28 @@
 import { defineQuery } from "next-sanity";
 
+import { SANITY_IMAGE_PROJ } from "./image";
+
+const img = SANITY_IMAGE_PROJ;
+
 const appearanceProj = `appearance{
   backgroundColor, textColor, paddingTop, paddingBottom, contentAlignment, maxWidth
 }`;
 
-// Resolve every section variant's fields, turning asset refs into plain URLs so
-// the renderer works with strings (matching the previous data model).
+// Image fields keep crop/hotspot — resolveSanityImages() in fetch.ts applies them.
 const sectionsProj = `sections[]{
   _type,
   _key,
   ${appearanceProj},
   _type == "heroSection" => {
-    "image": image.asset->url,
-    "imageMobile": imageMobile.asset->url,
+    "image": image${img},
+    "imageMobile": imageMobile${img},
     caption,
     headingOverride
   },
   _type == "overviewSection" => {
     sectionTitle, body, serviceCategoryLabel, serviceList, duration, team,
     confidentialityNote, ctaLabel, ctaUrl,
-    "sideImage": sideImage.asset->url,
+    "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
     sideImageFit, sideImageBackgroundColor
   },
@@ -33,26 +36,26 @@ const sectionsProj = `sections[]{
   },
   _type == "coreExperience" => {
     sectionTitle, body,
-    "image": image.asset->url,
-    "imageMobile": imageMobile.asset->url
+    "image": image${img},
+    "imageMobile": imageMobile${img}
   },
   _type == "mediaSection" => {
     sectionTitle, body,
     items[]{
       _key, mediaType, videoUrl,
       "videoFile": videoFile.asset->url,
-      "image": image.asset->url,
+      "image": image${img},
       embedUrl, caption
     }
   },
   _type == "gallerySection" => {
     sectionTitle, body, useDeviceTabs, showCaptions, itemsBeforeViewMore, loadMoreLabel,
-    tabs[]{ _key, label, items[]{ _key, "image": image.asset->url, caption } },
-    items[]{ _key, "image": image.asset->url, caption }
+    tabs[]{ _key, label, items[]{ _key, "image": image${img}, caption } },
+    items[]{ _key, "image": image${img}, caption }
   },
   _type == "showcaseGallery" => {
     sectionTitle, introBody, expandable,
-    items[]{ _key, "image": image.asset->url, caption, "expandImage": expandImage.asset->url }
+    items[]{ _key, "image": image${img}, caption, "expandImage": expandImage${img} }
   },
   _type == "motionShowcase" => {
     sectionTitle, intro,
@@ -61,14 +64,14 @@ const sectionsProj = `sections[]{
       items[]{
         _key, mediaType, videoUrl,
         "videoFile": videoFile.asset->url,
-        "image": image.asset->url,
+        "image": image${img},
         embedUrl, caption
       }
     }
   },
   _type == "highlightReel" => {
     sectionTitle, layout,
-    cells[]{ _key, "frames": frames[].asset->url }
+    cells[]{ _key, "frames": frames[]${img} }
   },
   _type == "statsSection" => {
     sectionTitle, body, items[]{ _key, value, suffix, label, note }
@@ -83,9 +86,9 @@ const cardProj = `
   from,
   to,
   "categories": coalesce(categories[]->title, []),
-  "image": cardThumbnail.asset->url,
+  "image": cardThumbnail${img},
   "imageLqip": cardThumbnail.asset->metadata.lqip,
-  "heroImage": sections[_type == "heroSection"][0].image.asset->url,
+  "heroImage": sections[_type == "heroSection"][0].image${img},
   "creditNames": cardCreditNames,
   "tags": cardTags,
   accent,
@@ -101,7 +104,7 @@ const studyPdfProj = `
 
 const seoProj = `seo{
   title, description, ogImageAlt,
-  "ogImage": ogImage.asset->url,
+  "ogImage": ogImage${img},
   "ogImageWidth": ogImage.asset->metadata.dimensions.width,
   "ogImageHeight": ogImage.asset->metadata.dimensions.height
 }`;
@@ -127,7 +130,7 @@ export const WORK_PAGE_QUERY = defineQuery(`*[_type == "workPage"][0]{
   toolStackPerRow,
   toolStack[]{
     label,
-    "src": logo.asset->url,
+    "src": logo${img},
     "width": logo.asset->metadata.dimensions.width,
     "height": logo.asset->metadata.dimensions.height
   },
@@ -142,17 +145,17 @@ export const HOME_PAGE_QUERY = defineQuery(`*[_type == "homePage"][0]{
 
 export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   logoName, logoSuffix,
-  "homePortrait": homePortrait.asset->url,
-  "masterPortrait": masterPortrait.asset->url,
+  "homePortrait": homePortrait${img},
+  "masterPortrait": masterPortrait${img},
   navItems[]{ label, href },
   mobileNavItems[]{ label, href },
   projectNavItems[]{ label, href },
   contactDrawerTitle, contactHeading, contactSubmitLabel,
   contactSuccessTitle, contactSuccessBody, contactSendAnotherLabel,
-  "contactPortrait": contactPortrait.asset->url,
+  "contactPortrait": contactPortrait${img},
   siteTitle, siteDescription, ogTitle, ogDescription, ogImageAlt,
-  "favicon": favicon.asset->url,
-  "ogImage": ogImage.asset->url,
+  "favicon": favicon${img},
+  "ogImage": ogImage${img},
   "ogImageWidth": ogImage.asset->metadata.dimensions.width,
   "ogImageHeight": ogImage.asset->metadata.dimensions.height
 }`);
@@ -163,18 +166,18 @@ const researchProseProj = `{
   ...,
   children[]{
     ...,
-    _type == "aboutPhoto" => { "src": image.asset->url, alt }
+    _type == "aboutPhoto" => { "src": image${img}, alt }
   }
 }`;
 
 export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   areas[]{ kicker, "body": body[]${researchProseProj} },
   "closing": closing[]${researchProseProj},
-  paradigms{ label, intro, "image": image.asset->url, items[]{ title, body } },
-  principles{ label, intro, "image": image.asset->url, items[]{ title, body }, conclusionKicker, conclusionBody },
+  paradigms{ label, intro, "image": image${img}, items[]{ title, body } },
+  principles{ label, intro, "image": image${img}, items[]{ title, body }, conclusionKicker, conclusionBody },
   modalities{ kicker, statement, items, groups[]{ title, items }, footnote },
   manifesto,
-  fieldNotes[]{ place, quote, methodology, themes, insight, "image": image.asset->url },
+  fieldNotes[]{ place, quote, methodology, themes, insight, "image": image${img} },
   ${seoProj}
 }`);
 
@@ -183,7 +186,7 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
   sections[]{ kicker, body, actionKind, actionText },
   students[]{
     id, title, headline, description, span, tint, lightArt,
-    "images": images[].asset->url
+    "images": images[]${img}
   },
   studentsWorkIntro,
   exhibitionTitle,
@@ -192,7 +195,7 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
   exhibitionCta,
   exhibitionTiles[]{
     tint, label, span, posX, posXAnchor, posY, posYAnchor,
-    "image": image.asset->url
+    "image": image${img}
   },
   ${seoProj}
 }`);
@@ -202,9 +205,9 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
   projects[]{
     id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
     description, howItWorks, note, supportedTools,
-    "images": images[].asset->url,
-    "outputVisual": outputVisual.asset->url,
-    "conceptPreview": conceptPreview.asset->url
+    "images": images[]${img},
+    "outputVisual": outputVisual${img},
+    "conceptPreview": conceptPreview${img}
   },
   ${seoProj}
 }`);
@@ -227,7 +230,7 @@ const aboutProseProj = `{
   ...,
   children[]{
     ...,
-    _type == "aboutPhoto" => { "src": image.asset->url }
+    _type == "aboutPhoto" => { "src": image${img} }
   }
 }`;
 
@@ -250,16 +253,16 @@ export const ACCESS_PASSWORD_QUERY = defineQuery(
 
 // "What people are saying" testimonials, ordered — powers the About modal.
 export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order(orderRank asc){
-  name, role, quote, "avatar": photo.asset->url
+  name, role, quote, "avatar": photo${img}
 }`);
 
 export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
   posts[]{ slug, category, meta, title, kicker, description, body[]{
     ...,
     markDefs[]{ ... },
-    _type == "image" => { "url": asset->url, alt },
+    _type == "image" => { "url": asset${img}, alt },
     _type == "blogBodyImage" => {
-      "url": image.asset->url,
+      "url": image${img},
       alt,
       caption,
       size,
@@ -280,15 +283,15 @@ export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
       title,
       body[]{ ..., markDefs[]{ ... } }
     }
-  }, url, publishedAt, authorName, "authorAvatar": authorAvatar.asset->url, coverBg, panelBg, panelText, "cover": cover.asset->url },
-  currentProjects[]{ title, tag, year, href, "cover": cover.asset->url },
-  books[]{ title, tag, year, href, "cover": cover.asset->url },
-  journals[]{ title, tag, year, href, "cover": cover.asset->url },
+  }, url, publishedAt, authorName, "authorAvatar": authorAvatar${img}, coverBg, panelBg, panelText, "cover": cover${img} },
+  currentProjects[]{ title, tag, year, href, "cover": cover${img} },
+  books[]{ title, tag, year, href, "cover": cover${img} },
+  journals[]{ title, tag, year, href, "cover": cover${img} },
   mediaFeatured{
     title, listingBlurb, tag, comingSoonTitle, comingSoonBody,
     earlyAccessLabel, earlyAccessUrl,
-    "heroImage": heroImage.asset->url
+    "heroImage": heroImage${img}
   },
-  media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "videoFile": videoFile.asset->url, "thumb": thumb.asset->url },
+  media[]{ slug, format, title, platform, year, source, detail, description, themes, video, "videoFile": videoFile.asset->url, "thumb": thumb${img} },
   ${seoProj}
 }`);
