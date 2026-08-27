@@ -1,0 +1,82 @@
+/* @font-face rules copied from fasandsabrina.com/wp-content/themes/twentynineteen/css/fonts-new.css
+   Files downloaded from …/themes/twentynineteen/fonts-new/ (WordPress). */
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-BookItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue";
+  src: url("./RecklessNeue-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reckless Neue Book";
+  src: url("./RecklessNeue-Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: RecklessNeue-Book-New;
+  src: url("./RecklessNeue-Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Reckless Neue Book";
+  src: url("./RecklessNeue-BookItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}

@@ -80,6 +80,7 @@ export const caseStudy = defineType({
         { type: "problemContextSection" },
         { type: "coreExperience" },
         { type: "mediaSection" },
+        { type: "desktopMotionShowcase" },
         { type: "gallerySection" },
         { type: "showcaseGallery" },
         { type: "motionShowcase" },

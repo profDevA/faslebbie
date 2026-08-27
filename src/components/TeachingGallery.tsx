@@ -62,10 +62,10 @@ function StudentCard({
       type="button"
       onClick={() => onOpen(item.id)}
       data-cursor="hover"
-      className="group block w-full text-left"
+      className="group reckless-prose block w-full text-left"
     >
       <Cover item={item} />
-      <span className="mt-2.5 block font-grotesk text-[14px] font-medium capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
+      <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
         {item.title}
       </span>
     </button>
@@ -123,7 +123,7 @@ export default function TeachingGallery({
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
       <div className="mb-8">
-        <h2 className="font-grotesk text-[24px] font-medium tracking-[0.5px] text-black">
+        <h2 className="page-body-kicker text-black">
           Student Works
         </h2>
       </div>
@@ -162,7 +162,7 @@ export default function TeachingGallery({
             type="button"
             onClick={showAll ? collapseAll : expandAll}
             data-cursor="hover"
-            className="font-grotesk text-[22px] font-medium text-black underline decoration-from-font underline-offset-4 lg:text-[27px]"
+            className="reckless-prose text-[22px] font-normal text-black underline decoration-from-font underline-offset-4 lg:text-[27px]"
           >
             {showAll ? "See Less" : "See All Student Works"}
           </button>

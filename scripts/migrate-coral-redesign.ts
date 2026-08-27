@@ -208,16 +208,18 @@ async function buildSections() {
     appearance: appearance(C.brown),
   });
 
-  // 7 · Marketing Website — desktop Jitter animation.
+  // 8 · Desktop Motion Showcase (Figma §08 — marketing website animation).
   push({
-    _type: "mediaSection",
+    _type: "desktopMotionShowcase",
     sectionTitle: "Marketing Website",
     body: pt("Beyond the product experience, Coral Health required a public-facing website that communicated trust, educated employees and patients, and clearly articulated the company’s mission before users ever entered the application."),
-    items: [await mediaVideo(`${M}/Coral-Desktop-Flow.mp4`)],
+    videoFile: await file(`${M}/Coral-Desktop-Flow.mp4`),
+    ctaLabel: "Visit Site",
+    ctaUrl: "#",
     appearance: appearance(C.peach),
   });
 
-  // 8 · Impact (count-up stats — reused real numbers). Figma 600:13125 band.
+  // 9 · Impact (count-up stats — reused real numbers). Figma 600:13125 band.
   push({
     _type: "statsSection",
     sectionTitle: "Impact",

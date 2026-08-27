@@ -201,7 +201,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
             className="w-full will-change-[opacity,filter]"
           >
             <HeroParagraph
-              className="max-w-272 text-left leading-[1.35] tracking-[1.65px] text-shadow-token md:text-center"
+              className="max-w-272 text-left tracking-[1.65px] text-shadow-token md:text-center"
               storyHref={content?.storyHref ?? "/about"}
               segments={content?.segments ?? []}
             />

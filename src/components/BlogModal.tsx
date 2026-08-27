@@ -83,7 +83,7 @@ function ArticleFigure({ block }: { block: BlogBlock }) {
         className={`${w} h-auto`}
       />
       {block.caption ? (
-        <figcaption className="mt-2 font-grotesk text-[13px] leading-snug text-black/55">
+        <figcaption className="mt-2 reckless-prose text-[13px] leading-snug text-black/55">
           {block.caption}
         </figcaption>
       ) : null}
@@ -99,7 +99,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <h3
               key={i}
-              className="mt-10 mb-1 font-grotesk text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]"
+              className="mt-10 mb-1 reckless-prose text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </h3>
@@ -108,7 +108,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-7 font-grotesk text-[15px] font-medium italic leading-snug text-black/70"
+              className="mt-7 reckless-prose text-[15px] font-normal italic leading-snug text-black/70"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -117,7 +117,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-6 font-grotesk text-[16px] font-bold leading-snug text-black/85"
+              className="mt-6 reckless-prose text-[16px] font-bold leading-snug text-black/85"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -126,7 +126,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 font-grotesk text-[17px] leading-[1.65] text-black/90 md:text-[18px]"
+              className="mt-4 reckless-prose text-[17px] leading-[1.65] text-black/90 md:text-[18px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -135,7 +135,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-center font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+              className="mt-4 text-center reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -144,7 +144,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-right font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+              className="mt-4 text-right reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -153,7 +153,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-3 font-grotesk text-[13px] leading-[1.65] text-black/65"
+              className="mt-3 reckless-prose text-[13px] leading-[1.65] text-black/65"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -162,7 +162,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="relative mt-2 pl-5 font-grotesk text-[15px] leading-[1.7] text-black/80 before:absolute before:left-1 before:content-['•']"
+              className="relative mt-2 pl-5 reckless-prose text-[15px] leading-[1.7] text-black/80 before:absolute before:left-1 before:content-['•']"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -171,7 +171,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="relative mt-2 pl-6 font-grotesk text-[15px] leading-[1.7] text-black/80 [counter-increment:blog-oli] before:absolute before:left-0 before:w-5 before:text-right before:content-[counter(blog-oli)'.']"
+              className="relative mt-2 pl-6 reckless-prose text-[15px] leading-[1.7] text-black/80 [counter-increment:blog-oli] before:absolute before:left-0 before:w-5 before:text-right before:content-[counter(blog-oli)'.']"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -180,7 +180,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <blockquote
               key={i}
-              className="mt-6 border-l-2 border-black/20 pl-4 font-grotesk text-[15px] italic leading-[1.7] text-black/70"
+              className="mt-6 border-l-2 border-black/20 pl-4 reckless-prose text-[15px] italic leading-[1.7] text-black/70"
             >
               <RichText parts={b.parts} text={b.text} />
             </blockquote>
@@ -195,7 +195,7 @@ function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
         return (
           <p
             key={i}
-            className="mt-4 font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+            className="mt-4 reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
           >
             <RichText parts={b.parts} text={b.text} />
           </p>
@@ -272,13 +272,13 @@ export default function BlogModal({
           className="order-1 flex flex-col items-center justify-center gap-5 px-7 py-12 text-center lg:order-none lg:min-h-full lg:px-14 lg:py-14"
           style={{ backgroundColor: post.panelBg, color: post.panelText }}
         >
-          <p className="font-grotesk text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[14px]">
+          <p className="reckless-prose text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[14px]">
             {post.kicker}
           </p>
-          <h2 className="font-grotesk text-[34px] font-medium leading-[1.08] lg:text-[46px]">
+          <h2 className="reckless-prose text-[34px] font-normal leading-[1.08] lg:text-[46px]">
             {post.title}
           </h2>
-          <p className="mx-auto max-w-[34ch] font-grotesk text-[13px] leading-[1.6] opacity-80 lg:text-[14px]">
+          <p className="mx-auto max-w-[34ch] reckless-prose text-[13px] leading-[1.6] opacity-80 lg:text-[14px]">
             {post.description}
           </p>
         </div>
@@ -303,7 +303,7 @@ export default function BlogModal({
             <div className="pb-12 text-center">
               <ExternalTextLink
                 href={post.url}
-                className="font-grotesk text-[14px] font-medium"
+                className="reckless-prose text-[14px] font-normal"
               >
                 Read on faslebbie.com
               </ExternalTextLink>

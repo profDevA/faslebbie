@@ -112,13 +112,13 @@ export default function BlogArticleFooter({
       </div>
 
       {attribution ? (
-        <p className="text-center font-grotesk text-[13px] leading-[1.2] text-[#4a4545]">
+        <p className="text-center reckless-prose text-[13px] font-normal leading-[1.2] text-[#4a4545]">
           {attribution}
         </p>
       ) : null}
 
       <div className="flex w-full max-w-[289px] items-center gap-3">
-        <span className="shrink-0 font-grotesk text-[12px] uppercase leading-none tracking-wide text-black">
+        <span className="shrink-0 reckless-prose text-[12px] font-normal uppercase leading-none tracking-wide text-black">
           Share
         </span>
         <div className="flex min-w-0 flex-1 items-stretch [&>*+*]:-ml-px">
@@ -139,7 +139,7 @@ export default function BlogArticleFooter({
             type="button"
             onClick={onCopy}
             data-cursor="hover"
-            className={`${shareBtn} font-grotesk text-[11px] uppercase leading-none tracking-wide ${copied ? "bg-black text-white" : ""}`}
+            className={`${shareBtn} reckless-prose text-[11px] font-normal uppercase leading-none tracking-wide ${copied ? "bg-black text-white" : ""}`}
           >
             {copied ? "Copied" : "Copy link"}
           </button>

@@ -214,11 +214,11 @@ export default function ResearchContent({
 
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`page-body-prose text-black ${className}`}
     >
       {areas.map((area, i) => (
         <div key={area.kicker} className="mb-12 lg:mb-16">
-          <p className="mb-5 font-grotesk text-[18px] font-medium capitalize leading-[1.6] tracking-[0.5px] text-black md:text-[20px] lg:text-[24px]">
+          <p className="page-body-kicker mb-5 capitalize text-black">
             {area.kicker}
           </p>
           {splitParas(area.body).map((para, pi) => (

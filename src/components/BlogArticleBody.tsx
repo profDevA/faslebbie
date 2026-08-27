@@ -14,20 +14,20 @@ import {
 } from "@/lib/blogEditorColors";
 
 const BODY =
-  "font-grotesk text-[15px] leading-[1.75] text-black/80 md:text-[16px]";
+  "reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]";
 
 const blockClass: Record<string, string> = {
   normal: `mt-4 ${BODY}`,
-  lead: "mt-4 font-grotesk text-[17px] leading-[1.65] text-black/90 md:text-[18px]",
-  h2: "mt-10 mb-1 font-grotesk text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]",
-  h3: "mt-7 font-grotesk text-[15px] font-medium italic leading-snug text-black/70",
-  h4: "mt-6 font-grotesk text-[16px] font-bold leading-snug text-black/85",
-  h5: "mt-5 font-grotesk text-[14px] font-bold uppercase tracking-[0.08em] text-black/75",
+  lead: "mt-4 reckless-prose text-[17px] leading-[1.65] text-black/90 md:text-[18px]",
+  h2: "mt-10 mb-1 reckless-prose text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]",
+  h3: "mt-7 reckless-prose text-[15px] font-normal italic leading-snug text-black/70",
+  h4: "mt-6 reckless-prose text-[16px] font-bold leading-snug text-black/85",
+  h5: "mt-5 reckless-prose text-[14px] font-bold uppercase tracking-[0.08em] text-black/75",
   blockquote:
-    "mt-6 border-l-2 border-black/20 pl-4 font-grotesk text-[15px] italic leading-[1.7] text-black/70",
+    "mt-6 border-l-2 border-black/20 pl-4 reckless-prose text-[15px] italic leading-[1.7] text-black/70",
   center: `mt-4 text-center ${BODY}`,
   right: `mt-4 text-right ${BODY}`,
-  small: "mt-3 font-grotesk text-[13px] leading-[1.65] text-black/65",
+  small: "mt-3 reckless-prose text-[13px] leading-[1.65] text-black/65",
 };
 
 function blockTag(style: string | undefined): "p" | "h3" | "blockquote" {
@@ -74,8 +74,8 @@ const CALLOUT_STYLES: Record<
 
 function createComponents(compact = false): PortableTextComponents {
   const listClass = compact
-    ? "mt-2 space-y-1 pl-5 font-grotesk text-[14px] leading-[1.65] text-black/80"
-    : "mt-2 space-y-2 pl-5 font-grotesk text-[15px] leading-[1.7] text-black/80";
+    ? "mt-2 space-y-1 pl-5 reckless-prose text-[14px] leading-[1.65] text-black/80"
+    : "mt-2 space-y-2 pl-5 reckless-prose text-[15px] leading-[1.7] text-black/80";
 
   return {
     block: {
@@ -176,7 +176,7 @@ function createComponents(compact = false): PortableTextComponents {
               className={`${w} h-auto`}
             />
             {value.caption ? (
-              <figcaption className="mt-2 font-grotesk text-[13px] leading-snug text-black/55">
+              <figcaption className="mt-2 reckless-prose text-[13px] leading-snug text-black/55">
                 {value.caption}
               </figcaption>
             ) : null}
@@ -236,7 +236,7 @@ function createComponents(compact = false): PortableTextComponents {
               />
             </div>
             {value?.caption ? (
-              <figcaption className="mt-2 font-grotesk text-[13px] leading-snug text-black/55">
+              <figcaption className="mt-2 reckless-prose text-[13px] leading-snug text-black/55">
                 {value.caption}
               </figcaption>
             ) : null}
@@ -250,7 +250,7 @@ function createComponents(compact = false): PortableTextComponents {
         const bodyRows = headerRow ? rows.slice(1) : rows;
         return (
           <figure className="my-8 overflow-x-auto">
-            <table className="w-full min-w-[280px] border-collapse font-grotesk text-[14px]">
+            <table className="w-full min-w-[280px] border-collapse reckless-prose text-[14px]">
               {headerRow && rows[0] ? (
                 <thead>
                   <tr className="border-b border-black/20 bg-black/[0.04]">
@@ -278,7 +278,7 @@ function createComponents(compact = false): PortableTextComponents {
               </tbody>
             </table>
             {value?.caption ? (
-              <figcaption className="mt-2 font-grotesk text-[13px] text-black/55">
+              <figcaption className="mt-2 reckless-prose text-[13px] text-black/55">
                 {value.caption}
               </figcaption>
             ) : null}
@@ -293,7 +293,7 @@ function createComponents(compact = false): PortableTextComponents {
           <aside
             className={`my-8 rounded-md border px-4 py-3 ${skin.border} ${skin.bg}`}
           >
-            <p className="mb-2 font-grotesk text-[11px] font-bold uppercase tracking-[0.1em] text-black/50">
+            <p className="mb-2 reckless-prose text-[11px] font-bold uppercase tracking-[0.1em] text-black/50">
               {value?.title || skin.label}
             </p>
             {inner?.length ? (
@@ -309,11 +309,11 @@ function createComponents(compact = false): PortableTextComponents {
       },
       blogPullQuote: ({ value }) => (
         <figure className="my-10 text-center">
-          <blockquote className="font-grotesk text-[22px] font-medium leading-snug text-black/85 md:text-[26px]">
+          <blockquote className="reckless-prose text-[22px] font-normal leading-snug text-black/85 md:text-[26px]">
             {value?.quote}
           </blockquote>
           {value?.attribution ? (
-            <figcaption className="mt-3 font-grotesk text-[13px] text-black/55">
+            <figcaption className="mt-3 reckless-prose text-[13px] text-black/55">
               {value?.cite ? (
                 <a
                   href={value.cite}
@@ -334,12 +334,12 @@ function createComponents(compact = false): PortableTextComponents {
         const style = value?.style ?? "primary";
         const blank = value?.blank !== false;
         const base =
-          "inline-flex items-center justify-center rounded-full px-6 py-2.5 font-grotesk text-[14px] font-medium transition-opacity hover:opacity-90";
+          "inline-flex items-center justify-center rounded-full px-6 py-2.5 reckless-prose text-[14px] font-normal transition-opacity hover:opacity-90";
         const classes =
           style === "outline"
             ? `${base} border border-accent text-accent`
             : style === "link"
-              ? "font-grotesk text-[14px] font-medium text-accent underline underline-offset-2"
+              ? "reckless-prose text-[14px] font-normal text-accent underline underline-offset-2"
               : `${base} bg-accent text-white`;
         return (
           <div className="my-8 text-center">
@@ -368,7 +368,7 @@ export default function BlogArticleBody({
 }) {
   if (!value?.length) return null;
   return (
-    <article className="mx-auto w-full max-w-[420px] px-6 py-12 lg:max-w-[440px] lg:px-0 lg:py-16">
+    <article className="reckless-prose mx-auto w-full max-w-[420px] px-6 py-12 lg:max-w-[440px] lg:px-0 lg:py-16">
       <PortableText value={value} components={blogComponents} />
     </article>
   );

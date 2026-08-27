@@ -28,7 +28,7 @@ export default function TestimonialsFooterLink({
   return (
     <>
       <div
-        className={`mt-2 flex flex-wrap items-center gap-x-10 gap-y-3 font-grotesk font-medium ${className}`}
+        className={`mt-2 flex flex-wrap items-center gap-x-10 gap-y-3 reckless-prose font-normal ${className}`}
       >
         <ArrowTrigger onClick={() => setOpen(true)}>{label}</ArrowTrigger>
       </div>

@@ -1,9 +1,10 @@
 import { defineField, defineType } from "sanity";
 
-// Core Experience Showcase: full-bleed band with one exported artwork of key screens.
+// 04 — Core Experience Showcase (Figma 2019:104708 — WIP per Israel).
+// Primary path: one exported artwork. Per-screen fields may expand once design is final.
 export const coreExperience = defineType({
   name: "coreExperience",
-  title: "Core Experience Showcase",
+  title: "04 — Core Experience Showcase",
   type: "object",
   fields: [
     defineField({
@@ -11,12 +12,12 @@ export const coreExperience = defineType({
       title: "Showcase headline",
       type: "string",
       description:
-        'Optional section title. Leave blank if the band has no heading.',
+        'Optional section title. Leave blank if the band has no heading. (Detailed per-screen fields pending Figma final.)',
     }),
     defineField({ name: "body", title: "Supporting description", type: "portableText" }),
     defineField({
       name: "image",
-      title: "Showcase artwork",
+      title: "Screen assets (single artwork export)",
       type: "image",
       options: { hotspot: true },
       description:

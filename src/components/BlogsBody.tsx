@@ -90,14 +90,14 @@ export default function BlogsBody({
                     data-blog-scroll-item
                     className="flex flex-col items-center origin-center text-center will-change-[transform,opacity] transition-[transform,opacity] duration-[250ms] ease-out"
                   >
-                    <p className="font-grotesk text-[14px] leading-[1.19] text-black lg:text-[18px] lg:leading-[1.15]">
+                    <p className="reckless-prose text-[14px] font-normal leading-[1.19] text-black lg:text-[18px] lg:leading-[1.15]">
                       {post.meta}
                     </p>
                     <button
                       type="button"
                       onClick={() => setOpenBlog(index)}
                       data-cursor="hover"
-                      className="mt-[21px] font-grotesk text-[28px] font-medium capitalize leading-[1.67] tracking-[-1.04px] text-accent underline decoration-1 underline-offset-[6px] lg:mt-7 lg:text-[42px] lg:leading-[1.37] lg:tracking-[-1.28px]"
+                      className="mt-[21px] reckless-prose text-[28px] font-normal capitalize leading-[1.67] tracking-[-1.04px] text-accent underline decoration-1 underline-offset-[6px] lg:mt-7 lg:text-[42px] lg:leading-[1.37] lg:tracking-[-1.28px]"
                     >
                       {post.title}
                     </button>

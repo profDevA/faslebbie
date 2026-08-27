@@ -1,24 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import "./fonts/reckless-neue.css";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
 import { SiteProvider } from "@/components/SiteProvider";
 import { siteFromSanity } from "@/lib/siteFromSanity";
 import { siteMetadataFromSanity } from "@/lib/siteMetadata";
 import { getSiteSettings } from "@/sanity/fetch";
-
-// Reckless Neue (Displaay) — Fas's own licensed webfonts, migrated from
-// faslebbie.com. Weights: Regular 400, Medium 500, SemiBold 600, Bold 700.
-const reckless = localFont({
-  src: [
-    { path: "./fonts/RecklessNeue-Regular.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/RecklessNeue-Medium.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/RecklessNeue-SemiBold.woff2", weight: "600", style: "normal" },
-    { path: "./fonts/RecklessNeue-Bold.woff2", weight: "700", style: "normal" },
-  ],
-  variable: "--font-reckless",
-  display: "swap",
-});
 
 // Poppins 700 (logo) — self-hosted from Google Fonts (latin subset) so the
 // build never depends on a network fetch to fonts.googleapis.com.
@@ -58,7 +46,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${reckless.variable} ${poppins.variable} ${nhaas.variable} h-full antialiased`}
+      className={`${poppins.variable} ${nhaas.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <SiteProvider value={site}>

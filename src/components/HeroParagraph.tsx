@@ -66,7 +66,7 @@ export default function HeroParagraph({
 
   return (
     <div
-      className={`font-grotesk text-(length:--hero-para-size,28px) font-medium leading-[1.55] tracking-[0.04em] md:text-[36px] lg:text-[42px] ${className}`}
+      className={`home-hero-prose text-(length:--hero-para-size,28px) md:text-[36px] lg:text-[42px] ${className}`}
     >
       {tokens.map((token, i) => {
         if (token.kind === "space") return <span key={i}> </span>;

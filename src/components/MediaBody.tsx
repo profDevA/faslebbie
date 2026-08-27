@@ -19,14 +19,14 @@ function FeaturedBlurb({ text }: { text: string }) {
   const split = text.match(/^(.*?)(schools,.*)$/i);
   if (!split) {
     return (
-      <p className="font-grotesk text-[14px] capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:leading-[1.09] lg:tracking-[1.65px]">
+      <p className="text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:leading-[1.09] lg:tracking-[1.65px]">
         {text}
       </p>
     );
   }
 
   return (
-    <p className="font-grotesk text-[14px] capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
+    <p className="text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
       <span className="leading-[0.91] lg:leading-[1.09]">{split[1]}</span>
       <span className="underline decoration-1 underline-offset-2">
         {split[2]}
@@ -69,10 +69,10 @@ function TalkCard({
           <PlayGlyph className="ml-0.5 h-6 w-6" />
         </span>
       </div>
-      <p className="mt-2.5 font-grotesk text-[14px] font-medium italic capitalize leading-[1.35] tracking-[0.9px] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px] lg:tracking-[1.65px]">
+      <p className="mt-2.5 text-[14px] font-normal italic capitalize leading-[1.35] tracking-[0.9px] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px] lg:tracking-[1.65px]">
         {item.title}
       </p>
-      <p className="mt-[15px] font-grotesk text-[13px] font-light capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
+      <p className="mt-[15px] text-[13px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
         {item.platform} · {item.year}
       </p>
     </button>
@@ -147,13 +147,13 @@ function FeaturedCard({
         />
       </div>
       <div className="flex w-full flex-col gap-2 capitalize not-italic tracking-[0.9px] lg:gap-[15px] lg:tracking-[1.65px]">
-        <p className="font-grotesk text-[14px] font-bold leading-[0.91] text-black lg:text-[18px]">
+        <p className="text-[14px] font-normal leading-[0.91] text-black lg:text-[18px]">
           {featured.title}
         </p>
         {featured.listingBlurb ? (
           <FeaturedBlurb text={featured.listingBlurb} />
         ) : null}
-        <p className="font-grotesk text-[13px] font-light leading-[1.35] text-black lg:text-[18px]">
+        <p className="text-[13px] font-normal leading-[1.35] text-black lg:text-[18px]">
           {featured.tag}
         </p>
       </div>
@@ -175,7 +175,7 @@ export default function MediaBody({
 }) {
   if (!featured && !talks.length) {
     return (
-      <p className="text-center font-grotesk text-[15px] leading-relaxed text-black/55">
+      <p className="reckless-prose text-center text-[15px] font-normal leading-relaxed text-black/55">
         Media will appear here once added in Studio → Blogs &amp; Media → Media.
       </p>
     );
@@ -186,13 +186,13 @@ export default function MediaBody({
       <TalkMasonry
         talks={talks}
         onOpenTalk={onOpenTalk}
-        className="max-w-[1408px] lg:max-w-none"
+        className="reckless-prose max-w-[1408px] lg:max-w-none"
       />
     );
   }
 
   return (
-    <div className="flex w-full max-w-[1397px] flex-col gap-[17px] pt-10 lg:flex-row lg:items-start lg:gap-[28px] lg:pt-16">
+    <div className="reckless-prose flex w-full max-w-[1397px] flex-col gap-[17px] pt-10 lg:flex-row lg:items-start lg:gap-[28px] lg:pt-16">
       <FeaturedCard featured={featured} onClick={onOpenFeatured} />
       {talks.length ? (
         <TalkMasonry

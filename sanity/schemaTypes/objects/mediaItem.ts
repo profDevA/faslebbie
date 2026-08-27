@@ -45,6 +45,14 @@ export const mediaItem = defineType({
       hidden: ({ parent }) => parent?.mediaType !== "video",
     }),
     defineField({
+      name: "posterImage",
+      title: "Poster / static fallback",
+      type: "image",
+      options: { hotspot: true },
+      hidden: ({ parent }) => parent?.mediaType !== "video",
+      description: "Shown while the video loads or when autoplay is unavailable.",
+    }),
+    defineField({
       name: "image",
       title: "Image",
       type: "image",

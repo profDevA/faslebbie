@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
-import { PopupTrigger, expandPillClass, onActivateKey } from '@/components/InlineToken'
+import { PopupTrigger, STATIC_PILL, expandPillClass, onActivateKey } from '@/components/InlineToken'
 import { openContactDrawer } from '@/lib/contactDrawer'
 import type { LeadershipSection, LeadershipToken } from '@/lib/leadershipFromSanity'
 
@@ -46,7 +46,7 @@ function renderProse(
         return (
           <span
             key={key}
-            className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token"
+            className={STATIC_PILL}
           >
             {tok.text}
           </span>
@@ -79,11 +79,9 @@ function renderProse(
   })
 }
 
-const sectionTitleClass =
-  'mb-5 font-grotesk text-[20px] font-bold capitalize leading-[1.6] tracking-[0.5px] text-black lg:text-[24px]'
+const sectionTitleClass = 'page-body-kicker mb-5 capitalize text-black'
 
-const subheadingClass =
-  'mb-3 font-grotesk text-[18px] font-normal italic leading-[1.5] tracking-[0.5px] text-black lg:text-[24px]'
+const subheadingClass = 'page-body-subkicker mb-3 font-normal text-black'
 
 export default function LeadershipContent({
   className = '',
@@ -119,7 +117,7 @@ export default function LeadershipContent({
 
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`page-body-prose text-black ${className}`}
     >
       {sections.map((section, si) => (
         <div key={section.title} className="mb-12 lg:mb-16">

@@ -30,7 +30,19 @@ export interface MotionRow {
   device?: "mobile" | "tablet" | "desktop";
   label?: string;
   caption?: string;
+  posterImage?: string;
   items?: MediaItem[];
+}
+
+export interface MediaItem {
+  _key: string;
+  mediaType: "video" | "image" | "prototype";
+  videoUrl?: string;
+  videoFile?: string;
+  image?: string;
+  posterImage?: string;
+  embedUrl?: string;
+  caption?: string;
 }
 
 export interface HighlightCell {
@@ -42,16 +54,6 @@ export interface DeviceTab {
   _key: string;
   label: string;
   items?: GalleryImage[];
-}
-
-export interface MediaItem {
-  _key: string;
-  mediaType: "video" | "image" | "prototype";
-  videoUrl?: string;
-  videoFile?: string;
-  image?: string;
-  embedUrl?: string;
-  caption?: string;
 }
 
 export interface StatItem {
@@ -132,6 +134,17 @@ export type Section =
       sectionTitle?: string;
       body?: PortableTextBlock[];
       items?: MediaItem[];
+    })
+  | (Base & {
+      _type: "desktopMotionShowcase";
+      sectionTitle?: string;
+      body?: PortableTextBlock[];
+      videoUrl?: string;
+      videoFile?: string;
+      posterImage?: string;
+      caption?: string;
+      ctaLabel?: string;
+      ctaUrl?: string;
     })
   | (Base & {
       _type: "gallerySection";

@@ -6,6 +6,7 @@ import {
   NavPill,
   NavPillButton,
   PopupLink,
+  STATIC_PILL,
   expandPillClass,
   onActivateKey,
 } from "@/components/InlineToken";
@@ -13,7 +14,7 @@ import type { TeachSection, TeachToken } from "@/lib/teaching";
 
 function StaticPill({ text }: { text: string }) {
   return (
-    <span className="mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token">
+    <span className={STATIC_PILL}>
       {text}
     </span>
   );
@@ -146,7 +147,7 @@ export default function TeachingContent({
 
   return (
     <section
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`page-body-prose text-black ${className}`}
     >
       {intro.map((para, i) => (
         <p key={`intro-${i}`} className="mb-10">
@@ -156,7 +157,7 @@ export default function TeachingContent({
 
       {sections.map((section, s) => (
         <div key={section.kicker} className={s === 0 ? "" : "mt-12"}>
-          <p className="mb-4 font-grotesk text-[14px] font-medium tracking-[0.08em] text-black/50">
+          <p className="page-body-eyebrow mb-4 text-black/50">
             {section.kicker}
           </p>
           {section.paragraphs.map((para, i) => (

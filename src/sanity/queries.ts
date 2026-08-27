@@ -45,8 +45,15 @@ const sectionsProj = `sections[]{
       _key, mediaType, videoUrl,
       "videoFile": videoFile.asset->url,
       "image": image${img},
+      "posterImage": posterImage${img},
       embedUrl, caption
     }
+  },
+  _type == "desktopMotionShowcase" => {
+    sectionTitle, body, caption, ctaLabel, ctaUrl,
+    videoUrl,
+    "videoFile": videoFile.asset->url,
+    "posterImage": posterImage${img}
   },
   _type == "gallerySection" => {
     sectionTitle, body, useDeviceTabs, showCaptions, itemsBeforeViewMore, loadMoreLabel,
@@ -61,10 +68,12 @@ const sectionsProj = `sections[]{
     sectionTitle, intro,
     rows[]{
       _key, device, label, caption,
+      "posterImage": posterImage${img},
       items[]{
         _key, mediaType, videoUrl,
         "videoFile": videoFile.asset->url,
         "image": image${img},
+        "posterImage": posterImage${img},
         embedUrl, caption
       }
     }
@@ -111,7 +120,7 @@ const seoProj = `seo{
 
 // All studies with full section content, ordered — powers the /work grid + the
 // in-page popup (which needs each study's full body ready without a round-trip).
-export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy"] | order(orderRank asc){
+export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**"))] | order(orderRank asc){
   ${cardProj},
   ${studyPdfProj},
   ${seoProj},
@@ -119,7 +128,7 @@ export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy"] | order(or
 }`);
 
 // Lightweight card list (grid only / neighbours).
-export const STUDY_CARDS_QUERY = defineQuery(`*[_type == "caseStudy"] | order(orderRank asc){
+export const STUDY_CARDS_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**"))] | order(orderRank asc){
   ${cardProj}
 }`);
 
@@ -160,7 +169,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   "ogImageHeight": ogImage.asset->metadata.dimensions.height
 }`);
 
-export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && defined(slug.current)].slug.current`);
+export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**")) && defined(slug.current)].slug.current`);
 
 const researchProseProj = `{
   ...,

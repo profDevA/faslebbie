@@ -111,16 +111,16 @@ function csProseInner(
 
 function csBodyText(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `text-[17px] font-light leading-[1.65] tracking-[0.01em] lg:text-[18px] ${extra}`
+    return `text-[17px] font-normal leading-[1.65] tracking-[0.01em] lg:text-[18px] ${extra}`
   }
-  return `text-[18px] font-light leading-[1.6] tracking-[0.382px] xl:text-[1.25vw] ${extra}`
+  return `text-[18px] font-normal leading-[1.6] tracking-[0.382px] xl:text-[1.25vw] ${extra}`
 }
 
 function csSectionTitle(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `font-light capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
+    return `font-normal capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
   }
-  return `font-medium capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
+  return `font-normal capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
 }
 
 function csBandGutter(v: CsVariant, extra = '') {
@@ -341,7 +341,7 @@ export default function CaseStudyView({
   // bar of its own on the standalone route.
   const pager = (
     <div
-      className={`${csPagerShell(variant)} font-grotesk font-medium ${variant === 'page' ? 'text-[15px]' : 'text-[16px] lg:text-[17px]'}`}
+      className={`${csPagerShell(variant)} reckless-prose font-normal ${variant === 'page' ? 'text-[15px]' : 'text-[16px] lg:text-[17px]'}`}
       style={{ color: RED }}
     >
       <Link
@@ -368,11 +368,11 @@ export default function CaseStudyView({
       <>
       {/* Overlay mode gets the shared popup header instead. */}
       {!overlay && (
-        <div className="sticky top-0 z-50 border-b border-black/15 bg-white">
+        <div className="sticky top-0 z-50 border-b border-black/15 bg-white reckless-prose">
           <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
           <nav
             aria-label="Breadcrumb"
-            className="flex min-w-0 items-center gap-2 font-grotesk text-[15px] font-light lg:text-[16px]"
+            className="flex min-w-0 items-center gap-2 text-[15px] font-normal lg:text-[16px]"
           >
             <Link
               href="/work"
@@ -392,7 +392,7 @@ export default function CaseStudyView({
             href="/work"
             aria-label="Close"
             data-cursor="hover"
-            className="shrink-0 font-grotesk text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
           >
             ×
           </Link>
@@ -440,7 +440,7 @@ export default function CaseStudyView({
         label={p.name}
         crumbs={[{ label: 'Work', href: '/work', hideOnMobile: true }, { label: p.name }]}
         bodyRef={setScrollNode}
-        bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white font-grotesk text-black"
+        bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white reckless-prose text-black"
         footer={pager}
       >
         {inner}
@@ -451,7 +451,7 @@ export default function CaseStudyView({
   return (
     <div
       ref={setScrollNode}
-      className="cs-root cs-page min-h-screen bg-white font-grotesk text-black"
+      className="cs-root cs-page min-h-screen bg-white reckless-prose text-black"
     >
       {inner}
     </div>
@@ -478,7 +478,7 @@ function FullCaseStudyPdfLink({
     <section className="border-t border-[#323232] bg-black py-12 text-white lg:py-16">
       <div className={csShell(v)}>
         <p
-          className={`mx-auto max-w-[min(606px,100%)] text-center font-light italic leading-[1.6] tracking-[0.38px] ${v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px]'}`}
+          className={`mx-auto max-w-[min(606px,100%)] text-center font-normal italic leading-[1.6] tracking-[0.38px] ${v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px]'}`}
         >
           {lead}{' '}
           <a
@@ -524,6 +524,8 @@ function SectionBlock({
       return <CoreExperienceBlock section={section} />
     case 'mediaSection':
       return <MediaBlock section={section} />
+    case 'desktopMotionShowcase':
+      return <DesktopMotionShowcaseBlock section={section} />
     case 'gallerySection':
       return <GalleryBlock section={section} />
     case 'showcaseGallery':
@@ -692,14 +694,14 @@ function HeroBlock({
               <p className="mt-2 text-[18px] leading-[1.35] tracking-[0.09em]">
                 {p.from && (
                   <>
-                    <span className="font-medium italic">From</span>
+                    <span className="font-normal italic">From</span>
                     <span>: {p.from}</span>
                     <span aria-hidden className="inline-block w-6" />
                   </>
                 )}
                 {p.to && (
                   <>
-                    <span className="font-medium italic">To</span>
+                    <span className="font-normal italic">To</span>
                     <span>: {p.to}</span>
                   </>
                 )}
@@ -744,11 +746,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const gutter = csBandGutter(v)
   const body = csBodyText(v, dark)
   const metaSm = page
-    ? 'text-[14px] font-light leading-[1.6]'
-    : 'text-[14px] font-light leading-[1.6] xl:text-[0.95vw]'
+    ? 'text-[14px] font-normal leading-[1.6]'
+    : 'text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]'
   const metaXs = page
-    ? 'text-[12px] font-light italic leading-4.25 tracking-[1px]'
-    : 'text-[12px] font-light italic leading-4.25 tracking-[1px] xl:text-[0.82vw]'
+    ? 'text-[12px] font-normal italic leading-4.25 tracking-[1px]'
+    : 'text-[12px] font-normal italic leading-4.25 tracking-[1px] xl:text-[0.82vw]'
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
   return (
     <section
@@ -786,7 +788,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             <div className="max-w-85">
               {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
               <h3
-                className={`text-[18px] font-light capitalize leading-tight ${dark} ${page ? '' : 'xl:text-[1.15vw]'}`}
+                className={`text-[18px] font-normal capitalize leading-tight ${dark} ${page ? '' : 'xl:text-[1.15vw]'}`}
               >
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
@@ -1073,6 +1075,81 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
   )
 }
 
+function DesktopMotionShowcaseBlock({
+  section: s,
+}: {
+  section: Of<'desktopMotionShowcase'>
+}) {
+  const v = useCsVariant()
+  const page = v === 'page'
+  const light = isLight(s.appearance)
+  const dark = light ? 'text-white' : ''
+  const body = csBodyText(v, dark)
+  const cta = s.ctaLabel ?? 'Visit Site'
+  return (
+    <section
+      className={page ? padClasses(s.appearance, 'md') : `${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}
+      style={bandStyle(s.appearance)}
+    >
+      <div className={page ? csShell(v) : undefined}>
+        {(s.sectionTitle || s.body) && (
+          <div className={page ? 'mb-8 max-w-[min(720px,100%)]' : 'mb-8'}>
+            {s.sectionTitle && (
+              <h2 className={`${csSectionTitle(v)} ${dark}`}>{s.sectionTitle}</h2>
+            )}
+            {s.body && <Prose value={s.body} className={`mt-4 ${body}`} />}
+          </div>
+        )}
+        {(s.videoFile || s.videoUrl) && (
+          <div className="w-full">
+            {s.videoUrl ? (
+              <div className="aspect-video w-full overflow-hidden bg-black/10">
+                <iframe
+                  src={s.videoUrl}
+                  title={s.sectionTitle || 'Desktop animation'}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <video
+                className="block h-auto w-full"
+                src={s.videoFile}
+                poster={s.posterImage}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            )}
+          </div>
+        )}
+        {(s.caption || s.ctaUrl) && (
+          <div className={`mt-6 max-w-[min(720px,100%)] text-left ${body}`}>
+            {s.caption && (
+              <p className="text-[14px] font-normal leading-[1.6] tracking-[0.38px]">
+                {s.caption}
+              </p>
+            )}
+            {s.ctaUrl && (
+              <a
+                href={s.ctaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-cursor="hover"
+                className={`${s.caption ? 'mt-4' : ''} inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark}`}
+              >
+                {cta}
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
   const v = useCsVariant()
   const light = isLight(s.appearance)
@@ -1095,8 +1172,8 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
                 : 'mx-auto w-full max-w-225 px-6 sm:px-10 xl:px-[3.5vw]'
           }
         >
-          {items.map(m => (
-            <MediaUnit key={m._key} item={m} />
+          {items.map((m, i) => (
+            <MediaUnit key={m._key ?? `media-${i}`} item={m} />
           ))}
         </div>
       )}
@@ -1145,6 +1222,7 @@ function MediaUnit({ item }: { item: MediaItem }) {
         <video
           className="block h-auto w-full"
           src={item.videoFile}
+          poster={item.posterImage}
           autoPlay
           loop
           muted
@@ -1275,8 +1353,8 @@ function ShowcaseBlock({
 }
 
 // Motion Showcase ("Key Product Experiences"): stacked labelled device rows.
-// Each frame is a looping video (Jitter export) or a static placeholder frame.
-const MOTION_BG = '#a4856e'
+// Figma 2110:39759 — slate band, centred title, mobile row left + tablet row right.
+const MOTION_BG = '#52747e'
 function MotionShowcaseBlock({
   section: s,
 }: {
@@ -1285,27 +1363,32 @@ function MotionShowcaseBlock({
   const v = useCsVariant()
   const rows = s.rows ?? []
   if (!rows.length) return null
+  const light = isLight(s.appearance)
+  const onDark = light ? 'text-[#e3e3db]' : ''
   return (
     <section
       className={`${csBandGutter(v)} ${padClasses(s.appearance, 'lg')}`}
       style={bandStyle(s.appearance, MOTION_BG)}
     >
       {s.sectionTitle && (
-        <h2 className={`mb-10 text-center lg:mb-14 ${csSectionTitle(v)}`}>
+        <h2
+          className={`mb-10 text-center lg:mb-14 ${csSectionTitle(v)} ${light ? onDark : ''}`}
+        >
           {s.sectionTitle}
         </h2>
       )}
       {s.intro && (
-        <div className={`mx-auto mb-10 max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')}`}>
+        <div className={`mx-auto mb-10 max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')} ${onDark}`}>
           <Prose value={s.intro} className={csBodyText(v, 'text-[15px] lg:text-[16px]')} />
         </div>
       )}
       <div className={`mx-auto flex max-w-[min(1280px,100%)] flex-col gap-12 lg:gap-16 ${csShell(v, '!px-0')}`}>
         {rows.map((row, i) => (
           <MotionRowView
-            key={row._key}
+            key={row._key ?? `motion-row-${i}`}
             row={row}
             alignRight={i % 2 === 1}
+            light={light}
             inheritTextColor={!!s.appearance?.textColor?.hex}
           />
         ))}
@@ -1317,20 +1400,16 @@ function MotionShowcaseBlock({
 function MotionRowView({
   row,
   alignRight,
-  // Bands that author a text colour (Experian's indigo) let the label inherit
-  // it; Coral's brown band keeps the black default.
+  light,
   inheritTextColor,
 }: {
   row: MotionRow
   alignRight: boolean
+  light: boolean
   inheritTextColor: boolean
 }) {
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
-  // Card aspect ≈ the Figma device slot (phones 170/367, iPads ~3/4, desktop
-  // ~7/5). White card + object-cover: the Jitter exports are device mockups on
-  // white, so the mockup's white margin blends into the card and the device
-  // fills it — matching Figma's tall, framed devices.
   const aspect =
     device === 'mobile'
       ? 'aspect-[170/367]'
@@ -1343,30 +1422,31 @@ function MotionRowView({
       : device === 'tablet'
         ? 'rounded-[12px]'
         : 'rounded-[10px]'
+  const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
   return (
     <div className={`flex ${alignRight ? 'justify-end' : 'justify-start'}`}>
       <div className="w-full max-w-full sm:max-w-[54%]">
         <div className="flex gap-[3%] drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]">
-          {items.map(it => (
+          {items.map((it, itemIndex) => (
             <div
-              key={it._key}
+              key={it._key ?? `motion-${itemIndex}`}
               className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5 bg-white`}
             >
-              <DeviceMedia item={it} />
+              <DeviceMedia item={it} poster={row.posterImage} />
             </div>
           ))}
         </div>
         {(row.label || row.caption) && (
           <div
-            className={`mt-7 max-w-111.25 text-left tracking-[0.382px] xl:mt-[2.2vw] ${inheritTextColor ? '' : 'text-black'}`}
+            className={`mt-7 max-w-[min(325px,100%)] text-left tracking-[0.382px] xl:mt-[2.2vw] ${captionColor}`}
           >
             {row.label && (
-              <p className="text-[18px] font-light capitalize leading-[1.6] xl:text-[1.15vw]">
+              <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
                 {row.label}
               </p>
             )}
             {row.caption && (
-              <p className="mt-2.5 text-[14px] font-thin leading-[1.6] xl:text-[0.95vw]">
+              <p className="mt-2.5 text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
                 {row.caption}
               </p>
             )}
@@ -1377,12 +1457,20 @@ function MotionRowView({
   )
 }
 
-function DeviceMedia({ item }: { item: MediaItem }) {
-  if (item.mediaType === 'video' && item.videoFile) {
+function DeviceMedia({ item, poster }: { item: MediaItem; poster?: string }) {
+  const videoPoster = item.posterImage || poster
+  const videoSrc =
+    typeof item.videoFile === 'string'
+      ? item.videoFile
+      : item.mediaType === 'video' && item.videoFile
+        ? String(item.videoFile)
+        : undefined
+  if (videoSrc) {
     return (
       <video
         className="h-full w-full object-cover"
-        src={item.videoFile}
+        src={videoSrc}
+        poster={videoPoster}
         autoPlay
         loop
         muted
@@ -1430,7 +1518,7 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
     >
       {/* Figma 612:45542 — Neue Haas 45 Light 24px, capitalize, white on teal. */}
       {s.sectionTitle && (
-        <h2 className="mb-12 text-center text-[24px] font-light capitalize leading-tight xl:mb-[3.5vw] xl:text-[1.5vw]">
+        <h2 className="mb-12 text-center text-[24px] font-normal capitalize leading-tight xl:mb-[3.5vw] xl:text-[1.5vw]">
           {s.sectionTitle}
         </h2>
       )}
@@ -1440,7 +1528,7 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
         <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
           {cells.map((c, i) => (
             <HighlightCellView
-              key={c._key}
+              key={c._key ?? `highlight-${i}`}
               frames={c.frames ?? []}
               delay={i * 900}
             />
@@ -1541,8 +1629,8 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
         </h2>
       )}
       <div className={`mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 lg:gap-14`}>
-        {items.map(st => (
-          <Stat key={st._key} stat={st} />
+        {items.map((st, i) => (
+          <Stat key={st._key ?? `stat-${i}`} stat={st} />
         ))}
       </div>
     </section>
@@ -1594,7 +1682,7 @@ function Label({
   const page = useCsVariant() === 'page'
   return (
     <h2
-      className={`mb-5 capitalize leading-tight ${page ? 'text-[20px] font-light lg:text-[24px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 capitalize leading-tight ${page ? 'text-[20px] font-normal lg:text-[24px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
@@ -1631,7 +1719,7 @@ function Accordion({
       {items.map((it, i) => {
         const isOpen = open === i
         return (
-          <div key={it._key} className="border-b-[0.4px] border-current">
+          <div key={it._key ?? `acc-${i}`} className="border-b-[0.4px] border-current">
             <button
               type="button"
               onClick={() => setOpen(isOpen ? -1 : i)}
@@ -1662,7 +1750,7 @@ function Accordion({
             {isOpen && it.body && (
               <Prose
                 value={it.body}
-                className={`pb-6 font-light leading-normal ${bodySize}`}
+                className={`pb-6 font-normal leading-normal ${bodySize}`}
               />
             )}
           </div>
@@ -1782,7 +1870,7 @@ function ArtifactSlider({
             const real = ((i % n) + n) % n
             return (
               <button
-                key={`${src}-${i}`}
+                key={`artifact-${real}-${i}`}
                 type="button"
                 aria-label={`Expand artifact ${real + 1}`}
                 onClick={() => setLightbox(real)}
@@ -2253,10 +2341,7 @@ function Stat({ stat }: { stat: StatItem }) {
   }, [stat.value])
   return (
     <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center tracking-[-0.214px]">
-      {/* Figma 600:13130-13132 uses Neue Haas Grotesk *Display* Pro 55 Roman —
-          that's our weight 400 (font-normal). font-medium (500) would load the
-          Text-Pro cut, a different family. Note is 35 Thin in Figma; we only
-          ship the Display 55 Roman, so it falls back to that weight. */}
+      {/* Impact stat — inherits Reckless Regular from `.cs-root`. */}
       <p className={`font-normal leading-none ${page ? 'text-[64px] sm:text-[80px] lg:text-[96px]' : 'text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]'}`}>
         {n}
         {stat.suffix}
@@ -2265,7 +2350,7 @@ function Stat({ stat }: { stat: StatItem }) {
         {stat.label}
       </p>
       {stat.note && (
-        <p className={`mt-2.5 max-w-64 font-light leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
+        <p className={`mt-2.5 max-w-64 font-normal leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
           {stat.note}
         </p>
       )}

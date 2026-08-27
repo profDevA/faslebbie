@@ -10,7 +10,8 @@
   --color-close: #f5f4ec;
   --color-hairline: #c8c8c8;
 
-  --font-serif: var(--font-reckless), Georgia, serif;
+  --font-serif: "Reckless Neue", Georgia, serif;
+  --font-serif-book: "Reckless Neue Book", "Reckless Neue", Georgia, serif;
   --font-logo: var(--font-poppins), sans-serif;
   --font-grotesk: var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif;
   /* About-page "ABOUT ME" heading — Figma 06/18 spec: Helvetica 700, uppercase.
@@ -30,6 +31,92 @@ body {
    like `hover:[text-shadow:none]` correctly override it in the cascade. */
 @utility text-shadow-token {
   text-shadow: -0.092em 0.123em 0.12em #b1afac;
+}
+
+/* Shared Reckless body face — matches expanded grey-pill copy (font-normal / 400). */
+@utility reckless-prose {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-synthesis: none;
+  font-feature-settings: "ss04", "ss06", "ss07", "ss10", "ss14";
+}
+
+/* Page body prose — About / Approach / Research / Teaching / Work .txt / Build. */
+@utility page-body-prose {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.55;
+  letter-spacing: 1.65px;
+  font-synthesis: none;
+  font-feature-settings: "ss04", "ss06", "ss07", "ss10", "ss14";
+  @media (width >= 768px) {
+    font-size: 30px;
+  }
+  @media (width >= 1024px) {
+    letter-spacing: 0.5px;
+  }
+}
+
+/* About — slightly tighter leading so grey pills feel less scattered (Aug 26 QA). */
+@utility page-body-prose-about {
+  line-height: 1.48;
+  @media (width >= 1024px) {
+    line-height: 1.5;
+  }
+}
+
+/* Home hero — same Reckless Regular as About, larger size. */
+@utility home-hero-prose {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  font-synthesis: none;
+  font-feature-settings: "ss04", "ss06", "ss07", "ss10", "ss14";
+}
+
+@utility page-body-kicker {
+  font-family: var(--font-grotesk);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  @media (width >= 768px) {
+    font-size: 20px;
+  }
+  @media (width >= 1024px) {
+    font-size: 22px;
+  }
+}
+
+/* Muted section label — Teaching philosophy blocks; scales with body @ 30px. */
+@utility page-body-eyebrow {
+  font-family: var(--font-grotesk);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  @media (width >= 768px) {
+    font-size: 15px;
+  }
+  @media (width >= 1024px) {
+    font-size: 16px;
+  }
+}
+
+/* Italic block subhead — Approach section intros; below kicker, above body. */
+@utility page-body-subkicker {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  font-style: italic;
+  @media (width >= 768px) {
+    font-size: 17px;
+  }
+  @media (width >= 1024px) {
+    font-size: 18px;
+  }
 }
 
 /* Fade only — no transform, so opening a panel doesn't bounce (Israel 06/16). */

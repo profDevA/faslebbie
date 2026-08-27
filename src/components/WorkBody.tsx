@@ -85,7 +85,8 @@ function cardImage(url: string | undefined) {
       srcSet: undefined as string | undefined,
     };
   }
-  const m = /-(\d+)x(\d+)\.\w+$/.exec(url);
+  const pathForDims = url.split("?")[0] ?? url;
+  const m = /-(\d+)x(\d+)\.\w+$/.exec(pathForDims);
   const w = m ? Number(m[1]) : undefined;
   const h = m ? Number(m[2]) : undefined;
 
@@ -98,7 +99,16 @@ function cardImage(url: string | undefined) {
 
   const cdnUrl = (width: number) => {
     const rw = w ? Math.min(width, w) : width;
-    return `${url}?w=${rw}&auto=format&fit=max&q=${quality}`;
+    try {
+      const parsed = new URL(url);
+      parsed.searchParams.set("w", String(rw));
+      parsed.searchParams.set("auto", "format");
+      parsed.searchParams.set("fit", "max");
+      parsed.searchParams.set("q", String(quality));
+      return parsed.toString();
+    } catch {
+      return url;
+    }
   };
 
   const srcSetWidths = CARD_IMAGE_SRCSET.map((tw) =>
@@ -498,7 +508,7 @@ export default function WorkBody({
                 }}
                 className="relative z-10 mt-8 will-change-[opacity,filter,transform] lg:mt-0"
               >
-                <section className="pb-24 font-grotesk text-[26px] font-medium leading-normal tracking-[0.5px] text-black md:text-[32px] lg:text-[32px]">
+                <section className="page-body-prose pb-24 text-black">
                   {narrative.map((para, i) => (
                     // Figma separates paragraphs by a full blank line (~1 line-height,
                     // ~63px at 42px/1.5) — scale the gap with the responsive font size.
@@ -849,25 +859,25 @@ function ProjectCard({
           }}
         >
           <span className="flex h-full w-full items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <span className="font-grotesk text-[13px] font-medium uppercase tracking-wide text-white/90">
+            <span className="reckless-prose text-[13px] font-normal uppercase tracking-wide text-white/90">
               View project →
             </span>
           </span>
         </div>
       )}
       {showMeta && (
-        <div className="work-card-meta">
+        <div className="work-card-meta reckless-prose">
           {/* Card meta (Figma 2080:31219) — desktop wall only. */}
-          <p className="mt-2 w-fit font-grotesk text-[16px] font-medium leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+          <p className="mt-2 w-fit text-[16px] font-normal leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
             {project.name}
           </p>
           {(project.from || project.to) && (
-            <p className="mt-2 grid grid-cols-1 font-grotesk text-[16px] italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+            <p className="mt-2 grid grid-cols-1 text-[16px] font-normal italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
               <span>
-                <span className="font-medium">From</span>: {project.from}
+                <span className="font-normal">From</span>: {project.from}
               </span>
               <span>
-                <span className="font-medium">To</span>: {project.to}
+                <span className="font-normal">To</span>: {project.to}
               </span>
             </p>
           )}

@@ -109,17 +109,29 @@ function LogoChip({ svg }: { svg: string }) {
   )
 }
 
-// Inline personal photo — small rounded thumbnail that pops up on hover.
+// Inline personal photo — small rounded thumbnail; hover preview matches logo chips.
 function PhotoChip({ src, alt }: { src: string; alt: string }) {
   const imgSrc = hiResUrl(src, 1200) ?? src
+  const [hot, setHot] = useState(false)
 
   return (
     <span
       data-cursor="hover"
-      className="group relative mx-1 inline-block h-[1.25em] w-[1.4em] translate-y-[-0.3em] overflow-hidden rounded-md align-middle shadow-[0_1px_9px_2px_rgba(0,0,0,0.25)] transition-transform duration-200 ease-out will-change-transform hover:z-30 hover:scale-[4]"
+      data-hot={hot ? '' : undefined}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+      className="logo-chip relative z-0 mx-1 inline-flex h-[1.25em] w-[1.4em] translate-y-[-0.3em] items-center justify-center overflow-visible rounded-md align-middle shadow-[0_1px_9px_2px_rgba(0,0,0,0.25)] hover:z-40"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- small static photo */}
-      <img src={imgSrc} alt={alt} className="h-full w-full object-cover" />
+      <img
+        src={imgSrc}
+        alt={alt}
+        className="h-full w-full rounded-md object-cover"
+      />
+      <span aria-hidden className="logo-chip-preview">
+        {/* eslint-disable-next-line @next/next/no-img-element -- hover preview */}
+        <img src={imgSrc} alt="" className="h-auto w-full object-cover" />
+      </span>
     </span>
   )
 }
@@ -740,13 +752,12 @@ export default function AboutContent({
   return (
     <section
       id="about"
-      className={`font-grotesk text-[28px] font-medium leading-[1.6] tracking-[1.65px] text-black md:text-[32px] lg:text-[32px] lg:leading-[1.6] lg:tracking-[0.5px] ${className}`}
+      className={`page-body-prose page-body-prose-about text-black ${className}`}
     >
-      {/* Headline 24px Medium + intro 32px Medium (Fas 08/25 — Emily Campbell). */}
       {(headline || intro.length > 0) && (
         <div className="mb-7">
           {headline ? (
-            <h2 className="mb-0 font-grotesk text-[18px] font-medium leading-[1.6] tracking-[0.5px] md:text-[20px] lg:text-[24px]">
+            <h2 className="page-body-kicker mb-0 text-black">
               {headline}
             </h2>
           ) : null}

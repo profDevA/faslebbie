@@ -186,7 +186,7 @@ export function PopupPagerButton({
   onClick,
   disabled,
   ariaLabel,
-  className = "text-[15px] lg:text-[18px]",
+  className = "font-grotesk text-[15px] lg:text-[18px]",
 }: {
   children: ReactNode;
   onClick: () => void;
@@ -201,7 +201,7 @@ export function PopupPagerButton({
       disabled={disabled}
       aria-label={ariaLabel}
       data-cursor="hover"
-      className={`font-grotesk font-bold text-accent transition-opacity enabled:hover:opacity-70 disabled:opacity-30 ${className}`}
+      className={`font-bold text-accent transition-opacity enabled:hover:opacity-70 disabled:opacity-30 ${className}`}
     >
       {children}
     </button>

@@ -69,7 +69,8 @@ export default function MediaModal({
         { label: item.title },
       ]}
       bodyRef={shellScrollRef}
-      bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:overflow-hidden"
+      bodyClassName="reckless-prose grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:overflow-hidden"
+      footerClassName="reckless-prose"
       footer={
         <div className="flex w-full max-w-[620px] items-center justify-between">
           <PopupPagerButton onClick={prev}>{"< Previous"}</PopupPagerButton>
@@ -116,32 +117,32 @@ export default function MediaModal({
         ref={rightScrollRef}
         className="order-2 bg-close px-[21px] pb-12 pt-0 text-black lg:flex lg:h-full lg:items-center lg:overflow-y-auto lg:px-[50px] lg:py-[50px]"
       >
-        <div className="flex w-full flex-col gap-[15px] lg:mx-auto lg:max-w-[420px]">
+        <div className="reckless-prose flex w-full flex-col gap-[15px] lg:mx-auto lg:max-w-[420px]">
           <div className="border-b border-black pb-3">
-            <p className="font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black">
+            <p className="text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
               {item.format}
             </p>
-            <h2 className="mt-1 font-grotesk text-[24px] font-medium capitalize leading-[1.28] tracking-[0.38px] text-black">
+            <h2 className="mt-1 text-[24px] font-normal capitalize leading-[1.28] tracking-[0.38px] text-black">
               {item.title}
             </h2>
-            <div className="mt-3 font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.38px] text-black italic lg:not-italic">
+            <div className="mt-3 text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black italic lg:not-italic">
               <p>{item.source}</p>
               <p>{item.detail}</p>
             </div>
           </div>
           <div className="border-b border-black pb-3">
-            <p className="font-grotesk text-[18px] font-medium leading-[1.6] tracking-[0.38px] text-black">
+            <p className="text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
               Description
             </p>
-            <p className="mt-3 font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.38px] text-black">
+            <p className="mt-3 text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
               {item.description}
             </p>
           </div>
           <div className="border-b border-black pb-3">
-            <p className="font-grotesk text-[18px] font-medium leading-[1.6] tracking-[0.38px] text-black">
+            <p className="text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
               Themes
             </p>
-            <p className="mt-3 font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.38px] text-black">
+            <p className="mt-3 text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
               {item.themes.join(" / ")}
             </p>
           </div>

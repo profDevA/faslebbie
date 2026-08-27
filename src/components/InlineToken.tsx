@@ -39,6 +39,10 @@ export const POPUP_LINK =
 export const EXTERNAL_LINK =
   "group inline-flex items-center gap-0 text-accent text-shadow-token";
 
+/** Non-interactive grey pill (static keyword highlight). */
+export const STATIC_PILL =
+  "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token";
+
 /** Reveals narrative inline — grey pill, black text, inverts while open. */
 export function expandPillClass(open: boolean) {
   return `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
@@ -50,7 +54,7 @@ export function expandPillClass(open: boolean) {
 
 /** Cycles its word list on click — the black `>/~` chip. */
 export const CYCLE_CHIP =
-  "mx-[0.1em] box-decoration-clone cursor-pointer bg-[#141414] px-[0.4em] py-[0.08em] text-[1em] leading-[1.7] text-bg";
+  "mx-[0.06em] box-decoration-clone cursor-pointer bg-[#141414] px-[0.24em] py-[0.02em] text-[0.82em] leading-[1.1] text-bg";
 
 /** Press-to-activate for spans standing in for buttons. */
 export function onActivateKey(run: () => void) {

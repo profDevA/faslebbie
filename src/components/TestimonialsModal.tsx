@@ -47,11 +47,12 @@ export default function TestimonialsModal({
         { label: section, href: "/about" },
         { label: "Testimonials" },
       ]}
-      bodyClassName="min-h-0 flex-1 overflow-y-auto lg:grid lg:grid-cols-2 lg:overflow-hidden"
+      bodyClassName="reckless-prose min-h-0 flex-1 overflow-y-auto lg:grid lg:grid-cols-2 lg:overflow-hidden"
+      footerClassName="reckless-prose"
       footer={
         <div className="flex w-full max-w-[620px] items-center justify-between gap-2">
           <PopupPagerButton
-            className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
+            className="shrink-0 whitespace-nowrap font-normal text-[16px] lg:text-[21px]"
             onClick={() => go(-1)}
             disabled={i === 0}
           >
@@ -67,7 +68,7 @@ export default function TestimonialsModal({
             }
           />
           <PopupPagerButton
-            className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
+            className="shrink-0 whitespace-nowrap font-normal text-[16px] lg:text-[21px]"
             onClick={() => go(1)}
             disabled={i === max}
           >
@@ -87,17 +88,17 @@ export default function TestimonialsModal({
             />
           </div>
           <div className="flex flex-col items-center gap-2 text-center text-[#1e1e1e] lg:gap-3.5">
-            <p className="font-grotesk text-[28px] font-medium leading-tight lg:text-[34px] lg:leading-[1.2]">
+            <p className="text-[28px] font-normal leading-tight lg:text-[34px] lg:leading-[1.2]">
               {t.name}
             </p>
-            <p className="font-grotesk text-[14px] font-light text-black/70 lg:text-[20px]">
+            <p className="text-[14px] font-normal text-black/70 lg:text-[20px]">
               {role}
             </p>
           </div>
         </div>
       </div>
       <div className="flex h-[538px] shrink-0 items-center justify-center bg-[#1a1a1a] px-6 lg:h-auto lg:min-h-0 lg:flex-1 lg:px-14">
-        <p className="w-full text-center font-grotesk text-[14px] font-light leading-4 text-[#e0e0d7] lg:max-w-[540px] lg:text-[16px] lg:leading-[1.55]">
+        <p className="w-full text-center text-[14px] font-normal leading-4 text-[#e0e0d7] lg:max-w-[540px] lg:text-[16px] lg:leading-[1.55]">
           “{t.quote}”
         </p>
       </div>

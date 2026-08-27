@@ -8,12 +8,24 @@ npx sanity exec scripts/<name>.ts --with-user-token
 
 Patch-only copy and seed data live in `scripts/data/` (not imported by page components).
 
+## Fonts
+
+Body prose = **Reckless Neue Regular (400)** — same weight as expanded grey-pill copy.
+Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
+`wp-content/themes/twentynineteen/fonts-new/` if you have the WordPress export.
+
 ## Safe to run (targeted patches)
 
 | When | Script |
 |------|--------|
 | Case study media wiped by bad patch | `restore-case-study-sections-from-history.ts` then `patch-problem-context-sections.ts` |
+| Coral overview / Problem Context / Reflection / Next Steps wiped | `patch-coral-restore-from-history.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
+| Coral §08 mediaSection → desktopMotionShowcase | `patch-coral-desktop-motion-section.ts` |
+| Coral motion rows + artifact images wiped | `patch-coral-restore-motion-artifacts.ts` |
+| Coral hero image + highlight reel + accordion/stats wiped | `patch-coral-restore-hero-highlight.ts` |
+| Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
+| Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
 | Research copy | `patch-research-final-copy.ts` |

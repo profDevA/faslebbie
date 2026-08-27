@@ -43,6 +43,7 @@ const TARGETS: [string, string, string][] = [
   ["accordionSection", "Design Process", SAND],
   ["showcaseGallery", "Research Artifacts", INK],
   ["motionShowcase", "Key Product Experiences", SLATE],
+  ["desktopMotionShowcase", "Marketing Website", "#fe9d68"],
   ["mediaSection", "Marketing Website", "#fe9d68"],
   ["statsSection", "Impact", SAND],
   ["highlightReel", "Project Highlights", TEAL],

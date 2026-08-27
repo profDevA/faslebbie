@@ -62,6 +62,7 @@ import { accordionSection } from "./sections/accordionSection";
 import { proseSection } from "./sections/proseSection";
 import { problemContextSection } from "./sections/problemContextSection";
 import { coreExperience } from "./sections/coreExperience";
+import { desktopMotionShowcase } from "./sections/desktopMotionShowcase";
 import { mediaSection } from "./sections/mediaSection";
 import { gallerySection } from "./sections/gallerySection";
 import { showcaseGallery } from "./sections/showcaseGallery";
@@ -109,6 +110,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   gallerySection,
   showcaseGallery,
   motionShowcase,
+  desktopMotionShowcase,
   highlightReel,
   statsSection,
   bulletSection,

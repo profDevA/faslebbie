@@ -45,16 +45,16 @@ function PublicationRow({
   const inner = (
     <>
       <div className={ROW_GRID}>
-        <span className="font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
+        <span className="text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
           {padIndex(index)}
         </span>
-        <span className="min-w-0 font-grotesk text-[22px] leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
+        <span className="min-w-0 text-[22px] font-normal leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
           <span className="inline">{titleWithoutOrphan(item.title)}</span>
           {item.cover ? (
             <BookCoverThumb src={item.cover} alt={item.title} />
           ) : null}
         </span>
-        <span className="justify-self-end shrink-0 text-right font-grotesk text-[18px] leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
+        <span className="justify-self-end shrink-0 text-right text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
           {item.year}
         </span>
       </div>
@@ -63,7 +63,7 @@ function PublicationRow({
           <span aria-hidden className="opacity-0">
             {padIndex(index)}
           </span>
-          <p className="font-grotesk text-[18px] font-light italic leading-[1.2] tracking-[1px] text-[#1a1a1a] md:text-[20px]">
+          <p className="text-[18px] font-normal italic leading-[1.2] tracking-[1px] text-[#1a1a1a] md:text-[20px]">
             {tag}
           </p>
           <span aria-hidden className="hidden lg:block" />
@@ -103,7 +103,7 @@ function PublicationSection({
 
   return (
     <section className="w-full">
-      <h2 className="font-grotesk text-[20px] font-bold leading-[1.6] tracking-[0.5px] text-black md:text-[24px]">
+      <h2 className="text-[20px] font-normal leading-[1.6] tracking-[0.5px] text-black md:text-[24px]">
         {title}
       </h2>
       <div className="mt-[22px] flex w-full flex-col">
@@ -127,9 +127,9 @@ export default function WordsPublications({
     !publications.journals.length;
 
   return (
-    <div className="flex w-full max-w-[1129px] flex-col gap-14 pt-10 lg:gap-[57px] lg:pt-16">
+    <div className="flex w-full max-w-[1129px] flex-col gap-14 pt-10 reckless-prose lg:gap-[57px] lg:pt-16">
       {empty ? (
-        <p className="text-center font-grotesk text-[15px] leading-relaxed text-black/55">
+        <p className="text-center text-[15px] font-normal leading-relaxed text-black/55">
           Words content will appear here once added in Studio → Blogs &amp; Media
           → Words.
         </p>

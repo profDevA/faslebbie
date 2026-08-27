@@ -27,7 +27,8 @@
  *
  * Run from frontend/:
  *   sanity exec scripts/migrate-remaining-redesign.ts --with-user-token -- --dry
- *   sanity exec scripts/migrate-remaining-redesign.ts --with-user-token
+ *   sanity exec scripts/migrate-remaining-redesign.ts --with-user-token -- --slug=life-of-a-miner-vr
+ *   sanity exec scripts/migrate-remaining-redesign.ts --with-user-token -- --slug=life-of-a-miner-vr --dry
  */
 import { randomUUID } from "node:crypto";
 
@@ -37,6 +38,25 @@ import { generatedCaseStudies } from "../src/lib/case-studies.generated";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
+const slugArg = process.argv.find((a) => a.startsWith("--slug="))?.split("=")[1];
+
+/** Wall order after Coral / Experian / Memory Tubes (see patch-work-img-titles-order.ts). */
+export const REMAINING_QUEUE = [
+  "life-of-a-miner-vr",
+  "snapback-lifestyle",
+  "diamond-valuation-ai",
+  "financial-data-exchange",
+  "remote-assistant-object-detection",
+  "oc-digital-resource-navigator",
+  "forever-a-surfer",
+  "design-assist-ai",
+  "oc-links",
+  "acme-lending",
+  "galderma",
+  "vuforia-chalk",
+  "vuforia-expert-capture",
+  "2020-us-census-benefit-calculator",
+] as const;
 
 // Already on the new template — Coral is the reference, the other two were
 // migrated 08/04 against their own finalised Figma pages.
@@ -240,8 +260,25 @@ async function run() {
     `*[_type=="caseStudy"]{_id,"slug":slug.current,sections}|order(slug asc)`,
   );
 
-  for (const doc of docs) {
-    if (DONE.has(doc.slug)) continue;
+  const pending = docs.filter((d) => !DONE.has(d.slug));
+  const queueRank = (slug: string) => {
+    const i = REMAINING_QUEUE.indexOf(slug as (typeof REMAINING_QUEUE)[number]);
+    return i === -1 ? REMAINING_QUEUE.length : i;
+  };
+  const targets = slugArg
+    ? pending.filter((d) => d.slug === slugArg)
+    : [...pending].sort((a, b) => queueRank(a.slug) - queueRank(b.slug));
+
+  if (slugArg && !targets.length) {
+    console.error(`No pending case study with slug "${slugArg}" (already migrated or missing).`);
+    process.exit(1);
+  }
+
+  if (!slugArg) {
+    console.log(`Queue (${targets.length} remaining): ${REMAINING_QUEUE.filter((s) => pending.some((d) => d.slug === s)).join(", ")}`);
+  }
+
+  for (const doc of targets) {
     const { sections, notes } = buildSections(doc.slug, doc.sections ?? []);
     console.log(`\n${doc.slug}  (${doc.sections?.length ?? 0} → ${sections.length} sections)`);
     for (const s of sections) {
