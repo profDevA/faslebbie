@@ -367,6 +367,20 @@ export interface SanityTeachingPage {
   seo?: SanityPageSeo;
 }
 
+export interface BuildCaseStudyDetail {
+  statusLabel?: string;
+  trigger?: string;
+  observation?: string;
+  hypothesis?: string;
+  value?: string;
+  experiment?: string;
+  statusBody?: string;
+  checklist?: { done?: boolean; text?: string }[];
+  whoFor?: string;
+  howItWorks?: string[];
+  insights?: string[];
+}
+
 export interface SanityBuildProject {
   id?: string;
   title?: string;
@@ -377,10 +391,7 @@ export interface SanityBuildProject {
   kicker?: string;
   subtitle?: string;
   blurb?: string;
-  description?: string;
-  howItWorks?: string[];
-  note?: string;
-  supportedTools?: string[];
+  caseStudyDetail?: BuildCaseStudyDetail;
   images?: string[];
   outputVisual?: string;
   conceptPreview?: string;

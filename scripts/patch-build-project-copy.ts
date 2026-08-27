@@ -1,13 +1,13 @@
 /**
  * Patch buildPage project subtitles, blurbs, kickers (collaboration doc).
- * Does not touch intro or images. Popup long bodies live in buildProjectDetails.ts.
+ * Does not touch intro or images. Runtime reads Sanity `caseStudyDetail`.
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-build-project-copy.ts --with-user-token
  */
 import { getCliClient } from "sanity/cli";
 
-import { BUILD_PROJECT_COPY } from "../src/lib/buildProjectDetails";
+import { BUILD_PROJECT_COPY } from "./data/buildProjectDetails";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 

@@ -18,7 +18,7 @@ import { useReveal } from "@/lib/useReveal";
 import { usePersistedView } from "@/hooks/usePersistedView";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { EXTRA_STUDENT_WORKS } from "@/lib/studentWorksLayout";
+import { EXTRA_STUDENT_IDS } from "@/lib/studentWorksLayout";
 
 type View = "philosophy" | "works";
 const VIEWS = ["philosophy", "works"] as const;
@@ -68,7 +68,7 @@ export default function TeachingBody({
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", "works");
     params.set("student", id);
-    if (EXTRA_STUDENT_WORKS.some((s) => s.id === id)) params.set("all", "1");
+    if (EXTRA_STUDENT_IDS.has(id)) params.set("all", "1");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 

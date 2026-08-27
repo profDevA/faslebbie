@@ -1,5 +1,4 @@
 import type { StudentProject } from "@/lib/teaching";
-import { STUDENT_POPUP_COPY } from "@/lib/studentPopupCopy";
 
 /** Figma 2930:212170 collapsed set. */
 export const INITIAL_STUDENT_COUNT = 14;
@@ -72,49 +71,17 @@ const INITIAL_IDS = new Set([
   "spinning-out",
 ]);
 
-/** Extra Figma 3105:5780 cards. Patch uploads these to Sanity; merge is a fallback. */
-export const EXTRA_STUDENT_WORKS: StudentProject[] = [
-  extra("emobox", "Emobox"),
-  extra("solace-aid", "Solace Aid"),
-  extra("zeno", "Zeno"),
-  extra("reallity", "ReAllity"),
-  extra("pattle", "Pattle"),
-  extra("rhyzone", "Rhyzone"),
-  extra("tremors-x", "Tremors-X"),
-  extra("feelnodes", "Feelnodes"),
-];
-
-function extra(id: string, title: string): StudentProject {
-  const cover = `/teaching/student-covers/${id}.png`;
-  return {
-    id,
-    title,
-    headline: "",
-    description: "",
-    span: "md",
-    tint: "#c8c4bc",
-    cover,
-    images: [cover],
-  };
-}
-
-function applyPopupCopy(s: StudentProject): StudentProject {
-  const copy = STUDENT_POPUP_COPY[s.id];
-  if (!copy) return s;
-  return {
-    ...s,
-    headline: s.headline.trim() || copy.headline,
-    description: s.description.trim() || copy.description,
-  };
-}
-
-export function mergeStudentWorks(fromSanity: StudentProject[]): StudentProject[] {
-  const have = new Set(fromSanity.map((s) => s.id));
-  return [
-    ...fromSanity.map(applyPopupCopy),
-    ...EXTRA_STUDENT_WORKS.filter((s) => !have.has(s.id)).map(applyPopupCopy),
-  ];
-}
+/** Expanded-set ids (Figma 3105:5780) — open with ?all=1 on the works grid. */
+export const EXTRA_STUDENT_IDS = new Set([
+  "emobox",
+  "solace-aid",
+  "zeno",
+  "reallity",
+  "pattle",
+  "rhyzone",
+  "tremors-x",
+  "feelnodes",
+]);
 
 export function studentWorkColumns(
   students: StudentProject[],

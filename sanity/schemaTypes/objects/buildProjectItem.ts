@@ -63,9 +63,16 @@ export const buildProjectItem = defineType({
         "Gallery `.img` thumb and modal teal-band hero (first slide). One image only.",
       group: "card",
     }),
-    defineField({ name: "kicker", title: "Modal kicker", type: "string", initialValue: "Design · 5 Min Read", group: "modal" }),
+    defineField({ name: "kicker", title: "Modal kicker", type: "string", group: "modal" }),
     defineField({ name: "subtitle", title: "Modal subtitle", type: "text", rows: 2, group: "modal" }),
-    defineField({ name: "description", title: "Description", type: "text", rows: 4, group: "modal" }),
+    defineField({
+      name: "caseStudyDetail",
+      title: "Modal scroll body",
+      type: "buildCaseStudyDetail",
+      description:
+        "Trigger through Insight grid — the long scroll below the hero (Figma 16:3707).",
+      group: "modal",
+    }),
     defineField({
       name: "outputVisual",
       title: "Output visual",
@@ -82,22 +89,6 @@ export const buildProjectItem = defineType({
       options: { hotspot: true },
       description:
         "Full-screen Concept Preview overlay (Figma 16:2613 desktop / 16:3697 mobile).",
-      group: "modal",
-    }),
-    defineField({
-      name: "howItWorks",
-      title: "How it works (steps)",
-      type: "array",
-      of: [{ type: "string" }],
-      group: "modal",
-    }),
-    defineField({ name: "note", title: "Note", type: "text", rows: 2, group: "modal" }),
-    defineField({
-      name: "supportedTools",
-      title: "Supported tools",
-      type: "array",
-      of: [{ type: "string" }],
-      options: { layout: "tags" },
       group: "modal",
     }),
   ],

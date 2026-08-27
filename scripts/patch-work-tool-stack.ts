@@ -10,7 +10,7 @@ import { resolve } from "node:path";
 
 import { getCliClient } from "sanity/cli";
 
-import { toolStackLogos } from "../src/lib/content";
+import { toolStackLogos } from "./data/toolStackLogos";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);

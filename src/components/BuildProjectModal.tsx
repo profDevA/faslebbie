@@ -5,11 +5,7 @@ import PopupShell, {
   PopupDots,
   PopupPagerButton,
 } from '@/components/PopupShell'
-import type { BuildProject } from '@/lib/build'
-import {
-  BUILD_PROJECT_DETAILS,
-  type BuildCaseStudyDetail,
-} from '@/lib/buildProjectDetails'
+import type { BuildCaseStudyDetail, BuildProject } from '@/lib/build'
 
 function CheckIcon({ done }: { done: boolean }) {
   return (
@@ -213,9 +209,9 @@ function BuildProjectDetailBody({
         </div>
 
         <div className="order-3 lg:order-none lg:px-14">
-          {BUILD_PROJECT_DETAILS[project.id] ? (
+          {project.caseStudyDetail ? (
             <CaseStudyArticle
-              detail={BUILD_PROJECT_DETAILS[project.id]}
+              detail={project.caseStudyDetail}
               outputSrc={project.outputVisual}
               onViewConcept={onViewConcept}
             />

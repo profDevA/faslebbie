@@ -13,7 +13,7 @@ import path from "node:path";
 
 import { getCliClient } from "sanity/cli";
 
-import { EXTRA_STUDENT_WORKS } from "../src/lib/studentWorksLayout";
+import { EXTRA_STUDENT_WORKS } from "./data/extraStudentWorks";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);

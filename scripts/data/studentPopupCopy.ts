@@ -1,4 +1,4 @@
-/** Figma student-work popup copy (3060:7200 family). Solace Aid is omitted — Figma currently duplicates Feelnodes. */
+/** Patch-only — Figma student-work popup copy (3060:7200 family). */
 export const STUDENT_POPUP_COPY: Record<
   string,
   { headline: string; description: string }

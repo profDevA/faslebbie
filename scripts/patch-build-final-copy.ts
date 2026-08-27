@@ -9,7 +9,8 @@ import { randomUUID } from "node:crypto";
 
 import { getCliClient } from "sanity/cli";
 
-import { buildIntro, type BuildToken } from "../src/lib/build";
+import { buildIntro } from "./data/buildSeed";
+import type { BuildToken } from "../src/lib/build";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);

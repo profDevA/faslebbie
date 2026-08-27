@@ -40,14 +40,6 @@ const SENSESPACE = {
     "An AI research tool built on a design-methodology taxonomy, cutting research analysis time 70% across 50+ design teams.",
   blurb:
     "An AI research tool built on a design-methodology taxonomy, cutting research analysis time 70% across 50+ design teams.",
-  description:
-    "SenseSpace AI maps design research methods to AI capabilities so teams can move from raw interview data to structured insight faster.",
-  howItWorks: [
-    "Upload or paste research transcripts and field notes.",
-    "The taxonomy tags methods, themes, and gaps against your study goals.",
-    "Export synthesis frames your team can drop straight into the file.",
-  ],
-  supportedTools: ["Claude", "GPT", "Figma"],
 };
 
 async function uploadSenseCover() {

@@ -1,4 +1,4 @@
-/** Figma 2971:219110 / collaboration doc — Build popup long-scroll bodies. */
+/** Patch-only — collaboration doc / Figma 2971:219110. Not imported at runtime. */
 
 export type BuildCaseStudyDetail = {
   statusLabel: string;

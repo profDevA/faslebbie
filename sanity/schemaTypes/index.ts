@@ -37,6 +37,8 @@ import { approachSection } from "./objects/approachSection";
 import { aboutExpansion } from "./objects/aboutExpansion";
 import { studentProject } from "./objects/studentProject";
 import { teachingSection } from "./objects/teachingSection";
+import { buildChecklistItem } from "./objects/buildChecklistItem";
+import { buildCaseStudyDetail } from "./objects/buildCaseStudyDetail";
 import { buildProjectItem } from "./objects/buildProjectItem";
 import { blogPostItem } from "./objects/blogPostItem";
 import { blogPortableText } from "./objects/blogPortableText";
@@ -145,6 +147,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   approachSection,
   studentProject,
   teachingSection,
+  buildChecklistItem,
+  buildCaseStudyDetail,
   buildProjectItem,
   blogPortableText,
   blogInlineBlocks,

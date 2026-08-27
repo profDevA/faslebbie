@@ -3,7 +3,6 @@
 import Image from "next/image";
 
 import { STACK_ICONS_PER_ROW } from "@/lib/portraitLayout";
-import { toolStackLogos } from "@/lib/content";
 
 /** Display height for stack icons (listing scale). */
 const ICON_H = 16;
@@ -21,12 +20,25 @@ function iconWidth(logo: StackLogo) {
   return Math.max(8, Math.round((w / h) * ICON_H));
 }
 
+function stackSanityIconUrl(src: string): string {
+  try {
+    const u = new URL(src);
+    u.searchParams.set("h", "64");
+    u.searchParams.set("auto", "format");
+    u.searchParams.set("fit", "max");
+    u.searchParams.set("q", "90");
+    u.searchParams.delete("w");
+    return u.toString();
+  } catch {
+    return src;
+  }
+}
+
 function LogoIcon({ logo }: { logo: StackLogo }) {
   const w = iconWidth(logo);
-  const src =
-    logo.src.includes("cdn.sanity.io") && !logo.src.includes("?")
-      ? `${logo.src}?h=64&auto=format&fit=max&q=90`
-      : logo.src;
+  const src = logo.src.includes("cdn.sanity.io")
+    ? stackSanityIconUrl(logo.src)
+    : logo.src;
 
   return (
     <span className="group pointer-events-auto relative flex h-4 w-full items-center justify-center">
@@ -37,7 +49,7 @@ function LogoIcon({ logo }: { logo: StackLogo }) {
         width={w}
         height={ICON_H}
         className="max-h-full max-w-full object-contain"
-        unoptimized={!src.includes("cdn.sanity.io")}
+        unoptimized
       />
       <span
         role="tooltip"
@@ -54,28 +66,18 @@ export default function ToolStack({
   className = "",
   perRow = STACK_ICONS_PER_ROW,
 }: {
-  /** Sanity stack; falls back to bundled logos when empty. */
+  /** Sanity workPage.toolStack — empty hides the row. */
   logos?: StackLogo[];
   className?: string;
   /** Icons per row — extra icons wrap to the next row(s). */
   perRow?: number;
 }) {
-  const items: StackLogo[] =
-    logos && logos.length > 0
-      ? logos
-      : (() => {
-          if (process.env.NODE_ENV === "development") {
-            console.warn(
-              "[ToolStack] No Sanity stack logos — using bundled fallback from content.ts",
-            );
-          }
-          return toolStackLogos.map((l) => ({
-            src: l.src,
-            label: l.name,
-            width: l.w,
-            height: l.h,
-          }));
-        })();
+  if (!logos?.length) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[ToolStack] No Sanity stack logos on workPage.toolStack");
+    }
+    return null;
+  }
 
   const cols = Math.max(1, Math.min(12, perRow));
 
@@ -86,7 +88,7 @@ export default function ToolStack({
         gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
       }}
     >
-      {items.map((logo) => (
+      {logos.map((logo) => (
         <LogoIcon key={`${logo.src}-${logo.label}`} logo={logo} />
       ))}
     </span>

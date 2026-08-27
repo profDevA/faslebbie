@@ -13,7 +13,7 @@ import { randomUUID } from "node:crypto";
 
 import { getCliClient } from "sanity/cli";
 
-import { STUDENT_POPUP_COPY } from "../src/lib/studentPopupCopy";
+import { STUDENT_POPUP_COPY } from "./data/studentPopupCopy";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DIR = join(process.cwd(), "tmp", "student-slides");

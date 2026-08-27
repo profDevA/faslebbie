@@ -22,7 +22,8 @@ import {
   teachingSections,
   type TeachToken,
 } from "./seed/teaching-seed";
-import { buildIntro, buildProjects, type BuildToken } from "../src/lib/build";
+import { buildIntro, buildProjects } from "./data/buildSeed";
+import type { BuildToken } from "../src/lib/build";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
@@ -216,11 +217,8 @@ async function seedBuild() {
         ...(p.lightArt ? { lightArt: true } : {}),
         kicker: p.kicker,
         subtitle: p.subtitle,
-        blurb: p.subtitle,
-        description: p.description,
-        howItWorks: p.howItWorks,
-        ...(p.note ? { note: p.note } : {}),
-        supportedTools: p.supportedTools,
+        blurb: p.blurb || p.subtitle,
+        ...(p.caseStudyDetail ? { caseStudyDetail: p.caseStudyDetail } : {}),
         ...(kept?.images?.length ? { images: kept.images } : {}),
       };
     }),

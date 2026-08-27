@@ -204,7 +204,11 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
   intro,
   projects[]{
     id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
-    description, howItWorks, note, supportedTools,
+    caseStudyDetail{
+      statusLabel, trigger, observation, hypothesis, value, experiment, statusBody,
+      checklist[]{ done, text },
+      whoFor, howItWorks, insights
+    },
     "images": images[]${img},
     "outputVisual": outputVisual${img},
     "conceptPreview": conceptPreview${img}

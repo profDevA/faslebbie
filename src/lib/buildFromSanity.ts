@@ -1,6 +1,6 @@
-import type { SanityBuildPage } from "@/sanity/types";
+import type { BuildCaseStudyDetail, BuildProject, BuildToken } from "@/lib/build";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
-import type { BuildProject, BuildToken } from "@/lib/build";
+import type { SanityBuildPage, SanityBuildProject } from "@/sanity/types";
 
 export interface BuildContentData {
   intro: BuildToken[][];
@@ -14,6 +14,27 @@ function runToToken(run: ProseRun): BuildToken {
 }
 
 const empty: BuildContentData = { intro: [], projects: [] };
+
+function mapCaseStudyDetail(
+  raw: SanityBuildProject["caseStudyDetail"],
+): BuildCaseStudyDetail | undefined {
+  if (!raw?.trigger?.trim()) return undefined;
+  return {
+    statusLabel: raw.statusLabel?.trim() ?? "",
+    trigger: raw.trigger?.trim() ?? "",
+    observation: raw.observation?.trim() ?? "",
+    hypothesis: raw.hypothesis?.trim() ?? "",
+    value: raw.value?.trim() || undefined,
+    experiment: raw.experiment?.trim() ?? "",
+    statusBody: raw.statusBody?.trim() ?? "",
+    checklist: (raw.checklist ?? [])
+      .filter((c) => c.text?.trim())
+      .map((c) => ({ done: Boolean(c.done), text: c.text!.trim() })),
+    whoFor: raw.whoFor?.trim() ?? "",
+    howItWorks: raw.howItWorks?.filter((s): s is string => Boolean(s?.trim())) ?? [],
+    insights: raw.insights?.filter((s): s is string => Boolean(s?.trim())) ?? [],
+  };
+}
 
 /** Sanity Build page only — no in-code seed fallback. */
 export function buildFromSanity(
@@ -37,13 +58,10 @@ export function buildFromSanity(
       images,
       outputVisual: p.outputVisual?.trim() || undefined,
       conceptPreview: p.conceptPreview?.trim() || undefined,
-      kicker: p.kicker || "Design · 5 Min Read",
+      kicker: p.kicker ?? "",
       subtitle: p.subtitle ?? "",
       blurb: p.blurb ?? "",
-      description: p.description ?? "",
-      howItWorks: p.howItWorks ?? [],
-      note: p.note,
-      supportedTools: p.supportedTools ?? [],
+      caseStudyDetail: mapCaseStudyDetail(p.caseStudyDetail),
     };
   });
 
