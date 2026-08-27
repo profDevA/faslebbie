@@ -79,8 +79,6 @@ async function main() {
     videoFile,
     videoUrl,
     caption,
-    ctaLabel: cur.ctaLabel ?? "Visit Site",
-    ctaUrl: cur.ctaUrl ?? "#",
   };
 
   const sections = [...doc.sections];

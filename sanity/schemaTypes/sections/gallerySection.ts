@@ -1,11 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-// Flexible image grid. Covers Design Interventions, Feature Set, Supporting
-// Designs, Spotlight and Research Outputs. Optionally uses device tabs; grid
-// shows up to `itemsBeforeViewMore` before a Load More.
+// Legacy — use showcaseGallery (§06) or coreExperience (§04).
 export const gallerySection = defineType({
   name: "gallerySection",
-  title: "Gallery",
+  title: "Gallery (legacy)",
   type: "object",
   fields: [
     defineField({ name: "sectionTitle", title: "Section title", type: "string" }),

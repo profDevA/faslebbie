@@ -1,25 +1,30 @@
 import { defineField, defineType } from "sanity";
 
-// A count-up metric tile in the Impact stats band.
+// One metric tile in §09 Impact (value + suffix + label + description).
 export const statItem = defineType({
   name: "statItem",
-  title: "Stat",
+  title: "Metric Item",
   type: "object",
   fields: [
     defineField({
       name: "value",
-      title: "Value",
+      title: "Metric Value",
       type: "number",
       validation: (r) => r.required(),
     }),
-    defineField({ name: "suffix", title: "Suffix", type: "string", description: 'e.g. "%", "M"' }),
+    defineField({
+      name: "suffix",
+      title: "Value Suffix",
+      type: "string",
+      description: 'Appended to value, e.g. "%", "M+", "pts"',
+    }),
     defineField({
       name: "label",
-      title: "Label",
+      title: "Metric Label",
       type: "string",
       validation: (r) => r.required(),
     }),
-    defineField({ name: "note", title: "Note", type: "string" }),
+    defineField({ name: "note", title: "Metric Description", type: "string" }),
   ],
   preview: {
     select: { value: "value", suffix: "suffix", label: "label" },

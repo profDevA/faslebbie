@@ -61,6 +61,7 @@ import { overviewSection } from "./sections/overviewSection";
 import { accordionSection } from "./sections/accordionSection";
 import { proseSection } from "./sections/proseSection";
 import { problemContextSection } from "./sections/problemContextSection";
+import { reflectionSection } from "./sections/reflectionSection";
 import { coreExperience } from "./sections/coreExperience";
 import { desktopMotionShowcase } from "./sections/desktopMotionShowcase";
 import { mediaSection } from "./sections/mediaSection";
@@ -105,6 +106,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   accordionSection,
   proseSection,
   problemContextSection,
+  reflectionSection,
   coreExperience,
   mediaSection,
   gallerySection,

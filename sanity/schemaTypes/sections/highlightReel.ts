@@ -1,14 +1,14 @@
 import { defineField, defineType } from "sanity";
 
-// Project Highlights: grid of looping cells or a single rotating card.
+// §10 Highlight Reel / Project Highlights — grid or single rotating card.
 export const highlightReel = defineType({
   name: "highlightReel",
-  title: "Project Highlights (rotating grid)",
+  title: "Highlight Reel / Project Highlights",
   type: "object",
   fields: [
     defineField({
       name: "sectionTitle",
-      title: "Section title",
+      title: "Section Heading",
       type: "string",
       initialValue: "Project Highlights",
     }),
@@ -17,7 +17,7 @@ export const highlightReel = defineType({
       title: "Layout",
       type: "string",
       description:
-        "Grid: six cells in a 3×2 layout. Single card: one large card that rotates through multiple frames.",
+        "Grid: six cells in a 3×2 layout (Coral). Single card: one large card cycling every frame (Experian Boost, Memory Tubes).",
       options: {
         list: [
           { title: "Grid (3×2 cells)", value: "grid" },
@@ -29,7 +29,7 @@ export const highlightReel = defineType({
     }),
     defineField({
       name: "cells",
-      title: "Cells",
+      title: "Multiple Highlights",
       type: "array",
       of: [{ type: "highlightCell" }],
       validation: (r) => r.min(1),
@@ -37,10 +37,10 @@ export const highlightReel = defineType({
     defineField({ name: "appearance", type: "appearance" }),
   ],
   preview: {
-    select: { title: "sectionTitle", cells: "cells" },
-    prepare: ({ title, cells }) => ({
+    select: { title: "sectionTitle", cells: "cells", layout: "layout" },
+    prepare: ({ title, cells, layout }) => ({
       title: title || "Project Highlights",
-      subtitle: `${cells?.length || 0} cell(s)`,
+      subtitle: `${cells?.length || 0} highlight(s) · ${layout === "single" ? "single card" : "grid"}`,
     }),
   },
 });

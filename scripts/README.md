@@ -20,8 +20,15 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 |------|--------|
 | Case study media wiped by bad patch | `restore-case-study-sections-from-history.ts` then `patch-problem-context-sections.ts` |
 | Coral overview / Problem Context / Reflection / Next Steps wiped | `patch-coral-restore-from-history.ts` |
+| Coral Studio validation (missing image, variant, ctaUrl, draft sync) | `patch-coral-fix-studio-validation.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §08 mediaSection → desktopMotionShowcase | `patch-coral-desktop-motion-section.ts` |
+| Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |
+| statsSection.body stored as null (Studio portableText error) | `patch-stats-section-unset-null-body.ts` |
+| statsSection orphan caption/cta/video keys | `patch-stats-section-unset-orphans.ts` |
+| highlightReel orphan body/cta/video/items keys | `patch-highlight-reel-unset-orphans.ts` |
+| Coral §10 highlightReel layout=grid | `patch-coral-highlight-layout.ts` |
+| Coral §11 Reflection + Next Steps → reflectionSection | `patch-coral-reflection-section.ts` |
 | Coral motion rows + artifact images wiped | `patch-coral-restore-motion-artifacts.ts` |
 | Coral hero image + highlight reel + accordion/stats wiped | `patch-coral-restore-hero-highlight.ts` |
 | Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
@@ -39,6 +46,8 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Testimonial photos only | `patch-testimonial-photos.ts` |
 
 Copy data modules (imported by patches, not run directly): `approach-final-copy-data.ts`, `about-expansions-data.ts`, `seed/*`.
+
+**Legacy section types** (`proseSection`, `bulletSection`, `mediaSection`, `gallerySection`) stay in the schema and frontend for unmigrated case studies but are **hidden from the Studio section picker**. Migrate per slug to `problemContextSection`, `reflectionSection`, `desktopMotionShowcase`, etc., then remove renderers when usage hits zero.
 
 Shared helper: `lib/lexorank-order.ts` — use LexoRank for `orderRank`, never `"00001"`-style strings.
 

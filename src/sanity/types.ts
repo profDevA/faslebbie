@@ -47,7 +47,11 @@ export interface MediaItem {
 
 export interface HighlightCell {
   _key: string;
+  videoFile?: string;
+  videoUrl?: string;
+  posterImage?: string;
   frames?: string[];
+  caption?: string;
 }
 
 export interface DeviceTab {
@@ -121,6 +125,13 @@ export type Section =
       broughtHeading?: string;
       broughtBody?: PortableTextBlock[];
       supportingCopy?: PortableTextBlock[];
+    })
+  | (Base & {
+      _type: "reflectionSection";
+      reflectionHeading?: string;
+      reflectionBody?: PortableTextBlock[];
+      nextStepsHeading?: string;
+      nextStepsItems?: string[];
     })
   | (Base & {
       _type: "coreExperience";

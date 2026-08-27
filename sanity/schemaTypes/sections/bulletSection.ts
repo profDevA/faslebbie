@@ -1,9 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-// Bullet-list band (Next Steps).
+// Legacy — use reflectionSection for §11 Next Steps.
 export const bulletSection = defineType({
   name: "bulletSection",
-  title: "Bullet list / Next Steps",
+  title: "Bullet list / Next Steps (legacy)",
   type: "object",
   fields: [
     defineField({
@@ -25,7 +25,7 @@ export const bulletSection = defineType({
     select: { title: "sectionTitle", items: "items" },
     prepare: ({ title, items }) => ({
       title: title || "Next Steps",
-      subtitle: `${items?.length || 0} bullet(s)`,
+      subtitle: `${items?.length || 0} bullet(s) · legacy`,
     }),
   },
 });

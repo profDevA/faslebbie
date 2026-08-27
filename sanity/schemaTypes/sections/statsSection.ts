@@ -1,16 +1,20 @@
 import { defineField, defineType } from "sanity";
 
-// White count-up metric band (Impact stats).
+// §09 Impact — count-up metric band (Figma 2110:40267).
 export const statsSection = defineType({
   name: "statsSection",
-  title: "Stats / Metrics",
+  title: "09 — Impact",
   type: "object",
   fields: [
-    defineField({ name: "sectionTitle", title: "Section title", type: "string" }),
-    defineField({ name: "body", title: "Body", type: "portableText" }),
+    defineField({ name: "sectionTitle", title: "Section Heading", type: "string" }),
+    defineField({
+      name: "body",
+      title: "Impact / Outcome Description",
+      type: "portableText",
+    }),
     defineField({
       name: "items",
-      title: "Stats",
+      title: "Metric Items",
       type: "array",
       of: [{ type: "statItem" }],
       validation: (r) => r.min(1),

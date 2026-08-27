@@ -34,6 +34,9 @@ const sectionsProj = `sections[]{
   _type == "problemContextSection" => {
     problemHeading, problemBody, broughtHeading, broughtBody, supportingCopy
   },
+  _type == "reflectionSection" => {
+    reflectionHeading, reflectionBody, nextStepsHeading, nextStepsItems
+  },
   _type == "coreExperience" => {
     sectionTitle, body,
     "image": image${img},
@@ -80,7 +83,13 @@ const sectionsProj = `sections[]{
   },
   _type == "highlightReel" => {
     sectionTitle, layout,
-    cells[]{ _key, "frames": frames[]${img} }
+    cells[]{
+      _key, caption,
+      "videoFile": videoFile.asset->url,
+      videoUrl,
+      "posterImage": posterImage${img},
+      "frames": frames[]${img}
+    }
   },
   _type == "statsSection" => {
     sectionTitle, body, items[]{ _key, value, suffix, label, note }

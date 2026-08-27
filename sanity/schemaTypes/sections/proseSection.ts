@@ -1,10 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-// A titled prose band with a background colour. Covers Problem Context,
-// Impact, and Reflections & Impact.
+// Legacy — use problemContextSection, reflectionSection, or section-specific types.
 export const proseSection = defineType({
   name: "proseSection",
-  title: "Prose",
+  title: "Prose (legacy)",
   type: "object",
   fields: [
     defineField({ name: "sectionTitle", title: "Section title", type: "string" }),
@@ -18,6 +17,6 @@ export const proseSection = defineType({
   ],
   preview: {
     select: { title: "sectionTitle" },
-    prepare: ({ title }) => ({ title: title || "Prose", subtitle: "Prose section" }),
+    prepare: ({ title }) => ({ title: title || "Prose", subtitle: "Legacy — prefer §03 or §11 types" }),
   },
 });

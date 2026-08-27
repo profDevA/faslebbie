@@ -21,6 +21,7 @@ import type {
   StatItem,
   Study,
   StudyCard,
+  HighlightCell,
 } from '@/sanity/types'
 
 /**
@@ -520,6 +521,8 @@ function SectionBlock({
       return <ProseBlock section={section} />
     case 'problemContextSection':
       return <ProblemContextBlock section={section} />
+    case 'reflectionSection':
+      return <ReflectionBlock section={section} />
     case 'coreExperience':
       return <CoreExperienceBlock section={section} />
     case 'mediaSection':
@@ -552,7 +555,8 @@ type Of<T extends Section['_type']> = Extract<Section, { _type: T }>
  * Figma shows "Problem Context" + "What I Brought" (600:12516) and "Reflections" +
  * "Next Steps" (600:14126) each together on one band. Problem Context / What I
  * Brought should be authored as `problemContextSection` in Sanity; legacy paired
- * `proseSection`s are still coalesced here until patched.
+ * `proseSection`s are still coalesced here until patched. Reflection / Next Steps
+ * should use `reflectionSection`; legacy prose + bullet pairs still coalesce.
  *
  * `proseSection`s group on matching background (incl. none). A `bulletSection`
  * (Next Steps) joins a run only when it shares an *explicit* background with it
@@ -1031,6 +1035,54 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   )
 }
 
+/** Figma 11 — Reflection / Next Steps (600:14126): one centred black band. */
+function ReflectionBlock({ section: s }: { section: Of<'reflectionSection'> }) {
+  const v = useCsVariant()
+  const light = isLight(s.appearance)
+  const align = s.appearance?.contentAlignment ?? 'center'
+  const width = s.appearance?.maxWidth ?? 'default'
+  const body = csBodyText(v)
+  const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
+  const steps = s.nextStepsItems ?? []
+  const hasReflection = !!s.reflectionBody?.length
+  if (!hasReflection && !steps.length) return null
+  const pad =
+    v === 'page'
+      ? PAGE_PROSE_BAND_PAD
+      : padClasses(s.appearance, 'md')
+  return (
+    <section
+      className={`${pad} ${ALIGN[align]}`}
+      style={bandStyle(s.appearance)}
+    >
+      <div className={csShell(v)}>
+        <div className={`flex flex-col ${v === 'page' ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
+          {hasReflection && (
+            <div>
+              {s.reflectionHeading && (
+                <h2 className={`mb-5 ${titleClass}`}>{s.reflectionHeading}</h2>
+              )}
+              <Prose value={s.reflectionBody} className={body} />
+            </div>
+          )}
+          {steps.length > 0 && (
+            <div>
+              {s.nextStepsHeading && (
+                <h2 className={`mb-5 ${titleClass}`}>{s.nextStepsHeading}</h2>
+              )}
+              <ul className={body}>
+                {steps.map((it, i) => (
+                  <li key={i}>{it}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // Core Experience Showcase (Fas 08/05): the band between What I Brought and
 // Design Process. One exported artwork of the product's key screens, edge to
 // edge on the band colour — deliberately a single image rather than authored
@@ -1075,6 +1127,8 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
   )
 }
 
+// 08 — Desktop Motion Showcase (Figma 2110:40096): band colour from Sanity
+// appearance, centred desktop mockup card, title + body bottom-right.
 function DesktopMotionShowcaseBlock({
   section: s,
 }: {
@@ -1082,31 +1136,23 @@ function DesktopMotionShowcaseBlock({
 }) {
   const v = useCsVariant()
   const page = v === 'page'
-  const light = isLight(s.appearance)
-  const dark = light ? 'text-white' : ''
-  const body = csBodyText(v, dark)
-  const cta = s.ctaLabel ?? 'Visit Site'
+  const hasVideo = !!(s.videoFile || s.videoUrl)
+  const copyTitle = s.sectionTitle?.trim()
+  const hasCopy = !!(copyTitle || s.body?.length || s.caption)
   return (
     <section
-      className={page ? padClasses(s.appearance, 'md') : `${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}
+      data-cs-stretch={page ? undefined : true}
+      className={`flex flex-col justify-center gap-10 ${page ? padClasses(s.appearance, 'md') : `${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}`}
       style={bandStyle(s.appearance)}
     >
-      <div className={page ? csShell(v) : undefined}>
-        {(s.sectionTitle || s.body) && (
-          <div className={page ? 'mb-8 max-w-[min(720px,100%)]' : 'mb-8'}>
-            {s.sectionTitle && (
-              <h2 className={`${csSectionTitle(v)} ${dark}`}>{s.sectionTitle}</h2>
-            )}
-            {s.body && <Prose value={s.body} className={`mt-4 ${body}`} />}
-          </div>
-        )}
-        {(s.videoFile || s.videoUrl) && (
-          <div className="w-full">
+      {hasVideo && (
+        <div className={`flex justify-center ${page ? csShell(v) : `${csShell(v, '!px-0')}`}`}>
+          <div className="w-full max-w-[762px] overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)]">
             {s.videoUrl ? (
-              <div className="aspect-video w-full overflow-hidden bg-black/10">
+              <div className="aspect-[762/467] w-full">
                 <iframe
                   src={s.videoUrl}
-                  title={s.sectionTitle || 'Desktop animation'}
+                  title={copyTitle || 'Desktop animation'}
                   className="h-full w-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -1124,28 +1170,31 @@ function DesktopMotionShowcaseBlock({
               />
             )}
           </div>
-        )}
-        {(s.caption || s.ctaUrl) && (
-          <div className={`mt-6 max-w-[min(720px,100%)] text-left ${body}`}>
-            {s.caption && (
-              <p className="text-[14px] font-normal leading-[1.6] tracking-[0.38px]">
+        </div>
+      )}
+      {hasCopy && (
+        <div className={csShell(v)}>
+          <div className="ml-auto max-w-[min(445px,100%)] text-left">
+            {copyTitle && (
+              <h2 className="text-[18px] font-normal capitalize leading-[1.6] tracking-[0.38px]">
+                {copyTitle}
+              </h2>
+            )}
+            {s.body?.length ? (
+              <Prose
+                value={s.body}
+                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+              />
+            ) : s.caption ? (
+              <p
+                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+              >
                 {s.caption}
               </p>
-            )}
-            {s.ctaUrl && (
-              <a
-                href={s.ctaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="hover"
-                className={`${s.caption ? 'mt-4' : ''} inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark}`}
-              >
-                {cta}
-              </a>
-            )}
+            ) : null}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -1506,30 +1555,35 @@ function DeviceMedia({ item, poster }: { item: MediaItem; poster?: string }) {
 // large card (Experian Boost 600:32123, Memory Tubes) over a coloured band.
 // Each cell cross-fades through its own frame set on a staggered loop; the
 // single-card layout rotates every authored frame through the one card.
-const REEL_BG = '#0f3b42'
+function highlightFrameUrls(cell: HighlightCell): string[] {
+  if (cell.frames?.length) return cell.frames
+  if (cell.posterImage) return [cell.posterImage]
+  return []
+}
+
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
+  const v = useCsVariant()
   const cells = s.cells ?? []
   if (!cells.length) return null
   const single = s.layout === 'single'
   return (
     <section
-      className={`px-6 sm:px-10 xl:px-[3.5vw] ${padClasses(s.appearance, 'lg')}`}
-      style={bandStyle(s.appearance, REEL_BG, true)}
+      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'lg')}`}
+      style={bandStyle(s.appearance)}
     >
-      {/* Figma 612:45542 — Neue Haas 45 Light 24px, capitalize, white on teal. */}
       {s.sectionTitle && (
-        <h2 className="mb-12 text-center text-[24px] font-normal capitalize leading-tight xl:mb-[3.5vw] xl:text-[1.5vw]">
+        <h2 className={`mb-12 text-center lg:mb-16 ${csSectionTitle(v)}`}>
           {s.sectionTitle}
         </h2>
       )}
       {single ? (
-        <HighlightCardView frames={cells.flatMap(c => c.frames ?? [])} />
+        <HighlightCardView frames={cells.flatMap(highlightFrameUrls)} />
       ) : (
         <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
           {cells.map((c, i) => (
             <HighlightCellView
               key={c._key ?? `highlight-${i}`}
-              frames={c.frames ?? []}
+              cell={c}
               delay={i * 900}
             />
           ))}
@@ -1583,37 +1637,64 @@ function useFrameCycle(count: number, delay: number) {
 }
 
 function HighlightCellView({
-  frames,
+  cell,
   delay,
 }: {
-  frames: string[]
+  cell: HighlightCell
   delay: number
 }) {
+  const frames = cell.frames ?? []
+  const videoSrc = cell.videoFile || cell.videoUrl
   const i = useFrameCycle(frames.length, delay)
-  if (!frames.length) return null
-  // Figma 612:44828 — mint (Algae 300) matte frame with the graphic inset
-  // ~10.5% × 14% (303×203 cell holding a 238×146 inner image). The inner frame
-  // is absolutely inset (not h-full) so it resolves against the aspect-ratio box.
+  if (!videoSrc && !frames.length) return null
+
+  const captionClass =
+    'mt-2.5 max-w-64 text-center text-[17px] font-normal leading-[1.245] lg:text-[18px]'
+
   return (
-    <div className="relative aspect-303/203 w-full rounded-md bg-[#d4e9d7]">
-      <div className="absolute inset-[14%_10.5%] overflow-hidden rounded-[3px]">
-        {frames.map((src, idx) => (
-          // eslint-disable-next-line @next/next/no-img-element -- highlight art
-          <img
-            key={idx}
-            src={src}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
-            style={{ opacity: idx === i ? 1 : 0 }}
-          />
-        ))}
+    <div className="flex flex-col items-center">
+      <div className="relative aspect-303/203 w-full rounded-md bg-[#d4e9d7]">
+        <div className="absolute inset-[14%_10.5%] overflow-hidden rounded-[3px]">
+          {videoSrc ? (
+            cell.videoUrl && !cell.videoFile ? (
+              <iframe
+                src={cell.videoUrl}
+                title={cell.caption || 'Highlight animation'}
+                className="h-full w-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                className="h-full w-full object-cover"
+                src={videoSrc}
+                poster={cell.posterImage}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            )
+          ) : (
+            frames.map((src, idx) => (
+              // eslint-disable-next-line @next/next/no-img-element -- highlight art
+              <img
+                key={idx}
+                src={src}
+                alt={cell.caption || ''}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
+                style={{ opacity: idx === i ? 1 : 0 }}
+              />
+            ))
+          )}
+        </div>
       </div>
+      {cell.caption && <p className={captionClass}>{cell.caption}</p>}
     </div>
   )
 }
 
-const IMPACT_BG = 'rgba(214,224,216,0.6)'
 function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
   const v = useCsVariant()
   const items = s.items ?? []
@@ -1621,13 +1702,17 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
   return (
     <section
       className={`${csBandGutter(v)} text-center ${padClasses(s.appearance, 'lg')}`}
-      style={bandStyle(s.appearance, IMPACT_BG)}
+      style={bandStyle(s.appearance)}
     >
       {s.sectionTitle && (
         <h2 className={`mb-12 lg:mb-16 ${csSectionTitle(v)}`}>
           {s.sectionTitle}
         </h2>
       )}
+      <Prose
+        value={s.body}
+        className={`mx-auto mb-12 max-w-[min(720px,100%)] lg:mb-16 ${csBodyText(v)}`}
+      />
       <div className={`mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 lg:gap-14`}>
         {items.map((st, i) => (
           <Stat key={st._key ?? `stat-${i}`} stat={st} />
