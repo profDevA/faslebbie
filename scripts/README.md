@@ -28,6 +28,10 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Acme §04 Core Experience band captions | `patch-acme-core-experience-captions.ts` |
+| Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
+| Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |
+| Overview horizontal/gap/teal, Reflection #171717, accordion, CE screens, highlight reel, stats/motion/showcase layout, legacy appearance, work page | `patch-case-study-template-defaults.ts` |
+| FDX — remove §06 Research Artifacts band | `patch-fdx-remove-research-artifacts.ts` |
 | Coral §04 Core Experience popup tabs (Mobile/iPad/Desktop) | `patch-coral-core-experience-popup-tabs.ts` |
 | Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
 | Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |

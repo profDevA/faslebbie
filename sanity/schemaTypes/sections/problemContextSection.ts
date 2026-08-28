@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { PROBLEM_CONTEXT_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // 03 — Problem Context / What I Brought (Figma 2019:104708, band 600:12516).
 // One black narrative band: challenge copy, then role / contribution copy.
 export const problemContextSection = defineType({
@@ -36,7 +38,11 @@ export const problemContextSection = defineType({
       title: "Optional supporting copy",
       type: "portableText",
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: PROBLEM_CONTEXT_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { problemHeading: "problemHeading", broughtHeading: "broughtHeading" },

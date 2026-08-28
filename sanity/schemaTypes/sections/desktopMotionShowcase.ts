@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { DESKTOP_MOTION_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // 08 — Desktop Motion Showcase (Figma 2019:104708).
 // Coral example: “Fostering equality in healthcare” desktop website animation.
 export const desktopMotionShowcase = defineType({
@@ -57,7 +59,11 @@ export const desktopMotionShowcase = defineType({
       type: "url",
       validation: (r) => r.uri({ scheme: ["http", "https"] }),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: DESKTOP_MOTION_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", media: "posterImage" },

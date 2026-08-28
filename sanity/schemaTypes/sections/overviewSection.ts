@@ -1,5 +1,15 @@
 import { defineField, defineType } from "sanity";
 
+import {
+  OVERVIEW_COPY_COLUMN_PAD,
+  OVERVIEW_COPY_COLUMN_PAD_PAGE,
+  OVERVIEW_COLUMN_GAP,
+  OVERVIEW_MEDIA_COLUMN_PAD,
+  OVERVIEW_MEDIA_COLUMN_PAD_PAGE,
+  OVERVIEW_SIDE_TEAL,
+} from "../../../src/lib/caseStudyDefaults";
+import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
+
 // Project Overview: intro prose + metadata (discipline, duration, team,
 // disclaimer) and side feature art — From/To/Credit live on the case study doc.
 export const overviewSection = defineType({
@@ -77,6 +87,7 @@ export const overviewSection = defineType({
       name: "sideImageBackgroundColor",
       title: "Side feature image background color",
       type: "color",
+      initialValue: sanityColor(OVERVIEW_SIDE_TEAL),
       description: "Panel colour behind the side mockup when fit is Contain (e.g. Coral teal #52747E).",
       options: { disableAlpha: false },
     }),
@@ -98,24 +109,67 @@ export const overviewSection = defineType({
       name: "copyPaddingTop",
       title: "Copy column padding top (px)",
       type: "number",
+      initialValue: OVERVIEW_COPY_COLUMN_PAD.paddingTop,
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
       name: "copyPaddingBottom",
       title: "Copy column padding bottom (px)",
       type: "number",
+      initialValue: OVERVIEW_COPY_COLUMN_PAD.paddingBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "copyPaddingLeft",
+      title: "Copy column padding left (px)",
+      type: "number",
+      initialValue: OVERVIEW_COPY_COLUMN_PAD_PAGE.paddingLeft,
+      description: "Full-page layout only — overlay popup ignores horizontal copy inset.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "copyPaddingRight",
+      title: "Copy column padding right (px)",
+      type: "number",
+      initialValue: OVERVIEW_COPY_COLUMN_PAD_PAGE.paddingRight,
+      description: "Full-page layout only — overlay popup ignores horizontal copy inset.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
       name: "mediaPaddingTop",
       title: "Media column padding top (px)",
       type: "number",
+      initialValue: OVERVIEW_MEDIA_COLUMN_PAD.paddingTop,
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
       name: "mediaPaddingBottom",
       title: "Media column padding bottom (px)",
       type: "number",
+      initialValue: OVERVIEW_MEDIA_COLUMN_PAD.paddingBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingLeft",
+      title: "Media column padding left (px)",
+      type: "number",
+      initialValue: OVERVIEW_MEDIA_COLUMN_PAD_PAGE.paddingLeft,
+      description: "Full-page desktop + mobile inset. Overlay mobile defaults to ~36px when empty.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingRight",
+      title: "Media column padding right (px)",
+      type: "number",
+      initialValue: OVERVIEW_MEDIA_COLUMN_PAD_PAGE.paddingRight,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "columnGap",
+      title: "Column gap (px)",
+      type: "number",
+      initialValue: OVERVIEW_COLUMN_GAP,
+      description: "Space between copy and media columns on desktop overlay layout.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({ name: "appearance", type: "appearance" }),

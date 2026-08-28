@@ -176,7 +176,11 @@ export default function WorkBody({
   const [appliedFilter, setAppliedFilter] = useState<Filter>("All");
   const [pendingFilter, setPendingFilter] = useState<Filter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [wide, setWide] = useState(false);
+  const [wide, setWide] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(min-width: 1024px)").matches
+      : false,
+  );
   const gridRef = useRef<HTMLDivElement>(null);
   // `.img` wall auto/manual scroll: one shared offset drives column tracks
   // (via refs, mutated in rAF for perf — no re-render per frame).
@@ -257,22 +261,53 @@ export default function WorkBody({
     };
 
     const onWheel = (e: WheelEvent) => {
+      const max = maxOffset();
+      if (max <= 0) return;
+      const goingDown = e.deltaY > 0;
+      const atTop = wallOffset.current <= 0;
+      const atBottom = wallOffset.current >= max - 0.5;
+      if ((goingDown && !atBottom) || (!goingDown && !atTop)) {
+        e.preventDefault();
+        wallOffset.current += e.deltaY * WALL_WHEEL_SCALE;
+        apply();
+      }
+    };
+
+    let touchY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? 0;
+      const dy = touchY - y;
+      touchY = y;
+      if (maxOffset() <= 0) return;
       e.preventDefault();
-      wallOffset.current += e.deltaY * WALL_WHEEL_SCALE;
+      wallOffset.current += dy * 1.1;
       apply();
     };
 
-    win.addEventListener("wheel", onWheel, { passive: false });
+    const ro = new ResizeObserver(() => apply());
+    ro.observe(win);
+    for (const track of trackRefs.current) {
+      if (track) ro.observe(track);
+    }
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    win.addEventListener("touchstart", onTouchStart, { passive: true });
+    win.addEventListener("touchmove", onTouchMove, { passive: false });
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
-      win.removeEventListener("wheel", onWheel);
+      window.removeEventListener("wheel", onWheel);
+      win.removeEventListener("touchstart", onTouchStart);
+      win.removeEventListener("touchmove", onTouchMove);
+      ro.disconnect();
     };
-  }, [view, wide]);
+  }, [view, wide, projects.length]);
 
-  // Drop stale column tracks when switching 2↔4 columns (not on filter — same DOM).
+  // Reset scroll offset when column count changes — keep track refs intact.
   useEffect(() => {
-    trackRefs.current = [];
     wallOffset.current = 0;
     wallScrollTarget.current = null;
   }, [wide]);

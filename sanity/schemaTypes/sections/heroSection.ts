@@ -27,7 +27,6 @@ export const heroSection = defineType({
       type: "string",
       description: "Defaults to the project name if left blank.",
     }),
-    defineField({ name: "appearance", type: "appearance" }),
   ],
   preview: {
     select: { media: "image", caption: "caption" },

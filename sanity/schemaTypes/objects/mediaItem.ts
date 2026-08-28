@@ -11,7 +11,7 @@ export const mediaItem = defineType({
       name: "mediaType",
       title: "Media type",
       type: "string",
-      initialValue: "video",
+      initialValue: "image",
       validation: (r) => r.required(),
       options: {
         list: [

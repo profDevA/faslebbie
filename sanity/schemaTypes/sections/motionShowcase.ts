@@ -1,5 +1,8 @@
 import { defineField, defineType } from "sanity";
 
+import { MOTION_SHOWCASE_BAND_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
+import { MOTION_SHOWCASE_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // 07 — Motion Showcase (Figma 2019:104708).
 // Coral example: Key Product Experiences — Mobile + iPad.
 export const motionShowcase = defineType({
@@ -19,6 +22,27 @@ export const motionShowcase = defineType({
       type: "portableText",
     }),
     defineField({
+      name: "titleMarginBottom",
+      title: "Title margin bottom (px)",
+      type: "number",
+      initialValue: MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "titleMarginBottomDesktop",
+      title: "Title margin bottom desktop (px)",
+      type: "number",
+      initialValue: MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottomDesktop,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "introMarginBottom",
+      title: "Intro margin bottom (px)",
+      type: "number",
+      initialValue: MOTION_SHOWCASE_BAND_DEFAULTS.introMarginBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
       name: "rows",
       title: "Optional multiple product flows",
       description:
@@ -27,7 +51,11 @@ export const motionShowcase = defineType({
       of: [{ type: "motionRow" }],
       validation: (r) => r.min(1),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: MOTION_SHOWCASE_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", rows: "rows" },

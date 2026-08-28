@@ -7,10 +7,20 @@ import { hiResUrl } from "@/sanity/image";
 const DEFAULT_HERO = "/media/design-again-hero.png";
 const HERO_DISPLAY_W = 1400;
 
-function PlayGlyph({ className = "" }: { className?: string }) {
+function MediaPlayOverlay({ className = "size-[52px]" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-      <path d="M9 7.5v9l7-4.5-7-4.5z" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 52 52"
+      fill="none"
+      aria-hidden
+      className={`relative shrink-0 transition-transform group-hover:scale-105 ${className}`}
+    >
+      <circle cx="26" cy="26" r="26" fill="#010916" fillOpacity="0.4" />
+      <path
+        d="M38.0999 24.5273C39.4535 25.2608 39.5055 27.1846 38.1935 27.9901L21.957 37.9588C20.6449 38.7644 18.9529 37.8475 18.9113 36.3085L18.3964 17.2629C18.3548 15.7238 19.9948 14.7169 21.3485 15.4504L38.0999 24.5273Z"
+        fill="white"
+      />
     </svg>
   );
 }
@@ -65,9 +75,7 @@ function TalkCard({
             className="object-cover"
           />
         ) : null}
-        <span className="relative flex size-13 items-center justify-center rounded-full bg-black text-white transition-transform group-hover:scale-105">
-          <PlayGlyph className="ml-0.5 h-6 w-6" />
-        </span>
+        <MediaPlayOverlay />
       </div>
       <p className="mt-2.5 text-[14px] font-normal italic capitalize leading-[1.35] tracking-[0.9px] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px] lg:tracking-[1.65px]">
         {item.title}

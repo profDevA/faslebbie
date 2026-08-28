@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { PROBLEM_CONTEXT_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // Legacy — use problemContextSection, reflectionSection, or section-specific types.
 export const proseSection = defineType({
   name: "proseSection",
@@ -13,7 +15,11 @@ export const proseSection = defineType({
       type: "portableText",
       validation: (r) => r.required(),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: PROBLEM_CONTEXT_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle" },

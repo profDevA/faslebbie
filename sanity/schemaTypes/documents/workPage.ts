@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
+import { WORK_PAGE_APPEARANCE_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
 
 // Singleton config for the /work grid shell (Work Gallery). The card grid
 // itself is derived from published case studies, not stored here.
@@ -83,7 +84,12 @@ export const workPage = defineType({
       description: "Reserved — not used on the Work gallery yet.",
       hidden: true,
     }),
-    defineField({ name: "appearance", type: "appearance", group: "content" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      group: "content",
+      initialValue: WORK_PAGE_APPEARANCE_DEFAULTS,
+    }),
     pageSeoField,
   ],
   preview: { prepare: () => ({ title: "Work Page" }) },

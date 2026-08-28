@@ -29,6 +29,12 @@ import {
   CORE_EXPERIENCE_POPUP_DEFAULTS,
   CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
+  HIGHLIGHT_REEL_GRID_DEFAULTS,
+  HIGHLIGHT_REEL_SINGLE_DEFAULTS,
+  MOTION_ROW_DEFAULTS,
+  MOTION_SHOWCASE_BAND_DEFAULTS,
+  SHOWCASE_ARTIFACT_DEFAULTS,
+  STATS_BAND_DEFAULTS,
 } from '@/lib/caseStudyDefaults'
 import {
   gapDefault,
@@ -829,16 +835,24 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const mediaFirst = s.mediaPosition === 'left'
   const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
-  const copyPad = overviewCopyPadStyle(s)
-  const mediaPad = overviewMediaPadStyle(s)
-  const colGap = sectionGapStyle(s.appearance, gapDefault('md', page), page)
+  const copyPad = overviewCopyPadStyle(s, page)
+  const mediaPad = overviewMediaPadStyle(s, page)
+  const mediaPadMobile = overviewMediaPadStyle(s, page, true)
+  const colGap =
+    typeof s.columnGap === "number" && s.columnGap >= 0
+      ? s.columnGap
+      : OVERVIEW_COLUMN_GAP
   const desktopMediaClass = page
-    ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
+    ? hasVideo || contain
+      ? 'relative hidden min-h-0 items-center justify-center lg:flex lg:min-h-full'
+      : 'relative hidden min-h-0 lg:flex lg:min-h-full'
     : hasVideo
       ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
       : 'relative hidden lg:flex lg:min-h-full'
   const desktopMediaSizeClass = page
-    ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
+    ? hasVideo || contain
+      ? 'max-h-full max-w-full object-contain'
+      : 'absolute inset-0 h-full w-full object-cover object-center'
     : hasVideo
       ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
       : contain
@@ -850,16 +864,14 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 ${page ? 'lg:items-stretch' : ''}`}
       style={{
         ...bandStyle(s.appearance),
-        ...(page ? {} : { columnGap: OVERVIEW_COLUMN_GAP }),
+        ...(page ? {} : { columnGap: colGap }),
       }}
     >
       <div
         className={`flex min-h-0 flex-col ${copyOrder} ${
-          page
-            ? 'justify-start px-5 sm:px-8 lg:pl-12 lg:pr-16 xl:pl-16 xl:pr-20'
-            : `justify-between ${gutter}`
+          page ? 'justify-start' : `justify-between ${gutter}`
         }`}
-        style={{ ...copyPad, ...colGap }}
+        style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', page), page) }}
       >
         <div className={page ? 'max-w-[min(580px,100%)]' : undefined}>
           <h2 className={`${csSectionTitle(v)} ${dark}`}>
@@ -918,8 +930,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       </div>
       {/* Mobile: image preferred over video (Figma overview mockups). */}
       <div
-        className={`relative flex aspect-[360/552] items-center justify-center px-[10%] py-[10%] lg:hidden ${mediaOrder}`}
-        style={{ backgroundColor: sideBg, ...mediaPad }}
+        className={`relative flex aspect-[360/552] items-center justify-center lg:hidden ${mediaOrder}`}
+        style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
         {s.sideImage ? (
           // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -1926,6 +1938,11 @@ function ShowcaseBlock({
           <ArtifactSlider
             images={expandImages ?? images}
             scrollRoot={scrollRoot}
+            gap={
+              typeof s.sliderGap === 'number' && s.sliderGap >= 0
+                ? s.sliderGap
+                : SHOWCASE_ARTIFACT_DEFAULTS.sliderGap
+            }
           />
         )}
         {(s.sectionTitle || s.introBody) && (
@@ -1982,6 +1999,28 @@ function MotionShowcaseBlock({
   if (!rows.length) return null
   const light = isLight(s.appearance)
   const onDark = light ? 'text-[#e3e3db]' : ''
+  const titleMb =
+    typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
+  const titleMbLg =
+    typeof s.titleMarginBottomDesktop === 'number' &&
+    s.titleMarginBottomDesktop >= 0
+      ? s.titleMarginBottomDesktop
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottomDesktop
+  const introMb =
+    typeof s.introMarginBottom === 'number' && s.introMarginBottom >= 0
+      ? s.introMarginBottom
+      : MOTION_SHOWCASE_BAND_DEFAULTS.introMarginBottom
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const titleMargin = lg ? titleMbLg : titleMb
   return (
     <section
       className={csBandGutter(v)}
@@ -1989,13 +2028,17 @@ function MotionShowcaseBlock({
     >
       {s.sectionTitle && (
         <h2
-          className={`mb-10 text-center lg:mb-14 ${csSectionTitle(v)} ${light ? onDark : ''}`}
+          className={`text-center ${csSectionTitle(v)} ${light ? onDark : ''}`}
+          style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
         </h2>
       )}
       {s.intro && (
-        <div className={`mx-auto mb-10 max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')} ${onDark}`}>
+        <div
+          className={`mx-auto max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')} ${onDark}`}
+          style={{ marginBottom: introMb }}
+        >
           <Prose value={s.intro} className={csBodyText(v, 'text-[15px] lg:text-[16px]')} />
         </div>
       )}
@@ -2043,14 +2086,32 @@ function MotionRowView({
         ? 'rounded-[12px]'
         : 'rounded-[10px]'
   const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
+  const rowWidth =
+    typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
+      ? row.rowWidthPercent
+      : MOTION_ROW_DEFAULTS.rowWidthPercent
+  const itemGap =
+    typeof row.itemGapPercent === 'number' && row.itemGapPercent >= 0
+      ? row.itemGapPercent
+      : MOTION_ROW_DEFAULTS.itemGapPercent
+  const captionMt =
+    typeof row.captionMarginTop === 'number' && row.captionMarginTop >= 0
+      ? row.captionMarginTop
+      : MOTION_ROW_DEFAULTS.captionMarginTop
+  const tileBg =
+    colorToCss(row.tileBackgroundColor) ?? MOTION_ROW_DEFAULTS.tileBackgroundColor
   return (
     <div className={`flex ${alignRight ? 'justify-end' : 'justify-start'}`}>
-      <div className="w-full max-w-full sm:max-w-[54%]">
-        <div className="flex gap-[3%] drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]">
+      <div className="w-full max-w-full" style={{ maxWidth: `${rowWidth}%` }}>
+        <div
+          className="flex drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]"
+          style={{ gap: `${itemGap}%` }}
+        >
           {items.map((it, itemIndex) => (
             <div
               key={it._key ?? `motion-${itemIndex}`}
-              className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5 bg-white`}
+              className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5`}
+              style={{ backgroundColor: tileBg }}
             >
               <DeviceMedia item={it} poster={row.posterImage} />
             </div>
@@ -2058,7 +2119,8 @@ function MotionRowView({
         </div>
         {(row.label || row.caption) && (
           <div
-            className={`mt-7 max-w-[min(325px,100%)] text-left tracking-[0.382px] xl:mt-[2.2vw] ${captionColor}`}
+            className={`max-w-[min(325px,100%)] text-left tracking-[0.382px] ${captionColor}`}
+            style={{ marginTop: captionMt }}
           >
             {row.label && (
               <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
@@ -2138,6 +2200,26 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   const cells = s.cells ?? []
   if (!cells.length) return null
   const single = s.layout === 'single'
+  const gridGap =
+    typeof s.gridGap === 'number' && s.gridGap >= 0
+      ? s.gridGap
+      : HIGHLIGHT_REEL_GRID_DEFAULTS.gridGap
+  const gridMatte =
+    colorToCss(s.gridCellMatteColor) ?? HIGHLIGHT_REEL_GRID_DEFAULTS.cellMatteColor
+  const insetV =
+    typeof s.gridCellInsetVerticalPercent === 'number'
+      ? s.gridCellInsetVerticalPercent
+      : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetVerticalPercent
+  const insetH =
+    typeof s.gridCellInsetHorizontalPercent === 'number'
+      ? s.gridCellInsetHorizontalPercent
+      : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetHorizontalPercent
+  const singleMatte =
+    colorToCss(s.singleCardMatteColor) ?? HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardMatteColor
+  const singlePad =
+    typeof s.singleCardPadding === 'number' && s.singleCardPadding >= 0
+      ? s.singleCardPadding
+      : HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardPadding
   return (
     <section
       className={csBandGutter(v)}
@@ -2149,14 +2231,24 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
         </h2>
       )}
       {single ? (
-        <HighlightCardView frames={cells.flatMap(highlightFrameUrls)} />
+        <HighlightCardView
+          frames={cells.flatMap(highlightFrameUrls)}
+          matteColor={singleMatte}
+          mattePadding={singlePad}
+        />
       ) : (
-        <div className="mx-auto grid w-full max-w-234 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]">
+        <div
+          className="mx-auto grid w-full max-w-234 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]"
+          style={{ gap: gridGap }}
+        >
           {cells.map((c, i) => (
             <HighlightCellView
               key={c._key ?? `highlight-${i}`}
               cell={c}
               delay={i * 900}
+              matteColor={gridMatte}
+              insetVertical={insetV}
+              insetHorizontal={insetH}
             />
           ))}
         </div>
@@ -2167,11 +2259,22 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
 
 // Single-card layout (Figma 600:32123): one 887×503 card, thin white matte,
 // centred on the band, cycling through every frame.
-function HighlightCardView({ frames }: { frames: string[] }) {
+function HighlightCardView({
+  frames,
+  matteColor,
+  mattePadding,
+}: {
+  frames: string[]
+  matteColor: string
+  mattePadding: number
+}) {
   const i = useFrameCycle(frames.length, 0)
   if (!frames.length) return null
   return (
-    <div className="mx-auto w-full max-w-222 rounded-lg bg-white p-1 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+    <div
+      className="mx-auto w-full max-w-222 rounded-lg shadow-[0_12px_30px_rgba(0,0,0,0.22)]"
+      style={{ backgroundColor: matteColor, padding: mattePadding }}
+    >
       <div className="relative aspect-887/503 overflow-hidden rounded-[5px]">
         {frames.map((src, idx) => (
           // eslint-disable-next-line @next/next/no-img-element -- highlight art
@@ -2211,9 +2314,15 @@ function useFrameCycle(count: number, delay: number) {
 function HighlightCellView({
   cell,
   delay,
+  matteColor,
+  insetVertical,
+  insetHorizontal,
 }: {
   cell: HighlightCell
   delay: number
+  matteColor: string
+  insetVertical: number
+  insetHorizontal: number
 }) {
   const frames = cell.frames ?? []
   const videoSrc = cell.videoFile || cell.videoUrl
@@ -2225,8 +2334,19 @@ function HighlightCellView({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative aspect-303/203 w-full rounded-md bg-[#d4e9d7]">
-        <div className="absolute inset-[14%_10.5%] overflow-hidden rounded-[3px]">
+      <div
+        className="relative aspect-303/203 w-full rounded-md"
+        style={{ backgroundColor: matteColor }}
+      >
+        <div
+          className="absolute overflow-hidden rounded-[3px]"
+          style={{
+            top: `${insetVertical}%`,
+            bottom: `${insetVertical}%`,
+            left: `${insetHorizontal}%`,
+            right: `${insetHorizontal}%`,
+          }}
+        >
           {videoSrc ? (
             cell.videoUrl && !cell.videoFile ? (
               <iframe
@@ -2271,22 +2391,53 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
   const v = useCsVariant()
   const page = v === 'page'
   const items = s.items ?? []
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
   if (!items.length) return null
+  const metricGap = lg
+    ? typeof s.metricGridGapDesktop === 'number' && s.metricGridGapDesktop >= 0
+      ? s.metricGridGapDesktop
+      : STATS_BAND_DEFAULTS.metricGridGapDesktop
+    : typeof s.metricGridGap === 'number' && s.metricGridGap >= 0
+      ? s.metricGridGap
+      : STATS_BAND_DEFAULTS.metricGridGap
+  const titleMb = lg
+    ? typeof s.titleMarginBottomDesktop === 'number' &&
+      s.titleMarginBottomDesktop >= 0
+      ? s.titleMarginBottomDesktop
+      : STATS_BAND_DEFAULTS.titleMarginBottomDesktop
+    : typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : STATS_BAND_DEFAULTS.titleMarginBottom
+  const bodyMb =
+    typeof s.bodyMarginBottom === 'number' && s.bodyMarginBottom >= 0
+      ? s.bodyMarginBottom
+      : STATS_BAND_DEFAULTS.bodyMarginBottom
   return (
     <section
       className={`${csBandGutter(v)} text-center`}
       style={sectionStyle(s.appearance, page, 'lg')}
     >
       {s.sectionTitle && (
-        <h2 className={`mb-12 lg:mb-16 ${csSectionTitle(v)}`}>
+        <h2 className={csSectionTitle(v)} style={{ marginBottom: titleMb }}>
           {s.sectionTitle}
         </h2>
       )}
-      <Prose
-        value={s.body}
-        className={`mx-auto mb-12 max-w-[min(720px,100%)] lg:mb-16 ${csBodyText(v)}`}
-      />
-      <div className={`mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-10 lg:gap-14`}>
+      {s.body?.length ? (
+        <div className="mx-auto max-w-[min(720px,100%)]" style={{ marginBottom: bodyMb }}>
+          <Prose value={s.body} className={csBodyText(v)} />
+        </div>
+      ) : null}
+      <div
+        className="mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 sm:grid-cols-3"
+        style={{ gap: metricGap }}
+      >
         {items.map((st, i) => (
           <Stat key={st._key ?? `stat-${i}`} stat={st} />
         ))}
@@ -2424,9 +2575,11 @@ function Accordion({
 function ArtifactSlider({
   images,
   scrollRoot,
+  gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
 }: {
   images: string[]
   scrollRoot?: React.RefObject<HTMLDivElement | null>
+  gap?: number
 }) {
   const n = images.length
   const [visible, setVisible] = useState(3)
@@ -2436,7 +2589,7 @@ function ArtifactSlider({
   const locked = useRef(false)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewportW, setViewportW] = useState(0)
-  const GAP = 20
+  const GAP = gap
 
   useEffect(() => {
     const update = () => {

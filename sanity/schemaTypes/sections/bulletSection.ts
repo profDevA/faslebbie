@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { STATS_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // Legacy — use reflectionSection for §11 Next Steps.
 export const bulletSection = defineType({
   name: "bulletSection",
@@ -19,7 +21,14 @@ export const bulletSection = defineType({
       of: [{ type: "text", rows: 2 }],
       validation: (r) => r.min(1),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: {
+        ...STATS_APPEARANCE_DEFAULTS,
+        contentGapInner: 20,
+      },
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", items: "items" },

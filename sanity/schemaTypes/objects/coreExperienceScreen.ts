@@ -1,5 +1,8 @@
 import { defineField, defineType } from "sanity";
 
+import { CORE_EXPERIENCE_SCREEN_APPEARANCE } from "../../../src/lib/caseStudyDefaults";
+import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
+
 /** One screen tile in the Core Experience band or popup (Figma 2110:39499 / 2271:58148). */
 export const coreExperienceScreen = defineType({
   name: "coreExperienceScreen",
@@ -47,6 +50,11 @@ export const coreExperienceScreen = defineType({
       name: "appearance",
       title: "Card layout & colors",
       type: "appearance",
+      initialValue: {
+        tileBackgroundColor: sanityColor(
+          CORE_EXPERIENCE_SCREEN_APPEARANCE.tileBackgroundColor,
+        ),
+      },
       description:
         "Per-screen overrides: card background, padding, gaps. Empty = band preview defaults.",
     }),

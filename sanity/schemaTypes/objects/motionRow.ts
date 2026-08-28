@@ -1,5 +1,8 @@
 import { defineField, defineType } from "sanity";
 
+import { MOTION_ROW_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
+import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
+
 // One product-flow row inside 07 — Motion Showcase.
 export const motionRow = defineType({
   name: "motionRow",
@@ -35,6 +38,34 @@ export const motionRow = defineType({
       type: "image",
       options: { hotspot: true },
       description: "Optional fallback for this flow while videos load.",
+    }),
+    defineField({
+      name: "rowWidthPercent",
+      title: "Row max width (%)",
+      type: "number",
+      initialValue: MOTION_ROW_DEFAULTS.rowWidthPercent,
+      validation: (r) => r.min(20).max(100),
+    }),
+    defineField({
+      name: "itemGapPercent",
+      title: "Gap between frames (%)",
+      type: "number",
+      initialValue: MOTION_ROW_DEFAULTS.itemGapPercent,
+      validation: (r) => r.min(0).max(20),
+    }),
+    defineField({
+      name: "captionMarginTop",
+      title: "Caption margin top (px)",
+      type: "number",
+      initialValue: MOTION_ROW_DEFAULTS.captionMarginTop,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "tileBackgroundColor",
+      title: "Frame background color",
+      type: "color",
+      initialValue: sanityColor(MOTION_ROW_DEFAULTS.tileBackgroundColor),
+      options: { disableAlpha: false },
     }),
     defineField({
       name: "label",

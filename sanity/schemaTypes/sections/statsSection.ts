@@ -1,5 +1,8 @@
 import { defineField, defineType } from "sanity";
 
+import { STATS_BAND_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
+import { STATS_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // §09 Impact — count-up metric band (Figma 2110:40267).
 export const statsSection = defineType({
   name: "statsSection",
@@ -19,7 +22,46 @@ export const statsSection = defineType({
       of: [{ type: "statItem" }],
       validation: (r) => r.min(1),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "metricGridGap",
+      title: "Metric grid gap (px)",
+      type: "number",
+      initialValue: STATS_BAND_DEFAULTS.metricGridGap,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "metricGridGapDesktop",
+      title: "Metric grid gap desktop (px)",
+      type: "number",
+      initialValue: STATS_BAND_DEFAULTS.metricGridGapDesktop,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "titleMarginBottom",
+      title: "Title margin bottom (px)",
+      type: "number",
+      initialValue: STATS_BAND_DEFAULTS.titleMarginBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "titleMarginBottomDesktop",
+      title: "Title margin bottom desktop (px)",
+      type: "number",
+      initialValue: STATS_BAND_DEFAULTS.titleMarginBottomDesktop,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "bodyMarginBottom",
+      title: "Body margin bottom (px)",
+      type: "number",
+      initialValue: STATS_BAND_DEFAULTS.bodyMarginBottom,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: STATS_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", items: "items" },

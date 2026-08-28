@@ -1,5 +1,11 @@
 import { defineField, defineType } from "sanity";
 
+import { ACCORDION_PANEL_BACKGROUND } from "../../../src/lib/caseStudyDefaults";
+import {
+  ACCORDION_APPEARANCE_DEFAULTS,
+  sanityColor,
+} from "../../../src/lib/sanityAppearanceDefaults";
+
 // Accordion band. Two variants:
 //  - "centered": narrow centred accordion (What I Brought / My Role).
 //  - "split": left side-copy (My Approach) + right accordion (Design Process).
@@ -46,6 +52,7 @@ export const accordionSection = defineType({
       name: "accordionBackgroundColor",
       title: "Accordion background color",
       type: "color",
+      initialValue: sanityColor(ACCORDION_PANEL_BACKGROUND),
       options: { disableAlpha: false },
     }),
     defineField({
@@ -55,7 +62,11 @@ export const accordionSection = defineType({
       of: [{ type: "accordionItem" }],
       validation: (r) => r.min(3).max(6),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: ACCORDION_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", variant: "variant", items: "items" },

@@ -1,5 +1,11 @@
 import { defineField, defineType } from "sanity";
 
+import {
+  CORE_EXPERIENCE_BAND_APPEARANCE_DEFAULTS,
+  CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS,
+  coreExperiencePreviewAppearanceDefaults,
+} from "../../../src/lib/sanityAppearanceDefaults";
+
 // 04 — Core Experience Flow (Figma 2110:39499 band + 3670:21768 popup tabs).
 export const coreExperience = defineType({
   name: "coreExperience",
@@ -65,6 +71,7 @@ export const coreExperience = defineType({
       name: "previewAppearance",
       title: "Band preview — layout & colors",
       type: "appearance",
+      initialValue: coreExperiencePreviewAppearanceDefaults("mobileRow"),
       description:
         "Grid gaps, card background, horizontal padding, max width for the preview screens row/grid.",
     }),
@@ -110,6 +117,7 @@ export const coreExperience = defineType({
       name: "popupAppearance",
       title: "Popup — layout & colors",
       type: "appearance",
+      initialValue: CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS,
       description:
         "View More popup: background, text colour, alignment, padding/gap (px), intro/container width (px), tile colour.",
     }),
@@ -158,7 +166,11 @@ export const coreExperience = defineType({
       hidden: ({ parent }) => (parent?.previewScreens?.length ?? 0) > 0,
       description: "Optional narrow crop for the legacy single-image band on phones.",
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: CORE_EXPERIENCE_BAND_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: {

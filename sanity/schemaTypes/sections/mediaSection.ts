@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { DESKTOP_MOTION_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // Legacy — use desktopMotionShowcase (§08) or motionShowcase (§07).
 export const mediaSection = defineType({
   name: "mediaSection",
@@ -15,7 +17,11 @@ export const mediaSection = defineType({
       of: [{ type: "mediaItem" }],
       validation: (r) => r.min(1),
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: DESKTOP_MOTION_APPEARANCE_DEFAULTS,
+    }),
   ],
   preview: {
     select: { title: "sectionTitle", items: "items" },

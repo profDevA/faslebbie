@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity";
 
+import { REFLECTION_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+
 // 11 — Reflection / Next Steps (Figma 600:14126): one black narrative band.
 export const reflectionSection = defineType({
   name: "reflectionSection",
@@ -30,7 +32,11 @@ export const reflectionSection = defineType({
       of: [{ type: "text", rows: 3 }],
       description: "Each item renders as a centered line (no bullet markers).",
     }),
-    defineField({ name: "appearance", type: "appearance" }),
+    defineField({
+      name: "appearance",
+      type: "appearance",
+      initialValue: REFLECTION_APPEARANCE_DEFAULTS,
+    }),
   ],
   validation: (Rule) =>
     Rule.custom((value) => {

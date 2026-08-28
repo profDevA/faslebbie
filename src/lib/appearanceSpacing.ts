@@ -2,7 +2,10 @@ import type { CSSProperties } from "react";
 
 import {
   OVERVIEW_COPY_COLUMN_PAD,
+  OVERVIEW_COPY_COLUMN_PAD_PAGE,
   OVERVIEW_MEDIA_COLUMN_PAD,
+  OVERVIEW_MEDIA_COLUMN_PAD_PAGE,
+  OVERVIEW_MEDIA_MOBILE_INSET,
 } from "@/lib/caseStudyDefaults";
 
 /** Legacy enum values still stored on older Sanity documents. */
@@ -146,38 +149,94 @@ export function sectionInnerGapStyle(
   };
 }
 
-function columnPadStyle(
-  top: number | undefined,
-  bottom: number | undefined,
-  defaults: PadDefaults,
+function resolveColumnPx(value: number | undefined, fallback: number): number {
+  return typeof value === "number" && value >= 0 ? value : fallback;
+}
+
+type OverviewColumnPad = {
+  paddingTop: number;
+  paddingBottom: number;
+  paddingLeft?: number;
+  paddingRight?: number;
+};
+
+function overviewColumnPadStyle(
+  section: {
+    paddingTop?: number;
+    paddingBottom?: number;
+    paddingLeft?: number;
+    paddingRight?: number;
+  },
+  defaults: OverviewColumnPad,
+  horizontal: boolean,
 ): CSSProperties {
-  return {
-    paddingTop: typeof top === "number" && top >= 0 ? top : defaults.paddingTop,
-    paddingBottom:
-      typeof bottom === "number" && bottom >= 0 ? bottom : defaults.paddingBottom,
+  const style: CSSProperties = {
+    paddingTop: resolveColumnPx(section.paddingTop, defaults.paddingTop),
+    paddingBottom: resolveColumnPx(section.paddingBottom, defaults.paddingBottom),
   };
+  if (horizontal && defaults.paddingLeft !== undefined) {
+    style.paddingLeft = resolveColumnPx(section.paddingLeft, defaults.paddingLeft);
+    style.paddingRight = resolveColumnPx(
+      section.paddingRight,
+      defaults.paddingRight ?? defaults.paddingLeft,
+    );
+  }
+  return style;
 }
 
-export function overviewCopyPadStyle(section: {
-  copyPaddingTop?: number;
-  copyPaddingBottom?: number;
-}): CSSProperties {
-  return columnPadStyle(
-    section.copyPaddingTop,
-    section.copyPaddingBottom,
-    OVERVIEW_COPY_COLUMN_PAD,
+export function overviewCopyPadStyle(
+  section: {
+    copyPaddingTop?: number;
+    copyPaddingBottom?: number;
+    copyPaddingLeft?: number;
+    copyPaddingRight?: number;
+  },
+  page: boolean,
+): CSSProperties {
+  return overviewColumnPadStyle(
+    {
+      paddingTop: section.copyPaddingTop,
+      paddingBottom: section.copyPaddingBottom,
+      paddingLeft: section.copyPaddingLeft,
+      paddingRight: section.copyPaddingRight,
+    },
+    page ? OVERVIEW_COPY_COLUMN_PAD_PAGE : OVERVIEW_COPY_COLUMN_PAD,
+    page,
   );
 }
 
-export function overviewMediaPadStyle(section: {
-  mediaPaddingTop?: number;
-  mediaPaddingBottom?: number;
-}): CSSProperties {
-  return columnPadStyle(
-    section.mediaPaddingTop,
-    section.mediaPaddingBottom,
-    OVERVIEW_MEDIA_COLUMN_PAD,
+export function overviewMediaPadStyle(
+  section: {
+    mediaPaddingTop?: number;
+    mediaPaddingBottom?: number;
+    mediaPaddingLeft?: number;
+    mediaPaddingRight?: number;
+  },
+  page: boolean,
+  mobileOverlay = false,
+): CSSProperties {
+  const defaults = page ? OVERVIEW_MEDIA_COLUMN_PAD_PAGE : OVERVIEW_MEDIA_COLUMN_PAD;
+  const style = overviewColumnPadStyle(
+    {
+      paddingTop: section.mediaPaddingTop,
+      paddingBottom: section.mediaPaddingBottom,
+      paddingLeft: section.mediaPaddingLeft,
+      paddingRight: section.mediaPaddingRight,
+    },
+    defaults,
+    page || mobileOverlay,
   );
+  if (mobileOverlay && !page) {
+    style.paddingLeft = resolveColumnPx(
+      section.mediaPaddingLeft,
+      OVERVIEW_MEDIA_MOBILE_INSET,
+    );
+    style.paddingRight = resolveColumnPx(
+      section.mediaPaddingRight,
+      OVERVIEW_MEDIA_MOBILE_INSET,
+    );
+  }
+  return style;
 }
 
 export function padDefaults(

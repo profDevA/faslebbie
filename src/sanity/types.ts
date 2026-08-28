@@ -52,6 +52,10 @@ export interface CoreExperienceScreen {
 export interface MotionRow {
   _key: string;
   device?: "mobile" | "tablet" | "desktop";
+  rowWidthPercent?: number;
+  itemGapPercent?: number;
+  captionMarginTop?: number;
+  tileBackgroundColor?: SanityColor;
   label?: string;
   caption?: string;
   posterImage?: string;
@@ -130,8 +134,13 @@ export type Section =
       mediaPosition?: "left" | "right";
       copyPaddingTop?: number;
       copyPaddingBottom?: number;
+      copyPaddingLeft?: number;
+      copyPaddingRight?: number;
       mediaPaddingTop?: number;
       mediaPaddingBottom?: number;
+      mediaPaddingLeft?: number;
+      mediaPaddingRight?: number;
+      columnGap?: number;
     })
   | (Base & {
       _type: "accordionSection";
@@ -219,24 +228,39 @@ export type Section =
       sectionTitle?: string;
       introBody?: PortableTextBlock[];
       expandable?: boolean;
+      sliderGap?: number;
       items?: GalleryImage[];
     })
   | (Base & {
       _type: "motionShowcase";
       sectionTitle?: string;
       intro?: PortableTextBlock[];
+      titleMarginBottom?: number;
+      titleMarginBottomDesktop?: number;
+      introMarginBottom?: number;
       rows?: MotionRow[];
     })
   | (Base & {
       _type: "highlightReel";
       sectionTitle?: string;
       layout?: "grid" | "single";
+      gridCellMatteColor?: SanityColor;
+      gridCellInsetVerticalPercent?: number;
+      gridCellInsetHorizontalPercent?: number;
+      gridGap?: number;
+      singleCardMatteColor?: SanityColor;
+      singleCardPadding?: number;
       cells?: HighlightCell[];
     })
   | (Base & {
       _type: "statsSection";
       sectionTitle?: string;
       body?: PortableTextBlock[];
+      metricGridGap?: number;
+      metricGridGapDesktop?: number;
+      titleMarginBottom?: number;
+      titleMarginBottomDesktop?: number;
+      bodyMarginBottom?: number;
       items?: StatItem[];
     })
   | (Base & {

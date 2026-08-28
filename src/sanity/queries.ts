@@ -25,7 +25,10 @@ const sectionsProj = `sections[]{
     "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
     sideImageFit, sideImageBackgroundColor,
-    mediaPosition, copyPaddingTop, copyPaddingBottom, mediaPaddingTop, mediaPaddingBottom
+    mediaPosition,
+    copyPaddingTop, copyPaddingBottom, copyPaddingLeft, copyPaddingRight,
+    mediaPaddingTop, mediaPaddingBottom, mediaPaddingLeft, mediaPaddingRight,
+    columnGap
   },
   _type == "accordionSection" => {
     variant, sectionTitle, sideTitle, sideBody, accordionBackgroundColor,
