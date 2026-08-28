@@ -4,9 +4,9 @@ import { SANITY_IMAGE_PROJ } from "./image";
 
 const img = SANITY_IMAGE_PROJ;
 
-const appearanceProj = `appearance{
-  backgroundColor, textColor, paddingTop, paddingBottom, contentGap, contentGapInner, contentAlignment, maxWidth
-}`;
+const appearanceFields = `backgroundColor, textColor, paddingTop, paddingBottom, paddingLeft, paddingRight, contentGap, contentGapInner, contentAlignment, maxWidth, tileBackgroundColor, introMaxWidth, containerMaxWidth`;
+
+const appearanceProj = `appearance{ ${appearanceFields} }`;
 
 // Image fields keep crop/hotspot — resolveSanityImages() in fetch.ts applies them.
 const sectionsProj = `sections[]{
@@ -39,12 +39,16 @@ const sectionsProj = `sections[]{
     reflectionHeading, reflectionBody, nextStepsHeading, nextStepsItems
   },
   _type == "coreExperience" => {
-    sectionTitle, body, layoutVariant, viewMoreLabel,
+    sectionTitle, body, layoutVariant, previewColumns, previewRowStagger, viewMoreLabel,
     previewScreens[]{
-      _key, label, description,
-      "image": image${img}
+      _key, label, description, imageWidth, imageHeight,
+      "image": image${img},
+      appearance{ ${appearanceFields} }
     },
+    previewAppearance{ ${appearanceFields} },
+    popupKicker, popupTitle,
     popupBody,
+    popupAppearance{ ${appearanceFields} },
     popupItemsBeforeViewMore, popupLoadMoreLabel,
     popupTabs[]{
       _key, label,

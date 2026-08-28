@@ -1,7 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-// Shared per-section look & layout controls. Padding and gap are pixel values
-// so authors can match Figma exactly (e.g. 102). Leave empty for template defaults.
+// Shared look & layout controls for sections and nested elements (popups, tiles,
+// cards). Reuse this type on section bands and on sub-components so Israel can
+// tune each layer in Studio — same field set everywhere (tree-style CMS).
+// Padding and gap are pixel values so authors can match Figma (e.g. 102).
 export const appearance = defineType({
   name: "appearance",
   title: "Layout & colors",
@@ -34,6 +36,20 @@ export const appearance = defineType({
       title: "Padding bottom (px)",
       type: "number",
       description: "Space below section content. Empty = template default.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "paddingLeft",
+      title: "Padding left (px)",
+      type: "number",
+      description: "Horizontal inset on the left, e.g. 20. Empty = template default.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "paddingRight",
+      title: "Padding right (px)",
+      type: "number",
+      description: "Horizontal inset on the right, e.g. 20. Empty = template default.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
@@ -80,6 +96,30 @@ export const appearance = defineType({
           { title: "Full bleed", value: "full" },
         ],
       },
+    }),
+    defineField({
+      name: "tileBackgroundColor",
+      title: "Tile / card background",
+      type: "color",
+      description:
+        "Fill behind image tiles or nested cards (e.g. Core Experience popup grid #4f6b76).",
+      options: { disableAlpha: false },
+    }),
+    defineField({
+      name: "introMaxWidth",
+      title: "Intro max width (px)",
+      type: "number",
+      description:
+        "Max width of headline + intro prose column, e.g. 560. Empty = template default.",
+      validation: (r) => r.min(200).integer(),
+    }),
+    defineField({
+      name: "containerMaxWidth",
+      title: "Container max width (px)",
+      type: "number",
+      description:
+        "Cap content width when set, e.g. 1200. Leave empty for full popup width.",
+      validation: (r) => r.min(320).integer(),
     }),
   ],
 });

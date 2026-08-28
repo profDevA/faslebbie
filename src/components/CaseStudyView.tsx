@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import PopupShell from '@/components/PopupShell'
@@ -23,17 +23,25 @@ import type {
   HighlightCell,
   CoreExperienceScreen,
 } from '@/sanity/types'
-import { REFLECTION_DEFAULTS, OVERVIEW_COLUMN_GAP } from '@/lib/caseStudyDefaults'
+import {
+  REFLECTION_DEFAULTS,
+  OVERVIEW_COLUMN_GAP,
+  CORE_EXPERIENCE_POPUP_DEFAULTS,
+  CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
+  CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
+} from '@/lib/caseStudyDefaults'
 import {
   gapDefault,
   padDefaults,
   PAGE_PROSE_PAD,
   proseGroupPadStyle,
   sectionGapStyle,
+  sectionHorizontalPadStyle,
   sectionInnerGapStyle,
   sectionPadStyle,
   overviewCopyPadStyle,
   overviewMediaPadStyle,
+  resolveSpacingPx,
 } from '@/lib/appearanceSpacing'
 
 /**
@@ -1204,24 +1212,92 @@ function ReflectionBlock({
   )
 }
 
-// Core Experience Flow (Figma 2110:39499): teal band with preview row + View More
-// → PopupShell popup (3670:21768): intro + Mobile/iPad/Desktop tabs + Load More grid.
-// Band preview = Figma 2110:39499 phone row. Legacy single-image when preview empty.
+// Core Experience Flow (Figma 2110:39499 mobile row / 2271:58148 desktop grid).
+// → PopupShell popup (3670:21768): intro + device tabs + Load More grid.
+function coreExperienceCardBg(
+  screen: CoreExperienceScreen,
+  bandApp?: Appearance,
+): string {
+  return (
+    colorToCss(screen.appearance?.tileBackgroundColor) ??
+    colorToCss(bandApp?.tileBackgroundColor) ??
+    CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBackground
+  )
+}
+
+function coreExperienceImageBoxStyle(
+  screen: CoreExperienceScreen,
+  layout: 'mobileRow' | 'desktopGrid',
+): CSSProperties {
+  if (screen.imageWidth && screen.imageHeight) {
+    return { aspectRatio: `${screen.imageWidth}/${screen.imageHeight}` }
+  }
+  const d =
+    layout === 'desktopGrid'
+      ? CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS
+      : CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS
+  return { aspectRatio: `${d.imageAspectWidth}/${d.imageAspectHeight}` }
+}
+
 function CoreExperienceScreenCard({
   screen,
   layout,
   tone,
   size,
+  bandApp,
 }: {
   screen: CoreExperienceScreen
   layout: 'mobileRow' | 'desktopGrid'
   tone: 'onDark' | 'onLight'
   size: 'preview' | 'popup'
+  bandApp?: Appearance
 }) {
   if (!screen.image) return null
   const desktop = layout === 'desktopGrid'
   const onDark = tone === 'onDark'
   const caption = onDark ? 'text-[#fafafa]' : 'text-black'
+  const cardBg = coreExperienceCardBg(screen, bandApp)
+  const bandPreview = size === 'preview'
+  const bandCaptionClass = desktop
+    ? `mt-3 text-left text-[13px] leading-[1.35] sm:text-[14px] lg:mt-4 ${caption}`
+    : `mt-3 text-left text-[11px] leading-[1.5] sm:text-[12px] lg:mt-4 ${caption}`
+
+  if (bandPreview) {
+    const desktopBand = desktop
+    return (
+      <figure className={desktopBand ? 'min-w-0 flex-1' : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'}>
+        <div
+          className="overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.22)]"
+          style={{
+            backgroundColor: cardBg,
+            ...coreExperienceImageBoxStyle(screen, layout),
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+          <img
+            src={screen.image}
+            alt={screen.label ?? screen.description ?? 'Product screen'}
+            className={`h-full w-full ${desktop ? 'object-contain object-top' : 'object-cover object-top'}`}
+          />
+        </div>
+        {(screen.label || screen.description) && (
+          <figcaption className={bandCaptionClass}>
+            {screen.label && <span className="font-medium">{screen.label} </span>}
+            {screen.description && (
+              <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
+                {screen.description}
+              </span>
+            )}
+          </figcaption>
+        )}
+      </figure>
+    )
+  }
+
+  const popupCaptionClass = desktop
+    ? `mt-3 text-left text-[13px] leading-[1.35] sm:text-[14px] lg:mt-4 ${caption}`
+    : `mt-3 text-left text-[11px] leading-[1.5] sm:text-[12px] lg:mt-4 ${caption}`
+
   const previewW = desktop
     ? 'w-[220px] sm:w-[260px] lg:w-[300px]'
     : 'w-[140px] sm:w-[160px] lg:w-[210px]'
@@ -1232,22 +1308,22 @@ function CoreExperienceScreenCard({
   return (
     <figure className={`shrink-0 ${width}`}>
       <div
-        className={`overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] ${desktop ? 'aspect-[762/467]' : 'aspect-[210/483]'}`}
+        className="overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
+        style={{
+          backgroundColor: cardBg,
+          ...coreExperienceImageBoxStyle(screen, layout),
+        }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={screen.image}
           alt={screen.label ?? screen.description ?? 'Product screen'}
-          className="h-full w-full object-cover object-top"
+          className={`h-full w-full ${desktop ? 'object-contain object-top' : 'object-cover object-top'}`}
         />
       </div>
       {(screen.label || screen.description) && (
-        <figcaption
-          className={`mt-3 text-left text-[10px] leading-[1.8] sm:text-[11px] lg:mt-4 ${caption}`}
-        >
-          {screen.label && (
-            <span className="font-medium">{screen.label} </span>
-          )}
+        <figcaption className={popupCaptionClass}>
+          {screen.label && <span className="font-medium">{screen.label} </span>}
           {screen.description && (
             <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
               {screen.description}
@@ -1256,6 +1332,125 @@ function CoreExperienceScreenCard({
         </figcaption>
       )}
     </figure>
+  )
+}
+
+function chunkScreens<T>(items: T[], size: number): T[][] {
+  const rows: T[][] = []
+  for (let i = 0; i < items.length; i += size) {
+    rows.push(items.slice(i, i + size))
+  }
+  return rows
+}
+
+function CoreExperienceBandPreview({
+  screens,
+  layout,
+  previewAppearance,
+  previewColumns,
+  previewRowStagger,
+  tone,
+}: {
+  screens: CoreExperienceScreen[]
+  layout: 'mobileRow' | 'desktopGrid'
+  previewAppearance?: Appearance
+  previewColumns?: number
+  previewRowStagger?: number
+  tone: 'onDark' | 'onLight'
+}) {
+  const bandApp = previewAppearance
+  const colGap = resolveSpacingPx(
+    bandApp?.contentGap,
+    { none: 0, sm: 16, md: 24, lg: 32, xl: 40 },
+    layout === 'desktopGrid'
+      ? CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.columnGap
+      : CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS.columnGap,
+  )
+  const rowGap = resolveSpacingPx(
+    bandApp?.contentGapInner,
+    { none: 0, sm: 24, md: 32, lg: 40, xl: 48 },
+    CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.rowGap,
+  )
+  const horizontalPad = sectionHorizontalPadStyle(
+    bandApp,
+    { paddingLeft: 0, paddingRight: 0 },
+    false,
+  )
+  const containerMax =
+    typeof bandApp?.containerMaxWidth === 'number' && bandApp.containerMaxWidth >= 320
+      ? bandApp.containerMaxWidth
+      : undefined
+
+  if (layout === 'desktopGrid') {
+    const perRow = Math.min(
+      Math.max(previewColumns ?? CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.columns, 1),
+      4,
+    )
+    const stagger =
+      typeof previewRowStagger === 'number' && previewRowStagger >= 0
+        ? previewRowStagger
+        : CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.rowStagger
+    const rows = chunkScreens(screens, perRow)
+
+    return (
+      <div
+        className="w-full max-w-full overflow-x-hidden"
+        style={{
+          ...horizontalPad,
+          ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
+        }}
+      >
+        <div className="flex w-full max-w-full flex-col" style={{ gap: rowGap }}>
+          {rows.map((row, rowIdx) => {
+            const topRow = rowIdx % 2 === 0
+            const rowWidth =
+              stagger > 0 ? `calc(100% - ${stagger}px)` : '100%'
+            return (
+              <div
+                key={rowIdx}
+                className="flex min-w-0 max-w-full"
+                style={{
+                  gap: colGap,
+                  width: rowWidth,
+                  marginLeft: topRow ? 0 : stagger,
+                }}
+              >
+                {row.map(sc => (
+                  <CoreExperienceScreenCard
+                    key={sc._key}
+                    screen={sc}
+                    layout={layout}
+                    tone={tone}
+                    size="preview"
+                    bandApp={bandApp}
+                  />
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
+      <div
+        className="mx-auto flex w-max justify-center px-2 sm:w-full sm:max-w-[min(1100px,100%)]"
+        style={{ gap: colGap, ...horizontalPad }}
+      >
+        {screens.map(sc => (
+          <CoreExperienceScreenCard
+            key={sc._key}
+            screen={sc}
+            layout={layout}
+            tone={tone}
+            size="preview"
+            bandApp={bandApp}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -1309,9 +1504,64 @@ function CoreExperienceBlock({
   const preview = (s.previewScreens ?? []).filter(sc => sc.image)
   const popupTabs = s.popupTabs ?? []
   const title = s.sectionTitle?.trim() || 'Core Experience Flow'
+  const popupTitle = s.popupTitle?.trim() || title
+  const popupKicker = s.popupKicker?.trim()
   const viewMore = s.viewMoreLabel?.trim() || 'View More'
   const popupInitial = s.popupItemsBeforeViewMore ?? 6
   const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
+  const popupApp = s.popupAppearance
+  const popupAlign = popupApp?.contentAlignment ?? CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment
+  const popupBg = colorToCss(popupApp?.backgroundColor)
+  const popupText = colorToCss(popupApp?.textColor)
+  const popupTileBg =
+    colorToCss(popupApp?.tileBackgroundColor) ??
+    CORE_EXPERIENCE_POPUP_DEFAULTS.tileBackgroundColor
+  const popupLight = isLight(popupApp, false)
+  const popupPad = sectionPadStyle(
+    popupApp,
+    {
+      paddingTop: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingTop,
+      paddingBottom: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingBottom,
+    },
+    false,
+  )
+  const popupIntroGap = sectionInnerGapStyle(
+    popupApp,
+    CORE_EXPERIENCE_POPUP_DEFAULTS.contentGapInner,
+    false,
+  )
+  const popupSectionGap = sectionGapStyle(
+    popupApp,
+    CORE_EXPERIENCE_POPUP_DEFAULTS.contentGap,
+    false,
+  )
+  const popupIntroMax =
+    typeof popupApp?.introMaxWidth === 'number' && popupApp.introMaxWidth >= 200
+      ? popupApp.introMaxWidth
+      : CORE_EXPERIENCE_POPUP_DEFAULTS.introMaxWidth
+  const popupContainerMax =
+    typeof popupApp?.containerMaxWidth === 'number' &&
+    popupApp.containerMaxWidth >= 320
+      ? popupApp.containerMaxWidth
+      : undefined
+  const popupHorizontalPad = sectionHorizontalPadStyle(
+    popupApp,
+    {
+      paddingLeft: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingLeft,
+      paddingRight: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingRight,
+    },
+    false,
+  )
+  const popupGridColumnGap = resolveSpacingPx(
+    popupApp?.contentGap,
+    { none: 0, sm: 12, md: 16, lg: 24, xl: 32 },
+    CORE_EXPERIENCE_POPUP_DEFAULTS.gridColumnGap,
+  )
+  const popupGridRowGap = resolveSpacingPx(
+    popupApp?.contentGapInner,
+    { none: 0, sm: 16, md: 24, lg: 32, xl: 40 },
+    CORE_EXPERIENCE_POPUP_DEFAULTS.gridRowGap,
+  )
 
   if (!preview.length) {
     if (!s.image) return null
@@ -1340,19 +1590,14 @@ function CoreExperienceBlock({
               className={`mx-auto max-w-[70ch] ${csBodyText(v, onDark)}`}
             />
           ) : null}
-          <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
-            <div className="mx-auto flex w-max justify-center gap-8 px-2 sm:w-full sm:max-w-[min(1100px,100%)] sm:gap-10 lg:gap-10">
-              {preview.map(sc => (
-                <CoreExperienceScreenCard
-                  key={sc._key}
-                  screen={sc}
-                  layout={layout}
-                  tone="onDark"
-                  size="preview"
-                />
-              ))}
-            </div>
-          </div>
+          <CoreExperienceBandPreview
+            screens={preview}
+            layout={layout}
+            previewAppearance={s.previewAppearance}
+            previewColumns={s.previewColumns}
+            previewRowStagger={s.previewRowStagger}
+            tone={light ? 'onDark' : 'onLight'}
+          />
           {hasPopup && (
             <button
               type="button"
@@ -1369,27 +1614,59 @@ function CoreExperienceBlock({
       <PopupShell
         open={popupOpen}
         onClose={() => setPopupOpen(false)}
-        label={title}
+        label={popupTitle}
         crumbs={[
           { label: 'Work', href: '/work', hideOnMobile: true },
           { label: projectName, hideOnMobile: true },
-          { label: title },
+          { label: popupTitle },
         ]}
-        bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-close reckless-prose text-black"
+        cardClassName="bg-white"
+        bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
       >
-        <div className="px-5 py-10 sm:px-8 lg:px-12 lg:py-14">
-          <div className="mx-auto max-w-[1014px] text-center">
-            <h2 className={`${csSectionTitle(v)} mb-4`}>{title}</h2>
-            {s.popupBody?.length ? (
-              <Prose
-                value={s.popupBody}
-                className={`mx-auto max-w-[70ch] ${csBodyText(v)}`}
-              />
-            ) : null}
+        <div
+          className={`min-h-full ${popupBg ? '' : 'bg-close'} ${popupLight ? 'text-white' : 'text-black'}`}
+          style={{
+            ...popupPad,
+            ...(popupBg ? { backgroundColor: popupBg } : undefined),
+            ...(popupText ? { color: popupText } : undefined),
+          }}
+        >
+          <div
+            className="flex w-full flex-col"
+            style={{
+              ...popupSectionGap,
+              ...popupHorizontalPad,
+              ...(popupContainerMax ? { maxWidth: popupContainerMax, marginInline: 'auto' } : undefined),
+            }}
+          >
+            <div
+              className={`flex w-full flex-col ${ALIGN[popupAlign]} items-start`}
+              style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
+            >
+              {popupKicker ? (
+                <p className="font-grotesk mb-1 text-[11px] font-normal uppercase tracking-[0.14em] sm:text-[12px] lg:mb-2">
+                  {popupKicker}
+                </p>
+              ) : null}
+              <h2 className={`${csSectionTitle(v)} w-full ${ALIGN[popupAlign]}`}>
+                {popupTitle}
+              </h2>
+              {s.popupBody?.length ? (
+                <Prose
+                  value={s.popupBody}
+                  className={`w-full ${csBodyText(v)} ${ALIGN[popupAlign]}`}
+                />
+              ) : null}
+            </div>
             <DeviceGallery
               tabs={popupTabs.filter(t => (t.items?.length ?? 0) > 0)}
               initial={popupInitial}
               loadMore={popupLoadMore}
+              tileBg={popupTileBg}
+              light={popupLight}
+              gridSize="popup"
+              gridColumnGap={popupGridColumnGap}
+              gridRowGap={popupGridRowGap}
             />
           </div>
         </div>
@@ -2584,15 +2861,25 @@ function DeviceGallery({
   tabs,
   initial,
   loadMore,
+  tileBg,
+  light,
+  gridSize = 'default',
+  gridColumnGap,
+  gridRowGap,
 }: {
   tabs: DeviceTab[]
   initial: number
   loadMore?: string
+  tileBg?: string
+  light?: boolean
+  gridSize?: 'default' | 'popup'
+  gridColumnGap?: number
+  gridRowGap?: number
 }) {
   const [active, setActive] = useState(0)
   const tab = tabs[active]
   return (
-    <div className="mt-8">
+    <div className={gridSize === 'popup' ? 'w-full' : 'mt-8'}>
       <div className="mx-auto flex max-w-full flex-wrap justify-center gap-8 xl:gap-[6vw]">
         {tabs.map((v, i) => (
           <button
@@ -2614,7 +2901,11 @@ function DeviceGallery({
         initial={initial}
         loadMore={loadMore}
         tile
-        light
+        tileBg={tileBg}
+        light={light}
+        size={gridSize}
+        gridColumnGap={gridColumnGap}
+        gridRowGap={gridRowGap}
       />
     </div>
   )
@@ -2626,34 +2917,62 @@ function ImageGrid({
   initial = 6,
   loadMore = 'Load More',
   tile,
+  tileBg,
   light,
+  size = 'default',
+  gridColumnGap,
+  gridRowGap,
 }: {
   images: string[]
   captions?: (string | undefined)[]
   initial?: number
   loadMore?: string
   tile?: boolean
+  tileBg?: string
   light?: boolean
+  size?: 'default' | 'popup'
+  gridColumnGap?: number
+  gridRowGap?: number
 }) {
   const STEP = 4
   const [shown, setShown] = useState(initial)
   const visible = images.slice(0, shown)
+  const tileFill = tileBg ?? TILE
+  const popup = size === 'popup'
+  const colGap = gridColumnGap ?? (popup ? 16 : undefined)
+  const rowGap = gridRowGap ?? (popup ? 24 : undefined)
   return (
     <>
-      <div className="mt-8 grid grid-cols-1 gap-x-[5vw] gap-y-10 sm:grid-cols-2">
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 ${
+          popup ? 'mt-5' : 'mt-8 gap-y-10'
+        }`}
+        style={{
+          columnGap: colGap ?? '5vw',
+          rowGap: rowGap ?? (popup ? 24 : 40),
+        }}
+      >
         {visible.map((src, i) =>
           tile ? (
             <div
               key={i}
-              className="shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]"
-              style={{ backgroundColor: TILE }}
+              className={`flex items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
+                popup
+                  ? 'min-h-[min(46vh,560px)] p-3 sm:min-h-[min(42vh,520px)]'
+                  : ''
+              }`}
+              style={{ backgroundColor: tileFill }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
               <img
                 src={src}
                 alt=""
                 loading="lazy"
-                className="h-[40vw] w-full object-contain xl:h-[20vw]"
+                className={
+                  popup
+                    ? 'max-h-[min(42vh,540px)] w-full object-contain'
+                    : 'h-[40vw] w-full object-contain xl:h-[20vw]'
+                }
               />
             </div>
           ) : (

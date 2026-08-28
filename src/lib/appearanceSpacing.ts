@@ -13,6 +13,8 @@ export type SpacingValue = number | LegacyPaddingToken | undefined;
 export interface AppearanceSpacing {
   paddingTop?: SpacingValue;
   paddingBottom?: SpacingValue;
+  paddingLeft?: SpacingValue;
+  paddingRight?: SpacingValue;
   contentGap?: SpacingValue;
   contentGapInner?: SpacingValue;
 }
@@ -107,6 +109,18 @@ export function sectionPadStyle(
       map,
       defaults.paddingBottom,
     ),
+  };
+}
+
+export function sectionHorizontalPadStyle(
+  a: AppearanceSpacing | undefined,
+  defaults: { paddingLeft: number; paddingRight: number },
+  page: boolean,
+): CSSProperties {
+  const map = legacyPadMap(page);
+  return {
+    paddingLeft: resolveSpacingPx(a?.paddingLeft, map, defaults.paddingLeft),
+    paddingRight: resolveSpacingPx(a?.paddingRight, map, defaults.paddingRight),
   };
 }
 

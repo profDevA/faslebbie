@@ -18,10 +18,18 @@ export interface Appearance {
   textColor?: SanityColor;
   paddingTop?: SpacingValue;
   paddingBottom?: SpacingValue;
+  paddingLeft?: SpacingValue;
+  paddingRight?: SpacingValue;
   contentGap?: SpacingValue;
   contentGapInner?: SpacingValue;
   contentAlignment?: AlignToken;
   maxWidth?: WidthToken;
+  /** Image tile / nested card fill (popups, grids). */
+  tileBackgroundColor?: SanityColor;
+  /** Intro / headline column max width in px. */
+  introMaxWidth?: number;
+  /** Outer content container max width in px. */
+  containerMaxWidth?: number;
 }
 
 export interface GalleryImage {
@@ -36,6 +44,9 @@ export interface CoreExperienceScreen {
   image?: string;
   label?: string;
   description?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  appearance?: Appearance;
 }
 
 export interface MotionRow {
@@ -156,11 +167,17 @@ export type Section =
       sectionTitle?: string;
       body?: PortableTextBlock[];
       layoutVariant?: "mobileRow" | "desktopGrid";
+      previewColumns?: number;
+      previewRowStagger?: number;
       viewMoreLabel?: string;
       previewScreens?: CoreExperienceScreen[];
+      previewAppearance?: Appearance;
       /** @deprecated horizontal-scroll popup */
       popupScreens?: CoreExperienceScreen[];
+      popupKicker?: string;
+      popupTitle?: string;
       popupBody?: PortableTextBlock[];
+      popupAppearance?: Appearance;
       popupTabs?: DeviceTab[];
       popupItemsBeforeViewMore?: number;
       popupLoadMoreLabel?: string;

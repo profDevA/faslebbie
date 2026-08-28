@@ -1,0 +1,1109 @@
+{
+  "coral-health": {
+    "title": "Coral Health",
+    "hero": {
+      "projectName": "Coral Health",
+      "statement": "Guiding underserved communities toward trusted preventive care",
+      "from": "Fragmented Directories",
+      "to": "Guided Pathways"
+    },
+    "overview": {
+      "body": "In the U.S., 83% of health outcomes are worse for Black patients than White patients, and early cancer detection fails the communities who need it most. Coral Health closes that gap for Black, Latinx, and immigrant employees, whose screening pathways are fragmented, culturally disconnected, and eroded by medical mistrust. Rather than a directory, we reimagined screening as a guided, culturally competent journey: personalized assessments, home-based testing, and providers who understand patients' backgrounds, delivered through employer partnerships. As founding product designer and strategist, I worked with the clinical team to architect the ecosystem, from assessment logic to results interpretation, targeting drop-off in care.",
+      "disciplines": "Mixed-Methods User Research, Platform Design, Branding, Cultural Competency Frameworks, Platform Architecture, Journey Mapping, Assessment Design.",
+      "duration": "March 2022 to February 2023",
+      "team": "Fas Lebbie, Patrick Wesonga, Dr. Fatima Cody Stanford, Dr. Chris T. Pernell"
+    },
+    "problemContext": {
+      "problem": "Black patients experience worse outcomes across 83% of health measures than White patients, and Black women face three times the pregnancy-related mortality rate — yet the system treats these disparities as inevitable rather than fixable. Sixty-five percent of Black adults and 54% of Latinx adults struggle to find providers who understand their cultural background, while heavy reliance on primary-care referrals, surprise costs, and infrequent checkups keep employees of color from engaging early. The less visible constraint was systemic: users were forced to act as their own case managers inside fragmented directories and cold clinical portals. That absence of representation, more than logistics, is what kept people delaying care until too late.",
+      "brought": "As the sole founding product designer and strategist, I architected Coral Health's ecosystem alongside the clinical team. I owned the assessment logic and testing flows, established a Design KPI Framework connecting UX signals to clinical outcomes, and led the mixed-methods research that reframed our opportunity from access to psychological safety, aligning engineering and clinical operations around trust as a shared, measurable metric."
+    },
+    "approach": {
+      "blurb": "I applied a user-centered, culturally sensitive process, starting with in-depth interviews across patients and providers to surface lived experience of inequity, then iterated through continuous feedback loops addressing both cultural and practical barriers to care.",
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Before a single screen existed, the picture was chaotic: patients bounced between insurance directories, reviews, and outdated websites for days or weeks just to find a doctor they might trust. Despite 77% reporting satisfaction with current providers, deeper interviews revealed many felt unheard or culturally misunderstood — proof the starting line wasn't zero, but a deficit of trust and cognitive overhead."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I led triangulated research across Black, Latinx, and immigrant patients alongside MDs and care navigators, using Theory of Change to map how cultural matching could drive earlier detection, and Value Proposition Canvas to align patient pains — fear of judgment, cost confusion — with proposed solutions. The findings pivoted our strategy from access toward representation and psychological safety."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Four findings shaped the architecture: cultural competence outweighs clinical credentials as a trust signal; users toggled between five to seven sources just to validate one provider; ambiguity around results and cost is itself a barrier; and logistics like transportation and childcare are as disqualifying as mistrust. Convenience, we learned, is an equity issue, not a courtesy."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Three KPIs, laddered by design: improving content clarity and task success on kit-ordering flows was the leading indicator we could move fastest; reducing time to a relevant provider match was the mid-funnel proof point; and screening completion plus appointment attendance were the lagging business outcomes those upstream fixes were built to drive."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We chose design-by-accretion over a single big-bang launch — low-fidelity first to validate lane logic, then high-fidelity for emotional resonance in the Cora guide and results screens. We traded a slower rollout for the ability to validate matching KPIs before the operational cost of physical test kits, phasing Foundation matching ahead of Guided Screening logistics."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "A library of strategic research artifacts aligning the team around patient experience and metrics."
+    },
+    "desktopMotion": {
+      "body": "A vibrant, community-rooted marketing site replaces sterile medical branding, showing employer partners and prospective users the culturally competent care and representation they can genuinely expect before anyone signs up."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "30",
+          "suffix": "%",
+          "label": "Screening Follow-Through",
+          "note": "More users completed their recommended cancer screenings this year."
+        },
+        {
+          "value": "4",
+          "suffix": "",
+          "label": "Funding Influenced",
+          "note": "Experience strategy directly helped this early-stage venture secure funding."
+        },
+        {
+          "value": "75",
+          "suffix": "%",
+          "label": "Provider Match Retention",
+          "note": "Patients found and stayed with their culturally competent providers."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Anchoring decisions in the UX KPI framework worked because it shifted the internal conversation from features to outcomes: connecting content clarity and time-to-relevant-match to the 75% provider-r etention result gave clinical and engineering stakeholders proof that trust could be measured, not just felt, and let Dr. Stanford and Dr. Pernell's expertise scale into a repeatable digital experience rather than staying tacit. If I could revisit one decision, I'd have built employer-facing analytics dashboards alongside the patient experience from day one, rather than treating them as a later addition — employer buy-in shaped adoption speed nearly as much as patient trust did, and earning it sooner would have compressed our timeline to scale.",
+      "nextSteps": [
+        "Next, we're expanding the validated modular framework to other high-disparity conditions like diabetes and hypertension, and deepening the matching algorithm with richer variables such as communication style to further reduce time to relevant match.",
+        "We're also automating human-in-the-loop reminders to sustain at-home completion rates, and building employer analytics dashboards that visualize the ROI of equity directly against each employer partner's bottom line."
+      ]
+    }
+  },
+  "experian-boost": {
+    "title": "Experian Boost",
+    "hero": {
+      "projectName": "Experian Boost",
+      "statement": "Reimagining credit access for millions of Americans",
+      "from": "Submitting Records",
+      "to": "Claiming Earned Credit"
+    },
+    "overview": {
+      "body": "What if paying your Netflix bill could help you buy a home? Experian Boost turned bill payments into credit recognition for more than 35 million credit-invisible Americans, lifting their average scores by 13 points. Launched in 2019, it addressed two problems: reliable consumers excluded from the credit economy, and stagnant growth for lenders. By integrating alternative data, utility and rent payments, into the FICO Score model, we expanded inclusion for credit-invisible consumers while unlocking a low-risk user base for partners. As lead designer, I worked with Experian, FICO, and Finicity to carefully architect the end-to-end experience, from bank-account linking to score visualization.",
+      "disciplines": "Design Research, Mobile-First Product Design, Fintech Regulatory Compliance, Secure Banking Integration, Regulatory UX, Brand Mirroring.",
+      "duration": "Launched and scaled in 2019",
+      "team": "Fas Lebbie, John Adam, Brian Burgess, Experian Design Team"
+    },
+    "problemContext": {
+      "problem": "The U.S. credit system creates a frustrating, paradoxical cycle: to get credit, you need credit. This leaves roughly 53 million consumers with thin files and disadvantages another 79 million holding FICO Scores below 680, even though many are reliable payers whose rent, electricity, and mobile bills simply don't count in traditional models. That mismatch represented over $50 billion in unacknowledged payments lenders were blind to. The less visible constraint was emotional rather than technical: on the Customer Pain Scale, the anxiety of being credit-invisible scored a full 10 out of 10, and users were understandably wary of linking their bank credentials to prove what they, deep down, already knew was true.",
+      "brought": "As lead designer, I conducted the foundational research strategy with three other researchers, running investigative interviews that reframed the problem from a data shortage to a recognition gap. I architected the end-to-end web and mobile interfaces, translating the UltraFICO Score system into an intuitive visual model, and led cross-functional collaboration across Experian, FICO, and Finicity to shift credit models toward alternative data."
+    },
+    "approach": {
+      "blurb": "We approached this not as a data engineering problem but as a crisis of trust, reframing the experience from submitting financial records to claiming earned credit, and using brand mirroring to turn compliance hurdles into moments of agency.",
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Thirty-five percent of Americans were making payments that never built their credit, and the system felt like a black box that ignored their positive actions. On the product side we had zero percent verified alternative data, a landscape wary of sharing banking credentials, and fifty billion dollars in overlooked annual payments with no established, secure flow to capture any of it."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "Three researchers and I ran investigative 1:1 interviews with 50 participants, focusing on marginalized groups, young adults, immigrants, and low-income users, to understand the emotional weight of exclusion. The Customer Pain Scale put credit-invisibility anxiety at 10 out of 10, while Stakeholder Mapping exposed a gap between perceived user risk and users' actual desperation for recognition."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Three findings shaped the product: reliability was already there, just invisible, with 90% of participants consistently paying bills no model counted; transparency was the real currency of trust, with 92% valuing clarity over speed at the bank-login conversion cliff; and the solution had to be mobile-first, since 88% of the target demographic managed finances primarily on their phones."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We laddered three KPI tiers: Trust Signals and Perceived Security as the input, targeting a 92% trust rating on the bank-linking flow; Link Success Rate and Match Rate as the output, our proxy for whether the product delivered on its promise; and Origination Velocity as the outcome, an 8 to 12 day reduction that secured institutional partner buy-in."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We chose a crawl-walk-run rollout over a full launch, starting with utility payments only so we could prove the instant-boost promise without overwhelming users. We traded initial scope for stability, phasing brand mirroring and progressive disclosure in after the core handshake was validated across 30-plus institutions, which kept latency and trust risk contained while we scaled."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Research artifacts, from stakeholder maps to pain-scale studies, de-risked regulatory review and clarified strategy."
+    },
+    "desktopMotion": {
+      "body": "A live product walkthrough shows the boost moment itself: a user links their bank, watches recognized bill payments appear one by one, and sees their score climb in seconds."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "86",
+          "suffix": "%",
+          "label": "Thin-File Access Unlocked",
+          "note": "Thin-file users gained real credit access through recognized payments."
+        },
+        {
+          "value": "33",
+          "suffix": "%",
+          "label": "Faster Loan Origination",
+          "note": "Validating payment data upfront shortened lenders' loan decision timelines."
+        },
+        {
+          "value": "92",
+          "suffix": "%",
+          "label": "Bank-Link Trust Rating",
+          "note": "Users trusted the sensitive bank-linking flow enough to authorize."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Connecting consent-flow clarity to Time-to-Data-Capture worked because it gave engineering a concrete, shared reason to prioritize latency reduction, and it proved out clearly in the resulting numbers: a 92% trust rating on the bank-linking flow and a 33% cut in partner loan origination timelines. That direct link between design decisions and lagging business metrics is what secured continued, hard-won institutional buy-in. If I could revisit one decision, I'd have designed the streaming and telco data expansion and the monthly re-verification loop into the MVP scope from day one, rather than deferring both to phase two — younger, thinner-file users were the population most likely to disengage before that expansion ever shipped.",
+      "nextSteps": [
+        "Next, we're expanding data ingestion to include streaming and telco payments, increasing the Match Rate for younger demographics with limited utility history.",
+        "We're refining re-verification by gamifying the monthly re-scan process to lift retention and keep scores dynamic.",
+        "And we're scaling brand mirroring to regional credit unions, extending the UI adaptation framework to maintain high consent rates consistently across smaller regional institutions."
+      ]
+    }
+  },
+  "financial-data-exchange": {
+    "title": "Financial Data Exchange",
+    "hero": {
+      "projectName": "Financial Data Exchange",
+      "statement": "Establishing a trusted standard for open banking",
+      "from": "Credential Sharing",
+      "to": "Consumer-Permissioned Access"
+    },
+    "overview": {
+      "body": "The Financial Data Exchange replaced a systemic vulnerability, banks and third-party apps trading login credentials directly, with a standard built entirely on consumer permission. As a designer at Finicity, an active FDX partner, I helped define this framework during the 2019 inception period, when consumers routinely surrendered banking usernames and passwords just to connect a simple budgeting app. We proved the standard worked at scale by implementing it inside Intuit Mint, de-risking the data pipeline for millions of existing users. Working alongside partners including Mint, Chase, and Wells Fargo, I helped define a consent flow that now protects over 53 million accounts.",
+      "disciplines": "Design Research and Strategy, Product Design, Fintech Regulatory Compliance, FDX Integration, API Platform Design, Banking.",
+      "duration": "April to June 2019",
+      "team": "Fas Lebbie, John Adams, Brian Burges"
+    },
+    "problemContext": {
+      "problem": "The financial ecosystem ran on screen scraping, a brute-force workaround where consumers surrendered their actual banking usernames and passwords to third-party apps, creating a black-box liability nightmare for banks. Consumers maintained an average of more than five financial accounts with no standardized, secure way to connect any of them, so the resulting lack of interoperability quietly drove up support costs and abandonment. For a market leader like Mint, this was existential. Our own research found that 63 percent of Mint users lacked clarity on what data was actually being shared, and 56 percent demanded more control before connecting a new account at all. Security fears, not simple indifference, were capping growth.",
+      "brought": "As Senior Designer, I synthesized foundational behavioral research from Mint and FDX partners, mapping trust indicators across 1,500-plus consumers to help drive the adoption of API-based connectivity across 30-plus financial institutions. I designed a headless consent framework giving users granular control over what data was shared, for how long, and with whom, then embedded strict regulatory compliance directly into that experience design."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Before FDX, the industry ran on duct tape: screen scraping, where users handed third-party apps their actual bank credentials so the app could log in on their behalf and download balances, transactions, and statements. It worked, but it stripped consumers of agency and created a black-box liability nightmare for banks, who had no way to see or limit what was being accessed once credentials were shared."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I synthesized behavioral research from Mint and FDX partners, mapping trust indicators across 1,500-plus consumers. We focused on Mint's financially proactive segment, 70 percent of whom paid off their cards monthly, and found that even tech-savvy users experienced high credential anxiety at the moment of connection. A trust heuristic framework revealed users weren't looking for a faster connection, they wanted a safer one."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Three findings shaped the build. Users would spend up to 45 seconds reviewing permissions for greater control, so speed wasn't the priority. Transparency was the anchor of trust: with 63 percent of users unclear on what was shared, showing real-time balances turned a blind submission into a grounded confirmation, and app-to-app authentication lifted trust by 67 percent. Finally, all-or-nothing permissions caused abandonment; unbundled, toggleable accounts captured security-conscious users who would otherwise have churned."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We laddered three goals. Trust Transfer Rate tracked adoption of app-to-app authentication, leveraging the psychological anchor of a user's own bank app to lower the cognitive cost of connecting. Time-to-Valid-Consent replaced raw Time-on-Task, tracking granular-control utilization as a positive signal instead of a drop-off risk. Migration Volume measured the shift from insecure scraping to API tokens, ultimately aimed at lowering partners' cost of fraud."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We treated FDX as a headless UI framework, logic and disclosure patterns any partner could brand as their own, and deployed it first inside Intuit Mint, replacing its legacy screen-scraping logic entirely. The flow progressively discloses specific data requests, explicitly naming sensitive items like Social Security numbers and routing numbers, and gives users granular controls to toggle individual accounts and see precise access-expiration dates."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Behavioral research synthesis and a trust heuristic framework translated raw credential anxiety into principles."
+    },
+    "desktopMotion": {
+      "body": "A conversational walkthrough shows two systems exchanging only what's authorized: a financial app requests a user's accounts, and her bank returns balances and transactions through her own secure token."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "67",
+          "suffix": "%",
+          "label": "User Trust Signals",
+          "note": "Users trusted app-based authentication far more than manual entry."
+        },
+        {
+          "value": "30",
+          "suffix": "",
+          "label": "Institutions Standardized",
+          "note": "More institutions adopted one shared, standardized data-sharing framework together."
+        },
+        {
+          "value": "20",
+          "suffix": "",
+          "label": "Accounts Protected",
+          "note": "Millions of accounts moved off risky credential-sharing methods safely."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Measuring Trust Transfer Rate instead of raw completion speed worked: tracking app-to-app authentication adoption proved a familiar bank login could fully replace a stranger's password field, lifting user trust signals by 67 percent without ever slowing people down along the way. Scaling that same framework to protect over 53 million accounts across 30-plus institutions, including 20 million Mint users, told us that transparency genuinely reduces churn rather than quietly causing it instead. If I could revisit one decision, I'd have built granular, usage-based permission expiration into the very first release instead of saving it for Next Steps, since users were already asking to control access by time, not merely by account.",
+      "nextSteps": [
+        "Next, we're developing advanced permission management features that let users set granular, time-based and usage-based limits on exactly how their own data can be accessed going forward.",
+        "We're implementing real-time monitoring and notification systems for data access activity and permission changes, and building educational resources and onboarding flows that help consumers genuinely understand the real benefits of standardized, transparent financial data sharing."
+      ]
+    }
+  },
+  "acme-lending": {
+    "title": "Acme Lending",
+    "hero": {
+      "projectName": "Acme Lending",
+      "statement": "Streamlining income verification for modern mortgage lenders",
+      "from": "Credential Sharing",
+      "to": "Consumer-Permissioned Access"
+    },
+    "overview": {
+      "body": "Mortgage lending ran on a guilty-until-proven-innocent verification model, forcing borrowers to manually collect and scan paystubs while loan officers cross-checked every PDF by hand. As senior product designer for Finicity/Mastercard, I helped Acme Lending replace that artifact-based process with TX Verify, a consumer-permissioned API integration built on real financial data. The stakes were significant: 98 million of the country's 156 million full-time workers were paid through third-party payroll providers or gig platforms, and the existing system effectively penalized them. Working alongside Acme Lending, we shifted verification from a manual, document-courier burden onto borrowers into a streamlined digital handshake built entirely on consent.",
+      "disciplines": "Product Design, UX Strategy, Design Research, API Design, Consumer Banking Experiences, Fintech Compliance, Consumer Lending.",
+      "duration": "Delivered across 2019",
+      "team": "Fas Lebbie, John Adams"
+    },
+    "problemContext": {
+      "problem": "The mortgage industry operated under a guilty-until-proven-innocent model, treating income verification as manual labor in an era when borrowers' entire financial lives were already digital. Ninety-eight million workers paid through payroll providers or gig platforms found themselves trapped in a systemic loop of failure, digitally native but institutionally excluded by paperwork built for a different, older economy. Loan officers spent hours visually cross-referencing scanned PDFs against application data by hand, while industry averages pegged manual verification above $150 per loan against a stubborn 45-to-60-day time-to-decision. Take Leah, a gig-economy blogger flagged as high-risk simply because she lacked a standard paystub, financially responsible but unreadable to a system built only for W-2s.",
+      "brought": "As Senior Product Designer for Finicity/Mastercard, I interviewed borrowers and loan officers to uncover the anxieties around connecting bank accounts, then challenged the assumption that thin-file borrowers were inherently high-risk. I designed the end-to-end verification interfaces and API integration strategy, centered the trust layer between borrower, lender, and Finicity, and built the MFA Handoff logic replacing dead ends with clear recovery paths."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "When we started, verification was a stare-and-compare exercise: loan officers visually cross-referenced scanned paystub numbers against application data by hand. Paystub verification alone dominated 75 to 85 percent of the loan market, yet 98 million workers with digital payroll data had zero system connectivity. Time-to-first-decision averaged 45 to 60 days industry-wide, and every stipulation request treated borrowers as a potential fraud risk by default."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I conducted direct interviews with Acme Lending's borrowers and loan officers, then applied a Jobs to be Done lens, reframing the user's goal from uploading files to securing the best rate instantly. We developed personas representing loan recipients and officers, and testing revealed people struggled with the term income verification entirely; we refined the language to connecting accounts, matching the mental model borrowers already had from other fintech apps."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Three use cases shaped the build: single-account verification, multiple-account verification, and error handling. We found borrowers like Leah, a gig-economy blogger without a standard paystub, were digitally native but institutionally excluded by artifact-based checks. Session drop-off during consent screens signaled trust failure, not indifference, and repeated document requests, not the interface itself, were driving the abandonment loan officers kept reporting as borrower disengagement."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We modeled three KPI dimensions. Quality tracked Perceived Security and Permission Clarity, using Consent Screen Abandonment as our proxy for trust failure. Performance tracked Time-to-Verification and Digital Completion Rate, targeting fewer Search Query Iterations and a higher Automated Success Rate to reduce manual fallbacks. Impact connected our work directly to Loan Origination Timeline and Cost per Verification, proving inclusive design was a genuine revenue accelerator."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We prototyped a one-touch verification flow letting borrowers grant access to multiple data sources, bank accounts and payroll providers alike, in a single interaction, eliminating repeated document requests entirely. High-fidelity screens for all three use cases were tested and refined against Acme Lending's own visual brand, and we designed the MFA Handoff logic specifically so multi-factor challenges offered clear recovery paths instead of dead ends."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Persona journey maps and a Jobs to be Done framework reframed verification as trust-building."
+    },
+    "desktopMotion": {
+      "body": "A product demo shows TX Verify's API integration replacing manual document uploads with secure, user-authorized data access: a borrower grants permission once, and verified income flows through automatically thereafter."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "10",
+          "suffix": "%",
+          "label": "Digital Completion Increase",
+          "note": "More borrowers finished verifying income entirely through digital channels."
+        },
+        {
+          "value": "78",
+          "suffix": "%",
+          "label": "Cost-to-Serve Reduction",
+          "note": "Digital automation slashed operational costs across every loan processed."
+        },
+        {
+          "value": "33",
+          "suffix": "%",
+          "label": "Verification Time Reduction",
+          "note": "Faster verification reduced fraud-window risk before rate locks expired."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Refining income verification's language, from an intimidating compliance term into connecting accounts, worked: matching borrowers' existing fintech mental models lifted digital completion by 10 percent without touching the underlying trust mechanics at all. Scaling that same Data Handshake framework cut cost-to-serve by 78 percent and shaved 3 to 5 days off every loan's time to close, telling us that design justice and business performance were never actually in tension here at all. If I could revisit one decision, I'd have built the MFA Handoff's human-readable recovery paths into the very first release instead of iterating later, since borrowers were abandoning consent screens over confusion we could have prevented from day one.",
+      "nextSteps": [
+        "Next, we're expanding experience design and interface integration to additional payroll providers and financial institutions, widening the pool of borrowers who can verify income digitally on the first attempt.",
+        "We're also developing new designs for international verification capabilities, extending consumer-permissioned data access to non-U.S.",
+        "income sources so borrowers with overseas earnings aren't forced back into the manual, document-courier process we just eliminated."
+      ]
+    }
+  },
+  "remote-assistant-object-detection": {
+    "title": "The AR Handbook",
+    "hero": {
+      "projectName": "The AR Handbook",
+      "statement": "Spare parts recognition for remote industrial assistance",
+      "from": "PDF Manual Search",
+      "to": "AI-Verified Confidence"
+    },
+    "overview": {
+      "body": "In industrial manufacturing, a broken machine sits idle for 20 minutes while a technician searches outdated PDF manuals, often ordering the wrong part and stopping the line entirely. PTC's research team had solved the underlying AI problem years earlier, training computer vision on synthetic CAD data instead of real photos, but the breakthrough sat unshipped in labs for six years because its output was only a probabilistic confidence score, not an answer a technician could trust. I was brought in to close that gap, leading end-to-end product design across Mobile and RealWear and turning stalled years into a system that finally shipped.",
+      "disciplines": "Product Design Lead, Strategic Leadership, AI Human Factors, Cross-Platform Architecture, Technical Prototyping, Cross-Functional Team Development.",
+      "duration": "2021 to 2022",
+      "team": "Fas Lebbie, Dr. Eva Agapaki"
+    },
+    "problemContext": {
+      "problem": "A technician servicing a machine like a 2019 Polaris 850 Patriot could lose 15 to 20 minutes identifying one faulty part, matching it by eye against outdated PDF catalogs with a 50 percent error rate; order the wrong bolt or pump variant, and the factory line stops. Three constraints compounded that problem. Gathering thousands of training photos per part was operationally impossible for clients with 20,000-plus parts, so PTC's research team solved it with synthetic CAD training instead, only for that breakthrough to sit unshipped in labs for six years. Raw AI output was probabilistic, not actionable, and technicians worked in low-light, dirty, safety-critical conditions where a wrong guess had consequences.",
+      "brought": "As Product Design Lead, I reframed the product model from search, where a user types a query, to verification, where the AI proposes and the technician confirms. I established the 20-200 Part Rule, designed three flows, Classify, Detect, Label & Train, and mapped raw confidence scores into a three-tier Green, Yellow, Red system that turned probabilistic output into decisions technicians could trust."
+    },
+    "approach": {
+      "blurb": "I began this project by crafting a context-first strategy to bridge probabilistic AI with human action, designing adaptive, multimodal interfaces, precision touch for mobile, voice command for RealWear, then validated every flow through rapid Unity prototyping on the actual factory floor.",
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "When I joined, the team had a command-line demo, not an app. Competitors like Slyce focused on retail, identifying shoes from a global database, but manufacturing is different: a technician only needs the parts inside one specific machine, not the world's entire catalog. That distinction drove the 20-200 Part Rule, filtering any session's dataset down to under 200 relevant parts before a scan ever happens."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "Field research across 10-plus manufacturing facilities surfaced four personas with distinct jobs to be done, though only three became primary users. Jim Lee and Anna Rodriguez, a technician and an operator, both lost time and money to manual identification errors. James Romero, a CAD author, revealed the upstream bottleneck limiting Hannah James, an AR service provider, who lacked enough 3D models to place automatically. James was excluded; his work is infrastructure, not interaction."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Three flows resolved four personas' jobs to be done: Classify for Jim's single-part speed, Detect for Anna's at-scale scanning, Label & Train for Hannah's system improvement, each answering a different question about the same part. The Context-First Strategy, identify the vehicle model before scanning, was the insight that made all three viable on mobile hardware instead of requiring a global search no phone could run."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We laddered three goals directly. Trust through Precision targeted greater than 90 percent precision, since one false positive destroys a technician's confidence for good. Velocity through Context targeted cutting Time to First Decision under 60 seconds by automating the link between a camera scan and Windchill's part data. Viability through Scale validated a Zero-Shot synthetic-CAD pipeline, measured by reduced onboarding time for enterprise clients with tens of thousands of parts."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We rejected manual annotation immediately, since it shifted the labeling burden onto clients, and committed instead to Automated RTOD using our own synthetic pipeline. Continuous scanning drained a RealWear battery in 15 minutes, so we pivoted to Target & Tap, a manual trigger that gave users control back. We followed a strict roadmap, moving from Studio Integration in October to a HoloLens Beta in December, validating mobile before ever tackling headsets."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Field research across ten-plus facilities and four personas validated a ten-billion-dollar visual search opportunity."
+    },
+    "desktopMotion": {
+      "body": "Industrial workers and factory equipment footage demonstrate real-time, AI-powered part identification across both Mobile and RealWear platforms, positioning the AR Handbook against a ten-billion-dollar manual lookup market to disrupt."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "40",
+          "suffix": "%",
+          "label": "Faster Part Recognition",
+          "note": "Technicians identified parts in half their previous search time."
+        },
+        {
+          "value": "20",
+          "suffix": "",
+          "label": "Enterprise ARR Unlocked",
+          "note": "Pilot contracts converted into millions in recurring enterprise revenue."
+        },
+        {
+          "value": "30",
+          "suffix": "%",
+          "label": "Error Reduction",
+          "note": "Far fewer inspection mistakes reached technicians through AI-assisted verification."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Shipping was the win that mattered most: after six years stuck in research labs, we hit 90 percent accuracy in real factories, proving synthetic CAD training could work at scale, not just in a lab. Cutting part-lookup time from 15-20 minutes to 10-12 minutes, and inspection errors by 30 percent, worked because we treated confidence scores as a design problem, not a model-accuracy problem alone, tiering scores into colors a technician could immediately act on. If I could revisit one decision, I'd have built the single-tap error-correction loop into the very first release, not Next Steps, since every rejected prediction not recaptured in time was a full accuracy cycle given back.",
+      "nextSteps": [
+        "Next, we're scaling the information architecture with dynamic taxonomies, keeping identification under 30 seconds as libraries grow to 2,000-plus parts.",
+        "We're designing offline states that calibrate trust when edge inference runs at lower accuracy, and optimizing voice interaction for 90-decibel environments to cut command failure below 5 percent.",
+        "We're also closing the learning loop with single-tap error correction that speeds model-improvement cycles."
+      ]
+    }
+  },
+  "oc-links": {
+    "title": "OC Links",
+    "hero": {
+      "projectName": "OC Links",
+      "statement": "Reducing response times for mental health crises",
+      "from": "Fragmented Agency Silos",
+      "to": "Unified Crisis Platform"
+    },
+    "overview": {
+      "body": "Orange County's behavioral health system serves over 650,000 residents through a fractured network: three critical services, OC Links, the Crisis Assessment Team, and the NAMI WarmLine, ran on separate, outdated platforms with no shared data between them. Handoffs between agencies were manual and error-prone, and people in crisis could get lost in the resulting gaps. I led research and design, partnering with Chorus Innovations and county stakeholders, to modernize the $18M initiative's infrastructure into a unified platform. We integrated workflows, ensured privacy compliance, and connected residents to trained Navigators around the clock, closing system gaps that had been leaving vulnerable people behind.",
+      "disciplines": "Mixed-Methods Research, Integrated Platform Design, Crisis Workflow Analysis, Healthcare Privacy Compliance, Accessibility Standards, Stakeholder Facilitation.",
+      "duration": "Delivered across 2022",
+      "team": "Fas Lebbie, Parker Gibbons, Sage Bennett"
+    },
+    "problemContext": {
+      "problem": "Orange County's crisis response ran on iCarol, a patchwork platform notoriously difficult to navigate, splitting three interconnected services, OC Links, the Crisis Assessment Team, and the NAMI WarmLine, into separate islands despite serving the same population. Data structures were messy, making a caller's journey nearly impossible to track across agencies; transferring someone from a warm line to a crisis team meant a manual, error-prone handoff. The friction wasn't merely administrative, it was genuinely dangerous. Vulnerable people needed immediate intervention, but the system couldn't support real-time communication or trustworthy reporting, so responders spent precious minutes wrestling with the software instead of directly supporting clients, and referrals fell straight through the resulting cracks.",
+      "brought": "I steered the strategic vision for an integrated platform meeting complex healthcare privacy and accessibility standards, aligning diverse stakeholders around a shared Single Point Access framework. I ran mixed-methods research surfacing the manual workarounds, sticky notes and side conversations, responders relied on, then architected core flows handling complex permissions and secure inter-agency handoffs, and facilitated the cross-agency collaboration needed to standardize them."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Starting this project felt like stepping into a time capsule of legacy IT: three services on separate platforms, no single source of truth, responders relying on iCarol, a system lacking modern navigation. Resource data was unstructured, so navigators couldn't trust a clinic or shelter's listed availability. Baseline call logs showed responders losing roughly 12 minutes per call to admin tasks, while chat tools were broken or missing, forcing calls even when text served clients better."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I led mixed-methods research combining stakeholder interviews with contextual inquiry, sitting alongside the people answering phones and managing crises. I ran structured sessions with 20 participants across call center staff and field responders, mapping the full ecosystem to surface invisible work, the sticky notes and manual workarounds bridging software silos, using Stakeholder Activity Mapping and Ecosystem Mapping to move the conversation from wanting a new platform to needing a fixed workflow."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Four findings shaped the build: 12 minutes of per-call admin time totaled 15 wasted hours per responder weekly; 35 percent of cases crossed multiple agencies with no standardized handoff, a black hole where context got lost; the resource directory was outdated enough that responders stopped trusting it; and wide variance in staff tech proficiency meant a complex power-user interface would fail outright."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We laddered three goals. Reducing Cognitive Load tracked Time Spent on Administration, reclaiming the 15 hours per responder lost weekly to manual entry. Accelerating Care Velocity tracked Response Time Reduction, cutting the friction a fragmented, iCarol-based handoff added between a resident's call and a clinical response. Closing the Loop tracked Referral Success Rates, measuring whether complex needs matched to a verified resource without the data loss agency handoffs used to cause."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We adopted phased implementation rather than launching three agencies at once, prioritizing OC Links for Phase I, then rolling out the Crisis Assessment Team and NAMI to prove reliability before scaling to the full initiative. We prototyped call management, resource referrals, and secure communication, moving from low-fidelity sketches validated against service-flow diagrams to interactive prototypes tested with 18 participants across three phases. Ninety-two percent prioritized reliability over features; 76 percent wanted better information sharing."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Journey maps, stakeholder activity maps, and ecosystem maps visually unified three fragmented agencies together."
+    },
+    "desktopMotion": {
+      "body": "A platform demo shows the streamlined crisis-response workflow: a call comes in, a navigator triages it, and a verified referral quickly moves the resident toward care within one system."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "92",
+          "suffix": "%",
+          "label": "Staff Satisfaction Rating",
+          "note": "Staff replaced frustrated manual workarounds with tools they trusted."
+        },
+        {
+          "value": "47",
+          "suffix": "%",
+          "label": "Faster Crisis Response",
+          "note": "Streamlined workflows cut delays between a call and response."
+        },
+        {
+          "value": "35",
+          "suffix": "%",
+          "label": "Referral Success Increase",
+          "note": "More residents were matched to care without losing context."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Measuring connection velocity instead of simple system uptime worked: tracking friction along the responder's actual daily journey is what surfaced the 15 hours per week lost to administrative drag, and automating that away drove a real 47 percent cut in response times without adding headcount. Referrals climbing 35 percent once handoffs stopped losing data, and a 92 percent satisfaction rating, are what told me we had truly built tools staff genuinely needed, not merely software the county wanted delivered. If I could revisit one decision, I'd have built the predictive resource-demand forecasting into the original three phases instead of Next Steps, since county staff were already flagging allocation gaps before launch.",
+      "nextSteps": [
+        "Next, we're launching multilingual chat with real-time translation, broadening access equity and capturing the 28 percent of users who prefer text.",
+        "We're expanding integration to additional county mental health services and community partners, and enhancing field usability with mobile-responsive, multilingual interfaces for Crisis Assessment Teams.",
+        "We're also implementing predictive analytics on intake data to forecast demand and optimize resource allocation before surges."
+      ]
+    }
+  },
+  "design-assist-ai": {
+    "title": "Design Assist AI",
+    "hero": {
+      "projectName": "Design Assist AI",
+      "statement": "AI as a raw material for design.",
+      "from": "Manual System Policing",
+      "to": "Automated Design Consistency"
+    },
+    "overview": {
+      "body": "Design Assist is Meta's AI Operating System for design collaboration, built on a three-tier framework extending design intelligence across the organization. At Meta's Enterprise Infrastructure Services and Analytics org, 6,000+ Blueprint components lived trapped inside design tools, and designers lost 10-15 hours every month searching, checking compliance, and maintaining consistency by hand. Engineers and product managers couldn't access that design intelligence without manually requesting help, creating steady organizational bottlenecks. As Group Design Manager, I led the strategy to treat AI as a raw material designers shape, building a Figma plugin that reads live canvas context and injects compliant solutions into the workflow.",
+      "disciplines": "AI Product Strategy, RAG Knowledge Pipelines, Design Systems, Conversational UX, Toolchain Architecture, Change Management, Governance.",
+      "duration": "April 2024 to January 2025",
+      "team": "Fas Lebbie, Kenzo, Ankita, Bo, Andrew, Levi"
+    },
+    "problemContext": {
+      "problem": "Meta's EISA design org relied on 6,000+ Blueprint components, but only 46% of designers used them consistently, and system archeology cost each senior designer nearly 16 hours a month digging through repositories for the right one. The real signal was abandonment: 87% of designers dropped a compliant component the moment classification required more than one step, not out of rebellion but efficiency, choosing instead to detach and build from scratch under aggressive shipping timelines. The sheer volume of voice, tone, and accessibility rules forced constant context-switching into a separate internal wiki, and engineers and product managers couldn't access design logic without manually requesting help, creating bottlenecks across the entire product organization.",
+      "brought": "As Group Design Manager, I defined the 'AI as Raw Material' strategy, shifting our focus from simple automation to deep workflow augmentation, and managed the $450K licensing and governance budget behind it. I directed research identifying the 87% component-abandonment moment, architected the DesignKit and Design Orb concepts, and structured the whole team's topology, personally executing the Core Toolbar and Quick Starter myself."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Meta's EISA design org managed 6,000+ Blueprint components, but design data stayed trapped inside design tools themselves. Designers spent 10-15 hours every month searching for the right component, checking compliance, and maintaining consistency by hand, while engineers and product managers couldn't access that same design intelligence without manually requesting help from an already-stretched team, creating bottlenecks across the wider product organization."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I facilitated cross-disciplinary workshops with Design, PMs, PMMs, and Engineering to test 'AI as Amplifier' against the messy reality of the EISA workflow. Across 300+ analyzed Figma files, 17 interviews, and 20 contextual inquiries, we chose Figma augmentation as our delivery vehicle, embedding intelligence directly into the tool where the actual work happens rather than a separate dashboard designers would have to visit."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Our research surfaced one decisive number: 87% of designers abandoned a compliant component outright whenever classification required more than a single step, defaulting to detached, non-compliant instances instead. Only 46% of designers used the 6,000+ component Blueprint library consistently, and administrative overhead, searching, verifying, and fixing components, drained roughly 40% of a designer's entire workweek, capping the team's real creative capacity."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We worked backwards from a 'Super IC' vision to four measurable pillars. Design Efficiency targeted 10-15 reclaimed hours per designer per month. System Integrity targeted Blueprint adoption growing from 45% to 90% without sacrificing satisfaction. Quality and Standards targeted fewer repetitive support tickets by automating 'Level 1' questions, freeing the design-system team to solve genuinely complex problems instead."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "Three structured workshops moved us from concept exploration through prototype critique to engineering implementation planning. We phased the rollout deliberately: essential Blueprint component detection first, then automatic compliance checking, which alone increased adoption by 42%, and finally contextual recommendations and iteration features, each phase incorporating designer feedback about preserving creative autonomy. The source's own real \"RAG Knowledge Pipeline Map\" diagram: Figma canvas context flows through retrieval, embedding, and schema-mapping into a centralized knowledge database."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Research workshops and a 6,000-component RAG pipeline grounded every generative suggestion in engineering truth."
+    },
+    "desktopMotion": {
+      "body": "Video demo footage shows the omnipresent Design Assist Orb instantly generating a mobile profile template directly on the Figma canvas, surfacing compliant content without the designer leaving their file."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "90",
+          "suffix": "%",
+          "label": "Blueprint Adoption",
+          "note": "Designers chose Blueprint-compliant components far more consistently than before."
+        },
+        {
+          "value": "45",
+          "suffix": "%",
+          "label": "Capacity Growth",
+          "note": "Reclaimed designer capacity equaled adding two to three designers."
+        },
+        {
+          "value": "15",
+          "suffix": "",
+          "label": "Time Reclaimed",
+          "note": "Reclaiming search time shrank hours lost to non-compliant rework."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Shifting from manual policing to automated consistency worked because it let designers feel helped rather than watched, proving that adoption follows trust, not enforcement, once CSAT climbed steadily from 75% to 84% alongside usage itself. Finding that 87% of designers abandoned a compliant component after a single extra step taught me that friction, not willpower, decides whether a good system gets used at all. If I could revisit one decision, I'd have built the compliance-checking phase before component detection, since compliance checking alone drove a 42% adoption jump, the single largest lever in the entire rollout, and shipping it first could have compounded that gain considerably earlier company-wide.",
+      "nextSteps": [
+        "Phase II extends this same Design Brain beyond Figma to engineers in VS Code and product managers in Jira, enabling true self-service design intelligence across the entire organization.",
+        "We're building the same RAG-grounded guardrails for code and documentation surfaces that we validated for design, and evaluating how compliance checking's 42% adoption lift generalizes to entirely different professional workflows across the wider company."
+      ]
+    }
+  },
+  "galderma": {
+    "title": "Galderma",
+    "hero": {
+      "projectName": "Galderma",
+      "statement": "Turning scarce clinical training into scalable habit.",
+      "from": "Mouth-to-Mouth Training",
+      "to": "Product-Led Growth Ecosystem"
+    },
+    "overview": {
+      "body": "Galderma's AART and HIT methodologies reached over 100,000 healthcare professionals across 40-plus global markets, but a face-to-face \"mouth-to-mouth\" training model couldn't scale that demand or track who actually learned. Practitioners attended workshops, then churned back to old habits without ever forming a true clinical habit, leaving a disconnected ecosystem of \"Non-Activated\" users. As design lead for Thought Cab Design, I introduced a User Engagement State framework, treating medical competency as a Product-Led Growth funnel with defined Setup, Aha!, and Habit thresholds. Digitizing GAIN Connect around this framework turned a passive content library into a trackable activation engine for the premium aesthetics portfolio.",
+      "disciplines": "Product-Led Growth Strategy, Design-Led Research, Platform Design, Engagement State Modeling, Regulatory Compliance, UX, UI Design.",
+      "duration": "June to December 2021",
+      "team": "Fas Lebbie, Daniel Borer, Sabrina Fessler, David Sohrabian"
+    },
+    "problemContext": {
+      "problem": "Galderma's AART and HIT methodology was sophisticated, but its training wasn't sticky enough to match it. Practitioners signed up physically for workshops yet never reached the \"Habit Moment\" digitally, leaving a massive population stuck \"Non-Activated,\" using products without ever completing the \"Setup Moment\" needed to access core clinical value. Without an expert standing over their shoulder to enforce the habit, injectors quietly churned back to old methods, unable to recall complex protocols under real time pressure. Organizational friction compounded this: the existing \"solution\" was batch slide communication, offering no \"Resurrection\" path for anyone who dropped off. The business risk was direct: without the Habit Moment, practitioners wouldn't adopt the premium portfolio.",
+      "brought": "I introduced the User Engagement State framework, defining the Setup, Aha!, and Habit thresholds Galderma's roadmap would optimize around. I architected the HCP Flow as a retention engine, designing \"Resurrection\" loops for failed assessments and \"Power\" features like Clinic Management. I also navigated friction between Brand Strategy and Digital Aesthetics, using the framework as neutral ground to align units on shared KPIs."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Galderma's \"digital\" landscape was largely a disconnected asset repository. Its gold-standard tool, the AART assessment disk, was a physical, analog object, brilliant but unscalable and impossible to track. Knowledge stayed siloed with specific experts, and Brazil, the US, and Australia each ran their own inconsistent version of GAIN Connect. Existing e-learning was passive, mostly static \"interactive videos,\" and 78% of practitioners struggled to translate that into consistent practice."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "We couldn't just guess at how clinical habits form, so we ran a Discovery phase to define the specific actions constituting each PLG state. We engaged the Medical Education Team directly, mapping the \"mouth-to-mouth\" journey onto the PLG framework, and ran 1:1 semi-structured interviews with Jennifer Younes (Brand) and Miriam Garcia (Medical Education) to define what a true \"Aha! Moment\" actually meant for a practicing doctor, not just a content designer."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Adoption barriers turned out to be structural, not intellectual. Content without context created churn, so HIT access now requires demonstrated AART mastery first. Clinical confidence needed visual validation, not text, which led directly to the Interactive Facial Assessment Scale. And assessment failure was the single highest-churn moment we found: users who failed a quiz simply abandoned the platform, which is exactly what \"Smart Resurrection\" loops were built to interrupt."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We worked backward from three strategic goals mapped onto our Engagement States. Activation Velocity tracked Time-to-Aha, the percentage of users unlocking the interactive assessment tool within their first session. Habit Formation tracked the Habit Moment Conversion Rate, measuring the jump from digital training to a supervisor-verified first-patient interaction. Resurrection and Retention tracked Accreditation Loops, ensuring a failed skills assessment triggered retraining rather than exit."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We worked backward from the Habit Moment itself, using a Skateboard/Scooter/Car model to manage scope under Brazil's strict regulatory pilot timeline. The Skateboard MVP tested only the Activation Flow, whether users could complete Setup and reach Aha, stripping away every non-essential \"Casual\" feature. We briefed the Build Team using the User Engagement State diagram as the literal architecture map, then validated every Access action directly with 15 HCPs in Brazil. The source's own real \"AART is a methodology to create individualized treatment\" framework artifact — Assessment, Anatomy, Range, Treatment."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "A strategic artifact library of framework diagrams and KPI trees aligned the whole org."
+    },
+    "desktopMotion": {
+      "body": "Timestamped video modules enable Smart Resurrection back to specific missed lessons, the Interactive Facial Assessment Scale delivers the core Aha moment, and a tiered plan interface forces active commitment."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "45",
+          "suffix": "%",
+          "label": "Higher Completion",
+          "note": "Practitioners completed far more courses, confirming real habit formation."
+        },
+        {
+          "value": "3.2",
+          "suffix": "×",
+          "label": "Engagement",
+          "note": "Interactive modules tripled engagement, deepening Casual to Core usage."
+        },
+        {
+          "value": "92",
+          "suffix": "%",
+          "label": "Confidence in HCPs",
+          "note": "Verified competency rose sharply, reducing risk in clinical practice."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Treating medical competency as a genuine Product-Led Growth funnel worked because it gave every stakeholder one shared, measurable definition of progress instead of arguing endlessly over vague, competing notions of what \"engagement\" even meant. Learning that content without context created churn taught me that gating felt restrictive in the design room but read as trustworthy, supportive structure to the practitioners actually using it day to day. If I could revisit one decision, I'd have built the Smart Resurrection loops before the Interactive Facial Assessment Scale, since assessment failure was already the platform's single highest-churn moment, and fixing that specific leak first might have compounded retention gains earlier across all 40-plus markets.",
+      "nextSteps": [
+        "We're automating the Hail Mary Resurrection loops with AI-driven content recommendations tied to each practitioner's specific failure point, and expanding Clinic Management into patient scheduling to deepen Power usage.",
+        "We're also piloting AR as a \"digital supervisor\" for the Habit Moment, reducing reliance on human oversight, and integrating peer success stories into the Setup Moment to increase Activation velocity across new markets."
+      ]
+    }
+  },
+  "vuforia-chalk": {
+    "title": "Vuforia Chalk",
+    "hero": {
+      "projectName": "Vuforia Chalk",
+      "statement": "One AR platform, two distinct device physics.",
+      "from": "Flown-In Experts",
+      "to": "Remote AR Guidance"
+    },
+    "overview": {
+      "body": "Vuforia Chalk, PTC's augmented reality platform, now guides over 1 million industrial technicians by connecting them directly to remote experts through live video and anchored AR annotations. As the product scaled to large enterprise accounts, two experience gaps threatened adoption across its two very different device types. On mobile, chaotic group calls quickly blocked security-conscious clients from adopting the tool at all. On RealWear headsets, error-prone voice input caused technicians to abandon hands-free safety altogether. I helped design two fixes: a secure multi-expert session architecture for mobile, and a phonetic, deterministic voice interface for RealWear, each respecting its own device's native physics.",
+      "disciplines": "",
+      "duration": "2021, at PTC",
+      "team": "Fas Lebbie, Dev Yamakawa"
+    },
+    "problemContext": {
+      "problem": "Industrial teams traditionally flew experts out to job sites to resolve equipment failures, a slow, expensive model that left technicians without real-time visual support and produced inconsistent fixes and frequent repeat visits. Vuforia Chalk closed that gap with live video and anchored AR annotations, but scaling it surfaced two distinct, device-specific frictions. On mobile, troubleshooting is rarely a solitary act; it is a committee event involving a site manager, a vendor, and a headquarters expert, and the original one-to-one calling model produced pure chaos with no hierarchy, blocking enterprise security approval entirely. On RealWear, standard speech recognition failed constantly in noisy factories, so technicians abandoned hands-free safety for a phone instead.",
+      "brought": "Under my design manager's mentorship, I contributed to the end-to-end product design process for AI-driven AR features across desktop, mobile, and RealWear. I translated field research into interaction models, identifying mobile users as Orchestrators managing a crisis and headset users as Fixers executing solutions, then designed divergent, native UI patterns for each: hierarchical touch controls for mobile, phonetic voice commands for RealWear."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Industrial teams relied on flying experts to job sites whenever equipment failed, a slow, costly model that left frontline technicians without real-time visual support. Repeat visits and inconsistent fixes were common. Vuforia Chalk introduced live video and anchored AR annotations so a remote expert could see exactly what a technician saw, but scaling this across an entire enterprise device fleet, not just one device type, exposed two distinct new frictions."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I contributed to UX research into the specific environmental constraints each device faced in the field. Analyzing how technicians actually operated, I helped build interaction models identifying two user archetypes: mobile users acting as Orchestrators managing a multi-party crisis, and RealWear users acting as Fixers who needed both hands free to execute the solution safely."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Two adoption-blocking gaps emerged as Chalk scaled. Mobile's one-to-one calling model collapsed under real committee-style troubleshooting, and enterprise clients blocked adoption because they could not secure the call. RealWear's natural-speech input produced high failure rates in noisy factories, an input friction severe enough that technicians would abandon the safety of hands-free operation entirely and default back to a phone."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Two device-specific measures anchored our evaluation. For mobile, Operational Improvement tracked how directing the right experts into a session on the first call reduced costly repeat site visits. For RealWear, Efficiency Gain tracked how much faster a technician could join a session once deterministic phonetic commands replaced error-prone natural speech recognition entirely."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "Implementation diverged by device to respect each one's native physics. For mobile, we built a Host/Participant hierarchy with Lobbies and Waiting Rooms, turning the app into a securable command center. For RealWear, we replaced natural speech with a phonetic soft keyboard and flattened nested menus into high-contrast, instantly pronounceable tiles built for high-decibel environments. Real screenshot (received after the first build): the Vuforia Chalk RealWear splash screen — \"See it. Solve it. Together.\""
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Field constraint research and Orchestrator/Fixer interaction modeling together shaped two distinct, device-native design directions."
+    },
+    "desktopMotion": {
+      "body": "Desktop footage shows a remote expert's command view during a live multi-expert session, watching anchored AR annotations sync in real time as the far-off technician moves through the repair."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "1",
+          "suffix": "",
+          "label": "Technicians Guided",
+          "note": "Guided technicians toward faster, more consistent first-time equipment fixes."
+        },
+        {
+          "value": "20",
+          "suffix": "%",
+          "label": "Operational Improvement (Mobile)",
+          "note": "Right experts joined the first call, cutting repeat visits."
+        },
+        {
+          "value": "40",
+          "suffix": "%",
+          "label": "Efficiency Gain (RealWear)",
+          "note": "Faster hands-free entry reduced technician exposure during hazardous procedures."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Designing a strict Host/Participant hierarchy for mobile worked because it gave enterprise security teams the exact access control they needed to finally approve the tool for their own high-security deployment, proving that adoption blockers are sometimes organizational, not purely technical ones. Watching technicians abandon a hands-free headset for a plain phone taught me that safety features fail the moment they introduce friction, no matter how technically sound the underlying technology is. If I could revisit one decision, I'd have designed the phonetic voice interface for RealWear from the very first release, instead of shipping natural speech recognition first and only replacing it after adoption had already visibly stalled in the field.",
+      "nextSteps": [
+        "Next, we're extending the Host/Participant session model to desktop, so a global expert can direct multi-party calls from any device across the entire suite.",
+        "We're evaluating additional voice-first hardware partners beyond RealWear to widen hands-free coverage across more industrial job sites.",
+        "We're also building deeper analytics into live session data to identify which committee configurations resolve equipment failures fastest across the field."
+      ]
+    }
+  },
+  "life-of-a-miner-vr": {
+    "title": "Life of a Miner VR",
+    "hero": {
+      "projectName": "Life of a Miner VR",
+      "statement": "Situated proximity, not simulated empathy, drives understanding.",
+      "from": "Traditional Transparency",
+      "to": "Situated Proximity"
+    },
+    "overview": {
+      "body": "Root VR is a field-research-grounded virtual reality experience connecting consumers with the physical, economic, and environmental realities of artisanal diamond mining in Kono, Sierra Leone. Rather than claiming a short simulation can reproduce a miner's life, it places participants in a situated role encountering tools, decisions, labor conditions, and value exchanges drawn from six months of direct field research. Participants move through a ten-minute journey combining interactive 6DoF VR, spatial audio, controller haptics, and documentary 360-degree material. The goal is informed solidarity: helping consumers connect land, labor, risk, and value, then ask far more responsible questions about where a diamond comes from.",
+      "disciplines": "Field Ethnographic Research, Sensory Ethnography, Spatial UX, VR Experience Design, Immersive Storytelling, Interaction Prototyping, Research.",
+      "duration": "January to December 2021",
+      "team": "Fas Lebbie, Jake Peterson"
+    },
+    "problemContext": {
+      "problem": "The diamond industry creates a profound distance between the moment a diamond is purchased and the conditions under which it was actually extracted, a distance especially consequential in artisanal communities that produce an estimated 20-30% of the world's diamonds. Field research in Kono District revealed unsafe working conditions, contaminated water, unstable terrain, limited equipment access, economic insecurity, and lasting effects on miners' bodies and surrounding land itself. Traditional transparency materials inform without ever conveying the spatial relationships, physical effort, uncertainty, and constrained choices that actually define extraction. The real design challenge was not to simply tell miners' stories, but to create responsible proximity, without reducing miners to suffering or gamifying hardship.",
+      "brought": "I led six months of ethnographic fieldwork across Sierra Leone's mining communities, using mixed methods with 15 working miners to translate lived conditions, tools, routines, and daily decision points into concrete spatial experience requirements. I then defined the immersive narrative, participant role, sensory language, and interaction model, and directed cross-functional collaboration across Sierra Leone and New York into one coherent product vision."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "The project began by studying immersive storytelling and Stanford's Becoming Homeless research as precedents for VR's influence on social understanding. These precedents suggested embodied media could produce stronger immediate engagement than passive educational formats, but also raised a critical question: how could the medium support understanding without overstating empathy or long-term behavioral impact?"
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "Field research in Kono became the evidentiary foundation: contextual inquiry at active mining sites, semi-structured interviews with 15 miners, photography and 360-degree environmental mapping, binaural worksite recordings, participatory observation of mining techniques, tool and equipment analysis, and journey mapping of daily routines. Being born in Kono District brought cultural familiarity, while every interpretation was still validated directly with miners themselves."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Three recurring conditions shaped the experience. Entering mining work can involve real economic sacrifice, including selling possessions to obtain tools. Labor unfolds through repetition, force, precision, and uncertainty rather than one dramatic action. And miners work within genuine environmental risk, unstable ground and contaminated water, while having limited control over the value a diamond eventually generates."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Findings translated into three design principles: ground every scene in field evidence rather than generic representations; use constrained choices instead of game outcomes, since no individual path should suggest structural inequality can be overcome by good performance; and make labor perceptible through coordinated senses, letting participants feel interaction without simulating injury or turning hardship into spectacle."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "Twelve participants in New York reviewed low-fidelity wireframes, storyboards, and core interaction mechanics; interactive prototypes at Parsons tested hand presence and environmental response. In the pilot, 86% of testers reported a stronger emotional response when haptic feedback communicated the weight of mining tools, and testing suggested ten minutes balanced immersion, comprehension, and facilitated installation needs. supplied for this case study ]"
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "A ten-stage VR journey storyboard traced acclimation through labor to reflection, validated with miners."
+    },
+    "desktopMotion": {
+      "body": "Near-field hands, tools, soil, water, and the diamond render at the highest fidelity today; a proposed field-to-asset pipeline would extend that same fidelity to terrain, characters, sound, and lighting."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "6575",
+          "suffix": "",
+          "label": "Increased Understanding",
+          "note": "Pilot participants left connecting mining conditions to sourcing choices."
+        },
+        {
+          "value": "10",
+          "suffix": "",
+          "label": "Experience Duration",
+          "note": "The duration facilitated installations can sustain per single visitor."
+        },
+        {
+          "value": "86",
+          "suffix": "%",
+          "label": "Stronger Emotional Response",
+          "note": "Haptic weight made physical risk felt, not just narrated."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "The pilot showed immersive interaction could help participants connect mining conditions to the diamond supply chain more concretely, but self-reported comprehension and intention are not verified changes in purchasing behavior, and long-term impact remains genuinely unproven still. The project also established a more credible deployment direction: rather than relying on home headset adoption, facilitated installations in museums, universities, and responsible-sourcing programs allow equipment reuse, participant support, accessibility accommodations, and structured evaluation of outcomes. If I could revisit one decision, I would have built longitudinal follow-up into the original pilot design itself, since three-to-six-month retention is the question this experience was always going to need answered, not an afterthought to add later.",
+      "nextSteps": [
+        "Deploy a facilitated MVP in an educational or responsible-sourcing context, testing the complete service flow from consent through facilitation, reset, and evaluation.",
+        "Reconstruct the original storyboards as full spatial wireframes before any high-fidelity production begins.",
+        "Build a field-to-asset pipeline that clearly distinguishes original, tested, reconstructed, and proposed work.",
+        "Expand miner participation in design reviews, and develop a browser-based companion for classroom access."
+      ]
+    }
+  },
+  "2020-us-census-benefit-calculator": {
+    "title": "2020 US Census Benefit Calculator",
+    "hero": {
+      "projectName": "2020 US Census Benefit Calculator",
+      "statement": "Resource locator increasing Immigrant families census participation",
+      "from": "Civic Duty Messaging",
+      "to": "Personalized Benefit Value"
+    },
+    "overview": {
+      "body": "Federal funding allocation of over $800 billion annually depends on accurate census counts, yet New York City lost $1.8 billion after the 2010 Census badly undercounted its immigrant communities. As lead researcher and designer, I built the Census Benefit Calculator, a personalized web application connecting immigrant parents' census participation to tangible benefits like school lunches, healthcare, and housing assistance. Partnering with ABNY, Queens Library, Color of Change, and the Census Bureau, we replaced abstract civic-duty messaging with a direct value proposition, arming advocacy groups, field workers, and local officials with a concrete way to show families exactly what being counted was worth.",
+      "disciplines": "Ethnographic Research Methods, Experience Design, Theory of Change, Community-Centered Design, Civic Design Systems, Inclusive UX.",
+      "duration": "August to December 2019",
+      "team": "Fas Lebbie, Vaidehi Supatkar"
+    },
+    "problemContext": {
+      "problem": "The census determines political representation and over $800 billion in annual federal assistance, yet the 2020 count's digital-first approach created serious barriers for hard-to-count immigrant communities. New York City had already lost $1.8 billion in federal grants after the 2010 undercount, equivalent to roughly $3,000 per uncounted resident annually, and risked losing two more congressional seats if undercounting continued unchecked. Six out of ten children of color went uncounted nationally in prior cycles, disproportionately affecting immigrant and multigenerational households. Limited English proficiency, the digital divide, and deep-seated government distrust compounded the problem further: field interviews found 14 out of 21 people mistakenly believed only legal citizens could ever participate at all.",
+      "brought": "I leveraged ethnographic research and community partnerships to interview 20 immigrant families across nine countries, building trust through advocacy organizations. I designed a multilingual web application integrating with the public federal system while addressing digital equity barriers for underserved, hard-to-reach users. I aligned federal, nonprofit, and community partners around reframing census participation through practical value and lasting trust-building, not legal compliance alone."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "The 2020 Census's digital-first design excluded many immigrant households already facing a digital divide, while historical distrust of government ran deep. Field interviews at Washington Square Park found 14 of 21 people mistakenly believed only citizens could participate, and some feared their data would be used against them. Traditional outreach leaned on civic duty and legal obligation, appeals that fell flat with communities the census had already failed."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I conducted structured and semi-structured interviews with 20 immigrant families from nine African nations, including Marie Sesay, a single mother from Sierra Leone supporting multiple households. I engaged African community organizations and joined census co-creation workshops with ABNY and the Queens Library, working across personal, community, and systemic levels to surface patterns individual interviews alone couldn't reveal."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Research revealed government distrust rooted in immigrants' countries of origin, real confusion about how federal funding actually reaches families, and a stronger response to children's benefits than appeals to civic duty. Nearly half a million children risked being undercounted in New York state alone, driven by confusion over counting young children, complicated household structures, and undocumented families' fear of revealing who lived at home."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "User testing surfaced three design priorities functioning as our KPIs. Privacy Confidence tracked comfort with range-based inputs over specific figures, avoiding a chilling effect on disclosure. Perceived Value tracked whether direct programme matching felt immediately worthwhile, not abstract. Actionability tracked whether clear resource connections gave families a real next step, not just information."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We prototyped the calculator through multiple iterations using InVision and co-creation workshops with community members, testing efficient ten-minute conversations between field workers and families. Distribution ran through trusted community partnerships rather than government channels, since information from a trusted messenger carried more weight than the same message from a government agency ever could."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Challenge mapping and an immigrant-archetype framework translated abstract civic duty directly into personal motivation."
+    },
+    "desktopMotion": {
+      "body": "A walkthrough shows a parent moving from a ZIP code and a few household details to a personalized list of programmes, then into a programme's eligibility and application steps."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "17",
+          "suffix": "%",
+          "label": "Census Response Rate Increase",
+          "note": "More immigrant families actually completed the census after outreach."
+        },
+        {
+          "value": "40",
+          "suffix": "",
+          "label": "In Federal Funding Retained",
+          "note": "Accurate counts kept billions in federal aid flowing locally."
+        },
+        {
+          "value": "500",
+          "suffix": "",
+          "label": "At-Risk Children Made Visible",
+          "note": "Vulnerable children became visible instead of statistically disappearing entirely."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Reframing the census from an abstract civic duty into a practical, deeply personal value proposition worked: showing immigrant parents exactly which specific benefits their participation protected lifted response rates by 17 percent using trusted community messengers instead of official government channels. Retaining an estimated $40 billion in federal funding and making roughly 500,000 at-risk children statistically visible again told me that transactional honesty, not patriotic appeal, was what actually moved historically undercounted families. If I could revisit one decision, I'd have built the archetype-based interviews into the very first research round instead of layering them in later, since the emotional framing they revealed shaped nearly everything important that followed after that.",
+      "nextSteps": [
+        "Next, we're piloting the calculator with advocacy partners in other states to gather real outreach data and refine usability ahead of the next census.",
+        "We're building a civic fieldworker toolkit with talking points and training materials, expanding coverage to additional federal programmes, and integrating real-time funding data for more precise calculations.",
+        "We're also developing offline capabilities for communities with limited internet access."
+      ]
+    }
+  },
+  "oc-digital-resource-navigator": {
+    "title": "OC Digital Resource Navigator",
+    "hero": {
+      "projectName": "OC Resource Navigator",
+      "statement": "Connecting Orange County residents to coordinated care",
+      "from": "Fragmented Referrals",
+      "to": "Coordinated Care"
+    },
+    "overview": {
+      "body": "In Orange County, over 650,000 adults need mental health support, yet only 59% actually receive care, worn down by linguistic barriers, stigma, and disconnected agencies. The system was badly fragmented, forcing residents to retell their trauma repeatedly just to find a door that opened. OC Navigator is a digital platform integrating physical, mental, and social health factors to close that gap. Working with CalMHSA, the Orange County Health Care Agency, and UCLA, I led the design and research for a participatory effort that folds social determinants of health into referrals, reducing crisis-response times and turning fragmented touchpoints into one coordinated, whole-person journey.",
+      "disciplines": "Participatory Design Research, Product Design, Accessibility, Privacy Compliance, Prototyping, Journey Mapping User Research, Stakeholder Collaboration.",
+      "duration": "Piloted and scaled through 2022",
+      "team": "Fas Lebbie, Kris, Bowen Chung, Minhxuan Tran"
+    },
+    "problemContext": {
+      "problem": "Twenty percent of Orange County adults, over 650,000 neighbors, needed mental health support, yet barely half were actually getting it. The fragmented system forced residents to repeat their story across disconnected agencies, retraumatizing them in the search for relief, while linguistic barriers, stigma, and limited digital literacy shut out entire populations. Providers compounded the problem, operating in silos on separate databases, with some relying on their own personal spreadsheets instead of shared records, causing constant confusion and missed handoffs. The less visible constraint was the pandemic's own fix: shifting resource hubs to virtual-only formats solved one barrier while quietly erecting new ones for residents without devices, reliable transportation, or steady connectivity.",
+      "brought": "I led the design and research for OC Navigator, running co-design sessions and structured interviews with 119 community members and stakeholders across 13 workgroups. I designed accessible mobile and web interfaces using archetypes such as the Explorer and the Techie, and I worked closely with IT security teams to navigate WCAG- and HIPAA-aligned compliance requirements without compromising speed, accessibility, or user experience."
+    },
+    "approach": {
+      "blurb": "My approach centered on participatory technology development, prioritizing equity, inclusion, and meaningful stakeholder engagement, guided by transparency, respect, partnership, two-way knowledge exchange, and capacity building rather than building a solution for the community from a distance.",
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "The Chorus team's focus groups handed us a sobering starting line: one in five adults needed help, and traditional navigation solutions were failing diverse populations. Geography and insurance status acted as gatekeepers, but the most daunting baseline was cultural stigma discouraging people from raising their hands at all. We were designing against systemic exclusion, not building a directory."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I adopted a grounded theory approach, running 90-minute structured interviews with 119 participants across 13 workgroups, from first responders to citizens. Using the Transtheoretical Model of Health Behavior Change, we mapped mindsets from unaware to proactive, mapped distinct journeys for individuals and providers, and built archetypes like the Techie versus the Browser to flex the interface to different cognitive styles."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Four findings reshaped our criteria: trust is the gateway, so transparency about who sees data is mandatory; it's whole-life health, not just mental health, since housing and food insecurity gate access as much as clinical need; barriers are multifaceted, spanning awareness, transportation, and language; and the fragmented system demanded we design for the whole journey, not isolated touchpoints."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "We laddered three project-level goals: Operationalize Trust, tracking SDoH-screener engagement as a proxy for safety; Close the Crisis Gap, monitoring referral follow-through and multi-contact friction so distress doesn't loop into an abandoned search; and System Integration, unifying providers' disparate personal spreadsheets into one source of truth behind the $18M transformation initiative."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "We chose a phased MVP over a full simultaneous build, shipping individual-facing screening and resource listings before the provider dashboard. During AB testing, stakeholders rejected Option 1, which required an extra click to view services, and chose Option 2's immediate detail display instead, trading a denser first screen for one less click between a resident and a real answer."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Journey maps, lived-experience archetypes, and system maps aligned partners around whole-person, participatory navigation design."
+    },
+    "desktopMotion": {
+      "body": "The public home page doubles as the front door: category tiles and a needs-assessment prompt let residents start from a known category or a guided question, no account required."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "47",
+          "suffix": "%",
+          "label": "Crisis-Response Speed",
+          "note": "Faster interventions reached residents in active behavioral-health crisis sooner."
+        },
+        {
+          "value": "35",
+          "suffix": "%",
+          "label": "Referral Completion",
+          "note": "More residents who started a referral completed the connection."
+        },
+        {
+          "value": "76.7",
+          "suffix": "%",
+          "label": "Assessment Navigation Ease",
+          "note": "Most residents reached the assessment on their first try."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Treating stigma as a design constraint, not a footnote, worked: 119 structured interviews across 13 workgroups surfaced barriers that engagement data alone never would have caught, and it paid off directly in a 47% drop in crisis-response time and 35% more completed referrals. Building trust into the SDoH screener before ever optimizing its funnel is what made both numbers possible in the first place. If I could revisit just one decision, I'd have built the provider dashboard and referral tracking alongside the resident-facing screener from day one, instead of phasing it entirely into Next Steps — the personal spreadsheets driving provider-side fragmentation were as urgent as anything residents themselves were facing.",
+      "nextSteps": [
+        "Next, we're expanding the Provider Dashboard with referral tracking and outcome measurement to improve accountability and service follow-through, and integrating health records for seamless coordination between county systems and providers.",
+        "We're developing culturally responsive access through a Spanish-language interface and tailored resource categories, and building a mobile app optimized for offline use so residents in low-connectivity areas aren't locked out of care."
+      ]
+    }
+  },
+  "diamond-valuation-ai": {
+    "title": "Diamond Valuation AI",
+    "hero": {
+      "projectName": "Diamond Valuation AI",
+      "statement": "AI design democratizing diamond valuation for miners",
+      "from": "Centralized Valuation",
+      "to": "Decentralized Valuation"
+    },
+    "overview": {
+      "body": "In Sierra Leone's artisanal mining communities, information asymmetry lets middlemen undervalue rough diamonds by 30 to 70 percent, while professional tools like DiamondMaster and Sarine's scanners demand gemological training, paid subscriptions, and steady internet most miners lack. Diamond Valuation AI, built and shipped as the Root Ally app, replaces that gatekeeping with a smartphone scan, online or offline, that returns an AI-generated market value in minutes. Working closely with Root Studios, Pact, and GIA, I led the participatory research and interface design for miners with limited technical literacy, shifting valuation power from centralized middlemen toward the miners who actually hold the diamonds.",
+      "disciplines": "Participatory Design Research, Computer Vision Interface Design, Offline-First Mobile Architecture, Field Research, Cross-Functional Team Collaboration.",
+      "duration": "Fieldwork through ongoing pilot",
+      "team": "Root Studios, Pact, GIA"
+    },
+    "problemContext": {
+      "problem": "Diamond valuation has always favored buyers: in Sierra Leone's artisanal mining communities, information gaps let middlemen undervalue rough stones by 30 to 70 percent through local pricing networks miners have little power to question. Professional alternatives were no better fit. DiamondMaster and CARATRATE require gemological training and paid subscriptions, and Sarine's scanning technology assumes stable internet and centralized facilities, none of which remote mining sites reliably offer. The less visible constraint was trust, not technology: miners already carried cellphones capable of running an app, but decades of exploitation by centralized valuation systems left mistrust that any new tool would need to overcome, plus security risk in traveling to prove it wrong.",
+      "brought": "I led mixed-methods research and participatory workshops with 25 artisanal miners in Sierra Leone to surface the exact barriers artisanal miners were facing, then designed a mobile-first, offline-compatible AI interface using computer vision to translate gemological complexity into visual, low-literacy interactions. I also directed cross-functional collaboration between Root Studios, Pact, and GIA to keep the resulting valuation tool decentralized and genuinely accessible."
+    },
+    "approach": {
+      "blurb": "My approach starts from the idea that most systems are built to be exclusionary, and a designer's role is to democratize systems that marginalize vulnerable communities, prioritizing accessibility, transparency, and immediate value for miners the market previously excluded.",
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Early fieldwork in Kono confirmed what mattered most: miners already carried smartphones, but technical literacy varied widely and trust in any centralized system was low. Traditional valuation tools served dealers, not miners, requiring expertise and subscriptions no artisanal miner could justify. Even professional options like Sarine's scanning technology stayed out of reach, and security concerns ruled out centralized valuation facilities entirely as a fix."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "I ran a mixed-methods study combining contextual interviews across mining sites with participatory workshops involving 25 miners, following Participatory Technology Development principles rather than researching at a distance. Those sessions surfaced real scanning workflows and pain points directly from the people who'd use the tool, while parallel collaboration with gemological experts helped distill professional-grade valuation principles into interactions simple enough for anyone to follow."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Miners understood diamonds better than the system gave them credit for, but their knowledge was fragmented: they could describe basic qualities without connecting them to market value or cutting strategy, the exact gap local pricing networks exploited to undervalue stones by 30 to 70 percent. Limited technical literacy, intermittent connectivity, and deep mistrust of centralized systems compounded that gap, reinforcing the same power imbalance the whole project set out to break."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Three strategic pillars became our project-level goals: a simplified, visual-first interface requiring minimal technical knowledge, so limited literacy stopped being a barrier to entry; an offline-first architecture delivering full scanning functionality with no internet connection, matching the connectivity miners actually have; and a single unified AI system merging viewing, imaging, and pricing that previously required separate specialists miners couldn't access."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "Miners tested early wireframes and experience flows directly in the field, which surfaced a clear need for stronger visual guidance during scanning and value reports built for mining-site conditions, not office reviews. Later prototypes added real-time visual guidance, automated value estimation, and downloadable reports miners could use in price negotiations. Current work focuses on optimizing the offline AI model so it holds up without connectivity."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "Theory of Change, stakeholder maps, and pain-scale analysis grounded the design in miners' realities."
+    },
+    "desktopMotion": {
+      "body": "A desktop walkthrough would follow one rough stone end to end: a miner scans six angles, watches AI analysis resolve into a value, then submits verified provenance to ROOT."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "70",
+          "suffix": "%",
+          "label": "Miner Empowerment",
+          "note": "Miners gained real confidence to negotiate instead of underpricing."
+        },
+        {
+          "value": "500",
+          "suffix": "",
+          "label": "Miners Reached",
+          "note": "Artisanal miners gained direct access to fair-market valuation tools."
+        },
+        {
+          "value": "40",
+          "suffix": "%",
+          "label": "Fair-Value Increase",
+          "note": "Miners captured more of their diamonds' true market worth."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Treating trust as the product, not an afterthought, worked: grounding the interface in 25 participatory workshops before writing code is what got miners past decades of centralized exploitation, and it shows in the numbers, a 70 percent empowerment rate and a 40 percent lift in fair value captured. Starting from miners' own fragmented knowledge, rather than assuming ignorance, made an AI valuation tool feel trustworthy instead of just another outside system. If I could revisit one decision, I'd have scoped the ROOT submission flow, provenance plus media of the miner, into the first pilot instead of an afterthought, since verifying who found a stone matters as much as pricing it fairly.",
+      "nextSteps": [
+        "Next, we're deploying a pilot with 100 to 200 miners to field-test the offline AI model under real mining conditions.",
+        "We're establishing a local valuation hub through Root Foundation so adoption doesn't depend on one app session, and building visual-first training programs that grow miners' own negotiation confidence.",
+        "Longer term, we're also exploring the same decentralized approach for gold and coltan mining."
+      ]
+    }
+  },
+  "memory-tubes": {
+    "title": "Memory Tubes",
+    "hero": {
+      "projectName": "Memory Tubes",
+      "statement": "Provoking collective joy inside anonymous city spaces",
+      "from": "Urban Anonymity",
+      "to": "Collective Joy"
+    },
+    "overview": {
+      "body": "In dense cities like New York, 52 percent of residents regularly feel lonely despite constant physical proximity to millions of strangers. As lead researcher, I worked with Theo Walcot to build Memory Tubes, golden tube installations using research-through-design methods, deploying provocative prompts across high-traffic spaces to interrupt New York's typical, heads-down movement patterns. What began as memory-based prompts became present-moment reflections once early deployments revealed a dramatic jump in participation. Across Union Square, a crosswalk, and an elevator waiting area, we turned hundreds of strangers into storytellers, showing how one object can transform anonymous public space into a site of shared connection.",
+      "disciplines": "Design Ethnography, Provotyping, Public Installation Deployment, Interactive Prompt Design, Research-Through-Design Methods, Behavioral Field Observation, Sense-Making.",
+      "duration": "December 2019 to March 2020",
+      "team": "Fas Lebbie, Theo Walcot"
+    },
+    "problemContext": {
+      "problem": "Dense cities like New York present a paradox: residents often feel deeply isolated despite living near millions of people, and 52 percent regularly report feeling lonely. This urban anonymity shows up in ordinary avoidance behaviors, headphones in, eyes down, minimal acknowledgment, normalized as simply how city life works. Transitional spaces like crosswalks, subway platforms, and elevator lobbies sit entirely unused as real opportunities for connection. Traditional community-building relies on formal events or costly infrastructure changes that overlook how spontaneously people actually move. The real gap sat between physical proximity and social connection, and finding the moments people were genuinely open to interruption, without disrupting how they navigate the city at all.",
+      "brought": "I conducted field research with the team, mapping movement patterns and behaviors across several New York City locations to inform the interactive urban interventions we designed. I co-created and deployed the Memory Tube installations, iterating prompts and physical designs between phases to steadily lift participation. I also partnered with cross-disciplinary peers to capture and synthesize the stories, observations, and insights we gathered."
+    },
+    "approach": {
+      "accordion": [
+        {
+          "title": "Baseline Information",
+          "body": "Urban anonymity showed up everywhere we looked: headphones in, eyes down, minimal acknowledgment between strangers who passed each other daily. Fifty-two percent of New Yorkers reported regular loneliness despite constant physical proximity to millions of people. Transitional spaces like crosswalks, subway platforms, and park benches sat unused as connection opportunities, since traditional community-building relied on formal events rather than spontaneous urban movement itself."
+        },
+        {
+          "title": "Research & Strategy",
+          "body": "Grounded in Frayling's research-through-design approach, we treated the design process itself as our method of investigation rather than a step that follows research. Using HMW matrices and a Wheel of Reasoning framework, we mapped three provotype directions, Wait and Play, Memory Landmarks, and Common Enemy, evaluating each for feasibility, impact, and ethics before selecting Memory Landmarks as our primary direction."
+        },
+        {
+          "title": "Summary of Findings",
+          "body": "Shifting our prompt from memory-based to present-focused tripled participation, showing people share immediate emotions more readily than recalled ones in busy urban contexts. A curiosity-participation gap emerged: many stopped and read the prompt but few actually spoke into the tube. Each participant who engaged inspired two to three others to follow, and making our recording equipment visible built trust rather than deterring people."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Three measures anchored our evaluation as this provotype evolved. Engagement Jump tracked the tripled participation rate once we shifted from memory-based to present-moment prompts. Positive Responses tracked the share of authentic, positive emotional reactions participants shared into the tube. Interaction Time tracked median engagement duration, our proxy for how deeply a stranger actually connected with the installation."
+        },
+        {
+          "title": "Prototyping & Implementation Strategy",
+          "body": "Implementation moved through two deployment phases rather than one big launch. Phase one tested a memory-based prompt across three locations, yielding rich observations about curiosity without much direct participation. Phase two refined the prompt to a present-moment question at Union Square, experimenting with recording-equipment visibility and producing dramatically higher engagement and a wider range of emotional expression. Real \"Sense Making\" synthesis wall (confirmed accurate) — the team's own post-it and photo synthesis of field observations from the Union Square deployment. Real \"Integrated Methodology\" summary (confirmed accurate) — the team's own four-phase research framework, from Urban Needs Analysis through Sense Making."
+        }
+      ]
+    },
+    "artifacts": {
+      "intro": "HMW matrices, a Wheel of Reasoning, and phase-mapped synthesis turned messy fieldwork into direction."
+    },
+    "desktopMotion": {
+      "body": "Field documentation shows passersby noticing the golden tube, pausing to read its prompt, circling it slowly with companions, then some finally leaning in to speak their own reflection aloud."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "3",
+          "suffix": "×",
+          "label": "Engagement Jump",
+          "note": "Present-moment prompts tripled real participation over memory-based prompts here."
+        },
+        {
+          "value": "78",
+          "suffix": "%",
+          "label": "Positive Responses",
+          "note": "Participants shared authentic, positive emotional reactions into the tube."
+        },
+        {
+          "value": "3",
+          "suffix": "",
+          "label": "Interaction Time",
+          "note": "Median engagement lasted long enough for a genuine exchange."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "Shifting our prompt from a memory-based question to a present-moment one worked: asking strangers how they felt right now instead of asking them to recall the past tripled participation, revealing that busy urban contexts reward immediate emotional honesty over quiet reflection. Watching each engaged participant inspire two or three others to follow told me that collective joy spreads through visible permission, not private invitation extended one wary stranger at a time. If I could revisit one decision, I'd have made our recording equipment visible from the very first deployment instead of only the second one, since transparency built real trust we spent our whole first phase assuming we had to hide.",
+      "nextSteps": [
+        "Next, we're collaborating with NYC Parks and transit authorities to expand Memory Tube installations across more boroughs and high-traffic spaces.",
+        "We're partnering with community groups to co-create a simple, open-source toolkit for replicating these urban interventions.",
+        "We're launching a digital archive to document participant stories and engagement data, and working with city planners to embed these insights into future public space design."
+      ]
+    }
+  }
+}

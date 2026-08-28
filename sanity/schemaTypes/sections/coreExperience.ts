@@ -39,7 +39,34 @@ export const coreExperience = defineType({
       },
       initialValue: "mobileRow",
       description:
-        "Mobile row = tall phone cards in a horizontal strip. Desktop grid = wider landscape tiles (popup scrolls sideways).",
+        "Mobile row = phone portraits in a horizontal strip (Coral). Desktop grid = 2× landscape cards with captions (Acme Lending, Figma 2271:58148).",
+    }),
+    defineField({
+      name: "previewRowStagger",
+      title: "Band row stagger (px)",
+      type: "number",
+      initialValue: 145,
+      validation: (r) => r.min(0).integer(),
+      description:
+        "Desktop grid only — alternating row horizontal offset (Figma 2271:58148: top row left, bottom row right). Default 145.",
+      hidden: ({ parent }) => parent?.layoutVariant !== "desktopGrid",
+    }),
+    defineField({
+      name: "previewColumns",
+      title: "Band cards per row",
+      type: "number",
+      initialValue: 2,
+      validation: (r) => r.min(1).max(4).integer(),
+      description:
+        "Desktop grid only — cards per staggered row (default 2). Mobile row ignores this.",
+      hidden: ({ parent }) => parent?.layoutVariant !== "desktopGrid",
+    }),
+    defineField({
+      name: "previewAppearance",
+      title: "Band preview — layout & colors",
+      type: "appearance",
+      description:
+        "Grid gaps, card background, horizontal padding, max width for the preview screens row/grid.",
     }),
     defineField({
       name: "previewScreens",
@@ -59,11 +86,32 @@ export const coreExperience = defineType({
       description: "Legacy horizontal-scroll popup — replaced by Popup device tabs below.",
     }),
     defineField({
+      name: "popupKicker",
+      title: "Popup kicker (optional)",
+      type: "string",
+      description:
+        'Small uppercase label above the popup headline, e.g. "Feature set" (Figma 3670:21768). Leave empty to hide.',
+    }),
+    defineField({
+      name: "popupTitle",
+      title: "Popup headline (optional)",
+      type: "string",
+      description:
+        "Headline inside View More popup only. Falls back to Band headline when empty.",
+    }),
+    defineField({
       name: "popupBody",
       title: "Popup intro",
       type: "portableText",
       description:
-        "Paragraph at the top of the View More popup. Coral: “eight interconnected modules…” (Figma 3670:21768).",
+        "Paragraph at the top of the View More popup. Coral: “eight interconnected modules…” (Figma 3670:21768). Left-aligned in the popup.",
+    }),
+    defineField({
+      name: "popupAppearance",
+      title: "Popup — layout & colors",
+      type: "appearance",
+      description:
+        "View More popup: background, text colour, alignment, padding/gap (px), intro/container width (px), tile colour.",
     }),
     defineField({
       name: "popupTabs",

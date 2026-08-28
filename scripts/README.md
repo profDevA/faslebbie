@@ -21,8 +21,13 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Case study media wiped by bad patch | `restore-case-study-sections-from-history.ts` then `patch-problem-context-sections.ts` |
 | Coral overview / Problem Context / Reflection / Next Steps wiped | `patch-coral-restore-from-history.ts` |
 | Coral Studio validation (missing image, variant, ctaUrl, draft sync) | `patch-coral-fix-studio-validation.ts` |
+| All case studies — Studio validation / appearance strings | `patch-case-study-studio-validation.ts`, `patch-appearance-legacy-strings.ts` |
+| Draft out of sync after template migration | `sync-case-study-drafts-from-published.ts` |
+| Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`) |
+| Coral media audit (read-only) | `check-coral-media.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
+| Acme §04 Core Experience band captions | `patch-acme-core-experience-captions.ts` |
 | Coral §04 Core Experience popup tabs (Mobile/iPad/Desktop) | `patch-coral-core-experience-popup-tabs.ts` |
 | Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
 | Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |
@@ -36,6 +41,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
 | Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
+| cardCredits → cardCreditNames list | `patch-credits.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
 | Research copy | `patch-research-final-copy.ts` |
 | Research Paradigms/Principles covers | `patch-research-section-covers.ts` |
@@ -43,11 +49,11 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Teaching prose / students / slides / exhibition | `patch-teaching-prose.ts`, `patch-teaching-student-extras.ts`, `patch-student-popup-slides.ts`, `patch-exhibition-tiles.ts` |
 | Work `.img` titles/order/covers, tool stack | `patch-work-img-titles-order.ts`, `patch-work-img-covers.ts`, `patch-work-tool-stack*.ts` |
 | Build listing, covers, popup copy | `patch-build-final-copy.ts`, `patch-build-covers.ts`, `patch-build-project-copy.ts`, `patch-build-case-study-details.ts`, `patch-build-strip-legacy-fields.ts`, `patch-build-leoney-concept.ts`, `patch-build-popup-images-migrate.ts`, `patch-build-output-visuals.ts` |
-| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-plain-tokens.ts`, `patch-about-family-photo.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, … |
+| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-plain-tokens.ts`, `patch-about-family-photo.ts`, `patch-about-expansions.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, `patch-home-portrait.ts` |
 | Blogs / media / publications | `patch-blogs-publications.ts`, `patch-books-covers.ts`, `patch-media-redesign.ts`, `patch-blog-footers.ts` |
 | Testimonial photos only | `patch-testimonial-photos.ts` |
 
-Copy data modules (imported by patches, not run directly): `approach-final-copy-data.ts`, `about-expansions-data.ts`, `seed/*`.
+Copy data modules (imported by patches, not run directly): `approach-final-copy-data.ts`, `about-expansions-data.ts`, `data/*`, `seed/*`.
 
 **Legacy section types** (`proseSection`, `bulletSection`, `mediaSection`, `gallerySection`) stay in the schema and frontend for unmigrated case studies but are **hidden from the Studio section picker**. Migrate per slug to `problemContextSection`, `reflectionSection`, `desktopMotionShowcase`, etc., then remove renderers when usage hits zero.
 
@@ -59,11 +65,9 @@ Shared helper: `lib/lexorank-order.ts` — use LexoRank for `orderRank`, never `
 |--------|-----|
 | **`migrate-pages.ts`** | Wipes Build covers, 14 student carousels, 12 exhibition photos |
 | **`migrate-research.ts`** | Re-uploads field-note images |
-| **`migrate-to-sanity.ts`**, **`migrate-blogs.ts`**, **`migrate-about.ts`**, **`migrate-testimonials.ts`** | Full re-seed from local data |
-| **`migrate-*-redesign.ts`**, **`migrate-build-images.ts`** | One-time case-study / asset bulk imports |
 
-Use **`patch-*`** for single-field or copy updates. See `CLAUDE.md` for page-specific source-of-truth files.
+Use **`patch-*`** for single-field or copy updates. Use **`migrate-case-studies-coral-template.ts`** (with `--dry` / `--slug=`) for remaining red case-study template migrations — not the old bulk `migrate-*-redesign.ts` scripts (removed Aug 2026).
 
-## Archive / one-off (already applied)
+See `CLAUDE.md` for page-specific source-of-truth files.
 
-Case-study fixes, early migrations, and dev utilities kept for history — only re-run if you know why (`fix-coral-dupes.ts`, `patch-coral-colors.ts`, `patch-fromto.ts`, `patch-lost-copy.ts`, `migrate-coral-redesign.ts`, etc.).
+**Do not add `_tmp-*` scripts** — throwaway audits belong in agent sessions, not the repo.
