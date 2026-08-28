@@ -22,7 +22,9 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral overview / Problem Context / Reflection / Next Steps wiped | `patch-coral-restore-from-history.ts` |
 | Coral Studio validation (missing image, variant, ctaUrl, draft sync) | `patch-coral-fix-studio-validation.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
-| Coral §08 mediaSection → desktopMotionShowcase | `patch-coral-desktop-motion-section.ts` |
+| Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
+| Coral §04 Core Experience popup tabs (Mobile/iPad/Desktop) | `patch-coral-core-experience-popup-tabs.ts` |
+| Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
 | Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |
 | statsSection.body stored as null (Studio portableText error) | `patch-stats-section-unset-null-body.ts` |
 | statsSection orphan caption/cta/video keys | `patch-stats-section-unset-orphans.ts` |

@@ -142,7 +142,7 @@ function Tokens({
               key={key}
               href={tok.href}
               data-cursor="hover"
-              className="text-accent text-shadow-token underline decoration-from-font underline-offset-2 hover:decoration-2"
+              className="text-accent underline decoration-from-font underline-offset-2 hover:decoration-2"
             >
               {tok.text}
             </Link>

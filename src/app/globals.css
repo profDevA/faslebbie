@@ -47,14 +47,10 @@ body {
   font-weight: 400;
   font-size: 26px;
   line-height: 1.55;
-  letter-spacing: 1.65px;
   font-synthesis: none;
   font-feature-settings: "ss04", "ss06", "ss07", "ss10", "ss14";
   @media (width >= 768px) {
     font-size: 30px;
-  }
-  @media (width >= 1024px) {
-    letter-spacing: 0.5px;
   }
 }
 

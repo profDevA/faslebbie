@@ -26,29 +26,29 @@ import { useId, type KeyboardEvent, type ReactNode } from "react";
 
 /** Navigate to an internal page — red on a grey pill, inverts to black. */
 export const NAV_PILL =
-  "mx-[0.05em] box-decoration-clone cursor-pointer rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent text-shadow-token transition-colors duration-200 hover:bg-black hover:text-white hover:text-shadow-none";
+  "mx-[0.05em] box-decoration-clone cursor-pointer rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent transition-colors duration-200 hover:bg-black hover:text-white";
 
 /** Opens a popup / overlay / drawer without leaving the page. */
 export const POPUP_LINK =
-  "cursor-pointer text-accent text-shadow-token underline decoration-from-font underline-offset-2 transition-opacity duration-200 hover:opacity-70";
+  "cursor-pointer text-accent underline decoration-from-font underline-offset-2 transition-opacity duration-200 hover:opacity-70";
 
 /**
  * Leaves the site. Red text and the ↗ only — the rule appears on hover, per the
  * legend's two states and the "Linkedin ↗" footer row (807:19218).
  */
 export const EXTERNAL_LINK =
-  "group inline-flex items-center gap-0 text-accent text-shadow-token";
+  "group inline-flex items-center gap-0 text-accent";
 
 /** Non-interactive grey pill (static keyword highlight). */
 export const STATIC_PILL =
-  "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black text-shadow-token";
+  "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black";
 
 /** Reveals narrative inline — grey pill, black text, inverts while open. */
 export function expandPillClass(open: boolean) {
   return `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
     open
       ? "bg-black text-white"
-      : "bg-pill text-black text-shadow-token hover:bg-black hover:text-white hover:text-shadow-none"
+      : "bg-pill text-black hover:bg-black hover:text-white"
   }`;
 }
 
@@ -70,9 +70,24 @@ export function onActivateKey(run: () => void) {
  * superscript; the 33×32 viewBox already pads the lower-left for the drop
  * shadow, so it needs little manual lift.
  */
-export function ExternalArrow({ className = "" }: { className?: string }) {
+export function ExternalArrow({
+  className = "",
+  shadow = true,
+}: {
+  className?: string
+  /** Figma 2110:41729 uses a flat arrow — no drop shadow on the reflection PDF link. */
+  shadow?: boolean
+}) {
   const uid = useId();
   const filterId = `arrow-shadow-${uid}`;
+  const path = (
+    <path
+      d="M10.415 20L29.415 1.5M14.915 1.5H29.415V16.5"
+      stroke="#EA2C2C"
+      strokeWidth={3}
+      strokeLinecap="round"
+    />
+  );
   return (
     <svg
       aria-hidden
@@ -81,14 +96,8 @@ export function ExternalArrow({ className = "" }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={`ml-[0.1em] inline-block h-[0.85em] w-[0.85em] shrink-0 translate-y-[0.04em] transition-transform duration-200 group-hover:translate-x-[0.06em] group-hover:translate-y-[-0.06em] ${className}`}
     >
-      <g filter={`url(#${filterId})`}>
-        <path
-          d="M10.415 20L29.415 1.5M14.915 1.5H29.415V16.5"
-          stroke="#EA2C2C"
-          strokeWidth={3}
-          strokeLinecap="round"
-        />
-      </g>
+      {shadow ? <g filter={`url(#${filterId})`}>{path}</g> : path}
+      {shadow ? (
       <defs>
         <filter
           id={filterId}
@@ -126,6 +135,7 @@ export function ExternalArrow({ className = "" }: { className?: string }) {
           />
         </filter>
       </defs>
+      ) : null}
     </svg>
   );
 }

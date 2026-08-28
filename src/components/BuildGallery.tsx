@@ -43,15 +43,15 @@ export default function BuildGallery({
                   </span>
                 </div>
               )}
-              <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
+              <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] lg:text-[18px]">
                 {item.title}
               </span>
               {item.blurb ? (
-                <span className="mt-3.5 block text-[12px] font-normal leading-[1.35] tracking-[0.9px] text-black sm:text-[13px] sm:tracking-[1.65px] lg:text-[18px]">
+                <span className="mt-3.5 block text-[12px] font-normal leading-[1.35] text-black sm:text-[13px] lg:text-[18px]">
                   {item.blurb}
                 </span>
               ) : null}
-              <span className="mt-1.5 block text-[11px] font-normal italic leading-[1.35] tracking-[0.9px] text-black sm:text-[12px] lg:text-[14px]">
+              <span className="mt-1.5 block text-[11px] font-normal italic leading-[1.35] text-black sm:text-[12px] lg:text-[14px]">
                 {item.tech.join(" · ")}
               </span>
             </button>

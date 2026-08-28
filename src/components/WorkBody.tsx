@@ -415,7 +415,7 @@ export default function WorkBody({
       return (
         <span
           key={key}
-          className="text-accent text-shadow-token underline decoration-from-font underline-offset-2"
+          className="text-accent underline decoration-from-font underline-offset-2"
         >
           {tok.text}
         </span>
@@ -868,11 +868,11 @@ function ProjectCard({
       {showMeta && (
         <div className="work-card-meta reckless-prose">
           {/* Card meta (Figma 2080:31219) — desktop wall only. */}
-          <p className="mt-2 w-fit text-[16px] font-normal leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+          <p className="mt-2 w-fit text-[16px] font-normal leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px]">
             {project.name}
           </p>
           {(project.from || project.to) && (
-            <p className="mt-2 grid grid-cols-1 text-[16px] font-normal italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px] @[18rem]/card:tracking-[1.65px]">
+            <p className="mt-2 grid grid-cols-1 text-[16px] font-normal italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px]">
               <span>
                 <span className="font-normal">From</span>: {project.from}
               </span>

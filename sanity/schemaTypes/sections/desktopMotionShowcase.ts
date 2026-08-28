@@ -22,13 +22,8 @@ export const desktopMotionShowcase = defineType({
       name: "videoUrl",
       title: "Desktop animation / video URL",
       type: "url",
-      description: "External mp4, YouTube, or Vimeo URL.",
-      validation: (r) =>
-        r.uri({ scheme: ["http", "https"] }).custom((val, ctx) => {
-          const p = ctx.parent as { videoFile?: unknown };
-          if (!val && !p?.videoFile) return "Upload a desktop video or provide a URL.";
-          return true;
-        }),
+      description: "External mp4, YouTube, or Vimeo URL. Optional if you upload a static image below.",
+      validation: (r) => r.uri({ scheme: ["http", "https"] }),
     }),
     defineField({
       name: "videoFile",
@@ -38,10 +33,11 @@ export const desktopMotionShowcase = defineType({
     }),
     defineField({
       name: "posterImage",
-      title: "Desktop poster / static fallback",
+      title: "Static image fallback",
       type: "image",
       options: { hotspot: true },
-      description: "Shown while the video loads or when autoplay is unavailable.",
+      description:
+        "Shown when no video is set, or as the video poster while loading. Upload a screenshot when motion is not ready.",
     }),
     defineField({
       name: "caption",

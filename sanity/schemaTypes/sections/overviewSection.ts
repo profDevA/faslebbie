@@ -55,7 +55,8 @@ export const overviewSection = defineType({
       title: "Side feature video (looping)",
       type: "file",
       options: { accept: "video/*" },
-      description: "Optional looping video. Replaces the side image when set.",
+      description:
+        "Optional looping video on the media side. When empty, the side image is shown instead.",
     }),
     defineField({
       name: "sideImageFit",
@@ -78,6 +79,44 @@ export const overviewSection = defineType({
       type: "color",
       description: "Panel colour behind the side mockup when fit is Contain (e.g. Coral teal #52747E).",
       options: { disableAlpha: false },
+    }),
+    defineField({
+      name: "mediaPosition",
+      title: "Media column",
+      type: "string",
+      initialValue: "right",
+      description: "Which side the mockup / video sits on (desktop). Copy is on the other side.",
+      options: {
+        list: [
+          { title: "Media on the right (default)", value: "right" },
+          { title: "Media on the left", value: "left" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "copyPaddingTop",
+      title: "Copy column padding top (px)",
+      type: "number",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "copyPaddingBottom",
+      title: "Copy column padding bottom (px)",
+      type: "number",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingTop",
+      title: "Media column padding top (px)",
+      type: "number",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingBottom",
+      title: "Media column padding bottom (px)",
+      type: "number",
+      validation: (r) => r.min(0).integer(),
     }),
     defineField({ name: "appearance", type: "appearance" }),
   ],

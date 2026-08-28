@@ -1,19 +1,25 @@
 import type { PortableTextBlock } from "@portabletext/types";
 
+import type { LegacyPaddingToken, SpacingValue } from "@/lib/appearanceSpacing";
+
 export interface SanityColor {
   hex: string;
   alpha?: number;
 }
 
-export type PaddingToken = "none" | "sm" | "md" | "lg" | "xl";
 export type AlignToken = "left" | "center" | "right";
 export type WidthToken = "narrow" | "default" | "wide" | "full";
+
+/** @deprecated Legacy enum — still read for old Sanity documents. Prefer px numbers. */
+export type PaddingToken = LegacyPaddingToken;
 
 export interface Appearance {
   backgroundColor?: SanityColor;
   textColor?: SanityColor;
-  paddingTop?: PaddingToken;
-  paddingBottom?: PaddingToken;
+  paddingTop?: SpacingValue;
+  paddingBottom?: SpacingValue;
+  contentGap?: SpacingValue;
+  contentGapInner?: SpacingValue;
   contentAlignment?: AlignToken;
   maxWidth?: WidthToken;
 }
@@ -23,6 +29,13 @@ export interface GalleryImage {
   image?: string;
   caption?: string;
   expandImage?: string;
+}
+
+export interface CoreExperienceScreen {
+  _key: string;
+  image?: string;
+  label?: string;
+  description?: string;
 }
 
 export interface MotionRow {
@@ -103,6 +116,11 @@ export type Section =
       sideVideo?: string;
       sideImageFit?: "cover" | "contain";
       sideImageBackgroundColor?: SanityColor;
+      mediaPosition?: "left" | "right";
+      copyPaddingTop?: number;
+      copyPaddingBottom?: number;
+      mediaPaddingTop?: number;
+      mediaPaddingBottom?: number;
     })
   | (Base & {
       _type: "accordionSection";
@@ -137,7 +155,18 @@ export type Section =
       _type: "coreExperience";
       sectionTitle?: string;
       body?: PortableTextBlock[];
+      layoutVariant?: "mobileRow" | "desktopGrid";
+      viewMoreLabel?: string;
+      previewScreens?: CoreExperienceScreen[];
+      /** @deprecated horizontal-scroll popup */
+      popupScreens?: CoreExperienceScreen[];
+      popupBody?: PortableTextBlock[];
+      popupTabs?: DeviceTab[];
+      popupItemsBeforeViewMore?: number;
+      popupLoadMoreLabel?: string;
+      /** @deprecated Legacy single band export */
       image?: string;
+      /** @deprecated Legacy mobile crop */
       imageMobile?: string;
     })
   | (Base & {

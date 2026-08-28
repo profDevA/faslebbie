@@ -29,7 +29,7 @@ import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
 const TESTIMONIAL_KEY = 'what people are saying'
 const TESTIMONIAL_LINK =
-  'cursor-pointer text-accent text-shadow-token transition-opacity duration-200 hover:opacity-70'
+  'cursor-pointer text-accent transition-opacity duration-200 hover:opacity-70'
 
 // --- Inline-expansion accordion ---------------------------------------------
 // Gray keywords expand inline, and some expansions contain nested gray keywords.

@@ -119,7 +119,6 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
   }, [introActive]);
 
   const nameColor = mix(fade);
-  const nameShadow = `0 0 1.5px ${nameColor}`;
   const nameOpacity = wordmarkOpacity(fade);
   const nameZ = fade < 0.5 ? 30 : -10;
 
@@ -139,11 +138,10 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
         aria-hidden
         style={{
           color: nameColor,
-          textShadow: nameShadow,
           opacity: nameOpacity,
           zIndex: nameZ,
         }}
-        className="pointer-events-none fixed inset-0 flex select-none flex-col justify-center overflow-hidden font-grotesk font-bold leading-[0.8] tracking-[-0.03em] will-change-[color,opacity]"
+        className="pointer-events-none fixed inset-0 flex select-none flex-col justify-center overflow-hidden font-grotesk font-medium leading-[0.8] tracking-[-0.03em] will-change-[color,opacity]"
       >
         <div
           className={`mx-auto w-full ${SITE_MAX_W} ${LISTING_INSET_X} translate-y-[20vh]`}
@@ -201,7 +199,7 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
             className="w-full will-change-[opacity,filter]"
           >
             <HeroParagraph
-              className="max-w-272 text-left tracking-[1.65px] text-shadow-token md:text-center"
+              className="max-w-272 text-left tracking-[1.65px] md:text-center"
               storyHref={content?.storyHref ?? "/about"}
               segments={content?.segments ?? []}
             />

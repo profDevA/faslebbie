@@ -5,7 +5,7 @@ import { SANITY_IMAGE_PROJ } from "./image";
 const img = SANITY_IMAGE_PROJ;
 
 const appearanceProj = `appearance{
-  backgroundColor, textColor, paddingTop, paddingBottom, contentAlignment, maxWidth
+  backgroundColor, textColor, paddingTop, paddingBottom, contentGap, contentGapInner, contentAlignment, maxWidth
 }`;
 
 // Image fields keep crop/hotspot — resolveSanityImages() in fetch.ts applies them.
@@ -24,7 +24,8 @@ const sectionsProj = `sections[]{
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
-    sideImageFit, sideImageBackgroundColor
+    sideImageFit, sideImageBackgroundColor,
+    mediaPosition, copyPaddingTop, copyPaddingBottom, mediaPaddingTop, mediaPaddingBottom
   },
   _type == "accordionSection" => {
     variant, sectionTitle, sideTitle, sideBody, accordionBackgroundColor,
@@ -38,7 +39,17 @@ const sectionsProj = `sections[]{
     reflectionHeading, reflectionBody, nextStepsHeading, nextStepsItems
   },
   _type == "coreExperience" => {
-    sectionTitle, body,
+    sectionTitle, body, layoutVariant, viewMoreLabel,
+    previewScreens[]{
+      _key, label, description,
+      "image": image${img}
+    },
+    popupBody,
+    popupItemsBeforeViewMore, popupLoadMoreLabel,
+    popupTabs[]{
+      _key, label,
+      items[]{ _key, caption, "image": image${img} }
+    },
     "image": image${img},
     "imageMobile": imageMobile${img}
   },

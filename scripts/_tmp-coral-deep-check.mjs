@@ -21,7 +21,11 @@ const KNOWN = {
   problemContextSection: [
     "problemHeading", "problemBody", "broughtHeading", "broughtBody", "supportingCopy", "appearance",
   ],
-  coreExperience: ["sectionTitle", "body", "image", "imageMobile", "appearance"],
+  coreExperience: [
+    "sectionTitle", "body", "layoutVariant", "viewMoreLabel", "previewScreens",
+    "popupScreens", "popupBody", "popupTabs", "popupItemsBeforeViewMore", "popupLoadMoreLabel",
+    "image", "imageMobile", "appearance",
+  ],
   accordionSection: [
     "variant", "sectionTitle", "sideTitle", "sideBody", "accordionBackgroundColor", "items", "appearance",
   ],

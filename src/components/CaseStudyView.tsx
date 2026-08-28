@@ -15,14 +15,26 @@ import type {
   GalleryImage,
   MediaItem,
   MotionRow,
-  PaddingToken,
   SanityColor,
   Section,
   StatItem,
   Study,
   StudyCard,
   HighlightCell,
+  CoreExperienceScreen,
 } from '@/sanity/types'
+import { REFLECTION_DEFAULTS, OVERVIEW_COLUMN_GAP } from '@/lib/caseStudyDefaults'
+import {
+  gapDefault,
+  padDefaults,
+  PAGE_PROSE_PAD,
+  proseGroupPadStyle,
+  sectionGapStyle,
+  sectionInnerGapStyle,
+  sectionPadStyle,
+  overviewCopyPadStyle,
+  overviewMediaPadStyle,
+} from '@/lib/appearanceSpacing'
 
 /**
  * Sanity-driven case-study renderer. Iterates `project.sections` (a page
@@ -60,20 +72,6 @@ function colorToCss(c?: SanityColor): string | undefined {
   return `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
-const PAD_T: Record<PaddingToken, string> = {
-  none: 'pt-0',
-  sm: 'pt-8',
-  md: 'pt-[60px] xl:pt-[5vw]',
-  lg: 'pt-24 xl:pt-[7vw]',
-  xl: 'pt-32 xl:pt-[9vw]',
-}
-const PAD_B: Record<PaddingToken, string> = {
-  none: 'pb-0',
-  sm: 'pb-8',
-  md: 'pb-[60px] xl:pb-[5vw]',
-  lg: 'pb-24 xl:pb-[7vw]',
-  xl: 'pb-32 xl:pb-[9vw]',
-}
 const MAXW = {
   narrow: 'max-w-160',
   default: 'max-w-285',
@@ -136,9 +134,20 @@ function csPagerShell(v: CsVariant, extra = '') {
   return `mx-auto flex w-full max-w-225 items-center justify-between px-6 ${extra}`
 }
 
-/** Shared vertical rhythm for grouped prose bands on full page (Figma 2110:39490). */
-const PAGE_PROSE_BAND_PAD = 'pt-20 pb-20 lg:pt-28 lg:pb-28'
-const PAGE_PROSE_INNER_GAP = 'gap-24'
+/** Figma 2110:41713 — Reflection band defaults live in caseStudyDefaults.ts */
+function csReflectionTitle(v: CsVariant) {
+  if (v === 'page') {
+    return 'font-grotesk text-[20px] font-normal capitalize leading-tight lg:text-[24px]'
+  }
+  return 'font-grotesk text-[24px] font-normal capitalize leading-tight xl:text-[1.5vw]'
+}
+
+function csReflectionBody(v: CsVariant) {
+  if (v === 'page') {
+    return 'font-grotesk text-[17px] font-light leading-[1.6] tracking-[0.3816px] lg:text-[18px]'
+  }
+  return 'font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.3816px] xl:text-[1.25vw]'
+}
 
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
   const style: React.CSSProperties = {}
@@ -149,41 +158,30 @@ function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
   return style
 }
 
-function padClasses(a?: Appearance, natural: PaddingToken = 'md') {
-  return `${PAD_T[a?.paddingTop ?? natural]} ${PAD_B[a?.paddingBottom ?? natural]}`
+function sectionStyle(
+  a: Appearance | undefined,
+  page: boolean,
+  padLevel: 'md' | 'lg',
+  defaultBg?: string,
+  defaultLight?: boolean,
+) {
+  return {
+    ...bandStyle(a, defaultBg, defaultLight),
+    ...sectionPadStyle(a, padDefaults(padLevel, page), page),
+  }
 }
 
-/** Grouped prose bands: top pad from first block, bottom from last (Coral PC + WIB). */
-function proseGroupPad(
-  sections: (Of<'proseSection'> | Of<'bulletSection'>)[],
+function flexSectionStyle(
+  a: Appearance | undefined,
   page: boolean,
+  padLevel: 'md' | 'lg',
+  defaultBg?: string,
+  defaultLight?: boolean,
 ) {
-  const first = sections[0]
-  const last = sections[sections.length - 1]
-  const top = first.appearance?.paddingTop ?? 'md'
-  const bottom =
-    last.appearance?.paddingBottom ??
-    first.appearance?.paddingBottom ??
-    'md'
-  if (page) {
-    // Full page — fixed rem rhythm; no popup vw padding or one-screen centering.
-    const PAGE_PAD_T: Record<PaddingToken, string> = {
-      none: 'pt-0',
-      sm: 'pt-10',
-      md: 'pt-12 lg:pt-14',
-      lg: 'pt-16 lg:pt-20',
-      xl: 'pt-20 lg:pt-24',
-    }
-    const PAGE_PAD_B: Record<PaddingToken, string> = {
-      none: 'pb-0',
-      sm: 'pb-10',
-      md: 'pb-12 lg:pb-14',
-      lg: 'pb-16 lg:pb-20',
-      xl: 'pb-20 lg:pb-24',
-    }
-    return `${PAGE_PAD_T[top]} ${PAGE_PAD_B[bottom]}`
+  return {
+    ...sectionStyle(a, page, padLevel, defaultBg, defaultLight),
+    ...sectionGapStyle(a, gapDefault(padLevel, page), page),
   }
-  return `${PAD_T[top]} ${PAD_B[bottom]}`
 }
 
 /** True when a band should treat its text as light (for default label colour). */
@@ -417,7 +415,8 @@ export default function CaseStudyView({
         ),
       )}
 
-      {p.fullCaseStudyPdfUrl ? (
+      {p.fullCaseStudyPdfUrl &&
+      !(p.sections ?? []).some(s => s._type === 'reflectionSection') ? (
         <FullCaseStudyPdfLink
           url={p.fullCaseStudyPdfUrl}
           label={p.fullCaseStudyLabel?.trim() || 'Full Case Study'}
@@ -460,11 +459,11 @@ export default function CaseStudyView({
 }
 
 // ── per-section dispatch ──────────────────────────────────────────────────────
-/** Figma 2110:41721 — intro copy + inline red “Full Case Study ↗” on black band. */
+/** Figma 2110:41725 — Thin Italic lead; 41728 Roman Italic red link inside [ ↗ ]. */
 const FULL_CASE_STUDY_INTRO_DEFAULT =
   'This case study is intentionally condensed for a quick overview. Explore the complete research, process and outcomes in the'
 
-function FullCaseStudyPdfLink({
+function FullCaseStudyPdfFooter({
   url,
   label,
   intro,
@@ -475,27 +474,62 @@ function FullCaseStudyPdfLink({
 }) {
   const v = useCsVariant()
   const lead = intro || FULL_CASE_STUDY_INTRO_DEFAULT
+  const size = v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.25vw]'
   return (
-    <section className="border-t border-[#323232] bg-black py-12 text-white lg:py-16">
-      <div className={csShell(v)}>
-        <p
-          className={`mx-auto max-w-[min(606px,100%)] text-center font-normal italic leading-[1.6] tracking-[0.38px] ${v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px]'}`}
+    <p
+      className={`mx-auto max-w-[606px] text-center font-grotesk font-light italic leading-[1.6] tracking-[0.3816px] text-white ${size}`}
+    >
+      {lead}{' '}
+      <span className="whitespace-nowrap">
+        {'['}
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cursor="hover"
+          className="group mx-[0.15em] inline-flex items-baseline font-normal italic text-accent tracking-[0.5px] transition-opacity hover:opacity-80"
         >
-          {lead}{' '}
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-cursor="hover"
-            className="group inline text-accent not-italic transition-opacity hover:opacity-80"
-          >
-            <span className="underline decoration-from-font underline-offset-[4px]">
-              {label}
-            </span>
-            <ExternalArrow />
-          </a>
-          .
-        </p>
+          {label}
+          <ExternalArrow shadow={false} className="ml-[0.15em] h-[11px] w-[11px] shrink-0" />
+        </a>
+        {']'}
+      </span>
+      .
+    </p>
+  )
+}
+
+/** Standalone band when a study has a PDF but no reflectionSection. */
+function FullCaseStudyPdfLink({
+  url,
+  label,
+  intro,
+}: {
+  url: string
+  label: string
+  intro?: string
+}) {
+  const v = useCsVariant()
+  const page = v === 'page'
+  return (
+    <section
+      className="text-white"
+      style={{
+        ...bandStyle(undefined, REFLECTION_DEFAULTS.backgroundColor, true),
+        ...sectionPadStyle(
+          undefined,
+          {
+            paddingTop: REFLECTION_DEFAULTS.paddingTop,
+            paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
+          },
+          page,
+        ),
+      }}
+    >
+      <div className={csShell(v)}>
+        <div className="mx-auto flex min-h-[132px] max-w-[923px] items-center justify-center border-t border-[#323232] pt-8">
+          <FullCaseStudyPdfFooter url={url} label={label} intro={intro} />
+        </div>
       </div>
     </section>
   )
@@ -522,9 +556,24 @@ function SectionBlock({
     case 'problemContextSection':
       return <ProblemContextBlock section={section} />
     case 'reflectionSection':
-      return <ReflectionBlock section={section} />
+      return (
+        <ReflectionBlock
+          section={section}
+          fullCaseStudy={
+            project.fullCaseStudyPdfUrl
+              ? {
+                  url: project.fullCaseStudyPdfUrl,
+                  label: project.fullCaseStudyLabel?.trim() || 'Full Case Study',
+                  intro: project.fullCaseStudyIntro?.trim(),
+                }
+              : undefined
+          }
+        />
+      )
     case 'coreExperience':
-      return <CoreExperienceBlock section={section} />
+      return (
+        <CoreExperienceBlock section={section} projectName={project.name} />
+      )
     case 'mediaSection':
       return <MediaBlock section={section} />
     case 'desktopMotionShowcase':
@@ -601,17 +650,29 @@ function ProseGroupBlock({
   const width = first.appearance?.maxWidth ?? 'default'
   const body = csBodyText(v)
   const allProse = sections.every(s => s._type === 'proseSection')
-  const pad =
-    page && allProse
-      ? PAGE_PROSE_BAND_PAD
-      : proseGroupPad(sections, page)
+  const pageProse = page && allProse
+  const last = sections[sections.length - 1]
+  const padStyle = proseGroupPadStyle(
+    first.appearance,
+    last.appearance,
+    page,
+    pageProse ? PAGE_PROSE_PAD : undefined,
+  )
+  const gapLevel = pageProse ? 'md' : 'lg'
   return (
     <section
-      className={`${pad} ${ALIGN[align]}`}
-      style={bandStyle(first.appearance)}
+      className={ALIGN[align]}
+      style={{ ...bandStyle(first.appearance), ...padStyle }}
     >
       <div className={csShell(v)}>
-        <div className={`flex flex-col ${page && allProse ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
+        <div
+          className={`flex flex-col ${csProseInner(v, align, width)}`}
+          style={sectionGapStyle(
+            first.appearance,
+            gapDefault(gapLevel, pageProse),
+            pageProse,
+          )}
+        >
           {sections.map(s => (
             <div key={s._key}>
               {s.sectionTitle && (
@@ -756,18 +817,41 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     ? 'text-[12px] font-normal italic leading-4.25 tracking-[1px]'
     : 'text-[12px] font-normal italic leading-4.25 tracking-[1px] xl:text-[0.82vw]'
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
+  const hasVideo = !!s.sideVideo
+  const mediaFirst = s.mediaPosition === 'left'
+  const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
+  const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
+  const copyPad = overviewCopyPadStyle(s)
+  const mediaPad = overviewMediaPadStyle(s)
+  const colGap = sectionGapStyle(s.appearance, gapDefault('md', page), page)
+  const desktopMediaClass = page
+    ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
+    : hasVideo
+      ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
+      : 'relative hidden lg:flex lg:min-h-full'
+  const desktopMediaSizeClass = page
+    ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
+    : hasVideo
+      ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
+      : contain
+        ? 'absolute inset-0 h-full w-full object-contain object-center'
+        : 'absolute inset-0 h-full w-full object-cover object-center'
   return (
     <section
       data-cs-stretch={page ? undefined : true}
       className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 ${page ? 'lg:items-stretch' : ''}`}
-      style={bandStyle(s.appearance)}
+      style={{
+        ...bandStyle(s.appearance),
+        ...(page ? {} : { columnGap: OVERVIEW_COLUMN_GAP }),
+      }}
     >
       <div
-        className={`flex min-h-0 flex-col gap-10 ${
+        className={`flex min-h-0 flex-col ${copyOrder} ${
           page
-            ? 'justify-start px-5 py-12 sm:px-8 lg:pl-12 lg:pr-16 lg:pt-14 lg:pb-20 xl:pl-16 xl:pr-20 xl:pb-24'
-            : `justify-between py-12 lg:py-14 xl:py-[3.8rem] ${gutter}`
+            ? 'justify-start px-5 sm:px-8 lg:pl-12 lg:pr-16 xl:pl-16 xl:pr-20'
+            : `justify-between ${gutter}`
         }`}
+        style={{ ...copyPad, ...colGap }}
       >
         <div className={page ? 'max-w-[min(580px,100%)]' : undefined}>
           <h2 className={`${csSectionTitle(v)} ${dark}`}>
@@ -824,11 +908,10 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )}
         </div>
       </div>
-      {/* Mobile: still preferred over video (Figma overview mockups).
-          Band ~360×552; media contained + centred (phone, laptop, or collage). */}
+      {/* Mobile: image preferred over video (Figma overview mockups). */}
       <div
-        className="relative flex aspect-[360/552] items-center justify-center px-[10%] py-[10%] lg:hidden"
-        style={{ backgroundColor: sideBg }}
+        className={`relative flex aspect-[360/552] items-center justify-center px-[10%] py-[10%] lg:hidden ${mediaOrder}`}
+        style={{ backgroundColor: sideBg, ...mediaPad }}
       >
         {s.sideImage ? (
           // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -838,7 +921,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             className="max-h-full max-w-full object-contain"
           />
         ) : (
-          s.sideVideo && (
+          hasVideo && (
             <video
               src={s.sideVideo}
               autoPlay
@@ -850,53 +933,35 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )
         )}
       </div>
-      {/* Desktop: video if set, else image fill / contain (Figma 600:12450). */}
-      {s.sideVideo ? (
+      {/* Desktop: video if set, else side image (Figma 600:12450). */}
+      {(hasVideo || s.sideImage) && (
         <div
-          className={
-            page
-              ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
-              : 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
-          }
+          className={`${desktopMediaClass} ${mediaOrder}`}
           style={{
-            backgroundColor: colorToCss(s.sideImageBackgroundColor) ?? '#fff',
+            backgroundColor: hasVideo
+              ? colorToCss(s.sideImageBackgroundColor) ?? '#fff'
+              : sideBg,
+            ...mediaPad,
           }}
         >
-          <video
-            src={s.sideVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={
-              page
-                ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
-                : 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
-            }
-          />
-        </div>
-      ) : (
-        <div
-          className={
-            page
-              ? 'relative hidden min-h-0 items-center justify-center px-5 py-12 sm:px-8 lg:flex lg:px-10 lg:py-14'
-              : 'relative hidden lg:block lg:min-h-full'
-          }
-          style={{ backgroundColor: sideBg }}
-        >
-          {s.sideImage && (
-            // eslint-disable-next-line @next/next/no-img-element -- case-study art
-            <img
-              src={s.sideImage}
-              alt=""
-              className={
-                page
-                  ? 'h-auto max-h-[min(560px,72vh)] w-full max-w-[min(420px,100%)] object-contain'
-                  : contain
-                    ? 'absolute inset-0 h-full w-full object-contain object-center'
-                    : 'absolute inset-0 h-full w-full object-cover object-center'
-              }
+          {hasVideo ? (
+            <video
+              src={s.sideVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={desktopMediaSizeClass}
             />
+          ) : (
+            s.sideImage && (
+              // eslint-disable-next-line @next/next/no-img-element -- case-study art
+              <img
+                src={s.sideImage}
+                alt=""
+                className={desktopMediaSizeClass}
+              />
+            )
           )}
         </div>
       )}
@@ -913,8 +978,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
     return (
       <section
         data-cs-stretch
-        className={padClasses(s.appearance, 'md')}
-        style={bandStyle(s.appearance, SAGE)}
+        style={sectionStyle(s.appearance, page, 'md', SAGE)}
       >
         <div
           className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${page ? csShell(v) : csBandGutter(v)}`}
@@ -949,10 +1013,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
   }
   const pageInner = v === 'page'
   return (
-    <section
-      className={padClasses(s.appearance, 'md')}
-      style={bandStyle(s.appearance, SAGE)}
-    >
+    <section style={sectionStyle(s.appearance, pageInner, 'md', SAGE)}>
       <div className={csShell(v)}>
         <div className={`mx-auto ${pageInner ? 'max-w-[min(720px,100%)]' : 'max-w-120'}`}>
           {s.sectionTitle && (
@@ -971,13 +1032,17 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
 
 function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const light = isLight(s.appearance)
   const align = s.appearance?.contentAlignment ?? 'center'
   const width = s.appearance?.maxWidth ?? 'default'
   return (
     <section
-      className={`${padClasses(s.appearance, 'md')} ${ALIGN[align]}`}
-      style={bandStyle(s.appearance)}
+      className={ALIGN[align]}
+      style={{
+        ...bandStyle(s.appearance),
+        ...sectionPadStyle(s.appearance, padDefaults('md', page), page),
+      }}
     >
       <div className={csShell(v)}>
         <div className={csProseInner(v, align, width)}>
@@ -1003,17 +1068,24 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   const width = s.appearance?.maxWidth ?? 'default'
   const body = csBodyText(v)
   const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
-  const pad =
-    v === 'page'
-      ? PAGE_PROSE_BAND_PAD
-      : padClasses(s.appearance, 'md')
+  const page = v === 'page'
+  const padStyle = page
+    ? sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
+    : sectionPadStyle(s.appearance, padDefaults('md', false), false)
   return (
     <section
-      className={`${pad} ${ALIGN[align]}`}
-      style={bandStyle(s.appearance)}
+      className={ALIGN[align]}
+      style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
       <div className={csShell(v)}>
-        <div className={`flex flex-col ${v === 'page' ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
+        <div
+          className={`flex flex-col ${csProseInner(v, align, width)}`}
+          style={sectionGapStyle(
+            s.appearance,
+            gapDefault('md', page),
+            page,
+          )}
+        >
           <div>
             {s.problemHeading && (
               <h2 className={`mb-5 ${titleClass}`}>{s.problemHeading}</h2>
@@ -1035,67 +1107,167 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   )
 }
 
-/** Figma 11 — Reflection / Next Steps (600:14126): one centred black band. */
-function ReflectionBlock({ section: s }: { section: Of<'reflectionSection'> }) {
+/** Figma 2110:41713 — Reflection + Next Steps + PDF CTA on one #171717 band. */
+function ReflectionBlock({
+  section: s,
+  fullCaseStudy,
+}: {
+  section: Of<'reflectionSection'>
+  fullCaseStudy?: { url: string; label: string; intro?: string }
+}) {
   const v = useCsVariant()
-  const light = isLight(s.appearance)
   const align = s.appearance?.contentAlignment ?? 'center'
   const width = s.appearance?.maxWidth ?? 'default'
-  const body = csBodyText(v)
-  const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
+  const body = csReflectionBody(v)
+  const titleClass = `${csReflectionTitle(v)} text-white ${align === 'center' ? 'text-center' : ''}`
   const steps = s.nextStepsItems ?? []
   const hasReflection = !!s.reflectionBody?.length
-  if (!hasReflection && !steps.length) return null
-  const pad =
-    v === 'page'
-      ? PAGE_PROSE_BAND_PAD
-      : padClasses(s.appearance, 'md')
+  if (!hasReflection && !steps.length && !fullCaseStudy?.url) return null
+  const page = v === 'page'
+  const padStyle = sectionPadStyle(
+    s.appearance,
+    page
+      ? {
+          paddingTop: REFLECTION_DEFAULTS.paddingTop,
+          paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
+        }
+      : padDefaults('md', false),
+    page,
+  )
+  const proseWidth =
+    align === 'center'
+      ? 'mx-auto w-full max-w-[693px] text-center'
+      : csProseInner(v, align, width)
   return (
     <section
-      className={`${pad} ${ALIGN[align]}`}
-      style={bandStyle(s.appearance)}
+      className={`${ALIGN[align]} text-white`}
+      style={{
+        ...bandStyle(s.appearance, REFLECTION_DEFAULTS.backgroundColor, true),
+        ...padStyle,
+      }}
     >
       <div className={csShell(v)}>
-        <div className={`flex flex-col ${v === 'page' ? PAGE_PROSE_INNER_GAP : 'gap-12'} ${csProseInner(v, align, width)}`}>
+        <div
+          className="mx-auto flex w-full max-w-[1016px] flex-col items-center"
+          style={sectionGapStyle(
+            s.appearance,
+            REFLECTION_DEFAULTS.contentGap,
+            page,
+          )}
+        >
           {hasReflection && (
-            <div>
-              {s.reflectionHeading && (
-                <h2 className={`mb-5 ${titleClass}`}>{s.reflectionHeading}</h2>
+            <div
+              className={`flex w-full flex-col items-center ${proseWidth}`}
+              style={sectionInnerGapStyle(
+                s.appearance,
+                REFLECTION_DEFAULTS.contentGapInner,
+                page,
               )}
-              <Prose value={s.reflectionBody} className={body} />
+            >
+              {s.reflectionHeading && (
+                <h2 className={titleClass}>{s.reflectionHeading}</h2>
+              )}
+              <Prose value={s.reflectionBody} className={`${body} max-w-[683px]`} />
             </div>
           )}
           {steps.length > 0 && (
-            <div>
-              {s.nextStepsHeading && (
-                <h2 className={`mb-5 ${titleClass}`}>{s.nextStepsHeading}</h2>
+            <div
+              className={`flex w-full flex-col items-center ${proseWidth}`}
+              style={sectionInnerGapStyle(
+                s.appearance,
+                REFLECTION_DEFAULTS.contentGapInner,
+                page,
               )}
-              <ul className={body}>
+            >
+              {s.nextStepsHeading && (
+                <h2 className={titleClass}>{s.nextStepsHeading}</h2>
+              )}
+              <div className={body}>
                 {steps.map((it, i) => (
-                  <li key={i}>{it}</li>
+                  <p key={i}>{it}</p>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
+          {fullCaseStudy?.url ? (
+            <div className="flex w-full max-w-[923px] items-center justify-center border-t border-[#323232] pt-8 min-h-[132px]">
+              <FullCaseStudyPdfFooter
+                url={fullCaseStudy.url}
+                label={fullCaseStudy.label}
+                intro={fullCaseStudy.intro}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
   )
 }
 
-// Core Experience Showcase (Fas 08/05): the band between What I Brought and
-// Design Process. One exported artwork of the product's key screens, edge to
-// edge on the band colour — deliberately a single image rather than authored
-// per screen, so Fas and Israel can iterate the composition in Figma.
-function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) {
+// Core Experience Flow (Figma 2110:39499): teal band with preview row + View More
+// → PopupShell popup (3670:21768): intro + Mobile/iPad/Desktop tabs + Load More grid.
+// Band preview = Figma 2110:39499 phone row. Legacy single-image when preview empty.
+function CoreExperienceScreenCard({
+  screen,
+  layout,
+  tone,
+  size,
+}: {
+  screen: CoreExperienceScreen
+  layout: 'mobileRow' | 'desktopGrid'
+  tone: 'onDark' | 'onLight'
+  size: 'preview' | 'popup'
+}) {
+  if (!screen.image) return null
+  const desktop = layout === 'desktopGrid'
+  const onDark = tone === 'onDark'
+  const caption = onDark ? 'text-[#fafafa]' : 'text-black'
+  const previewW = desktop
+    ? 'w-[220px] sm:w-[260px] lg:w-[300px]'
+    : 'w-[140px] sm:w-[160px] lg:w-[210px]'
+  const popupW = desktop
+    ? 'w-[min(360px,78vw)] sm:w-[400px] lg:w-[480px]'
+    : 'w-[min(200px,44vw)] sm:w-[240px] lg:w-[280px]'
+  const width = size === 'popup' ? popupW : previewW
+  return (
+    <figure className={`shrink-0 ${width}`}>
+      <div
+        className={`overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] ${desktop ? 'aspect-[762/467]' : 'aspect-[210/483]'}`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={screen.image}
+          alt={screen.label ?? screen.description ?? 'Product screen'}
+          className="h-full w-full object-cover object-top"
+        />
+      </div>
+      {(screen.label || screen.description) && (
+        <figcaption
+          className={`mt-3 text-left text-[10px] leading-[1.8] sm:text-[11px] lg:mt-4 ${caption}`}
+        >
+          {screen.label && (
+            <span className="font-medium">{screen.label} </span>
+          )}
+          {screen.description && (
+            <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
+              {screen.description}
+            </span>
+          )}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
+
+function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const light = isLight(s.appearance)
-  if (!s.image) return null
   return (
     <section
       data-cs-stretch
-      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
-      style={bandStyle(s.appearance)}
+      className="flex flex-col justify-center"
+      style={flexSectionStyle(s.appearance, page, 'md')}
     >
       {(s.sectionTitle || s.body) && (
         <div className={`${csShell(v)} text-center`}>
@@ -1106,10 +1278,6 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
           />
         </div>
       )}
-      {/* The wide artwork is a row of screens, so scaling it to a phone makes
-          every caption unreadable. Without a narrow crop it keeps a legible
-          width on small screens and the band scrolls sideways instead; upload an
-          `imageMobile` and it goes back to fitting the viewport. */}
       <div className={s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'}>
         <picture>
           {s.imageMobile && (
@@ -1127,6 +1295,109 @@ function CoreExperienceBlock({ section: s }: { section: Of<'coreExperience'> }) 
   )
 }
 
+function CoreExperienceBlock({
+  section: s,
+  projectName,
+}: {
+  section: Of<'coreExperience'>
+  projectName: string
+}) {
+  const [popupOpen, setPopupOpen] = useState(false)
+  const v = useCsVariant()
+  const light = isLight(s.appearance)
+  const layout = s.layoutVariant ?? 'mobileRow'
+  const preview = (s.previewScreens ?? []).filter(sc => sc.image)
+  const popupTabs = s.popupTabs ?? []
+  const title = s.sectionTitle?.trim() || 'Core Experience Flow'
+  const viewMore = s.viewMoreLabel?.trim() || 'View More'
+  const popupInitial = s.popupItemsBeforeViewMore ?? 6
+  const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
+
+  if (!preview.length) {
+    if (!s.image) return null
+    return <CoreExperienceLegacyBand section={s} />
+  }
+
+  const onDark = light ? 'text-white' : ''
+  const hasPopup =
+    popupTabs.some(t => (t.items?.length ?? 0) > 0) || Boolean(s.popupBody?.length)
+
+  return (
+    <>
+      <section
+        data-cs-stretch
+        className="flex flex-col items-center"
+        style={sectionStyle(s.appearance, v === 'page', 'md')}
+      >
+        <div
+          className={`${csShell(v)} flex w-full flex-col items-center text-center`}
+          style={sectionGapStyle(s.appearance, gapDefault('md', v === 'page'), v === 'page')}
+        >
+          <h2 className={`${csSectionTitle(v)} ${onDark}`}>{title}</h2>
+          {s.body?.length ? (
+            <Prose
+              value={s.body}
+              className={`mx-auto max-w-[70ch] ${csBodyText(v, onDark)}`}
+            />
+          ) : null}
+          <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
+            <div className="mx-auto flex w-max justify-center gap-8 px-2 sm:w-full sm:max-w-[min(1100px,100%)] sm:gap-10 lg:gap-10">
+              {preview.map(sc => (
+                <CoreExperienceScreenCard
+                  key={sc._key}
+                  screen={sc}
+                  layout={layout}
+                  tone="onDark"
+                  size="preview"
+                />
+              ))}
+            </div>
+          </div>
+          {hasPopup && (
+            <button
+              type="button"
+              data-cursor="hover"
+              onClick={() => setPopupOpen(true)}
+              className={`font-grotesk shrink-0 text-[16px] uppercase leading-none underline underline-offset-4 transition-opacity hover:opacity-80 xl:text-[1vw] ${light ? 'text-white' : ''}`}
+            >
+              {viewMore}
+            </button>
+          )}
+        </div>
+      </section>
+
+      <PopupShell
+        open={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        label={title}
+        crumbs={[
+          { label: 'Work', href: '/work', hideOnMobile: true },
+          { label: projectName, hideOnMobile: true },
+          { label: title },
+        ]}
+        bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-close reckless-prose text-black"
+      >
+        <div className="px-5 py-10 sm:px-8 lg:px-12 lg:py-14">
+          <div className="mx-auto max-w-[1014px] text-center">
+            <h2 className={`${csSectionTitle(v)} mb-4`}>{title}</h2>
+            {s.popupBody?.length ? (
+              <Prose
+                value={s.popupBody}
+                className={`mx-auto max-w-[70ch] ${csBodyText(v)}`}
+              />
+            ) : null}
+            <DeviceGallery
+              tabs={popupTabs.filter(t => (t.items?.length ?? 0) > 0)}
+              initial={popupInitial}
+              loadMore={popupLoadMore}
+            />
+          </div>
+        </div>
+      </PopupShell>
+    </>
+  )
+}
+
 // 08 — Desktop Motion Showcase (Figma 2110:40096): band colour from Sanity
 // appearance, centred desktop mockup card, title + body bottom-right.
 function DesktopMotionShowcaseBlock({
@@ -1137,36 +1408,47 @@ function DesktopMotionShowcaseBlock({
   const v = useCsVariant()
   const page = v === 'page'
   const hasVideo = !!(s.videoFile || s.videoUrl)
+  const hasStaticImage = !!s.posterImage && !hasVideo
+  const hasMedia = hasVideo || hasStaticImage
   const copyTitle = s.sectionTitle?.trim()
   const hasCopy = !!(copyTitle || s.body?.length || s.caption)
   return (
     <section
       data-cs-stretch={page ? undefined : true}
-      className={`flex flex-col justify-center gap-10 ${page ? padClasses(s.appearance, 'md') : `${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}`}
-      style={bandStyle(s.appearance)}
+      className={`flex flex-col justify-center ${page ? '' : csBandGutter(v)}`}
+      style={flexSectionStyle(s.appearance, page, 'md')}
     >
-      {hasVideo && (
+      {hasMedia && (
         <div className={`flex justify-center ${page ? csShell(v) : `${csShell(v, '!px-0')}`}`}>
           <div className="w-full max-w-[762px] overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)]">
-            {s.videoUrl ? (
-              <div className="aspect-[762/467] w-full">
-                <iframe
-                  src={s.videoUrl}
-                  title={copyTitle || 'Desktop animation'}
-                  className="h-full w-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+            {hasVideo ? (
+              s.videoUrl ? (
+                <div className="aspect-[762/467] w-full">
+                  <iframe
+                    src={s.videoUrl}
+                    title={copyTitle || 'Desktop animation'}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <video
+                  className="block h-auto w-full"
+                  src={s.videoFile}
+                  poster={s.posterImage}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                 />
-              </div>
+              )
             ) : (
-              <video
+              // eslint-disable-next-line @next/next/no-img-element -- case-study art
+              <img
+                src={s.posterImage}
+                alt={copyTitle || 'Desktop showcase'}
                 className="block h-auto w-full"
-                src={s.videoFile}
-                poster={s.posterImage}
-                autoPlay
-                loop
-                muted
-                playsInline
               />
             )}
           </div>
@@ -1208,8 +1490,8 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
   return (
     <section
       data-cs-stretch
-      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
-      style={bandStyle(s.appearance)}
+      className="flex flex-col justify-center"
+      style={flexSectionStyle(s.appearance, page, 'md')}
     >
       {items.length > 0 && (
         <div
@@ -1295,14 +1577,18 @@ function MediaUnit({ item }: { item: MediaItem }) {
 
 function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const light = isLight(s.appearance)
   const initial = s.itemsBeforeViewMore ?? 6
   const tan = colorToCss(s.appearance?.backgroundColor)
   const tile = !!s.useDeviceTabs // device-tab flows use the framed tile style
   return (
     <section
-      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'md')}`}
-      style={bandStyle(s.appearance)}
+      className={csBandGutter(v)}
+      style={{
+        ...bandStyle(s.appearance),
+        ...sectionPadStyle(s.appearance, padDefaults('md', page), page),
+      }}
     >
       {(s.sectionTitle || s.body) && (
         <div className={`mb-2 ${v === 'page' ? csShell(v, '!px-0') : ''}`}>
@@ -1338,6 +1624,7 @@ function ShowcaseBlock({
   scrollRoot?: React.RefObject<HTMLDivElement | null>
 }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const items = s.items ?? []
   const images = imgUrls(items)
   const light = isLight(s.appearance, true)
@@ -1352,8 +1639,11 @@ function ShowcaseBlock({
     return (
       <section
         data-cs-stretch
-        className={`flex flex-col justify-center gap-12 ${padClasses(s.appearance, 'md')}`}
-        style={bandStyle(s.appearance, '#000000', true)}
+        className="flex flex-col justify-center"
+        style={{
+          ...sectionStyle(s.appearance, page, 'md', '#000000', true),
+          ...sectionGapStyle(s.appearance, gapDefault('lg', page), page),
+        }}
       >
         {images.length > 0 && (
           <ArtifactSlider
@@ -1382,8 +1672,8 @@ function ShowcaseBlock({
   return (
     <section
       data-cs-stretch
-      className={`flex flex-col justify-center gap-10 ${padClasses(s.appearance, 'md')}`}
-      style={bandStyle(s.appearance, '#000000', true)}
+      className="flex flex-col justify-center"
+      style={flexSectionStyle(s.appearance, page, 'md', '#000000', true)}
     >
       {(s.sectionTitle || s.introBody) && (
         <div className={csShell(v)}>
@@ -1410,14 +1700,15 @@ function MotionShowcaseBlock({
   section: Of<'motionShowcase'>
 }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const rows = s.rows ?? []
   if (!rows.length) return null
   const light = isLight(s.appearance)
   const onDark = light ? 'text-[#e3e3db]' : ''
   return (
     <section
-      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'lg')}`}
-      style={bandStyle(s.appearance, MOTION_BG)}
+      className={csBandGutter(v)}
+      style={sectionStyle(s.appearance, page, 'lg', MOTION_BG)}
     >
       {s.sectionTitle && (
         <h2
@@ -1431,7 +1722,10 @@ function MotionShowcaseBlock({
           <Prose value={s.intro} className={csBodyText(v, 'text-[15px] lg:text-[16px]')} />
         </div>
       )}
-      <div className={`mx-auto flex max-w-[min(1280px,100%)] flex-col gap-12 lg:gap-16 ${csShell(v, '!px-0')}`}>
+      <div
+        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col ${csShell(v, '!px-0')}`}
+        style={sectionGapStyle(s.appearance, gapDefault('lg', page), page)}
+      >
         {rows.map((row, i) => (
           <MotionRowView
             key={row._key ?? `motion-row-${i}`}
@@ -1563,13 +1857,14 @@ function highlightFrameUrls(cell: HighlightCell): string[] {
 
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const cells = s.cells ?? []
   if (!cells.length) return null
   const single = s.layout === 'single'
   return (
     <section
-      className={`${csBandGutter(v)} ${padClasses(s.appearance, 'lg')}`}
-      style={bandStyle(s.appearance)}
+      className={csBandGutter(v)}
+      style={sectionStyle(s.appearance, page, 'lg')}
     >
       {s.sectionTitle && (
         <h2 className={`mb-12 text-center lg:mb-16 ${csSectionTitle(v)}`}>
@@ -1697,12 +1992,13 @@ function HighlightCellView({
 
 function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const items = s.items ?? []
   if (!items.length) return null
   return (
     <section
-      className={`${csBandGutter(v)} text-center ${padClasses(s.appearance, 'lg')}`}
-      style={bandStyle(s.appearance)}
+      className={`${csBandGutter(v)} text-center`}
+      style={sectionStyle(s.appearance, page, 'lg')}
     >
       {s.sectionTitle && (
         <h2 className={`mb-12 lg:mb-16 ${csSectionTitle(v)}`}>
@@ -1724,12 +2020,12 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
 
 function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
   const v = useCsVariant()
+  const page = v === 'page'
   const items = s.items ?? []
   if (!items.length) return null
   return (
     <section
-      className={padClasses(s.appearance, 'md')}
-      style={bandStyle(s.appearance)}
+      style={sectionStyle(s.appearance, page, 'md')}
     >
       <div className={csShell(v)}>
         <div className={`mx-auto ${v === 'page' ? 'max-w-[min(720px,100%)]' : 'max-w-160'}`}>

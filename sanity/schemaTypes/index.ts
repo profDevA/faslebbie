@@ -10,6 +10,7 @@ import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
 import { mediaItem } from "./objects/mediaItem";
 import { highlightCell } from "./objects/highlightCell";
+import { coreExperienceScreen } from "./objects/coreExperienceScreen";
 import { motionRow } from "./objects/motionRow";
 import { designRef } from "./objects/designRef";
 import { researchProse } from "./objects/researchProse";
@@ -126,6 +127,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   showcaseItem,
   mediaItem,
   highlightCell,
+  coreExperienceScreen,
   motionRow,
   designRef,
   researchProse,
