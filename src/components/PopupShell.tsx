@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 /**
@@ -29,6 +30,7 @@ function Breadcrumbs({
   crumbs: PopupCrumb[];
   onClose: () => void;
 }) {
+  const router = useRouter();
   return (
     <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[16px]">
       {crumbs.map((crumb, i) => {
@@ -50,7 +52,11 @@ function Breadcrumbs({
             ) : crumb.href ? (
               <Link
                 href={crumb.href}
-                onClick={onClose}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                  router.push(crumb.href!);
+                }}
                 data-cursor="hover"
                 className={crumbClass}
               >

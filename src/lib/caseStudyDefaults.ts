@@ -92,10 +92,19 @@ export const MOTION_SHOWCASE_BAND_DEFAULTS = {
 
 /** §07 Motion row — device strip + caption. */
 export const MOTION_ROW_DEFAULTS = {
+  /** Work popup desktop row — Figma Census 2229:30437 (~728px in 1099 modal). */
+  rowWidthPercentOverlayDesktop: 66,
+  /** Work popup featured mobile — Figma Census 2229:30257 (~245px in 1099 modal). */
+  rowWidthPercentOverlayFeaturedMobile: 22,
   rowWidthPercent: 54,
   itemGapPercent: 3,
   captionMarginTop: 28,
   tileBackgroundColor: "#ffffff",
+} as const;
+
+/** §07 Featured motion band — cream mobile (Figma Census 2229:30253). */
+export const MOTION_FEATURED_BAND_DEFAULTS = {
+  backgroundColor: "#e3e3db",
 } as const;
 
 /** /work page shell — optional band tint (empty = page default). */

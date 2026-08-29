@@ -78,6 +78,20 @@ export const motionRow = defineType({
       type: "text",
       rows: 2,
     }),
+    defineField({
+      name: "captionAlign",
+      title: "Caption placement",
+      type: "string",
+      initialValue: "below",
+      options: {
+        list: [
+          { title: "Below device (Coral stacked rows)", value: "below" },
+          { title: "Bottom-left (featured mobile band)", value: "left" },
+          { title: "Bottom-right (featured desktop band)", value: "right" },
+        ],
+        layout: "radio",
+      },
+    }),
   ],
   preview: {
     select: { title: "label", device: "device", items: "items", caption: "caption" },

@@ -11,7 +11,7 @@ export default function BuildGallery({
 }) {
   return (
     <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-6 lg:px-12">
-      <div className="grid grid-cols-2 gap-x-2.5 gap-y-8 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-20">
+      <div className="grid grid-cols-2 items-start gap-x-2.5 gap-y-8 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-20">
         {items.map((item) => {
           const cover = item.images?.[0];
           return (
@@ -20,14 +20,15 @@ export default function BuildGallery({
               type="button"
               onClick={() => onOpen(item.id)}
               data-cursor="hover"
-              className="group reckless-prose block w-full text-left"
+              className="group reckless-prose flex h-full w-full flex-col text-left"
             >
+              <div className="w-full shrink-0">
               {cover ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={cover}
                   alt={item.title}
-                  className="aspect-3/4 w-full bg-[#f0f0f0] object-cover transition-opacity group-hover:opacity-90 lg:aspect-auto lg:h-[420px]"
+                  className="aspect-3/4 w-full bg-[#f0f0f0] object-cover object-top transition-opacity group-hover:opacity-90 lg:aspect-auto lg:h-[420px]"
                 />
               ) : (
                 <div
@@ -43,6 +44,7 @@ export default function BuildGallery({
                   </span>
                 </div>
               )}
+              </div>
               <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] lg:text-[18px]">
                 {item.title}
               </span>

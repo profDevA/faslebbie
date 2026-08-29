@@ -31,6 +31,7 @@ import {
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
   HIGHLIGHT_REEL_GRID_DEFAULTS,
   HIGHLIGHT_REEL_SINGLE_DEFAULTS,
+  MOTION_FEATURED_BAND_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   SHOWCASE_ARTIFACT_DEFAULTS,
@@ -136,6 +137,14 @@ function csSectionTitle(v: CsVariant, extra = '') {
   return `font-normal capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
 }
 
+/** Impact / stats band heading — Israel QA: slightly bolder than other section titles. */
+function csImpactTitle(v: CsVariant, extra = '') {
+  if (v === 'page') {
+    return `font-medium capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
+  }
+  return `font-medium capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
+}
+
 function csBandGutter(v: CsVariant, extra = '') {
   if (v === 'page') return `px-5 sm:px-8 lg:px-12 ${extra}`
   return `px-6 sm:px-10 xl:px-[3.5vw] ${extra}`
@@ -207,6 +216,22 @@ function isLight(a?: Appearance, defaultLight?: boolean) {
     return (r * 299 + g * 587 + b * 114) / 1000 < 140
   }
   return !!defaultLight
+}
+
+/** Render light/white copy — respects explicit textColor and dark band backgrounds. */
+function bandUsesLightText(a?: Appearance, defaultLight?: boolean) {
+  if (a?.textColor?.hex) {
+    const { r, g, b } = hexToRgb(a.textColor.hex)
+    return (r * 299 + g * 587 + b * 114) / 1000 > 180
+  }
+  return isLight(a, defaultLight)
+}
+
+/** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434. */
+function featuredCaptionInset(side: 'left' | 'right') {
+  return side === 'right'
+    ? { marginLeft: 'auto' as const, maxWidth: 'min(445px, 42%)' }
+    : { marginLeft: 'max(24px, calc(50% - 220px))' as const, maxWidth: 'min(445px, 90%)' }
 }
 
 // ── Portable Text ────────────────────────────────────────────────────────────
@@ -953,18 +978,37 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )
         )}
       </div>
-      {/* Desktop: video if set, else side image (Figma 600:12450). */}
+      {/* Desktop: split video + image (Memory Tubes Figma), else video or still. */}
       {(hasVideo || s.sideImage) && (
         <div
-          className={`${desktopMediaClass} ${mediaOrder}`}
+          className={`${hasVideo && s.sideImage ? 'relative hidden min-h-0 flex-col lg:flex lg:min-h-full' : desktopMediaClass} ${mediaOrder}`}
           style={{
-            backgroundColor: hasVideo
-              ? colorToCss(s.sideImageBackgroundColor) ?? '#fff'
-              : sideBg,
+            backgroundColor: sideBg,
             ...mediaPad,
           }}
         >
-          {hasVideo ? (
+          {hasVideo && s.sideImage ? (
+            <>
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+                <video
+                  src={s.sideVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                <img
+                  src={s.sideImage}
+                  alt=""
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </>
+          ) : hasVideo ? (
             <video
               src={s.sideVideo}
               autoPlay
@@ -1485,7 +1529,9 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
           />
         </div>
       )}
-      <div className={s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'}>
+      <div
+        className={`${s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'} ${page ? '' : 'flex justify-center px-6'}`}
+      >
         <picture>
           {s.imageMobile && (
             <source media="(max-width: 640px)" srcSet={s.imageMobile} />
@@ -1494,7 +1540,13 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
           <img
             src={s.image}
             alt={s.sectionTitle ?? 'Core experience screens'}
-            className={`block h-auto ${s.imageMobile ? 'w-full' : 'w-208 max-w-none sm:w-full sm:max-w-full'}`}
+            className={`block h-auto ${
+              s.imageMobile
+                ? 'w-full'
+                : page
+                  ? 'w-208 max-w-none sm:w-full sm:max-w-full'
+                  : 'w-full max-w-[min(380px,88%)]'
+            }`}
           />
         </picture>
       </div>
@@ -1687,8 +1739,8 @@ function CoreExperienceBlock({
   )
 }
 
-// 08 — Desktop Motion Showcase (Figma 2110:40096): band colour from Sanity
-// appearance, centred desktop mockup card, title + body bottom-right.
+// 08 — Desktop Motion Showcase (Figma 2110:40096 / Census 2229:30432): band colour
+// from Sanity appearance, centred desktop mockup, title + body bottom-right.
 function DesktopMotionShowcaseBlock({
   section: s,
 }: {
@@ -1696,20 +1748,33 @@ function DesktopMotionShowcaseBlock({
 }) {
   const v = useCsVariant()
   const page = v === 'page'
+  const overlay = v === 'overlay'
   const hasVideo = !!(s.videoFile || s.videoUrl)
   const hasStaticImage = !!s.posterImage && !hasVideo
   const hasMedia = hasVideo || hasStaticImage
   const copyTitle = s.sectionTitle?.trim()
   const hasCopy = !!(copyTitle || s.body?.length || s.caption)
+  const lightText = bandUsesLightText(s.appearance)
+  const copyClass = lightText ? 'text-white' : 'text-black'
   return (
     <section
       data-cs-stretch={page ? undefined : true}
-      className={`flex flex-col justify-center ${page ? '' : csBandGutter(v)}`}
-      style={flexSectionStyle(s.appearance, page, 'md')}
+      className={`relative flex flex-col ${
+        page ? csBandGutter(v) : csBandGutter(v)
+      } ${overlay ? 'min-h-[min(847px,88vh)]' : ''}`}
+      style={flexSectionStyle(s.appearance, page, 'md', undefined, lightText)}
     >
       {hasMedia && (
-        <div className={`flex justify-center ${page ? csShell(v) : `${csShell(v, '!px-0')}`}`}>
-          <div className="w-full max-w-[762px] overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)]">
+        <div
+          className={`flex justify-center ${
+            page ? csShell(v, '!px-0') : 'px-6 sm:px-10 xl:px-[3.5vw]'
+          } pt-12 lg:pt-14`}
+        >
+          <div
+            className={`w-full overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] ${
+              page ? 'max-w-[762px]' : 'max-w-[min(728px,66%)]'
+            }`}
+          >
             {hasVideo ? (
               s.videoUrl ? (
                 <div className="aspect-[762/467] w-full">
@@ -1743,9 +1808,11 @@ function DesktopMotionShowcaseBlock({
           </div>
         </div>
       )}
-      {hasCopy && (
-        <div className={csShell(v)}>
-          <div className="ml-auto max-w-[min(445px,100%)] text-left">
+      {hasCopy &&
+        (overlay ? (
+          <div
+            className={`absolute bottom-[min(103px,12%)] right-[max(24px,6%)] max-w-[min(445px,42%)] text-left tracking-[0.382px] ${copyClass}`}
+          >
             {copyTitle && (
               <h2 className="text-[18px] font-normal capitalize leading-[1.6] tracking-[0.38px]">
                 {copyTitle}
@@ -1764,8 +1831,31 @@ function DesktopMotionShowcaseBlock({
               </p>
             ) : null}
           </div>
-        </div>
-      )}
+        ) : (
+          <div
+            className={`w-full pb-[min(103px,12%)] pt-6 tracking-[0.382px] ${copyClass} ${csShell(v, '!px-0')}`}
+          >
+            <div className="text-left" style={featuredCaptionInset('right')}>
+              {copyTitle && (
+                <h2 className="text-[18px] font-normal capitalize leading-[1.6] tracking-[0.38px]">
+                  {copyTitle}
+                </h2>
+              )}
+              {s.body?.length ? (
+                <Prose
+                  value={s.body}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                />
+              ) : s.caption ? (
+                <p
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                >
+                  {s.caption}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ))}
     </section>
   )
 }
@@ -1985,10 +2075,184 @@ function ShowcaseBlock({
   )
 }
 
-// Motion Showcase ("Key Product Experiences"): stacked labelled device rows.
-// Figma 2110:39759 — slate band, centred title, mobile row left + tablet row right.
+// Motion Showcase ("Key Product Experiences"): stacked labelled device rows (Coral)
+// or featured centred device band (Census mobile — Figma 2229:30253).
 const MOTION_BG = '#52747e'
 function MotionShowcaseBlock({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const layout = s.layoutVariant ?? 'stacked'
+  if (layout === 'featured') {
+    return <MotionShowcaseFeaturedBand section={s} />
+  }
+  return <MotionShowcaseStackedBand section={s} />
+}
+
+function MotionShowcaseFeaturedBand({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const v = useCsVariant()
+  const page = v === 'page'
+  const overlay = v === 'overlay'
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const row = s.rows?.[0]
+  if (!row) return null
+  const items = row.items ?? []
+  const captionAlign = row.captionAlign ?? 'left'
+  const rowWidthDefault = overlay
+    ? MOTION_ROW_DEFAULTS.rowWidthPercentOverlayFeaturedMobile
+    : 34
+  const rowWidth =
+    typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
+      ? row.rowWidthPercent
+      : rowWidthDefault
+  const titleMb =
+    typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
+  return (
+    <section
+      data-cs-stretch={page ? undefined : true}
+      className={`relative flex flex-col ${page ? csBandGutter(v) : csBandGutter(v)} ${
+        overlay ? 'min-h-[min(847px,88vh)]' : ''
+      }`}
+      style={flexSectionStyle(
+        s.appearance,
+        page,
+        'lg',
+        MOTION_FEATURED_BAND_DEFAULTS.backgroundColor,
+      )}
+    >
+      {s.sectionTitle && (
+        <h2
+          className={`text-center ${csSectionTitle(v)} text-black`}
+          style={{ marginBottom: lg ? titleMb : titleMb }}
+        >
+          {s.sectionTitle}
+        </h2>
+      )}
+      {items.length > 0 && (
+        <div className="flex justify-center pt-2 pb-0">
+          <div
+            className="drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)]"
+            style={{ width: `${rowWidth}%`, maxWidth: '245px' }}
+          >
+            {items.map((it, itemIndex) => (
+              <FeaturedDeviceMedia
+                key={it._key ?? `featured-${itemIndex}`}
+                item={it}
+                poster={row.posterImage}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      {(row.label || row.caption) &&
+        (overlay ? (
+          <div
+            className="absolute bottom-[min(51px,8%)] left-0 w-full px-6 tracking-[0.382px] text-black sm:px-10 xl:px-[3.5vw]"
+          >
+            <div
+              className="text-left"
+              style={
+                captionAlign === 'right'
+                  ? featuredCaptionInset('right')
+                  : featuredCaptionInset('left')
+              }
+            >
+              {row.label && (
+                <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
+                  {row.label}
+                </p>
+              )}
+              {row.caption && (
+                <p className="mt-2.5 max-w-[353px] text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
+                  {row.caption}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`w-full pb-[min(51px,8%)] pt-8 tracking-[0.382px] text-black ${csShell(v, '!px-0')}`}
+          >
+            <div
+              className="text-left"
+              style={
+                captionAlign === 'right'
+                  ? featuredCaptionInset('right')
+                  : featuredCaptionInset('left')
+              }
+            >
+              {row.label && (
+                <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
+                  {row.label}
+                </p>
+              )}
+              {row.caption && (
+                <p className="mt-2.5 max-w-[353px] text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
+                  {row.caption}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+    </section>
+  )
+}
+
+function FeaturedDeviceMedia({
+  item,
+  poster,
+}: {
+  item: MediaItem
+  poster?: string
+}) {
+  const videoPoster = item.posterImage || poster
+  const videoSrc =
+    typeof item.videoFile === 'string'
+      ? item.videoFile
+      : item.mediaType === 'video' && item.videoFile
+        ? String(item.videoFile)
+        : undefined
+  if (videoSrc) {
+    return (
+      <video
+        className="block h-auto w-full rounded-[24px]"
+        src={videoSrc}
+        poster={videoPoster}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+    )
+  }
+  if (item.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- case-study art
+      <img
+        src={item.image}
+        alt={item.caption || ''}
+        className="block h-auto w-full rounded-[24px]"
+      />
+    )
+  }
+  return null
+}
+
+function MotionShowcaseStackedBand({
   section: s,
 }: {
   section: Of<'motionShowcase'>
@@ -1996,7 +2260,6 @@ function MotionShowcaseBlock({
   const v = useCsVariant()
   const page = v === 'page'
   const rows = s.rows ?? []
-  if (!rows.length) return null
   const light = isLight(s.appearance)
   const onDark = light ? 'text-[#e3e3db]' : ''
   const titleMb =
@@ -2021,6 +2284,7 @@ function MotionShowcaseBlock({
     return () => mq.removeEventListener('change', sync)
   }, [])
   const titleMargin = lg ? titleMbLg : titleMb
+  if (!rows.length) return null
   return (
     <section
       className={csBandGutter(v)}
@@ -2050,7 +2314,8 @@ function MotionShowcaseBlock({
           <MotionRowView
             key={row._key ?? `motion-row-${i}`}
             row={row}
-            alignRight={i % 2 === 1}
+            alignRight={rows.length === 1 ? false : i % 2 === 1}
+            centerRow={rows.length === 1}
             light={light}
             inheritTextColor={!!s.appearance?.textColor?.hex}
           />
@@ -2063,14 +2328,18 @@ function MotionShowcaseBlock({
 function MotionRowView({
   row,
   alignRight,
+  centerRow = false,
   light,
   inheritTextColor,
 }: {
   row: MotionRow
   alignRight: boolean
+  centerRow?: boolean
   light: boolean
   inheritTextColor: boolean
 }) {
+  const v = useCsVariant()
+  const overlay = v === 'overlay'
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
   const aspect =
@@ -2086,10 +2355,20 @@ function MotionRowView({
         ? 'rounded-[12px]'
         : 'rounded-[10px]'
   const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
+  const rowWidthDefault =
+    overlay && device === 'mobile'
+      ? 34
+      : overlay && device === 'tablet'
+        ? 42
+        : overlay && device === 'desktop'
+          ? MOTION_ROW_DEFAULTS.rowWidthPercentOverlayDesktop
+          : MOTION_ROW_DEFAULTS.rowWidthPercent
   const rowWidth =
     typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
-      ? row.rowWidthPercent
-      : MOTION_ROW_DEFAULTS.rowWidthPercent
+      ? overlay && device !== 'desktop'
+        ? Math.min(row.rowWidthPercent, rowWidthDefault)
+        : row.rowWidthPercent
+      : rowWidthDefault
   const itemGap =
     typeof row.itemGapPercent === 'number' && row.itemGapPercent >= 0
       ? row.itemGapPercent
@@ -2101,7 +2380,9 @@ function MotionRowView({
   const tileBg =
     colorToCss(row.tileBackgroundColor) ?? MOTION_ROW_DEFAULTS.tileBackgroundColor
   return (
-    <div className={`flex ${alignRight ? 'justify-end' : 'justify-start'}`}>
+    <div
+      className={`flex ${centerRow ? 'justify-center' : alignRight ? 'justify-end' : 'justify-start'}`}
+    >
       <div className="w-full max-w-full" style={{ maxWidth: `${rowWidth}%` }}>
         <div
           className="flex drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]"
@@ -2113,7 +2394,7 @@ function MotionRowView({
               className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5`}
               style={{ backgroundColor: tileBg }}
             >
-              <DeviceMedia item={it} poster={row.posterImage} />
+              <DeviceMedia item={it} poster={row.posterImage} device={device} />
             </div>
           ))}
         </div>
@@ -2139,7 +2420,16 @@ function MotionRowView({
   )
 }
 
-function DeviceMedia({ item, poster }: { item: MediaItem; poster?: string }) {
+function DeviceMedia({
+  item,
+  poster,
+  device = 'mobile',
+}: {
+  item: MediaItem
+  poster?: string
+  device?: 'mobile' | 'tablet' | 'desktop'
+}) {
+  const imageFit = device === 'desktop' ? 'object-contain' : 'object-cover'
   const videoPoster = item.posterImage || poster
   const videoSrc =
     typeof item.videoFile === 'string'
@@ -2177,7 +2467,7 @@ function DeviceMedia({ item, poster }: { item: MediaItem; poster?: string }) {
       <img
         src={item.image}
         alt={item.caption || ''}
-        className="h-full w-full object-cover"
+        className={`h-full w-full ${imageFit}`}
       />
     )
   }
@@ -2425,7 +2715,7 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
       style={sectionStyle(s.appearance, page, 'lg')}
     >
       {s.sectionTitle && (
-        <h2 className={csSectionTitle(v)} style={{ marginBottom: titleMb }}>
+        <h2 className={csImpactTitle(v)} style={{ marginBottom: titleMb }}>
           {s.sectionTitle}
         </h2>
       )}

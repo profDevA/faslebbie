@@ -91,7 +91,7 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
           <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
             {c.label}
           </p>
-          <p className="mt-2 max-w-[688px] font-grotesk text-[24px] font-medium leading-[1.6] text-black text-shadow-token lg:text-[42px] lg:leading-[1.6]">
+          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.6] text-black text-shadow-token lg:text-[42px] lg:leading-[1.6]">
             {c.intro}
           </p>
           <div className="mt-10">
@@ -114,13 +114,13 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
           <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
             {c.label}
           </p>
-          <p className="mt-2 max-w-[688px] font-grotesk text-[24px] font-medium leading-[1.35] text-black text-shadow-token lg:text-[42px]">
+          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.35] text-black text-shadow-token lg:text-[42px]">
             {c.intro}
           </p>
           <div className="mt-10">
             <NumberedList items={c.items} />
           </div>
-          <div className="mt-12 max-w-[688px] pt-8">
+          <div className="mt-12 max-w-none pt-8">
             <p className="font-grotesk text-[18px] font-medium text-black text-shadow-token">
               {c.conclusion.kicker}
             </p>
@@ -215,7 +215,7 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
           {c.statement}
         </p>
       </div>
-      <div className="mx-auto mt-2 max-w-[687px]">
+      <div className="mt-2">
         {c.items.map((it) => (
           <div
             key={it.n}

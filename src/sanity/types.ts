@@ -58,6 +58,7 @@ export interface MotionRow {
   tileBackgroundColor?: SanityColor;
   label?: string;
   caption?: string;
+  captionAlign?: "below" | "left" | "right";
   posterImage?: string;
   items?: MediaItem[];
 }
@@ -235,6 +236,7 @@ export type Section =
       _type: "motionShowcase";
       sectionTitle?: string;
       intro?: PortableTextBlock[];
+      layoutVariant?: "stacked" | "featured";
       titleMarginBottom?: number;
       titleMarginBottomDesktop?: number;
       introMarginBottom?: number;

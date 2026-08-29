@@ -17,6 +17,25 @@ export const motionShowcase = defineType({
       initialValue: "Key Product Experiences",
     }),
     defineField({
+      name: "layoutVariant",
+      title: "Band layout",
+      type: "string",
+      initialValue: "stacked",
+      options: {
+        list: [
+          {
+            title: "Stacked rows (Coral — one coloured band, multiple devices)",
+            value: "stacked",
+          },
+          {
+            title: "Featured device (Census — centred mockup + anchored caption)",
+            value: "featured",
+          },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
       name: "intro",
       title: "Supporting description",
       type: "portableText",

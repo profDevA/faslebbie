@@ -86,9 +86,9 @@ const sectionsProj = `sections[]{
     items[]{ _key, "image": image${img}, caption, "expandImage": expandImage${img} }
   },
   _type == "motionShowcase" => {
-    sectionTitle, intro,
+    sectionTitle, intro, layoutVariant,
     rows[]{
-      _key, device, label, caption,
+      _key, device, label, caption, captionAlign, rowWidthPercent,
       "posterImage": posterImage${img},
       items[]{
         _key, mediaType, videoUrl,

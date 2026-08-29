@@ -31,6 +31,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |
 | Overview horizontal/gap/teal, Reflection #171717, accordion, CE screens, highlight reel, stats/motion/showcase layout, legacy appearance, work page | `patch-case-study-template-defaults.ts` |
+| Memory Tubes — Reflection body missing (Next Steps only) | `patch-memory-tubes-reflection.ts` |
 | FDX — remove §06 Research Artifacts band | `patch-fdx-remove-research-artifacts.ts` |
 | Coral §04 Core Experience popup tabs (Mobile/iPad/Desktop) | `patch-coral-core-experience-popup-tabs.ts` |
 | Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
@@ -44,6 +45,8 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral hero image + highlight reel + accordion/stats wiped | `patch-coral-restore-hero-highlight.ts` |
 | Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
 | Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
+| Census Key Product Experiences rows + captions | `patch-census-key-product-experiences.ts` |
+| Census sections wiped by bad Key Product patch | `patch-census-restore-from-history.ts` then re-run `patch-census-key-product-experiences.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
 | cardCredits → cardCreditNames list | `patch-credits.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
