@@ -140,6 +140,8 @@ export type AboutToken =
       text: string
       tone?: 'red' | 'gray' | 'gray-red'
       opens?: 'inline' | 'panel'
+      /** Red popup keywords — testimonials modal or contact drawer (not inline expand). */
+      popup?: 'testimonials' | 'contact'
     }
   // "link" = gray rounded pill, red text — navigates to an internal page on
   // click (no popup/expansion). Figma "Component Interaction" 823:70182.

@@ -1,5 +1,5 @@
 /**
- * Patch leadershipPage (Approach) from collaboration doc (6) + Figma `2930:210988`.
+ * Patch leadershipPage (Approach) from Final Edits_faslebbiesite.docx (Aug 2026).
  *
  * Run from frontend/:
  *   sanity exec scripts/patch-approach-final-copy.ts --with-user-token

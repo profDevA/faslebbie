@@ -1,6 +1,6 @@
 /**
  * Patch only the Teaching `.philosophy` prose on the teachingPage singleton.
- * Copy: collaboration doc Teaching tab (teachingIntro in teaching-seed.ts).
+ * Copy: Final Edits_faslebbiesite (2).docx — Teaching `.philosophy` (teachingIntro in teaching-seed.ts).
  *
  * Deliberately a patch, not a re-seed: migrate-pages.ts `seedTeaching()` does a
  * createOrReplace and rebuilds `students` / `exhibitionTiles` from

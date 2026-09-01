@@ -16,20 +16,31 @@ import {
   normalizeHref,
   NavPill,
   POPUP_LINK,
+  POPUP_LINK_HOVER,
   expandPillClass,
 } from '@/components/InlineToken'
 import TestimonialsModal from '@/components/TestimonialsModal'
 import PasswordGate from '@/components/PasswordGate'
 import { useAccessGate } from '@/hooks/useAccessGate'
+import { openContactDrawer } from '@/lib/contactDrawer'
 import type { AboutLink } from '@/lib/aboutFromSanity'
 import type { AboutToken, Testimonial } from '@/lib/content'
 import { aboutLogos } from '@/lib/content'
 import { hiResUrl } from '@/sanity/image'
 import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
-const TESTIMONIAL_KEY = 'what people are saying'
-const TESTIMONIAL_LINK =
-  'cursor-pointer text-accent transition-opacity duration-200 hover:opacity-70'
+const POPUP_KEY_CLASS = `box-decoration-clone ${POPUP_LINK_HOVER}`
+
+/** Map keyword text → popup kind (from Sanity redKey marks in intro + bio). */
+function popupByKeyword(paragraphs: AboutToken[][]) {
+  const map = new Map<string, NonNullable<Extract<AboutToken, { t: 'key' }>['popup']>>()
+  for (const para of paragraphs) {
+    for (const t of para) {
+      if (t.t === 'key' && t.popup) map.set(t.text, t.popup)
+    }
+  }
+  return map
+}
 
 // --- Inline-expansion accordion ---------------------------------------------
 // Gray keywords expand inline, and some expansions contain nested gray keywords.
@@ -224,6 +235,7 @@ type RenderCtx = {
 // vs red text); `opens` drives behaviour (inline expansion vs boxed panel).
 // Default: grey → inline, red → panel — so existing tokens are unchanged.
 function keyOpensPanel(tok: Extract<AboutToken, { t: 'key' }>) {
+  if (tok.popup === 'testimonials' || tok.popup === 'contact') return false
   return tok.opens ? tok.opens === 'panel' : tok.tone !== 'gray'
 }
 
@@ -240,8 +252,22 @@ function renderKeyPill(
   const opensPanel = keyOpensPanel(tok) // behaviour
   const inlineOpen = ctx.open.has(tok.text)
   const panelOpen = ctx.activePanel === tok.text
-  const isActive = opensPanel ? panelOpen : inlineOpen
+  const isActive =
+    tok.popup === 'testimonials'
+      ? panelOpen
+      : opensPanel
+        ? panelOpen
+        : inlineOpen
   const onClick = (el?: HTMLElement | null) => {
+    if (tok.popup === 'contact') {
+      ctx.setActivePanel(null)
+      openContactDrawer()
+      return
+    }
+    if (tok.popup === 'testimonials') {
+      ctx.setActivePanel(panelOpen ? null : tok.text)
+      return
+    }
     const opening = !inlineOpen
     if (opensPanel) ctx.setActivePanel(panelOpen ? null : tok.text)
     else ctx.toggleInline(tok.text)
@@ -261,8 +287,8 @@ function renderKeyPill(
   // narrative in place, while the underline means a popup opens.
   const className = isPill
     ? expandPillClass(isActive)
-    : tok.text === TESTIMONIAL_KEY
-      ? `box-decoration-clone ${TESTIMONIAL_LINK}`
+    : tok.popup === 'testimonials' || tok.popup === 'contact'
+      ? POPUP_KEY_CLASS
       : `box-decoration-clone ${POPUP_LINK}`
   return (
     // Span (not <button>): a <button> is an atomic inline box and won't break
@@ -682,6 +708,10 @@ export default function AboutContent({
   }
 
   const tree = useMemo(() => keywordTree(expansions), [expansions])
+  const popups = useMemo(
+    () => popupByKeyword([...intro, ...paragraphs]),
+    [intro, paragraphs],
+  )
 
   // Accordion: clicking an open keyword collapses it (and its descendants);
   // clicking a closed one opens it and keeps only its ancestor chain, so any
@@ -769,12 +799,10 @@ export default function AboutContent({
         </div>
       )}
       {paragraphs.map((para, i) => {
-        // A red keyword in this paragraph whose boxed panel expands inline.
-        // "what people are saying" is excluded — it opens a centred modal
-        // pop-up instead (rendered below), not an inline box (Israel 06/23).
+        // Popup keywords (testimonials modal, etc.) skip the inline red box.
         const panelKey =
           activePanel &&
-          activePanel !== TESTIMONIAL_KEY &&
+          !popups.has(activePanel) &&
           para.some(
             t =>
               t.t === 'key' && t.text === activePanel && keyOpensPanel(t),
@@ -806,8 +834,7 @@ export default function AboutContent({
         )
       })}
 
-      {/* "what people are saying" → centred modal pop-up (Israel 06/23). */}
-      {activePanel === TESTIMONIAL_KEY && (
+      {activePanel && popups.get(activePanel) === 'testimonials' && (
         <TestimonialsModal
           testimonials={testimonials}
           section="About"
@@ -815,10 +842,8 @@ export default function AboutContent({
         />
       )}
 
-      {/* Footer row: CV / Resume / LinkedIn / Email.
-          Fas 08/09 — drop the extra Testimonials↗ link; readers still open
-          the modal via the in-bio “what people are saying” keyword. */}
-      {/* Figma 2562:36424 — CV / Resume / LinkedIn / Email on #e3e3db pills. */}
+      {/* Footer row: CV / Resume / LinkedIn (Fas 08/31 — Email removed). */}
+      {/* Figma 2562:36424 — CV / Resume / LinkedIn on #e3e3db pills. */}
       <div className="@container/about-links mt-8">
         <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,32px)]">
           {links.map(link =>

@@ -34,7 +34,7 @@ export function textAfterExpandedKey(
 ): string | null {
   if (!expansionEndsWithPeriod(expansion)) return text;
   if (text === ".") return null;
-  if (text.startsWith(". ")) return text.slice(2);
+  if (text.startsWith(". ")) return text.slice(1);
   return text;
 }
 

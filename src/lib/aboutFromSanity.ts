@@ -57,7 +57,10 @@ function childToToken(child: Child, markDefs: MarkDef[]): AboutToken | null {
     .find(Boolean)
 
   if (mark?._type === 'pill') return { t: 'key', text, tone: 'gray' }
-  if (mark?._type === 'redKey') return { t: 'key', text }
+  if (mark?._type === 'redKey') {
+    const kind = mark.kind === 'contact' ? 'contact' : 'testimonials'
+    return { t: 'key', text, popup: kind }
+  }
   if (mark?._type === 'link' && mark.href)
     return { t: 'link', text, href: mark.href }
 

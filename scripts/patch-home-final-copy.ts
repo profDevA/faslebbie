@@ -45,19 +45,19 @@ const HERO = block([
   { text: " digital product experiences and " },
   kw("research", "/research"),
   {
-    text: " the material (minerals), immaterial (AI), and leadership systems that enable them. I ",
+    text: " the material (minerals), immaterial (AI), and leadership systems that support them. I ",
   },
   kw("teach", "/teaching"),
   { text: ", " },
   kw("write", "/blogs"),
-  { text: ", and " },
+  { text: ", " },
   kw("prototype", "/build"),
   {
-    text: ". These feed back into my advisory work and ",
+    text: ", and advise on design and research. This feedback loop shapes my ",
   },
-  kw("my approach", "/leadership"),
+  kw("approach", "/leadership"),
   {
-    text: ": design and research as a risk-reduction mechanism for product innovation and system transitions. ",
+    text: ", treating design and research as tools to reduce risk in product innovation and long-term system transitions. ",
   },
   story("More to my story."),
 ]);

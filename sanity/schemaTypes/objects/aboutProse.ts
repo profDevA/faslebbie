@@ -128,6 +128,7 @@ export const aboutProse = defineType({
                 options: {
                   list: [
                     { title: "Testimonials modal", value: "testimonials" },
+                    { title: "Contact drawer", value: "contact" },
                   ],
                 },
                 initialValue: "testimonials",

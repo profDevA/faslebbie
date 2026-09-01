@@ -1,6 +1,5 @@
 /**
- * Patch aboutPage with final copy from
- * docs/reference/faslebbie + Xiang Collaboration SITE FINAL COPY.docx
+ * Patch aboutPage with final copy from Final Edits_faslebbiesite.docx (Aug 2026).
  *
  * Preserves existing link PDF uploads when present.
  *
@@ -20,6 +19,8 @@ const client = getCliClient({ apiVersion: "2025-01-01" });
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
 const PUBLIC = join(process.cwd(), "public");
 
+/** Calendly URL not in repo yet — free monthly opens contact drawer until Fas confirms. */
+
 const assetCache = new Map<string, string | null>();
 
 async function uploadImage(p: string): Promise<string | null> {
@@ -37,32 +38,26 @@ async function uploadImage(p: string): Promise<string | null> {
   return asset._id;
 }
 
-const HEADLINE = "Designing for Transitions.";
+const HEADLINE = "";
 
-const INTRO: AboutToken[][] = [
-  [
-    {
-      t: "text",
-      text: "I'm a design leader and transition-maker who helps teams move from what a system currently does to what it should. That means building what's missing, dismantling what no longer serves, and repairing what can be saved.",
-    },
-  ],
-];
+const INTRO: AboutToken[][] = [];
 
 const BIO: AboutToken[][] = [
   [
-    { t: "text", text: "A transdisciplinary " },
+    { t: "text", text: "I'm a transdisciplinary " },
     {
       t: "typer",
-      words: [
-        "designer",
-        "researcher",
-        "educator",
-        "builder",
-        "strategist",
-        "design leader",
-      ],
+      words: ["designer", "researcher", "educator", "builder", "strategist"],
     },
-    { t: "text", text: ", with a PhD in Design from " },
+    {
+      t: "text",
+      text: " and transition-maker who creates ",
+    },
+    { t: "key", text: "systems", tone: "gray" },
+    {
+      t: "text",
+      text: " that connect products, stakeholders, and users to meaningful experiences. I hold a PhD in Design from ",
+    },
     { t: "logo", name: "carnegie-mellon" },
     {
       t: "text",
@@ -71,23 +66,19 @@ const BIO: AboutToken[][] = [
     { t: "logo", name: "parsons" },
     {
       t: "text",
-      text: "Parsons School of Design, and a Bachelor's in Entrepreneurship from the ",
+      text: "Parsons, and a Bachelor's in Entrepreneurship from the ",
     },
     { t: "logo", name: "utah" },
     { t: "text", text: "University of Utah." },
   ],
   [
-    { t: "text", text: "I work at the intersection of " },
-    { t: "key", text: "Product", tone: "gray" },
-    { t: "text", text: " and " },
-    { t: "key", text: "Systems design", tone: "gray" },
-    { t: "text", text: ". My ongoing research spans " },
+    { t: "text", text: "My ongoing research focuses on " },
     { t: "key", text: "sustainable minerals", tone: "gray" },
-    { t: "text", text: ", " },
+    { t: "text", text: ", the material end of what we build. " },
     { t: "key", text: "AI as material", tone: "gray" },
-    { t: "text", text: ", and " },
-    { t: "key", text: "Scalar Design Leadership", tone: "gray" },
-    { t: "text", text: "." },
+    { t: "text", text: ", the immaterial end. And " },
+    { t: "key", text: "Scalar design leadership", tone: "gray" },
+    { t: "text", text: ", building organizational design currency." },
   ],
   [
     { t: "text", text: "Currently Head of Design at " },
@@ -95,44 +86,49 @@ const BIO: AboutToken[][] = [
     { t: "text", text: "Franki. Before that, " },
     { t: "logo", name: "meta" },
     { t: "text", text: "Meta, " },
+    { t: "logo", name: "mastercard" },
+    { t: "text", text: "Mastercard and Finicity, " },
     { t: "logo", name: "ptc" },
-    { t: "text", text: "PTC, and " },
+    { t: "text", text: "PTC, " },
     { t: "logo", name: "consumer-reports" },
-    { t: "text", text: "Consumer Reports, across " },
+    { t: "text", text: "Consumer Reports, and " },
+    { t: "logo", name: "western-digital" },
+    { t: "text", text: "Western Digital and SanDisk, across " },
     {
       t: "typer",
       words: [
-        "Enterprise infrastructure",
-        "Fintech",
-        "Healthcare",
-        "Industrial manufacturing",
-        "Civic technology",
-        "Consumer technology",
+        "enterprise infrastructure",
+        "fintech",
+        "healthcare",
+        "industrial manufacturing",
+        "civic technology",
+        "consumer technology",
       ],
     },
     { t: "text", text: "." },
   ],
   [
-    { t: "text", text: "I " },
-    { t: "text", text: "teach" },
-    { t: "text", text: " design at " },
+    { t: "text", text: "I teach design at " },
     { t: "key", text: "Carnegie Mellon University", tone: "gray" },
     { t: "text", text: " and serve as a mentor and " },
-    { t: "key", text: "advisor", tone: "gray" },
-    { t: "text", text: " at " },
-    { t: "logo", name: "mit" },
+    { t: "key", text: "advisor at MIT GOV/LAB", tone: "gray" },
     {
       t: "text",
-      text: "MIT GOV/LAB. My teaching extends internationally to SFK and ACG Arts in China, and Njala University in Sierra Leone.",
+      text: ". My teaching extends internationally to ",
     },
-  ],
-  [
-    { t: "key", text: "Recognized and awarded", tone: "gray" },
+    { t: "key", text: "SFK International and ACG Arts", tone: "gray" },
+    { t: "text", text: " in China, and " },
+    { t: "key", text: "Njala University", tone: "gray" },
     {
       t: "text",
-      text: " across product design, research, entrepreneurship, and academia. See ",
+      text: " in Sierra Leone. My work has been ",
     },
-    { t: "key", text: "what people are saying" },
+    { t: "key", text: "recognized and awarded", tone: "gray" },
+    {
+      t: "text",
+      text: " across the product design industry and academia. See ",
+    },
+    { t: "key", text: "what people are saying", popup: "testimonials" },
     { t: "text", text: "." },
   ],
   [
@@ -149,27 +145,26 @@ const BIO: AboutToken[][] = [
         "African futures",
       ],
     },
-    { t: "text", text: " and offer free mentorship " },
-    { t: "text", text: "monthly" },
-    { t: "text", text: " to " },
+    { t: "text", text: " and offer " },
+    { t: "key", text: "free monthly", popup: "contact" },
+    {
+      t: "text",
+      text: " mentorship to ",
+    },
     {
       t: "typer",
       words: [
         "underrepresented communities",
-        "emerging designers",
-        "early-career designers",
-        "career-transition designers",
+        "students",
+        "career-transitioners",
         "African creatives",
       ],
     },
-    { t: "text", text: " in design and tech." },
-  ],
-  [
-    { t: "text", text: "Outside of work, I'm a " },
+    { t: "text", text: " in design, research, and tech. Outside of work, I'm a " },
     { t: "key", text: "reader", tone: "gray" },
     { t: "text", text: ", a " },
     { t: "key", text: "fan", tone: "gray" },
-    { t: "text", text: ", a husband and father " },
+    { t: "text", text: ", and a husband and father " },
     {
       t: "photo",
       src: "/family.png",
@@ -204,7 +199,11 @@ async function toBlock(tokens: AboutToken[]) {
         break;
       case "key":
         if (tok.tone === "gray") span(tok.text, { _type: "pill" });
-        else span(tok.text, { _type: "redKey", kind: "testimonials" });
+        else {
+          const kind =
+            tok.popup === "contact" ? "contact" : "testimonials";
+          span(tok.text, { _type: "redKey", kind });
+        }
         break;
       case "link":
         span(tok.text, { _type: "link", href: tok.href });
@@ -256,11 +255,6 @@ const LINK_DEFAULTS = [
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/faslebbie/",
-    passwordProtected: false,
-  },
-  {
-    label: "Email",
-    href: "mailto:dr.faslebbie@gmail.com",
     passwordProtected: false,
   },
 ];

@@ -32,6 +32,10 @@ export const NAV_PILL =
 export const POPUP_LINK =
   "cursor-pointer text-accent underline decoration-from-font underline-offset-2 transition-opacity duration-200 hover:opacity-70";
 
+/** Same as POPUP_LINK but underline appears on hover only (Fas 08/31 About QA). */
+export const POPUP_LINK_HOVER =
+  "cursor-pointer text-accent underline-offset-2 decoration-from-font hover:underline transition-opacity duration-200 hover:opacity-70";
+
 /**
  * Leaves the site. Red text and the ↗ only — the rule appears on hover, per the
  * legend's two states and the "Linkedin ↗" footer row (807:19218).

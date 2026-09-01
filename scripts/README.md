@@ -56,7 +56,8 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Teaching prose / students / slides / exhibition | `patch-teaching-prose.ts`, `patch-teaching-student-extras.ts`, `patch-student-popup-slides.ts`, `patch-exhibition-tiles.ts` |
 | Work `.img` titles/order/covers, tool stack | `patch-work-img-titles-order.ts`, `patch-work-img-covers.ts`, `patch-work-tool-stack*.ts` |
 | Build listing, covers, popup copy | `patch-build-final-copy.ts`, `patch-build-covers.ts`, `patch-build-project-copy.ts`, `patch-build-case-study-details.ts`, `patch-build-strip-legacy-fields.ts`, `patch-build-leoney-concept.ts`, `patch-build-popup-images-migrate.ts`, `patch-build-output-visuals.ts` |
-| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-plain-tokens.ts`, `patch-about-family-photo.ts`, `patch-about-expansions.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, `patch-home-portrait.ts` |
+| Build popup scroll body empty (`caseStudyDetail` missing on all projects) | `patch-build-case-study-details.ts` — safe to re-run; does not touch images |
+| About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-family-photo.ts`, `patch-about-expansions.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, `patch-home-portrait.ts` |
 | Blogs / media / publications | `patch-blogs-publications.ts`, `patch-books-covers.ts`, `patch-media-redesign.ts`, `patch-blog-footers.ts` |
 | Testimonial photos only | `patch-testimonial-photos.ts` |
 
@@ -72,6 +73,7 @@ Shared helper: `lib/lexorank-order.ts` — use LexoRank for `orderRank`, never `
 |--------|-----|
 | **`migrate-pages.ts`** | Wipes Build covers, 14 student carousels, 12 exhibition photos |
 | **`migrate-research.ts`** | Re-uploads field-note images |
+| **`patch-about-plain-tokens.ts`** | Legacy evening QA — strips `teach` / `monthly` marks; opposite of current About spec (`free monthly` red popup) |
 
 Use **`patch-*`** for single-field or copy updates. Use **`migrate-case-studies-coral-template.ts`** (with `--dry` / `--slug=`) for remaining red case-study template migrations — not the old bulk `migrate-*-redesign.ts` scripts (removed Aug 2026).
 
