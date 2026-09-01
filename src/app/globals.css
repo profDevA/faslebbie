@@ -12,8 +12,14 @@
 
   --font-serif: "Reckless Neue", Georgia, serif;
   --font-serif-book: "Reckless Neue Book", "Reckless Neue", Georgia, serif;
+  /* Nav logo only — the one place Fas kept off Reckless ("leave my name"). */
   --font-logo: var(--font-poppins), sans-serif;
-  --font-grotesk: var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif;
+  /* Sep 1: Fas — one font site-wide ("just keep it all the same"). The chrome
+     (nav, kickers, popups, filter, gate) used to be Neue Haas; the token now
+     resolves to Reckless so the swap is one line to make and one to undo.
+     Neue Haas is still loaded in layout.tsx — remove that once this is signed
+     off. Revert = var(--font-nhaas), "Neue Haas Grotesk", Arial, sans-serif. */
+  --font-grotesk: var(--font-serif);
   /* About-page "ABOUT ME" heading — Figma 06/18 spec: Helvetica 700, uppercase.
      Helvetica on macOS, Arial as the Windows/Linux fallback (same metrics). */
   --font-helvetica: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -22,6 +28,9 @@
 body {
   background: var(--color-bg);
   color: #000;
+  /* Without this, anything that carries no font class inherits Tailwind's
+     `ui-sans-serif` default and renders as Arial. */
+  font-family: var(--font-serif);
 }
 
 /* Soft grey drop-shadow carried by every interactive token/link in the design

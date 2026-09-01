@@ -16,11 +16,10 @@ const poppins = localFont({
   display: "swap",
 });
 
-// Neue Haas Grotesk — used for the big background wordmark in the v2 hero.
-// Roman 400 + Medium 500 are Fas's own licensed cuts (migrated from
-// faslebbie.com). Display Pro 75 Bold (700) is the heavy cut the aidesign-os
-// wordmark uses; added so the wordmark renders true Bold glyphs rather than a
-// synthesized faux-bold. (Fas to confirm his Neue Haas licence covers Bold.)
+// Neue Haas Grotesk — Fas's own licensed cuts, kept only so the Sep 1 one-font
+// decision can be reverted by pointing `--font-grotesk` back at `--font-nhaas`
+// in globals.css. Nothing references it today, so `preload: false` keeps the
+// three files (~88 KB) off every page. Delete this block once the swap sticks.
 const nhaas = localFont({
   src: [
     { path: "./fonts/NHaasGroteskDSPro-55Rg.woff2", weight: "400", style: "normal" },
@@ -29,6 +28,7 @@ const nhaas = localFont({
   ],
   variable: "--font-nhaas",
   display: "swap",
+  preload: false,
 });
 
 // Favicon / title / OG come from Site Settings → SEO / Share (Sanity).

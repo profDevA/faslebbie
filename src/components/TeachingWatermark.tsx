@@ -69,7 +69,7 @@ export default function TeachingWatermark({
   return (
     <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: z, opacity }}
-      className={`font-logo font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.88] lg:tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
+      className={`font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.88] lg:tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
     >
       <span className="text-[58px] lg:text-[187px]">Teaching</span>
     </WordmarkFrame>

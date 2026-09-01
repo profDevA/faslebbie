@@ -36,7 +36,7 @@ export default function BuildGallery({
                   className="relative flex aspect-3/4 w-full items-center justify-center overflow-hidden transition-opacity group-hover:opacity-90 lg:aspect-auto lg:h-[420px]"
                 >
                   <span
-                    className={`px-3 text-center font-logo text-[clamp(16px,4vw,34px)] font-semibold tracking-tight ${
+                    className={`px-3 text-center text-[clamp(16px,4vw,34px)] font-semibold tracking-tight ${
                       item.lightArt ? "text-black/20" : "text-white/90"
                     }`}
                   >

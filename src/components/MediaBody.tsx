@@ -29,14 +29,14 @@ function FeaturedBlurb({ text }: { text: string }) {
   const split = text.match(/^(.*?)(schools,.*)$/i);
   if (!split) {
     return (
-      <p className="text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:leading-[1.09] lg:tracking-[1.65px]">
+      <p className="text-[14px] font-normal capitalize leading-[1.35] text-black lg:text-[18px] lg:leading-[1.09]">
         {text}
       </p>
     );
   }
 
   return (
-    <p className="text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
+    <p className="text-[14px] font-normal capitalize leading-[1.35] text-black lg:text-[18px]">
       <span className="leading-[0.91] lg:leading-[1.09]">{split[1]}</span>
       <span className="underline decoration-1 underline-offset-2">
         {split[2]}
@@ -77,10 +77,10 @@ function TalkCard({
         ) : null}
         <MediaPlayOverlay />
       </div>
-      <p className="mt-2.5 text-[14px] font-normal italic capitalize leading-[1.35] tracking-[0.9px] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px] lg:tracking-[1.65px]">
+      <p className="mt-2.5 text-[14px] font-normal italic capitalize leading-[1.35] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px]">
         {item.title}
       </p>
-      <p className="mt-[15px] text-[13px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black lg:text-[18px] lg:tracking-[1.65px]">
+      <p className="mt-[15px] text-[13px] font-normal capitalize leading-[1.35] text-black lg:text-[18px]">
         {item.platform} · {item.year}
       </p>
     </button>
@@ -154,7 +154,7 @@ function FeaturedCard({
           className="object-cover transition-opacity group-hover:opacity-95"
         />
       </div>
-      <div className="flex w-full flex-col gap-2 capitalize not-italic tracking-[0.9px] lg:gap-[15px] lg:tracking-[1.65px]">
+      <div className="flex w-full flex-col gap-2 capitalize not-italic lg:gap-[15px]">
         <p className="text-[14px] font-normal leading-[0.91] text-black lg:text-[18px]">
           {featured.title}
         </p>

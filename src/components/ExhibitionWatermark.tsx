@@ -55,7 +55,7 @@ export default function ExhibitionWatermark() {
   return (
     <WordmarkFrame
       style={{ color, textShadow: shadow, zIndex: -10, opacity }}
-      className={`font-logo font-bold capitalize leading-[0.88] tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
+      className={`font-bold capitalize leading-[0.88] tracking-[-0.022em] pt-[402px] ${WORDMARK_TOP}`}
       innerClassName="flex flex-col items-start"
     >
       <span className="text-[58px] lg:text-[187px]">Student</span>

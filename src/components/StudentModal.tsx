@@ -21,7 +21,7 @@ function Slide({ project, index }: { project: StudentProject; index: number }) {
       className="absolute inset-0 flex items-center justify-center"
     >
       <span
-        className={`px-6 text-center font-logo text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
+        className={`px-6 text-center text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
           project.lightArt ? "text-black/25" : "text-white/85"
         }`}
       >

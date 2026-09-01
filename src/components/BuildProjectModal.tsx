@@ -172,7 +172,7 @@ function BuildProjectDetailBody({ project }: { project: BuildProject }) {
             className="flex h-[231px] w-[80%] items-center justify-center lg:aspect-16/10 lg:h-auto lg:w-full lg:max-w-[440px]"
           >
             <span
-              className={`font-logo text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
+              className={`text-[clamp(24px,3vw,40px)] font-semibold tracking-tight ${
                 project.lightArt ? "text-black/25" : "text-white/90"
               }`}
             >

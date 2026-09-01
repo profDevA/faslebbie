@@ -40,7 +40,7 @@ function Cover({ item }: { item: StudentProject }) {
       } transition-opacity group-hover:opacity-90`}
     >
       <span
-        className={`px-4 text-center font-logo text-[clamp(18px,2vw,28px)] font-semibold tracking-tight ${
+        className={`px-4 text-center text-[clamp(18px,2vw,28px)] font-semibold tracking-tight ${
           item.lightArt ? "text-black/25" : "text-white/90"
         }`}
       >
@@ -65,7 +65,7 @@ function StudentCard({
       className="group reckless-prose block w-full text-left"
     >
       <Cover item={item} />
-      <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] tracking-[0.9px] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] sm:tracking-[1.65px] lg:text-[18px]">
+      <span className="mt-2.5 block text-[14px] font-normal capitalize leading-[1.35] text-black underline underline-offset-2 transition-colors group-hover:text-accent sm:text-[16px] lg:text-[18px]">
         {item.title}
       </span>
     </button>
