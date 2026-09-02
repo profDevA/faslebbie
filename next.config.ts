@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
+    // Sanity URLs request q=90; next/image maps that to quality 92.
+    // Next 16 only allows 75 unless listed here, and unlisted values warn
+    // (and can fail to optimize) on every page that uses those assets.
+    qualities: [75, 92],
   },
   // Keep the huge case-study media out of serverless bundles (Vercel 250MB
   // limit). Do NOT exclude all of `public/` — About logo SVGs are read via

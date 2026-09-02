@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Nav from "@/components/Nav";
 import LeadershipBody from "@/components/LeadershipBody";
 import { leadershipFromSanity } from "@/lib/leadershipFromSanity";
@@ -19,15 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function LeadershipPage() {
+export default async function ApproachPage() {
   const raw = await getLeadershipPage();
   const content = leadershipFromSanity(raw);
   return (
     <>
       <Nav dark />
-      <Suspense fallback={null}>
-        <LeadershipBody content={content} />
-      </Suspense>
+      <LeadershipBody content={content} />
     </>
   );
 }

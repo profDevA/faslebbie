@@ -17,7 +17,7 @@ export const OVERVIEW_COPY_COLUMN_PAD = {
   paddingRight: 0,
 } as const;
 
-/** Full-page route (`/work/[slug]`) — Figma Acme overview gutters. */
+/** Full-page route (`/casestudies/[slug]`) — Figma Acme overview gutters. */
 export const OVERVIEW_COPY_COLUMN_PAD_PAGE = {
   paddingTop: 56,
   paddingBottom: 80,

@@ -154,7 +154,10 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
   const home =
     navItems.find((i) => i.href === "/") ?? { label: "Home", href: "/" };
   const desktopRest = navItems.filter(
-    (i) => i.href !== "/work" && i.href !== "/build" && i.href !== "/",
+    (i) =>
+      i.href !== "/casestudies" &&
+      i.href !== "/build" &&
+      i.href !== "/",
   );
   const about = desktopRest.find((i) => i.href === "/about");
   const afterProjects = desktopRest.filter((i) => i.href !== "/about");
@@ -166,7 +169,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
     (i) =>
       i.href !== "/" &&
       i.href !== "/about" &&
-      i.href !== "/work" &&
+      i.href !== "/casestudies" &&
       i.href !== "/build",
   );
 

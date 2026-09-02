@@ -70,7 +70,7 @@ export const siteSettings = defineType({
       group: "nav",
       description: "Case Studies + Build / Playground under the Projects menu.",
       initialValue: [
-        { _type: "navLink", label: "Case Studies", href: "/work" },
+        { _type: "navLink", label: "Case Studies", href: "/casestudies" },
         { _type: "navLink", label: "Build / Playground", href: "/build" },
       ],
     }),

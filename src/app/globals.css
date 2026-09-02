@@ -277,6 +277,63 @@ body {
   min-height: 100cqh;
 }
 
+/* Full-page case studies: desktop bands are at least one screen and can grow.
+   Mobile stays content-height — short hero/overview must not pad out to 100vh. */
+.cs-page {
+  --cs-chrome-top: 3.5rem; /* h-14 */
+  --cs-chrome-bottom: 3rem; /* h-12 */
+  --cs-section-min: calc(
+    100dvh - var(--cs-chrome-top) - var(--cs-chrome-bottom)
+  );
+}
+@media (min-width: 640px) {
+  .cs-page {
+    --cs-chrome-top: 4rem; /* sm:h-16 */
+  }
+}
+
+.cs-page-bands > section {
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .cs-page-bands {
+    container-type: size;
+    min-height: 0;
+    flex: 1 1 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .cs-page-bands > section {
+    min-height: 100cqh;
+  }
+  .cs-page-bands > .cs-next-up {
+    min-height: 100cqh;
+  }
+  .cs-page-bands > section:not([data-cs-stretch]):not([data-cs-hero]) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cs-page-bands > section[data-cs-stretch]:not(.grid) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+/* Two-column bands (Overview, etc.): on desktop, fill the min screen and
+   grow with content. On mobile the grid stacks, so rows stay content-sized. */
+.cs-page-bands > section[data-cs-stretch].grid {
+  grid-auto-rows: auto;
+}
+@media (min-width: 1024px) {
+  .cs-page-bands > section[data-cs-stretch].grid {
+    grid-auto-rows: minmax(100cqh, auto);
+  }
+}
+
 /* Galderma cover-flow: when a slide becomes center, pan object-position
    top → bottom after 1s over 4s (live `.slick-center img` behaviour). */
 @keyframes cs-center-pan {
@@ -313,12 +370,8 @@ body {
   transform: none;
 }
 
-.cs-root.cs-page > section {
-  min-height: 0;
-}
-
-/* Hero sits flush under the sticky breadcrumb — visible immediately. */
-.cs-root.cs-page > section:first-of-type > * {
+/* Hero sits flush under the breadcrumb — visible immediately. */
+.cs-page-bands > section:first-of-type > * {
   opacity: 1;
   transition: none;
 }

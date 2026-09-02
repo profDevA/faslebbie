@@ -42,6 +42,8 @@ export const problemContextSection = defineType({
       name: "appearance",
       type: "appearance",
       initialValue: PROBLEM_CONTEXT_APPEARANCE_DEFAULTS,
+      description:
+        "Content gap is the space between Problem Context and What I Brought.",
     }),
   ],
   preview: {

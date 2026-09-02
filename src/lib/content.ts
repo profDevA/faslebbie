@@ -59,7 +59,7 @@ export const panels: Record<SectionId, PanelContent> = {
     body: [
       'Designing products, systems, and experiences across enterprise software, AI, and civic infrastructure. From Meta to industrial field research — design as organizational leverage.',
     ],
-    cta: { label: 'View Design Work', href: '/work' },
+    cta: { label: 'View Design Work', href: '/casestudies' },
     hasToolStack: true,
   },
   research: {
@@ -108,7 +108,7 @@ export const panels: Record<SectionId, PanelContent> = {
       'Leading design organizations across Meta, Consumer Reports, PTC, and MIT GOV/LAB.',
       'Building systems where design becomes infrastructure — not just output.',
     ],
-    cta: { label: 'Continue to Leadership', href: '/leadership' },
+    cta: { label: 'Continue to Approach', href: '/approach' },
   },
   advise: {
     title: 'advise',
@@ -628,7 +628,7 @@ export const leadershipPanels: Record<
     body: [
       'Open the deeper work portfolio to see the product, systems, and organizational design work behind this leadership page.',
     ],
-    cta: { label: 'Continue to portfolio', href: '/work' },
+    cta: { label: 'Continue to portfolio', href: '/casestudies' },
   },
   'Get in touch': {
     body: [
@@ -1161,13 +1161,13 @@ export const workNarrative: WorkToken[][] = [
 
 // Desktop chrome (Figma 2218:75431 / 08/06): About, Projects▾ (Case Studies +
 // Build/Playground — rendered in Nav.tsx), Approach, Research, Teaching,
-// Words + Media. Logo → Home. Routes stay /work /build /leadership /blogs.
+// Words + Media. Logo → Home. Routes: /casestudies /build /approach /blogs.
 export const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Case Studies', href: '/work' },
+  { label: 'Case Studies', href: '/casestudies' },
   { label: 'Build / Playground', href: '/build' },
-  { label: 'Approach', href: '/leadership' },
+  { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
   { label: 'Teaching', href: '/teaching' },
   { label: 'Words + Media', href: '/blogs' },
@@ -1177,9 +1177,9 @@ export const navItems = [
 export const mobileNavItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Case Studies', href: '/work' },
+  { label: 'Case Studies', href: '/casestudies' },
   { label: 'Build / Playground', href: '/build' },
-  { label: 'Approach', href: '/leadership' },
+  { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
   { label: 'Teaching', href: '/teaching' },
   { label: 'Words + Media', href: '/blogs' },
@@ -1187,6 +1187,6 @@ export const mobileNavItems = [
 
 /** Projects dropdown children (Figma 2229 project-dropdown states). */
 export const projectNavItems = [
-  { label: 'Case Studies', href: '/work' },
+  { label: 'Case Studies', href: '/casestudies' },
   { label: 'Build / Playground', href: '/build' },
 ] as const

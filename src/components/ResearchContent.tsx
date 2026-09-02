@@ -174,7 +174,7 @@ function Tokens({
           return tok.src ? (
             <InlineBookThumb key={key} src={tok.src} alt={tok.alt} />
           ) : null;
-        // `ext` hrefs are internal routes (/leadership, /blogs). Drawn as red
+        // `ext` hrefs are internal routes (/approach, /blogs). Drawn as red
         // underlined copy, as the Research page has always rendered them —
         // the nav pill is only used where a page frame actually draws one.
         if (tok.t === "ext")

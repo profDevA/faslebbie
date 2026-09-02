@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Nav from "@/components/Nav";
 import BlogsBody from "@/components/BlogsBody";
 import { blogsFromSanity } from "@/lib/blogsFromSanity";
@@ -8,7 +7,6 @@ import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 
 // Blogs & Media (Figma 2627-4448 / 2729-2736 / 308-4566). Three tabs —
 // ".blogs" (writing list), ".words" (books + journals), ".media" (talks grid).
-// Content from Sanity blogsPage only (empty Studio = empty UI).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getBlogsPage(), getSiteSettings()]);
@@ -35,16 +33,14 @@ export default async function BlogsPage({
   return (
     <>
       <Nav dark />
-      <Suspense fallback={null}>
-        <BlogsBody
-          posts={posts}
-          mediaFeatured={mediaFeatured}
-          media={media}
-          publications={publications}
-          viewFromUrl={viewFromUrl ?? null}
-          defaultAuthorAvatar={defaultAuthorAvatar}
-        />
-      </Suspense>
+      <BlogsBody
+        posts={posts}
+        mediaFeatured={mediaFeatured}
+        media={media}
+        publications={publications}
+        viewFromUrl={viewFromUrl ?? null}
+        defaultAuthorAvatar={defaultAuthorAvatar}
+      />
     </>
   );
 }

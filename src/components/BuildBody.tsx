@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import BuildContent from "@/components/BuildContent";
 import BuildGallery from "@/components/BuildGallery";
@@ -19,30 +18,37 @@ const VIEWS = ["txt", "img"] as const;
 
 export default function BuildBody({
   content,
+  initialView = null,
+  initialProject = null,
 }: {
   content: BuildContentData;
+  initialView?: string | null;
+  initialProject?: string | null;
 }) {
   const intro = content.intro;
   const buildProjects = content.projects;
 
-  const [view, setView] = usePersistedView<View>(VIEWS, "txt");
-  const [openId, setOpenId] = useState<string | null>(null);
-  const searchParams = useSearchParams();
+  const [view, setView] = usePersistedView<View>(
+    VIEWS,
+    "txt",
+    undefined,
+    initialView,
+  );
+  const [openId, setOpenId] = useState<string | null>(() =>
+    initialProject && buildProjects.some((p) => p.id === initialProject)
+      ? initialProject
+      : null,
+  );
   const { r, pin } = useReveal(view === "txt");
-
-  useEffect(() => {
-    const project = searchParams.get("project");
-    if (project && buildProjects.some((p) => p.id === project)) {
-      setOpenId(project);
-    }
-  }, [searchParams, buildProjects]);
 
   const closeModal = () => {
     setOpenId(null);
-    if (searchParams.get("project")) {
+    if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      url.searchParams.delete("project");
-      window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+      if (url.searchParams.has("project")) {
+        url.searchParams.delete("project");
+        window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+      }
     }
   };
 

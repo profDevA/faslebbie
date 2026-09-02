@@ -17,9 +17,9 @@ const SITE_DESCRIPTION = "Designer · Researcher · Educator";
 const navItems = [
   { _key: "home", _type: "navLink", label: "Home", href: "/" },
   { _key: "about", _type: "navLink", label: "About", href: "/about" },
-  { _key: "case-studies", _type: "navLink", label: "Case Studies", href: "/work" },
+  { _key: "case-studies", _type: "navLink", label: "Case Studies", href: "/casestudies" },
   { _key: "build", _type: "navLink", label: "Build / Playground", href: "/build" },
-  { _key: "approach", _type: "navLink", label: "Approach", href: "/leadership" },
+  { _key: "approach", _type: "navLink", label: "Approach", href: "/approach" },
   { _key: "research", _type: "navLink", label: "Research", href: "/research" },
   { _key: "teaching", _type: "navLink", label: "Teaching", href: "/teaching" },
   { _key: "words", _type: "navLink", label: "Words + Media", href: "/blogs" },

@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 function readViewFromAddressBar(): string | null {
   if (typeof window === "undefined") return null;
   return new URLSearchParams(window.location.search).get("view");
+}
+
+function liveSearch(): URLSearchParams {
+  if (typeof window === "undefined") return new URLSearchParams();
+  return new URLSearchParams(window.location.search);
 }
 
 /**
@@ -13,18 +18,17 @@ function readViewFromAddressBar(): string | null {
  * same view. Fas 08/06: on Work, switching to `.img` then refreshing dropped
  * back to `.txt`.
  *
- * View is derived from ?view= only — no parallel React state. When Next's
- * useSearchParams lags behind the address bar after router.replace, we read
- * window.location so URL and UI cannot desync (see ?view=media showing .words).
+ * Does not call useSearchParams — that bails the listing to client HTML with an
+ * empty Suspense fallback, which looked like a failed load on slower AWS.
+ * View is derived from window.location + the server-rendered ?view=.
  */
 export function usePersistedView<T extends string>(
   views: readonly T[],
   fallback: T,
   aliases?: Record<string, T>,
-  /** Server-rendered ?view= — hydration fallback when client params not ready. */
+  /** Server-rendered ?view= — hydration fallback when the address bar is not ready. */
   serverViewParam?: string | null,
 ): [T, (next: T) => void] {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -34,21 +38,22 @@ export function usePersistedView<T extends string>(
     return aliases?.[v] ?? null;
   };
 
-  const nextParam = searchParams.get("view");
   const [barParam, setBarParam] = useState<string | null>(
     () => readViewFromAddressBar() ?? serverViewParam ?? null,
   );
 
   useEffect(() => {
-    setBarParam(readViewFromAddressBar());
-  }, [nextParam, pathname]);
+    const sync = () => setBarParam(readViewFromAddressBar());
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, [pathname]);
 
-  const viewParam = barParam ?? nextParam ?? serverViewParam ?? null;
-  const view = resolve(viewParam) ?? fallback;
+  const view = resolve(barParam) ?? fallback;
 
   const setView = (next: T) => {
     if (next === view) return;
-    const params = new URLSearchParams(searchParams.toString());
+    const params = liveSearch();
     params.set("view", next);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     setBarParam(next);

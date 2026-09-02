@@ -1,7 +1,5 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import type { StudentProject } from "@/lib/teaching";
 import {
   INITIAL_STUDENT_COUNT,
@@ -75,42 +73,27 @@ function StudentCard({
 export default function TeachingGallery({
   students,
   onOpenStudent,
+  showAll,
+  onExpandAll,
+  onCollapseAll,
 }: {
   students: StudentProject[];
   onOpenStudent: (id: string) => void;
+  showAll: boolean;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
 }) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const startExpanded = searchParams.get("all") === "1";
-  const [showAll, setShowAll] = useState(startExpanded);
   const hasMore = students.length > INITIAL_STUDENT_COUNT;
   const columns = studentWorkColumns(students, showAll);
 
-  useEffect(() => {
-    if (searchParams.get("all") === "1") setShowAll(true);
-  }, [searchParams]);
-
   const expandAll = () => {
-    setShowAll(true);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "works");
-    params.set("all", "1");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    onExpandAll();
     requestAnimationFrame(() => {
       document.getElementById("teaching-gallery-more")?.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
     });
-  };
-
-  const collapseAll = () => {
-    setShowAll(false);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "works");
-    params.delete("all");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   if (!students.length) return null;
@@ -160,7 +143,7 @@ export default function TeachingGallery({
         >
           <button
             type="button"
-            onClick={showAll ? collapseAll : expandAll}
+            onClick={showAll ? onCollapseAll : expandAll}
             data-cursor="hover"
             className="reckless-prose text-[22px] font-normal text-black underline decoration-from-font underline-offset-4 lg:text-[27px]"
           >

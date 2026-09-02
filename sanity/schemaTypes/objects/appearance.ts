@@ -57,7 +57,7 @@ export const appearance = defineType({
       title: "Content gap (px)",
       type: "number",
       description:
-        "Vertical space between title, body, and media inside the section, e.g. 66. Empty = template default.",
+        "Vertical space between stacked blocks (e.g. Problem Context and What I Brought). Empty = template default.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({

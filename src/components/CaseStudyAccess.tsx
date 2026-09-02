@@ -8,7 +8,7 @@ import { readAccessUnlocked } from "@/lib/access";
 import type { Study } from "@/sanity/types";
 
 /**
- * Standalone `/work/[slug]` gate. Work overlay opens already go through
+ * Standalone `/casestudies/[slug]` gate. Work overlay opens already go through
  * WorkBody → requestAccess; this page was previously unguarded.
  */
 export default function CaseStudyAccess({
@@ -42,7 +42,7 @@ export default function CaseStudyAccess({
 
   const dismiss = () => {
     setGateOpen(false);
-    if (!allowed) router.push("/work");
+    if (!allowed) router.push("/casestudies");
   };
 
   // PasswordGate → verifyAccessPassword already sets sessionStorage.

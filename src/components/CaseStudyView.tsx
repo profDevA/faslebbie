@@ -125,9 +125,9 @@ function csProseInner(
 
 function csBodyText(v: CsVariant, extra = '') {
   if (v === 'page') {
-    return `text-[17px] font-normal leading-[1.65] tracking-[0.01em] lg:text-[18px] ${extra}`
+    return `text-[17px] font-normal leading-[1.65] lg:text-[18px] ${extra}`
   }
-  return `text-[18px] font-normal leading-[1.6] tracking-[0.382px] xl:text-[1.25vw] ${extra}`
+  return `text-[18px] font-normal leading-[1.6] xl:text-[1.25vw] ${extra}`
 }
 
 function csSectionTitle(v: CsVariant, extra = '') {
@@ -167,9 +167,9 @@ function csReflectionTitle(v: CsVariant) {
 
 function csReflectionBody(v: CsVariant) {
   if (v === 'page') {
-    return 'font-grotesk text-[17px] font-light leading-[1.6] tracking-[0.3816px] lg:text-[18px]'
+    return 'font-grotesk text-[17px] font-light leading-[1.6] lg:text-[18px]'
   }
-  return 'font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.3816px] xl:text-[1.25vw]'
+  return 'font-grotesk text-[18px] font-light leading-[1.6] xl:text-[1.25vw]'
 }
 
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
@@ -325,13 +325,16 @@ export default function CaseStudyView({
 
   // Scroll-reveal: tag each <section> once it enters view.
   useEffect(() => {
-    const root = overlay ? scroller : scrollRef.current
+    const root = scroller
     if (!root) return
-    const sections = Array.from(root.querySelectorAll('section'))
+    const sections = Array.from(root.querySelectorAll(':scope > section'))
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       sections.forEach(s => s.classList.add('cs-active'))
       return
     }
+    const pageInternal =
+      !overlay && window.matchMedia('(min-width: 1024px)').matches
+    const useRoot = overlay || pageInternal
     const reveal = (s: Element) => s.classList.add('cs-active')
     const io = new IntersectionObserver(
       entries => {
@@ -345,15 +348,15 @@ export default function CaseStudyView({
       {
         threshold: 0,
         rootMargin: '0px 0px -10% 0px',
-        root: overlay ? root : null,
+        root: useRoot ? root : null,
       },
     )
     sections.forEach(s => io.observe(s))
 
-    const target: HTMLElement | Window = overlay ? root : window
+    const target: HTMLElement | Window = useRoot ? root : window
     const onScroll = () => {
-      const vh = overlay ? root.clientHeight : window.innerHeight
-      const rootTop = overlay ? root.getBoundingClientRect().top : 0
+      const vh = useRoot ? root.clientHeight : window.innerHeight
+      const rootTop = useRoot ? root.getBoundingClientRect().top : 0
       for (const s of sections) {
         if (s.classList.contains('cs-active')) continue
         const top = s.getBoundingClientRect().top - rootTop
@@ -383,7 +386,7 @@ export default function CaseStudyView({
       style={{ color: RED }}
     >
       <Link
-        href={`/work/${prev.slug}`}
+        href={`/casestudies/${prev.slug}`}
         onClick={goTo(prev.slug)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
@@ -391,7 +394,7 @@ export default function CaseStudyView({
         &lt; Previous
       </Link>
       <Link
-        href={`/work/${next.slug}`}
+        href={`/casestudies/${next.slug}`}
         onClick={goTo(next.slug)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
@@ -401,43 +404,8 @@ export default function CaseStudyView({
     </div>
   )
 
-  const inner = (
-    <CsVariantContext.Provider value={variant}>
-      <>
-      {/* Overlay mode gets the shared popup header instead. */}
-      {!overlay && (
-        <div className="sticky top-0 z-50 border-b border-black/15 bg-white reckless-prose">
-          <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
-          <nav
-            aria-label="Breadcrumb"
-            className="flex min-w-0 items-center gap-2 text-[15px] font-normal lg:text-[16px]"
-          >
-            <Link
-              href="/work"
-              data-cursor="hover"
-              className="text-black/55 transition-colors hover:text-black"
-            >
-              Work
-            </Link>
-            <span aria-hidden className="text-black/35">
-              /
-            </span>
-            <span aria-current="page" className="underline underline-offset-4">
-              {p.name}
-            </span>
-          </nav>
-          <Link
-            href="/work"
-            aria-label="Close"
-            data-cursor="hover"
-            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
-          >
-            ×
-          </Link>
-          </div>
-        </div>
-      )}
-
+  const bands = (
+    <>
       {groupSections(p.sections ?? []).map(group =>
         group.length > 1 ? (
           <ProseGroupBlock
@@ -449,7 +417,7 @@ export default function CaseStudyView({
             key={group[0]._key}
             section={group[0]}
             project={p}
-            scrollRoot={overlay ? scrollRef : undefined}
+            scrollRoot={scrollRef}
           />
         ),
       )}
@@ -462,10 +430,57 @@ export default function CaseStudyView({
           intro={p.fullCaseStudyIntro?.trim()}
         />
       ) : null}
+    </>
+  )
+
+  const inner = (
+    <CsVariantContext.Provider value={variant}>
+      <>
+      {/* Overlay mode gets the shared popup header instead. */}
+      {!overlay && (
+        <div className="sticky top-0 z-50 shrink-0 border-b border-black/15 bg-white reckless-prose lg:static">
+          <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex min-w-0 items-center gap-2 text-[15px] font-normal lg:text-[16px]"
+          >
+            <Link
+              href="/casestudies"
+              data-cursor="hover"
+              className="text-black/55 transition-colors hover:text-black"
+            >
+              Case Studies
+            </Link>
+            <span aria-hidden className="text-black/35">
+              /
+            </span>
+            <span aria-current="page" className="underline underline-offset-4">
+              {p.name}
+            </span>
+          </nav>
+          <Link
+            href="/casestudies"
+            aria-label="Close"
+            data-cursor="hover"
+            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+          >
+            ×
+          </Link>
+          </div>
+        </div>
+      )}
+
+      {overlay ? (
+        bands
+      ) : (
+        <div ref={setScrollNode} className="cs-page-bands">
+          {bands}
+        </div>
+      )}
 
       {!overlay && (
-        <div className="sticky bottom-0 z-50 border-t border-black/10 bg-white py-2.5 lg:py-3">
-          <div className={csShell(variant)}>{pager}</div>
+        <div className="sticky bottom-0 z-50 flex h-12 shrink-0 items-center border-t border-black/10 bg-white lg:static">
+          <div className={`w-full ${csShell(variant)}`}>{pager}</div>
         </div>
       )}
       </>
@@ -477,7 +492,7 @@ export default function CaseStudyView({
       <PopupShell
         onClose={onClose ?? (() => {})}
         label={p.name}
-        crumbs={[{ label: 'Work', href: '/work', hideOnMobile: true }, { label: p.name }]}
+        crumbs={[{ label: 'Case Studies', href: '/casestudies', hideOnMobile: true }, { label: p.name }]}
         bodyRef={setScrollNode}
         bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white reckless-prose text-black"
         footer={pager}
@@ -488,10 +503,7 @@ export default function CaseStudyView({
   }
 
   return (
-    <div
-      ref={setScrollNode}
-      className="cs-root cs-page min-h-screen bg-white reckless-prose text-black"
-    >
+    <div className="cs-root cs-page min-h-screen bg-white reckless-prose text-black lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
       {inner}
     </div>
   )
@@ -516,7 +528,7 @@ function FullCaseStudyPdfFooter({
   const size = v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.25vw]'
   return (
     <p
-      className={`mx-auto max-w-[606px] text-center font-grotesk font-light italic leading-[1.6] tracking-[0.3816px] text-white ${size}`}
+      className={`mx-auto max-w-[606px] text-center font-grotesk font-light italic leading-[1.6] text-white ${size}`}
     >
       {lead}{' '}
       <span className="whitespace-nowrap">
@@ -526,7 +538,7 @@ function FullCaseStudyPdfFooter({
           target="_blank"
           rel="noopener noreferrer"
           data-cursor="hover"
-          className="group mx-[0.15em] inline-flex items-baseline font-normal italic text-accent tracking-[0.5px] transition-opacity hover:opacity-80"
+          className="group mx-[0.15em] inline-flex items-baseline font-normal italic text-accent transition-opacity hover:opacity-80"
         >
           {label}
           <ExternalArrow shadow={false} className="ml-[0.15em] h-[11px] w-[11px] shrink-0" />
@@ -778,36 +790,35 @@ function HeroBlock({
   )
   const mobileArt = s.imageMobile?.trim() || s.image
   return (
-    <section className="relative">
+    <section data-cs-hero className="relative">
       {s.imageMobile ? (
         /* Mobile hero art + caption below (Figma 2079:26236). */
-        <div className="flex flex-col gap-2.5 bg-white lg:hidden">
+        <div className="flex flex-col gap-2.5 bg-white px-12 lg:hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
           <img
             src={mobileArt}
             alt={p.name}
-            className="block h-auto w-full bg-[#ededed] object-cover object-center"
+            className="aspect-[333/432] w-full bg-[#ededed] object-cover object-top"
           />
-          <div className="px-5 pb-4 pt-1 text-black">
-            <p className="text-[18px] font-bold leading-[1.35] tracking-[0.09em]">
+          <div className="pb-4 pt-1 text-black">
+            <p className="text-[18px] font-bold leading-[1.35] tracking-normal">
               <span className="underline decoration-from-font underline-offset-[6px]">
                 {title}
               </span>
             </p>
             {(p.from || p.to) && (
-              <p className="mt-2 text-[18px] leading-[1.35] tracking-[0.09em]">
+              <p className="mt-2 flex justify-between gap-4 text-[18px] leading-[1.35] tracking-normal">
                 {p.from && (
-                  <>
+                  <span>
                     <span className="font-normal italic">From</span>
                     <span>: {p.from}</span>
-                    <span aria-hidden className="inline-block w-6" />
-                  </>
+                  </span>
                 )}
                 {p.to && (
-                  <>
+                  <span className="text-right">
                     <span className="font-normal italic">To</span>
                     <span>: {p.to}</span>
-                  </>
+                  </span>
                 )}
               </p>
             )}
@@ -826,12 +837,12 @@ function HeroBlock({
           <div className="absolute left-4.5 top-[10%] max-w-[92%] p-2.5 text-white">{caption}</div>
         </div>
       )}
-      <div className="relative hidden lg:block">
+      <div className="relative hidden lg:absolute lg:inset-0 lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={s.image}
           alt={p.name}
-          className="block h-auto w-full object-cover object-left"
+          className="block h-full w-full object-cover object-left"
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
         <div className="absolute bottom-4 left-7.5 p-2.5 text-white">{caption}</div>
@@ -853,8 +864,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     ? 'text-[14px] font-normal leading-[1.6]'
     : 'text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]'
   const metaXs = page
-    ? 'text-[12px] font-normal italic leading-4.25 tracking-[1px]'
-    : 'text-[12px] font-normal italic leading-4.25 tracking-[1px] xl:text-[0.82vw]'
+    ? 'text-[12px] font-normal italic leading-4.25'
+    : 'text-[12px] font-normal italic leading-4.25 xl:text-[0.82vw]'
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
   const hasVideo = !!s.sideVideo
   const mediaFirst = s.mediaPosition === 'left'
@@ -868,16 +879,14 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       ? s.columnGap
       : OVERVIEW_COLUMN_GAP
   const desktopMediaClass = page
-    ? hasVideo || contain
-      ? 'relative hidden min-h-0 items-center justify-center lg:flex lg:min-h-full'
-      : 'relative hidden min-h-0 lg:flex lg:min-h-full'
+    ? 'relative hidden min-h-0 lg:flex lg:h-full lg:items-center lg:justify-center'
     : hasVideo
       ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
       : 'relative hidden lg:flex lg:min-h-full'
   const desktopMediaSizeClass = page
     ? hasVideo || contain
-      ? 'max-h-full max-w-full object-contain'
-      : 'absolute inset-0 h-full w-full object-cover object-center'
+      ? 'max-h-full max-w-full object-contain object-center'
+      : 'h-full w-full object-cover object-center'
     : hasVideo
       ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
       : contain
@@ -885,8 +894,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
         : 'absolute inset-0 h-full w-full object-cover object-center'
   return (
     <section
-      data-cs-stretch={page ? undefined : true}
-      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 ${page ? 'lg:items-stretch' : ''}`}
+      data-cs-stretch
+      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch`}
       style={{
         ...bandStyle(s.appearance),
         ...(page ? {} : { columnGap: colGap }),
@@ -894,7 +903,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     >
       <div
         className={`flex min-h-0 flex-col ${copyOrder} ${
-          page ? 'justify-start' : `justify-between ${gutter}`
+          page ? 'justify-start lg:h-full lg:justify-between' : `justify-between ${gutter}`
         }`}
         style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', page), page) }}
       >
@@ -910,7 +919,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase max-lg:tracking-[0.04em] lg:capitalize ${page ? '' : 'xl:text-[1.15vw]'}`}
+              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase lg:capitalize ${page ? '' : 'xl:text-[1.15vw]'}`}
             >
               {cta}
             </a>
@@ -953,62 +962,40 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )}
         </div>
       </div>
-      {/* Mobile: image preferred over video (Figma overview mockups). */}
+      {/* One media slot: video if authored, otherwise the still. */}
       <div
         className={`relative flex aspect-[360/552] items-center justify-center lg:hidden ${mediaOrder}`}
         style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
-        {s.sideImage ? (
-          // eslint-disable-next-line @next/next/no-img-element -- case-study art
-          <img
-            src={s.sideImage}
-            alt=""
+        {hasVideo ? (
+          <video
+            src={s.sideVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
             className="max-h-full max-w-full object-contain"
           />
         ) : (
-          hasVideo && (
-            <video
-              src={s.sideVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
+          s.sideImage && (
+            // eslint-disable-next-line @next/next/no-img-element -- case-study art
+            <img
+              src={s.sideImage}
+              alt=""
               className="max-h-full max-w-full object-contain"
             />
           )
         )}
       </div>
-      {/* Desktop: split video + image (Memory Tubes Figma), else video or still. */}
       {(hasVideo || s.sideImage) && (
         <div
-          className={`${hasVideo && s.sideImage ? 'relative hidden min-h-0 flex-col lg:flex lg:min-h-full' : desktopMediaClass} ${mediaOrder}`}
+          className={`${desktopMediaClass} ${mediaOrder}`}
           style={{
             backgroundColor: sideBg,
             ...mediaPad,
           }}
         >
-          {hasVideo && s.sideImage ? (
-            <>
-              <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
-                <video
-                  src={s.sideVideo}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-              <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-                <img
-                  src={s.sideImage}
-                  alt=""
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </>
-          ) : hasVideo ? (
+          {hasVideo ? (
             <video
               src={s.sideVideo}
               autoPlay
@@ -1018,14 +1005,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               className={desktopMediaSizeClass}
             />
           ) : (
-            s.sideImage && (
-              // eslint-disable-next-line @next/next/no-img-element -- case-study art
-              <img
-                src={s.sideImage}
-                alt=""
-                className={desktopMediaSizeClass}
-              />
-            )
+            // eslint-disable-next-line @next/next/no-img-element -- case-study art
+            <img
+              src={s.sideImage}
+              alt=""
+              className={desktopMediaSizeClass}
+            />
           )}
         </div>
       )}
@@ -1045,9 +1030,11 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         style={sectionStyle(s.appearance, page, 'md', SAGE)}
       >
         <div
-          className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${page ? csShell(v) : csBandGutter(v)}`}
+          className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${
+            page ? csShell(v, 'max-lg:!max-w-none') : csBandGutter(v)
+          }`}
         >
-        <div className="flex flex-col justify-end">
+        <div className="order-2 flex flex-col justify-end lg:order-1">
           <div className={page ? 'max-w-[min(560px,100%)]' : 'max-w-111.25'}>
             <h2
               className={`mb-4 ${csSectionTitle(v, 'text-[18px] lg:text-[20px]')} ${light ? 'text-white' : ''}`}
@@ -1058,7 +1045,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           </div>
         </div>
         <div
-          className="self-stretch p-[10vw_5vw] xl:p-[2vw]"
+          className="order-1 self-stretch px-5 py-8 lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw]"
           style={{ backgroundColor: colorToCss(s.accordionBackgroundColor) }}
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
@@ -1680,7 +1667,7 @@ function CoreExperienceBlock({
         onClose={() => setPopupOpen(false)}
         label={popupTitle}
         crumbs={[
-          { label: 'Work', href: '/work', hideOnMobile: true },
+          { label: 'Case Studies', href: '/casestudies', hideOnMobile: true },
           { label: projectName, hideOnMobile: true },
           { label: popupTitle },
         ]}
@@ -1708,7 +1695,7 @@ function CoreExperienceBlock({
               style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
             >
               {popupKicker ? (
-                <p className="font-grotesk mb-1 text-[11px] font-normal uppercase tracking-[0.14em] sm:text-[12px] lg:mb-2">
+                <p className="font-grotesk mb-1 text-[11px] font-normal uppercase  sm:text-[12px] lg:mb-2">
                   {popupKicker}
                 </p>
               ) : null}
@@ -1811,21 +1798,21 @@ function DesktopMotionShowcaseBlock({
       {hasCopy &&
         (overlay ? (
           <div
-            className={`absolute bottom-[min(103px,12%)] right-[max(24px,6%)] max-w-[min(445px,42%)] text-left tracking-[0.382px] ${copyClass}`}
+            className={`absolute bottom-[min(103px,12%)] right-[max(24px,6%)] max-w-[min(445px,42%)] text-left  ${copyClass}`}
           >
             {copyTitle && (
-              <h2 className="text-[18px] font-normal capitalize leading-[1.6] tracking-[0.38px]">
+              <h2 className="text-[18px] font-normal capitalize leading-[1.6] ">
                 {copyTitle}
               </h2>
             )}
             {s.body?.length ? (
               <Prose
                 value={s.body}
-                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
               />
             ) : s.caption ? (
               <p
-                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
               >
                 {s.caption}
               </p>
@@ -1833,22 +1820,22 @@ function DesktopMotionShowcaseBlock({
           </div>
         ) : (
           <div
-            className={`w-full pb-[min(103px,12%)] pt-6 tracking-[0.382px] ${copyClass} ${csShell(v, '!px-0')}`}
+            className={`w-full pb-[min(103px,12%)] pt-6  ${copyClass} ${csShell(v, '!px-0')}`}
           >
             <div className="text-left" style={featuredCaptionInset('right')}>
               {copyTitle && (
-                <h2 className="text-[18px] font-normal capitalize leading-[1.6] tracking-[0.38px]">
+                <h2 className="text-[18px] font-normal capitalize leading-[1.6] ">
                   {copyTitle}
                 </h2>
               )}
               {s.body?.length ? (
                 <Prose
                   value={s.body}
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
                 />
               ) : s.caption ? (
                 <p
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] tracking-[0.38px]`}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
                 >
                   {s.caption}
                 </p>
@@ -2015,6 +2002,10 @@ function ShowcaseBlock({
   // Redesigned Research Artifacts (Figma 600:12544): 3-up landscape slider on
   // top, title + body BELOW it (left-aligned). Only the expandable variant.
   if (s.expandable) {
+    const artifactGap =
+      typeof s.sliderGap === 'number' && s.sliderGap >= 0
+        ? s.sliderGap
+        : SHOWCASE_ARTIFACT_DEFAULTS.sliderGap
     return (
       <section
         data-cs-stretch
@@ -2024,30 +2015,45 @@ function ShowcaseBlock({
           ...sectionGapStyle(s.appearance, gapDefault('lg', page), page),
         }}
       >
-        {images.length > 0 && (
-          <ArtifactSlider
-            images={expandImages ?? images}
-            scrollRoot={scrollRoot}
-            gap={
-              typeof s.sliderGap === 'number' && s.sliderGap >= 0
-                ? s.sliderGap
-                : SHOWCASE_ARTIFACT_DEFAULTS.sliderGap
-            }
-          />
-        )}
-        {(s.sectionTitle || s.introBody) && (
-          <div className={csShell(v)}>
-            {s.sectionTitle && (
-              <h2 className={`${csSectionTitle(v)} ${light ? 'text-white' : ''}`}>
-                {s.sectionTitle}
-              </h2>
-            )}
-            <Prose
-              value={s.introBody}
-              className={`mt-4 ${csBodyText(v, 'text-[16px] lg:text-[17px]')}`}
-            />
-          </div>
-        )}
+        <div
+          className="relative flex w-full flex-col px-12 sm:px-16 max-lg:!gap-5 lg:px-6 xl:px-[3.5vw]"
+          style={sectionGapStyle(s.appearance, gapDefault('lg', page), page)}
+        >
+          {(s.sectionTitle || s.introBody) && (
+            <div
+              className="order-1 w-full lg:order-2 lg:max-w-[calc((100%-2*var(--cs-artifact-gap))/3)]"
+              style={{ ['--cs-artifact-gap' as string]: `${artifactGap}px` }}
+            >
+              {s.sectionTitle && (
+                <h2
+                  className={`text-center font-normal uppercase leading-tight lg:text-left lg:normal-case lg:capitalize ${
+                    page
+                      ? 'text-[14px] lg:text-[24px]'
+                      : 'text-[14px] lg:text-[24px] xl:text-[1.5vw]'
+                  } ${light ? 'text-white' : ''}`}
+                >
+                  {s.sectionTitle}
+                </h2>
+              )}
+              {s.introBody?.length ? (
+                <Prose
+                  value={s.introBody}
+                  className={`mt-4 hidden lg:block ${csBodyText(v, 'text-[16px] lg:text-[17px]')}`}
+                />
+              ) : null}
+            </div>
+          )}
+          {images.length > 0 && (
+            <div className="order-2 lg:order-1">
+              <ArtifactSlider
+                images={expandImages ?? images}
+                scrollRoot={scrollRoot}
+                gutter={false}
+                gap={artifactGap}
+              />
+            </div>
+          )}
+        </div>
       </section>
     )
   }
@@ -2161,7 +2167,7 @@ function MotionShowcaseFeaturedBand({
       {(row.label || row.caption) &&
         (overlay ? (
           <div
-            className="absolute bottom-[min(51px,8%)] left-0 w-full px-6 tracking-[0.382px] text-black sm:px-10 xl:px-[3.5vw]"
+            className="absolute bottom-[min(51px,8%)] left-0 w-full px-6  text-black sm:px-10 xl:px-[3.5vw]"
           >
             <div
               className="text-left"
@@ -2185,7 +2191,7 @@ function MotionShowcaseFeaturedBand({
           </div>
         ) : (
           <div
-            className={`w-full pb-[min(51px,8%)] pt-8 tracking-[0.382px] text-black ${csShell(v, '!px-0')}`}
+            className={`w-full pb-[min(51px,8%)] pt-8  text-black ${csShell(v, '!px-0')}`}
           >
             <div
               className="text-left"
@@ -2400,7 +2406,7 @@ function MotionRowView({
         </div>
         {(row.label || row.caption) && (
           <div
-            className={`max-w-[min(325px,100%)] text-left tracking-[0.382px] ${captionColor}`}
+            className={`max-w-[min(325px,100%)] text-left  ${captionColor}`}
             style={{ marginTop: captionMt }}
           >
             {row.label && (
@@ -2866,10 +2872,13 @@ function ArtifactSlider({
   images,
   scrollRoot,
   gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
+  gutter = true,
 }: {
   images: string[]
   scrollRoot?: React.RefObject<HTMLDivElement | null>
   gap?: number
+  /** Outer inset. False when the parent already provides the same gutter. */
+  gutter?: boolean
 }) {
   const n = images.length
   const [visible, setVisible] = useState(3)
@@ -2933,63 +2942,88 @@ function ArtifactSlider({
   const canPage = n > visible
 
   return (
-    <div className="relative w-full px-6 sm:px-10 xl:px-[3.5vw]">
-      {canPage && (
-        // Figma 600:12626: text chevrons, Neue Haas 21px / 500 / +0.44px, 29px gap.
-        <div className="mb-5 flex items-center justify-end gap-7.25 text-[21px] font-medium leading-none tracking-[0.44px] text-white xl:text-[1.35vw]">
+    <div className={`relative w-full ${gutter ? 'px-6 sm:px-10 xl:px-[3.5vw]' : ''}`}>
+      {/* Mobile — Figma 344:19555: stacked list, no carousel. */}
+      <div className="flex flex-col items-center gap-9 lg:hidden">
+        {images.map((src, i) => (
           <button
+            key={`artifact-stack-${i}`}
             type="button"
-            aria-label="Previous slide"
+            aria-label={`Expand artifact ${i + 1}`}
+            onClick={() => setLightbox(i)}
             data-cursor="hover"
-            onClick={() => go(-1)}
-            className="bg-transparent transition-opacity hover:opacity-70"
+            className="w-full overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
           >
-            &lt;
+            <div className="aspect-1800/1098 w-full overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+              <img
+                src={src}
+                alt=""
+                className="h-full w-full object-cover object-top"
+              />
+            </div>
           </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            data-cursor="hover"
-            onClick={() => go(1)}
-            className="bg-transparent transition-opacity hover:opacity-70"
+        ))}
+      </div>
+
+      <div className="hidden lg:block">
+        {canPage && (
+          // Figma 600:12626: text chevrons, Neue Haas 21px / 500 / +0.44px, 29px gap.
+          <div className="mb-5 flex items-center justify-end gap-7.25 text-[21px] font-medium leading-none  text-white xl:text-[1.35vw]">
+            <button
+              type="button"
+              aria-label="Previous slide"
+              data-cursor="hover"
+              onClick={() => go(-1)}
+              className="bg-transparent transition-opacity hover:opacity-70"
+            >
+              &lt;
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              data-cursor="hover"
+              onClick={() => go(1)}
+              className="bg-transparent transition-opacity hover:opacity-70"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
+        <div ref={viewportRef} className="overflow-hidden">
+          <div
+            className="flex"
+            style={{
+              gap: GAP,
+              transform: `translateX(${translateX}px)`,
+              transition: noAnim ? 'none' : 'transform 600ms ease',
+              willChange: 'transform',
+            }}
           >
-            &gt;
-          </button>
-        </div>
-      )}
-      <div ref={viewportRef} className="overflow-hidden">
-        <div
-          className="flex"
-          style={{
-            gap: GAP,
-            transform: `translateX(${translateX}px)`,
-            transition: noAnim ? 'none' : 'transform 600ms ease',
-            willChange: 'transform',
-          }}
-        >
-          {loop.map((src, i) => {
-            const real = ((i % n) + n) % n
-            return (
-              <button
-                key={`artifact-${real}-${i}`}
-                type="button"
-                aria-label={`Expand artifact ${real + 1}`}
-                onClick={() => setLightbox(real)}
-                data-cursor="hover"
-                className="group shrink-0 overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
-                style={{ width: itemW > 0 ? `${itemW}px` : fallbackW }}
-              >
-                <div className="aspect-1800/1098 w-full overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-                  <img
-                    src={src}
-                    alt=""
-                    className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                </div>
-              </button>
-            )
-          })}
+            {loop.map((src, i) => {
+              const real = ((i % n) + n) % n
+              return (
+                <button
+                  key={`artifact-${real}-${i}`}
+                  type="button"
+                  aria-label={`Expand artifact ${real + 1}`}
+                  onClick={() => setLightbox(real)}
+                  data-cursor="hover"
+                  className="group shrink-0 overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+                  style={{ width: itemW > 0 ? `${itemW}px` : fallbackW }}
+                >
+                  <div className="aspect-1800/1098 w-full overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                    <img
+                      src={src}
+                      alt=""
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
       {lightbox !== null && (
@@ -3323,18 +3357,22 @@ function DeviceGallery({
   const tab = tabs[active]
   return (
     <div className={gridSize === 'popup' ? 'w-full' : 'mt-8'}>
-      <div className="mx-auto flex max-w-full flex-wrap justify-center gap-8 xl:gap-[6vw]">
+      <div className="mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]">
         {tabs.map((v, i) => (
           <button
             key={v._key}
             type="button"
             onClick={() => setActive(i)}
             data-cursor="hover"
-            className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 xl:text-[1vw] ${
-              active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
-            }`}
+            className="shrink-0 text-[12px] uppercase leading-none sm:text-[16px] xl:text-[1vw]"
           >
-            {v.label}
+            <span
+              className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
+                active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
+              }`}
+            >
+              {v.label}
+            </span>
           </button>
         ))}
       </div>
@@ -3400,9 +3438,7 @@ function ImageGrid({
             <div
               key={i}
               className={`flex items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
-                popup
-                  ? 'min-h-[min(46vh,560px)] p-3 sm:min-h-[min(42vh,520px)]'
-                  : ''
+                popup ? 'p-3 sm:min-h-[min(42vh,520px)]' : ''
               }`}
               style={{ backgroundColor: tileFill }}
             >
@@ -3413,7 +3449,7 @@ function ImageGrid({
                 loading="lazy"
                 className={
                   popup
-                    ? 'max-h-[min(42vh,540px)] w-full object-contain'
+                    ? 'w-full object-contain sm:max-h-[min(42vh,540px)]'
                     : 'h-[40vw] w-full object-contain xl:h-[20vw]'
                 }
               />
@@ -3483,7 +3519,7 @@ function Stat({ stat }: { stat: StatItem }) {
     }
   }, [stat.value])
   return (
-    <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center tracking-[-0.214px]">
+    <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center ">
       {/* Impact stat — inherits Reckless Regular from `.cs-root`. */}
       <p className={`font-normal leading-none ${page ? 'text-[64px] sm:text-[80px] lg:text-[96px]' : 'text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]'}`}>
         {n}

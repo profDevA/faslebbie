@@ -143,11 +143,13 @@ export default function WorkBody({
   categories,
   config,
   testimonials = [],
+  viewFromUrl = null,
 }: {
   projects: Study[];
   categories: string[];
   config?: WorkPageConfig | null;
   testimonials?: Testimonial[];
+  viewFromUrl?: string | null;
 }) {
   // View availability + ".txt" narrative from the Work Page singleton (defaults
   // to both views on + in-code narrative when Sanity is empty).
@@ -159,14 +161,16 @@ export default function WorkBody({
   const narrative = work.narrative;
   const wordmarkTitle = work.sectionTitle?.trim() || "Design Work";
 
-  // Aug 2026 — card / narrative clicks navigate to `/work/[slug]` (Coral template
-  // QA on full page). Popup overlay code kept below until Fas signs off removal.
+  // Card / narrative clicks go to `/casestudies/[slug]`.
+  // Popup overlay code kept below until Fas signs off removal.
   const router = useRouter();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
   const [view, setView] = usePersistedView<View>(
     WORK_VIEWS,
     textOn ? "txt" : "img",
+    undefined,
+    viewFromUrl,
   );
   // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
   // on first completion so scrolling back up never replays it (Israel 07/02);
@@ -433,7 +437,7 @@ export default function WorkBody({
 
   const goToStudy = (slug: string) => {
     const study = projects.find((p) => p.slug === slug);
-    const nav = () => router.push(`/work/${slug}`);
+    const nav = () => router.push(`/casestudies/${slug}`);
     if (study?.passwordProtected) {
       requestAccess(nav);
       return;
@@ -752,7 +756,7 @@ export default function WorkBody({
         </>
       )}
 
-      {/* Legacy in-page popup — unused while listing navigates to `/work/[slug]`. */}
+      {/* Legacy in-page popup — unused while listing navigates to `/casestudies/[slug]`. */}
       {openSlug &&
         (() => {
           const found = neighbors(projects, openSlug);

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Nav from "@/components/Nav";
 import WorkBody from "@/components/WorkBody";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
@@ -11,10 +10,6 @@ import {
   getWorkPage,
 } from "@/sanity/fetch";
 
-// Work / "Design Work" page (Figma 807:2954 / 823:65046 / 840:74764). Mirrors
-// the About architecture: a big "Design Work" watermark recedes as the dimmed
-// content brightens forward, with two toggled views (".txt" narrative + ".img"
-// masonry grid) and a project lightbox. Content is served from Sanity.
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,7 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function WorkPage() {
+export default async function CaseStudiesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view: viewFromUrl } = await searchParams;
   const [projects, categories, config, testimonials] = await Promise.all([
     getAllStudies(),
     getCategories(),
@@ -37,15 +37,13 @@ export default async function WorkPage() {
   return (
     <>
       <Nav dark />
-      {/* Suspense: WorkBody reads ?view= via useSearchParams (Fas 08/06). */}
-      <Suspense fallback={null}>
-        <WorkBody
-          projects={projects}
-          categories={categories}
-          config={config}
-          testimonials={testimonials}
-        />
-      </Suspense>
+      <WorkBody
+        projects={projects}
+        categories={categories}
+        config={config}
+        testimonials={testimonials}
+        viewFromUrl={viewFromUrl ?? null}
+      />
     </>
   );
 }

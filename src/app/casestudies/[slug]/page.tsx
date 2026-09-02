@@ -4,8 +4,6 @@ import CaseStudyAccess from "@/components/CaseStudyAccess";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
-// Standalone case-study page at /work/<slug>. The Work listing navigates here
-// on card click (see WorkBody); direct visit / share / refresh also land here.
 export const revalidate = 60;
 
 export async function generateStaticParams() {

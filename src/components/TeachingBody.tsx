@@ -15,31 +15,81 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
-import { usePersistedView } from "@/hooks/usePersistedView";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { EXTRA_STUDENT_IDS } from "@/lib/studentWorksLayout";
 
 type View = "philosophy" | "works";
 const VIEWS = ["philosophy", "works"] as const;
-const VIEW_ALIASES: Record<string, View> = { txt: "philosophy", img: "works" };
+
+function resolveView(v: string | null | undefined): View {
+  if (v === "works" || v === "img") return "works";
+  return "philosophy";
+}
+
+function liveSearchParams(): URLSearchParams {
+  if (typeof window === "undefined") return new URLSearchParams();
+  return new URLSearchParams(window.location.search);
+}
 
 export default function TeachingBody({
   content,
+  initialView,
+  initialStudent,
+  initialAll,
 }: {
   content: TeachingContentData;
+  initialView?: string | null;
+  initialStudent?: string | null;
+  initialAll?: boolean;
 }) {
   const { intro, sections, students } = content;
 
-  const [view, setView] = usePersistedView<View>(VIEWS, "philosophy", VIEW_ALIASES);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [view, setViewState] = useState<View>(() => {
+    if (initialStudent || initialAll) return "works";
+    return resolveView(initialView);
+  });
+  const [studentId, setStudentId] = useState<string | null>(
+    initialStudent ?? null,
+  );
+  const [showAll, setShowAll] = useState(Boolean(initialAll));
   const { r, pin } = useReveal(view === "philosophy");
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
+
+  const replaceQuery = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const params = liveSearchParams();
+      mutate(params);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  const setView = useCallback(
+    (next: View) => {
+      if (next === view) return;
+      setViewState(next);
+      replaceQuery((params) => params.set("view", next));
+    },
+    [replaceQuery, view],
+  );
+
+  useEffect(() => {
+    const syncFromBar = () => {
+      const params = liveSearchParams();
+      setViewState(resolveView(params.get("view")));
+      setStudentId(params.get("student"));
+      setShowAll(params.get("all") === "1");
+    };
+    window.addEventListener("popstate", syncFromBar);
+    return () => window.removeEventListener("popstate", syncFromBar);
+  }, []);
 
   const switchView = (next: View) => {
     if (next === view) return;
@@ -47,7 +97,6 @@ export default function TeachingBody({
     window.scrollTo({ top: 0 });
   };
 
-  const studentId = searchParams.get("student");
   const openId =
     studentId && students.some((s) => s.id === studentId) ? studentId : null;
 
@@ -56,27 +105,48 @@ export default function TeachingBody({
   }, [openId, view, setView]);
 
   const seeAllStudents = () => {
-    setView("works");
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "works");
-    params.set("all", "1");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    setViewState("works");
+    setShowAll(true);
+    replaceQuery((params) => {
+      params.set("view", "works");
+      params.set("all", "1");
+    });
     window.scrollTo({ top: 0 });
   };
 
   const openStudent = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", "works");
-    params.set("student", id);
-    if (EXTRA_STUDENT_IDS.has(id)) params.set("all", "1");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const expand = EXTRA_STUDENT_IDS.has(id);
+    if (expand) setShowAll(true);
+    setStudentId(id);
+    setViewState("works");
+    replaceQuery((params) => {
+      params.set("view", "works");
+      params.set("student", id);
+      if (expand) params.set("all", "1");
+    });
   };
 
   const closeStudent = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("student");
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setStudentId(null);
+    replaceQuery((params) => {
+      params.delete("student");
+    });
+  };
+
+  const expandAll = () => {
+    setShowAll(true);
+    replaceQuery((params) => {
+      params.set("view", "works");
+      params.set("all", "1");
+    });
+  };
+
+  const collapseAll = () => {
+    setShowAll(false);
+    replaceQuery((params) => {
+      params.set("view", "works");
+      params.delete("all");
+    });
   };
 
   const viewToggle = (
@@ -136,6 +206,9 @@ export default function TeachingBody({
             <TeachingGallery
               students={students}
               onOpenStudent={openStudent}
+              showAll={showAll}
+              onExpandAll={expandAll}
+              onCollapseAll={collapseAll}
             />
           </main>
         </>

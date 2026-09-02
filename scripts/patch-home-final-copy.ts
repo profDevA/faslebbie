@@ -41,7 +41,7 @@ function story(text: string, href = "/about"): SpanBuild {
 
 const HERO = block([
   { text: "I " },
-  kw("design", "/work"),
+  kw("design", "/casestudies"),
   { text: " digital product experiences and " },
   kw("research", "/research"),
   {
@@ -55,7 +55,7 @@ const HERO = block([
   {
     text: ", and advise on design and research. This feedback loop shapes my ",
   },
-  kw("approach", "/leadership"),
+  kw("approach", "/approach"),
   {
     text: ", treating design and research as tools to reduce risk in product innovation and long-term system transitions. ",
   },

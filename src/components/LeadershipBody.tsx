@@ -13,7 +13,7 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 
-/** Approach page (/leadership) — section prose from Sanity only. */
+/** Approach page (/approach) — section prose from Sanity only. */
 export default function LeadershipBody({
   content,
 }: {

@@ -46,7 +46,7 @@ const empty: LeadershipContentData = {
   contactText: "",
 };
 
-/** Sanity Approach (/leadership) page only — no in-code seed fallback. */
+/** Sanity Approach (/approach) page only — no in-code seed fallback. */
 export function leadershipFromSanity(
   data: SanityLeadershipPage | null | undefined,
 ): LeadershipContentData {
