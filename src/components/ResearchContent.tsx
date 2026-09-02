@@ -69,6 +69,35 @@ function KeyPill({
   );
 }
 
+type Highlight = Extract<ResearchToken, { t: "hl" }>;
+type Textish = Extract<ResearchToken, { text: string }>;
+
+const isTextish = (tok: ResearchToken): tok is Textish => "text" in tok;
+
+/** Sanity returns a string expansion as nested blocks, so read either shape. */
+function expansionEdges(tok: Highlight) {
+  if (tok.expand?.length) {
+    const runs = tok.expand.filter(isTextish);
+    return { first: runs[0]?.text, last: runs[runs.length - 1]?.text };
+  }
+  return { first: tok.expansion, last: tok.expansion };
+}
+
+/**
+ * Fas writes reveals as an appositive clause spliced into the sentence
+ * (", which get made on…,"). Rendered raw they collide with the sentence's own
+ * punctuation, so the clause drops its trailing comma when the copy that
+ * follows already supplies one, and its leading space when it opens on one.
+ */
+function trimTrailingPunctuation(tokens: ResearchToken[]): ResearchToken[] {
+  const last = tokens.map(isTextish).lastIndexOf(true);
+  if (last === -1) return tokens;
+  const tok = tokens[last] as Textish;
+  return tokens.map((t, i) =>
+    i === last ? { ...tok, text: tok.text.replace(/\s*[,;:]\s*$/, "") } : t,
+  );
+}
+
 function Tokens({
   tokens,
   prefix,
@@ -92,6 +121,16 @@ function Tokens({
           const open = openKey === tok.text;
           const expansion = tok.expansion;
           const hasExpand = Boolean(tok.expand?.length) || Boolean(expansion);
+          const edges = expansionEdges(tok);
+          const opensOnPunctuation = /^\s*[,.;:!?]/.test(edges.first ?? "");
+          const next = tokens[j + 1];
+          const dropTrailing =
+            /[,;:]\s*$/.test(edges.last ?? "") &&
+            Boolean(next && isTextish(next) && /^\s*[,;:]/.test(next.text));
+          const runs =
+            tok.expand?.length && dropTrailing
+              ? trimTrailingPunctuation(tok.expand)
+              : tok.expand;
           return (
             <Fragment key={key}>
               <KeyPill
@@ -101,7 +140,7 @@ function Tokens({
               />
               {open && hasExpand && (
                 <>
-                  {" "}
+                  {opensOnPunctuation ? null : " "}
                   {/* Marked as part of the key so the outside-click handler
                       doesn't close (and unmount) the expansion on pointerdown
                       before a link inside it can register its click. */}
@@ -109,21 +148,23 @@ function Tokens({
                     data-research-key
                     className="animate-[panel-in_0.35s_ease-out] font-normal"
                   >
-                    {tok.expand?.length ? (
+                    {runs?.length ? (
                       <Tokens
-                        tokens={tok.expand}
+                        tokens={runs}
                         prefix={`${key}x`}
                         openKey={openKey}
                         onToggleKey={onToggleKey}
                         onOpenSection={onOpenSection}
                       />
+                    ) : dropTrailing ? (
+                      expansion?.replace(/\s*[,;:]\s*$/, "")
                     ) : (
                       expansion
                     )}
                   </span>
                   {/* Rich runs own their trailing punctuation; string
                       expansions keep the About-style trailing space. */}
-                  {tok.expand?.length ? null : " "}
+                  {runs?.length || dropTrailing ? null : " "}
                 </>
               )}
             </Fragment>

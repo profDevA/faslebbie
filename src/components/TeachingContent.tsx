@@ -61,6 +61,13 @@ function renderTokens(
     if (tok.t === "pill") {
       if (!tok.expansion) return <StaticPill key={key} text={tok.text} />;
       const open = openKey === tok.text;
+      // Reveals are an appositive clause spliced into the sentence
+      // (", where I teach…,"), so they drop the leading space when they open on
+      // punctuation and the trailing comma when the copy after already has one.
+      const next = tokens[j + 1];
+      const dropTrailing =
+        /[,;:]\s*$/.test(tok.expansion) &&
+        Boolean(next && next.t === "text" && /^\s*[,;:]/.test(next.text));
       return (
         <Fragment key={key}>
           <RevealPill
@@ -70,13 +77,16 @@ function renderTokens(
           />
           {open && (
             <>
-              {" "}
+              {/^\s*[,.;:!?]/.test(tok.expansion) ? null : " "}
               <span
                 data-teach-key
                 className="animate-[panel-in_0.35s_ease-out] font-normal"
               >
-                {tok.expansion}
-              </span>{" "}
+                {dropTrailing
+                  ? tok.expansion.replace(/\s*[,;:]\s*$/, "")
+                  : tok.expansion}
+              </span>
+              {dropTrailing ? null : " "}
             </>
           )}
         </Fragment>

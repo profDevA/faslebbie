@@ -1,5 +1,6 @@
-// Research page content. Hero + modal copy: collaboration doc
-// `faslebbie + Xiang Collaboration SITE FINAL COPY` (Research tab).
+// Research page content. Body copy: `Final Edits_faslebbiesite (3).docx`
+// (Fas, Sep 1 2026) — see docs/reference/research-final-copy-extract-2026-09-01.txt.
+// Modal copy below still comes from the collaboration doc Research tab.
 // Runtime reads Sanity `researchPage`; this file is the patch/seed source.
 
 export type ResearchSectionId =
@@ -51,21 +52,21 @@ export type ResearchArea = {
 
 export const researchAreas: ResearchArea[] = [
   {
-    kicker: "01 — Minerals, Material & Post-Extractive Design",
+    kicker: "Minerals, Material & Post-Extractive Design",
     body: [
       { t: "text", text: "My doctoral research investigates how " },
       {
         t: "hl",
         text: "design decisions",
         expansion:
-          "Mineral exploration and mining decisions get made on economic and technical priorities. Social, ecological, and cultural values are acknowledged and then weakly embedded across mining policies, practices, and processes. That gap produces mistrust, conflict, delay, and failure. Design is already in the room where those decisions happen. It is rarely named as design, which is why nobody examines it.",
+          ", which get made on economic and technical priorities while social, ecological, and cultural values are acknowledged and then weakly embedded, a gap that produces mistrust, conflict, delay, and failure,",
       },
       { t: "text", text: " shape " },
       {
         t: "hl",
         text: "mineral systems",
         expansion:
-          "This work culminated in what I call mineral choreography, a new domain of inquiry establishing design as an active force within the extractive sector and sustainability transitions. The premise is that minerals are not passive raw material. They are active agents in transition, shaped by worldviews and power. Mineral flows are not static industrial processes but designed, choreographed, and contested spaces.",
+          ", which are not static industrial processes but designed, choreographed, and contested spaces, since minerals are not passive raw material but active agents in transition, shaped by worldviews and power,",
       },
       {
         t: "text",
@@ -75,7 +76,7 @@ export const researchAreas: ResearchArea[] = [
         t: "hl",
         text: "communities and ecologies",
         expansion:
-          "A century of growth-oriented consumption has left mining communities in a cycle of extractive obesity, one that depletes the resource, accelerates climate damage, and exploits labor while the community stays poor. The fieldwork centers on the Kono District of Sierra Leone, where I was born, tracing its relationship with its minerals across three eras: the pre-extractive past, the extractive present, and the post-extractive practices that sketch a possible future. A parallel study follows consumption sites in American urban privilege zones, far removed from the extraction that supplies them.",
+          ", left by a century of growth-oriented consumption in a cycle of extractive obesity that depletes the resource, accelerates climate damage, and exploits labor while the community stays poor,",
       },
       {
         t: "text",
@@ -86,13 +87,12 @@ export const researchAreas: ResearchArea[] = [
         t: "hl",
         text: "post-extractive frameworks",
         expansion:
-          "A primer of nine elements establishing a new domain of inquiry at the intersection of design, the extractive sector, and sustainability transitions. It gives Transition Design a systems-level view for analyzing mineral choreographies, defines design as an active force inside extractive industries, and identifies frameworks for community-driven resource infrastructure. Minerality at Scale is the tool that came out of it, tracing material trajectories from the individual and local up to the planetary. All of it co-designed with mining communities alongside engineers, policymakers, and scientists.",
+          ", a primer of nine elements that gives Transition Design a systems-level view for analyzing mineral choreographies and identifies models for community-driven resource infrastructure, all of it co-designed with mining communities alongside engineers, policymakers, and scientists,",
       },
       {
         t: "text",
-        text: " that center local knowledge and agency over extraction and profit.",
+        text: " that center local knowledge and agency over extraction and profit. ",
       },
-      { t: "break" },
       { t: "text", text: "The work produced a set of artifacts: " },
       { t: "link", text: "paradigms", opens: "paradigms" },
       { t: "text", text: ", " },
@@ -101,100 +101,103 @@ export const researchAreas: ResearchArea[] = [
       { t: "link", text: "modalities", opens: "modalities" },
       { t: "text", text: ", a " },
       { t: "link", text: "manifesto", opens: "manifesto" },
-      { t: "text", text: ", and the " },
+      { t: "text", text: ", and " },
       { t: "link", text: "field notes", opens: "field-notes" },
-      { t: "text", text: " underneath all of it." },
+      { t: "text", text: "." },
     ],
   },
   {
-    kicker: "02 — AI as a Design Material",
+    kicker: "AI as a Design Material",
     body: [
-      { t: "text", text: "A second line of inquiry, still underway, treats " },
+      { t: "text", text: "A second ongoing line of inquiry treats " },
       {
         t: "hl",
         text: "AI as raw material",
         expansion:
-          "AI is not a feature you add. It is a material with properties, constraints, and consequences a designer is responsible for understanding. Same as minerals. Paola Antonelli called it a new raw material for designers at the Artificial Imperfection seminar, and I have spent the years since asking what that means in practice. Most work treats AI as something to add rather than a substrate to think with, which is why so much of it arrives without a point of view.",
+          ", a framing Paola Antonelli put forward at the Artificial Imperfection seminar, and one I continue to test in practice, since most work still treats AI as something to add rather than a substrate to think with, which is why so much of it arrives without a point of view,",
       },
       {
         t: "text",
-        text: " rather than a productivity tool. It asks less what AI can do for design and more what ",
+        text: " and asks less what AI can do for design and more what ",
       },
       {
         t: "hl",
         text: "design can do for AI",
         expansion:
-          "Two questions sit at this intersection and the field mostly asks one. What AI can do for design gets the attention. What design can do for AI gets far less. In conversations with companies the pattern repeats: data science teams build things no user wants, design teams want things no one can build. My work sits in that gap, which is a design problem before it is a technical one.",
+          ", the question the field mostly skips, because in conversations with companies the pattern repeats: data science teams build things no user wants, design teams want things no one can build, and the gap between them is a design problem before it is a technical one,",
       },
       { t: "text", text: ", and turns that into " },
       {
         t: "hl",
         text: "tools for design research",
         expansion:
-          "Design research is slow. Gathering and analyzing enough data to see a pattern takes weeks, and sensemaking is where it stalls. I am building a taxonomy that maps AI capabilities to specific design research methodologies, and web applications that let researchers explore it. The working question: how might we build a tool that helps design researchers get more out of their interviews? Presented at the Design Research Society in 2025.",
+          ", a taxonomy mapping AI capabilities to specific design research methodologies and web applications that let researchers explore it, built around one working question: how might a tool help a researcher get more out of their interviews, presented at the Design Research Society in 2025,",
       },
       {
         t: "text",
-        text: ". The work runs alongside industry practice at Meta and PTC, and keeps returning to questions of ",
+        text: " that shorten the distance between talking to people and knowing what they meant. The work runs alongside industry practice at Meta, and keeps returning to questions of ",
       },
       {
         t: "hl",
         text: "ethics and equity",
         expansion:
-          "Drawing on earlier work on race and algorithmic systems. Who benefits from AI-accelerated design, whose labor gets displaced, and what a designer is accountable for when the material starts making decisions. The question is not whether to use AI but what you owe the people affected by what it produces.",
+          ", who benefits from AI-accelerated design, whose labor gets displaced, and what a designer is accountable for when the material starts making decisions, drawing on earlier work on race and algorithmic systems,",
       },
-      { t: "text", text: "." },
+      { t: "text", text: " that the field has been slow to ask." },
     ],
   },
   {
-    kicker: "03 — Design Leadership & the Scalar Framework",
+    kicker: "Design Leadership & the Scalar Approach",
     body: [
-      { t: "text", text: "A third line of inquiry treats " },
+      {
+        t: "text",
+        text: "This third line of inquiry arises from my academic-to-industry experience and focuses on ",
+      },
       {
         t: "hl",
         text: "design leadership",
         expansion:
-          "Leadership is usually taught as a set of behaviors and studied as a personality trait. I treat it as a design problem instead. An organization is built, which means it was designed, which means it can be redesigned. Most were not designed deliberately. They accumulated. The research question is what happens when you approach one the way you would approach any other system: prototype it, test it, revise it.",
+          ", usually taught as a set of behaviors but better understood as an interactive system of people, a unity of unlikes brought into resonance through the quality of interactions inside a team,",
       },
       {
         t: "text",
-        text: " itself as a research subject. The working hypothesis is that leadership is an interactive system, and that the unit which matters is not the individual leader but the ",
+        text: " as design acts. My claim is that leadership is an interactive system, and leading teams involves building ",
       },
       {
         t: "hl",
-        text: "resonant relationship",
+        text: "resonant relationships",
         expansion:
-          "If leadership is interactional, then quality of interaction is the variable worth studying. Resonance is what happens when an interaction leaves both people more capable than it found them, and the research traces how it forms at three scales: between individuals, across functions, and between a design organization and the institution around it. It also produces what I call design currency, which is what a design function can actually spend. Not headcount or budget, but whether design input shows up in decisions made without a designer in the room. Most teams have craft and no currency, which is why good work fails to travel.",
+          ", which form when an interaction leaves both people more capable than it found them through team cohesion and team intimacy, so the quality of interaction becomes the variable worth studying, traced at three scales, between individuals, across functions, and the institution around it,",
       },
       {
         t: "text",
-        text: " between people. Six years of applied research testing that across three scales, still developing. It produced the ",
+        text: ". This process is a skill to be mastered through applied systems thinking. The last six years of research, through industry experience and interviews with design leaders, which materialized my working ",
       },
       {
         t: "hl",
-        text: "Scalar Framework",
+        text: "Scalar Approach",
         expansion:
-          "Three levels, each one a system to be designed. Each runs across five dimensions: personal, product, team, strategy, company. Tested at Meta across fourteen product portfolios, at Consumer Reports across six research teams, at PTC across forty industrial sites, and at MIT GOV/LAB with civic institutions on two continents. A framework is only a lens. There is no single set of rules that produces design success, which is why staying close to the craft matters as much as holding the framework.",
+          ", three levels: (1) scale deep for “designing the people systems” where I focus on individual capability, team cohesion, psychological safety, and operational resilience. (2) Scale wide for “designing the collaboration systems” focusing on cross-functional accessibility, transparent documentation, service frameworks, and distributed thinking. (3) Scale up for “designing the organizational systems” focusing on strategic influence, institutional integration, and leadership engagement. These are applied across five dimensions of personal, product, team, strategy, and company, and measured by the rise of design currency, the structural influence design holds in organizational decision-making, resource allocation, and strategic direction,",
       },
-      { t: "text", text: ", and the " },
+      { t: "text", text: "; through that, I have developed my " },
       {
         t: "hl",
         text: "commitments and asks",
         expansion:
-          "A framework provides the structure. Team culture provides the engine. Five commitments I make to every team, each paired with what I ask in return. Personal. I commit to your wellbeing and sustainable growth. I ask you to help me understand how you work best so I can position you for it. Product. I commit to elevating design craft as a strategic differentiator. I ask you to take responsibility for both your growth and the external impact of your decisions. Team. I commit to building autonomous, collaborative, continuously learning teams. I ask you to protect time for both craft and team engagement. Strategy. I commit to positioning design as a driver of product strategy and future vision. I ask you to articulate how your contributions shape it. Organization. I commit to building design's influence across the organization. I ask you to position design as a collaborator rather than a service provider.",
+          ", where at the personal level I commit to your wellbeing and ask how you work best, at the product level I commit to design craft as a differentiator and ask you to own the impact of your decisions, at the team level I commit to autonomous learning teams and ask you to protect time for both craft and each other, at the strategy level I commit to design as a driver of strategy and ask you to articulate how your work shapes it, and at the company level I commit to design's influence across the organization and ask you to act as a collaborator rather than a service provider,",
       },
-      { t: "text", text: " that make it work in practice." },
+      { t: "text", text: " for the design teams I lead." },
     ],
   },
 ];
 
 export const researchClosing: ResearchToken[] = [
+  { t: "text", text: "I " },
+  { t: "ext", text: "write and speak", href: "/blogs" },
   {
     t: "text",
-    text: "These are the three forms my design work takes: minerals into materials, immaterial AI, and organizational leadership systems. I write and speak about it through ",
+    text: " about my research inquiries through blogs, journals, workshops, presentations, and conferences.",
   },
-  { t: "ext", text: "blogs and journals", href: "/blogs" },
-  { t: "text", text: ", workshops, presentations, and conferences." },
 ];
 
 export const researchExpansions: Record<string, string> = Object.fromEntries(

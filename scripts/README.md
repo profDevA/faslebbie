@@ -48,6 +48,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Census Key Product Experiences rows + captions | `patch-census-key-product-experiences.ts` |
 | Census sections wiped by bad Key Product patch | `patch-census-restore-from-history.ts` then re-run `patch-census-key-product-experiences.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
+| **All case studies — password protect** | `patch-case-studies-password-protect-all.ts` (uses Site Settings → Access password) |
 | cardCredits → cardCreditNames list | `patch-credits.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
 | Research copy | `patch-research-final-copy.ts` |
