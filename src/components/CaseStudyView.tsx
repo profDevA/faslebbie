@@ -528,7 +528,7 @@ function FullCaseStudyPdfFooter({
   const size = v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.25vw]'
   return (
     <p
-      className={`mx-auto max-w-[606px] text-center font-grotesk font-light italic leading-[1.6] text-white ${size}`}
+      className={`mx-auto text-center font-grotesk font-light italic leading-[1.6] text-white ${size} ${v === 'page' ? 'max-w-none' : 'max-w-[606px]'}`}
     >
       {lead}{' '}
       <span className="whitespace-nowrap">
@@ -1185,8 +1185,9 @@ function ReflectionBlock({
       : padDefaults('md', false),
     page,
   )
-  const proseWidth =
-    align === 'center'
+  const column = page
+    ? csProseInner(v, align, width)
+    : align === 'center'
       ? 'mx-auto w-full max-w-[693px] text-center'
       : csProseInner(v, align, width)
   return (
@@ -1199,7 +1200,7 @@ function ReflectionBlock({
     >
       <div className={csShell(v)}>
         <div
-          className="mx-auto flex w-full max-w-[1016px] flex-col items-center"
+          className={`flex flex-col ${page ? column : 'mx-auto w-full max-w-[1016px] items-center'}`}
           style={sectionGapStyle(
             s.appearance,
             REFLECTION_DEFAULTS.contentGap,
@@ -1208,7 +1209,7 @@ function ReflectionBlock({
         >
           {hasReflection && (
             <div
-              className={`flex w-full flex-col items-center ${proseWidth}`}
+              className={`flex w-full flex-col ${page ? '' : `items-center ${column}`}`}
               style={sectionInnerGapStyle(
                 s.appearance,
                 REFLECTION_DEFAULTS.contentGapInner,
@@ -1218,12 +1219,15 @@ function ReflectionBlock({
               {s.reflectionHeading && (
                 <h2 className={titleClass}>{s.reflectionHeading}</h2>
               )}
-              <Prose value={s.reflectionBody} className={`${body} max-w-[683px]`} />
+              <Prose
+                value={s.reflectionBody}
+                className={`${body} ${page ? '' : 'max-w-[683px]'}`}
+              />
             </div>
           )}
           {steps.length > 0 && (
             <div
-              className={`flex w-full flex-col items-center ${proseWidth}`}
+              className={`flex w-full flex-col ${page ? '' : `items-center ${column}`}`}
               style={sectionInnerGapStyle(
                 s.appearance,
                 REFLECTION_DEFAULTS.contentGapInner,
@@ -1241,7 +1245,9 @@ function ReflectionBlock({
             </div>
           )}
           {fullCaseStudy?.url ? (
-            <div className="flex w-full max-w-[923px] items-center justify-center border-t border-[#323232] pt-8 min-h-[132px]">
+            <div
+              className={`flex w-full items-center justify-center border-t border-[#323232] pt-8 min-h-[132px] ${page ? '' : 'max-w-[923px]'}`}
+            >
               <FullCaseStudyPdfFooter
                 url={fullCaseStudy.url}
                 label={fullCaseStudy.label}
@@ -1754,11 +1760,11 @@ function DesktopMotionShowcaseBlock({
       {hasMedia && (
         <div
           className={`flex justify-center ${
-            page ? csShell(v, '!px-0') : 'px-6 sm:px-10 xl:px-[3.5vw]'
-          } pt-12 lg:pt-14`}
+            page ? csShell(v, '!px-0 max-lg:!px-0') : 'px-6 sm:px-10 xl:px-[3.5vw]'
+          } pt-12 max-lg:pt-8 lg:pt-14`}
         >
           <div
-            className={`w-full overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] ${
+            className={`w-full overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] ${
               page ? 'max-w-[762px]' : 'max-w-[min(728px,66%)]'
             }`}
           >
@@ -1822,20 +1828,20 @@ function DesktopMotionShowcaseBlock({
           <div
             className={`w-full pb-[min(103px,12%)] pt-6  ${copyClass} ${csShell(v, '!px-0')}`}
           >
-            <div className="text-left" style={featuredCaptionInset('right')}>
+            <div className="text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)]">
               {copyTitle && (
-                <h2 className="text-[18px] font-normal capitalize leading-[1.6] ">
+                <h2 className="text-[18px] font-normal capitalize leading-[1.6] max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2]">
                   {copyTitle}
                 </h2>
               )}
               {s.body?.length ? (
                 <Prose
                   value={s.body}
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.4]`}
                 />
               ) : s.caption ? (
                 <p
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.4]`}
                 >
                   {s.caption}
                 </p>
@@ -2298,7 +2304,7 @@ function MotionShowcaseStackedBand({
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle(v)} ${light ? onDark : ''}`}
+          className={`text-center ${csSectionTitle(v)} max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2] ${light ? onDark : ''}`}
           style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
@@ -2313,7 +2319,7 @@ function MotionShowcaseStackedBand({
         </div>
       )}
       <div
-        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col ${csShell(v, '!px-0')}`}
+        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${csShell(v, '!px-0')}`}
         style={sectionGapStyle(s.appearance, gapDefault('lg', page), page)}
       >
         {rows.map((row, i) => (
@@ -2356,10 +2362,10 @@ function MotionRowView({
         : 'aspect-[7/5]'
   const radius =
     device === 'mobile'
-      ? 'rounded-[14px]'
+      ? 'rounded-[14px] max-lg:!rounded-[4px]'
       : device === 'tablet'
-        ? 'rounded-[12px]'
-        : 'rounded-[10px]'
+        ? 'rounded-[12px] max-lg:!rounded-[4px]'
+        : 'rounded-[10px] max-lg:!rounded-[4px]'
   const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
   const rowWidthDefault =
     overlay && device === 'mobile'
@@ -2387,11 +2393,20 @@ function MotionRowView({
     colorToCss(row.tileBackgroundColor) ?? MOTION_ROW_DEFAULTS.tileBackgroundColor
   return (
     <div
-      className={`flex ${centerRow ? 'justify-center' : alignRight ? 'justify-end' : 'justify-start'}`}
+      className={`flex max-lg:justify-center ${centerRow ? 'justify-center' : alignRight ? 'lg:justify-end' : 'lg:justify-start'}`}
     >
-      <div className="w-full max-w-full" style={{ maxWidth: `${rowWidth}%` }}>
+      <div
+        className="w-full lg:max-w-[var(--cs-motion-row)]"
+        style={{ ['--cs-motion-row' as string]: `${rowWidth}%` }}
+      >
         <div
-          className="flex drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]"
+          className={`flex drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] lg:drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)] max-lg:!gap-2.5 ${
+            device === 'mobile'
+              ? 'max-lg:mx-auto max-lg:w-[68%]'
+              : device === 'tablet'
+                ? 'max-lg:mx-auto max-lg:w-[76%]'
+                : ''
+          }`}
           style={{ gap: `${itemGap}%` }}
         >
           {items.map((it, itemIndex) => (
@@ -2406,16 +2421,16 @@ function MotionRowView({
         </div>
         {(row.label || row.caption) && (
           <div
-            className={`max-w-[min(325px,100%)] text-left  ${captionColor}`}
+            className={`w-full text-left lg:max-w-[min(325px,100%)] ${captionColor}`}
             style={{ marginTop: captionMt }}
           >
             {row.label && (
-              <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
+              <p className="text-[18px] font-normal capitalize leading-[1.6] max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2] xl:text-[1.15vw]">
                 {row.label}
               </p>
             )}
             {row.caption && (
-              <p className="mt-2.5 text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
+              <p className="mt-2.5 text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.3] xl:text-[0.95vw]">
                 {row.caption}
               </p>
             )}
@@ -2522,7 +2537,9 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       style={sectionStyle(s.appearance, page, 'lg')}
     >
       {s.sectionTitle && (
-        <h2 className={`mb-12 text-center lg:mb-16 ${csSectionTitle(v)}`}>
+        <h2
+          className={`mb-12 text-left max-lg:text-[11px]! max-lg:uppercase! lg:mb-16 lg:text-center ${csSectionTitle(v)}`}
+        >
           {s.sectionTitle}
         </h2>
       )}
@@ -2534,7 +2551,7 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
         />
       ) : (
         <div
-          className="mx-auto grid w-full max-w-234 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]"
+          className="mx-auto grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]"
           style={{ gap: gridGap }}
         >
           {cells.map((c, i) => (
