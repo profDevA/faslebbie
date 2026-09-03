@@ -10,7 +10,7 @@ export const blogPostItem = defineType({
       name: "footer",
       title: "Article footer",
       description:
-        "Avatar, date, and author line below the article body (Figma 16:1581). Share buttons (LinkedIn, X, Threads, Copy link) are automatic on the site — not edited here.",
+        "Avatar, date, and author line below the article body. Share buttons (LinkedIn, X, Threads, Copy link) are automatic on the site — not edited here.",
       options: { collapsible: false },
     },
   ],

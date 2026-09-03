@@ -70,7 +70,7 @@ export const buildProjectItem = defineType({
       title: "Modal scroll body",
       type: "buildCaseStudyDetail",
       description:
-        "Trigger through Insight grid — the long scroll below the hero (Figma 16:3707).",
+        "Trigger through Insight grid — the long scroll below the hero.",
       group: "modal",
     }),
     defineField({
@@ -79,7 +79,7 @@ export const buildProjectItem = defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Popup scroll — “Output visuals” block (Figma 3540:1192). Middle screenshot Israel uploads.",
+        "Popup scroll — “Output visuals” block. Middle screenshot Israel uploads.",
       group: "modal",
     }),
     defineField({
@@ -88,7 +88,7 @@ export const buildProjectItem = defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Full-screen Concept Preview overlay (Figma 16:2613 desktop / 16:3697 mobile).",
+        "Full-screen Concept Preview overlay (desktop and mobile).",
       group: "modal",
     }),
   ],

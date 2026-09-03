@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity'
 
-/** Books / journals / current projects — Figma 3315:4124 (.words tab). */
+/** Books / journals / current projects (.words tab). */
 export const publicationItem = defineType({
   name: 'publicationItem',
   title: 'Publication row',
@@ -30,7 +30,7 @@ export const publicationItem = defineType({
       title: 'Cover (Books)',
       type: 'image',
       description:
-        'Inline thumbnail after the title on Books rows (Figma 3393:3510). Leave empty for journals/projects.',
+        'Inline thumbnail after the title on Books rows. Leave empty for journals/projects.',
     }),
     defineField({
       name: 'href',

@@ -3,7 +3,7 @@ import { defineField, defineType } from "sanity";
 // Shared look & layout controls for sections and nested elements (popups, tiles,
 // cards). Reuse this type on section bands and on sub-components so Israel can
 // tune each layer in Studio — same field set everywhere (tree-style CMS).
-// Padding and gap are pixel values so authors can match Figma (e.g. 102).
+// Padding and gap are pixel values so authors can match the design (e.g. 102).
 export const appearance = defineType({
   name: "appearance",
   title: "Layout & colors",

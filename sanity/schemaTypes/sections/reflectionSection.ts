@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 import { REFLECTION_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
 
-// 11 — Reflection / Next Steps (Figma 600:14126): one black narrative band.
+// 11 — Reflection / Next Steps: one black narrative band.
 export const reflectionSection = defineType({
   name: "reflectionSection",
   title: "11 — Reflection / Next Steps",

@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-/** Design Again podcast hero on `.media` (Figma 3323:9065). */
+/** Design Again podcast hero on `.media`. */
 export const mediaFeatured = defineType({
   name: "mediaFeatured",
   title: "Featured media (podcast)",

@@ -47,7 +47,7 @@ export const blogsPage = defineType({
       type: "mediaFeatured",
       group: "media",
       description:
-        "Hero podcast block at the top of `.media` (Figma 3323:9065). Talks use Media entries below.",
+        "Hero podcast block at the top of `.media`. Talks use Media entries below.",
     }),
     defineField({
       name: "media",

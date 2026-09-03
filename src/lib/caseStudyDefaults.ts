@@ -10,6 +10,9 @@ export const REFLECTION_DEFAULTS = {
 
 export const OVERVIEW_SIDE_TEAL = "#52747e";
 
+/** Overview copy-column fill (Coral). Empty Studio color inherits `.cs-page` white. */
+export const OVERVIEW_BAND_BACKGROUND = "#e3e3db";
+
 export const OVERVIEW_COPY_COLUMN_PAD = {
   paddingTop: 56,
   paddingBottom: 80,

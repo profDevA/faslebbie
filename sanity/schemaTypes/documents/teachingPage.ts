@@ -41,7 +41,7 @@ export const teachingPage = defineType({
       title: "Exhibition page title (SEO)",
       type: "string",
       description:
-        "Browser tab title for /teaching/exhibition only. Not shown on the Student Works grid (Figma has no link there).",
+        "Browser tab title for /teaching/exhibition only. Not shown on the Student Works grid.",
       group: "exhibition",
     }),
     defineField({

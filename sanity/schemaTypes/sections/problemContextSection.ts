@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 import { PROBLEM_CONTEXT_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
 
-// 03 — Problem Context / What I Brought (Figma 2019:104708, band 600:12516).
+// 03 — Problem Context / What I Brought.
 // One black narrative band: challenge copy, then role / contribution copy.
 export const problemContextSection = defineType({
   name: "problemContextSection",

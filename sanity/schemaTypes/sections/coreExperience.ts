@@ -6,7 +6,7 @@ import {
   coreExperiencePreviewAppearanceDefaults,
 } from "../../../src/lib/sanityAppearanceDefaults";
 
-// 04 — Core Experience Flow (Figma 2110:39499 band + 3670:21768 popup tabs).
+// 04 — Core Experience Flow.
 export const coreExperience = defineType({
   name: "coreExperience",
   title: "04 — Core Experience Flow",
@@ -45,7 +45,7 @@ export const coreExperience = defineType({
       },
       initialValue: "mobileRow",
       description:
-        "Mobile row = phone portraits in a horizontal strip (Coral). Desktop grid = 2× landscape cards with captions (Acme Lending, Figma 2271:58148).",
+        "Mobile row = phone portraits in a horizontal strip (Coral). Desktop grid = 2× landscape cards with captions (Acme Lending).",
     }),
     defineField({
       name: "previewRowStagger",
@@ -54,7 +54,7 @@ export const coreExperience = defineType({
       initialValue: 145,
       validation: (r) => r.min(0).integer(),
       description:
-        "Desktop grid only — alternating row horizontal offset (Figma 2271:58148: top row left, bottom row right). Default 145.",
+        "Desktop grid only — alternating row horizontal offset (top row left, bottom row right). Default 145.",
       hidden: ({ parent }) => parent?.layoutVariant !== "desktopGrid",
     }),
     defineField({
@@ -81,7 +81,7 @@ export const coreExperience = defineType({
       type: "array",
       of: [{ type: "coreExperienceScreen" }],
       description:
-        "Screens shown on the case-study band (Figma shows ~5). Order left → right. Upload individual frames — not one combined export.",
+        "Screens shown on the case-study band (typically ~5). Order left → right. Upload individual frames — not one combined export.",
       validation: (r) => r.min(1).warning(),
     }),
     defineField({
@@ -97,7 +97,7 @@ export const coreExperience = defineType({
       title: "Popup kicker (optional)",
       type: "string",
       description:
-        'Small uppercase label above the popup headline, e.g. "Feature set" (Figma 3670:21768). Leave empty to hide.',
+        'Small uppercase label above the popup headline, e.g. "Feature set". Leave empty to hide.',
     }),
     defineField({
       name: "popupTitle",
@@ -111,7 +111,7 @@ export const coreExperience = defineType({
       title: "Popup intro",
       type: "portableText",
       description:
-        "Paragraph at the top of the View More popup. Coral: “eight interconnected modules…” (Figma 3670:21768). Left-aligned in the popup.",
+        "Paragraph at the top of the View More popup. Coral: “eight interconnected modules…”. Left-aligned in the popup.",
     }),
     defineField({
       name: "popupAppearance",

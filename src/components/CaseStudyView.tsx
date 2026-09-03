@@ -25,6 +25,7 @@ import type {
 } from '@/sanity/types'
 import {
   REFLECTION_DEFAULTS,
+  OVERVIEW_BAND_BACKGROUND,
   OVERVIEW_COLUMN_GAP,
   CORE_EXPERIENCE_POPUP_DEFAULTS,
   CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
@@ -209,7 +210,10 @@ function flexSectionStyle(
 
 /** True when a band should treat its text as light (for default label colour). */
 function isLight(a?: Appearance, defaultLight?: boolean) {
-  if (a?.textColor?.hex) return hexToRgb(a.textColor.hex).r < 140
+  if (a?.textColor?.hex) {
+    const { r, g, b } = hexToRgb(a.textColor.hex)
+    return (r * 299 + g * 587 + b * 114) / 1000 > 180
+  }
   const bg = a?.backgroundColor
   if (bg?.hex && (bg.alpha ?? 1) > 0.5) {
     const { r, g, b } = hexToRgb(bg.hex)
@@ -789,9 +793,13 @@ function HeroBlock({
     </>
   )
   const mobileArt = s.imageMobile?.trim() || s.image
+  // Full-page studies share Coral's stacked mobile hero (Figma 2079:26236).
+  // The black overlay crop (344:19457) is only for the Work popup when no
+  // mobile art is authored.
+  const stackedMobile = page || !!s.imageMobile
   return (
     <section data-cs-hero className="relative">
-      {s.imageMobile ? (
+      {stackedMobile ? (
         /* Mobile hero art + caption below (Figma 2079:26236). */
         <div className="flex flex-col gap-2.5 bg-white px-12 lg:hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -879,14 +887,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       ? s.columnGap
       : OVERVIEW_COLUMN_GAP
   const desktopMediaClass = page
-    ? 'relative hidden min-h-0 lg:flex lg:h-full lg:items-center lg:justify-center'
+    ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
     : hasVideo
       ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
       : 'relative hidden lg:flex lg:min-h-full'
   const desktopMediaSizeClass = page
-    ? hasVideo || contain
-      ? 'max-h-full max-w-full object-contain object-center'
-      : 'h-full w-full object-cover object-center'
+    ? 'max-h-full max-w-full object-contain object-center'
     : hasVideo
       ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
       : contain
@@ -895,9 +901,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   return (
     <section
       data-cs-stretch
-      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch`}
+      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch ${
+        page ? 'lg:h-[100cqh] lg:max-h-[100cqh]' : ''
+      }`}
       style={{
-        ...bandStyle(s.appearance),
+        ...bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND),
         ...(page ? {} : { columnGap: colGap }),
       }}
     >
@@ -1020,7 +1028,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
 
 function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
   const v = useCsVariant()
-  const light = isLight(s.appearance)
+  const light = bandUsesLightText(s.appearance)
   const items = s.items ?? []
   const page = v === 'page'
   if (s.variant === 'split') {
@@ -1274,10 +1282,25 @@ function coreExperienceCardBg(
   )
 }
 
+function coreExperienceSharedAspect(
+  screens: CoreExperienceScreen[],
+): { w: number; h: number } | null {
+  const pairs = screens
+    .filter(s => s.imageWidth && s.imageHeight)
+    .map(s => ({ w: s.imageWidth as number, h: s.imageHeight as number }))
+  if (!pairs.length) return null
+  const sorted = [...pairs].sort((a, b) => a.w / a.h - b.w / b.h)
+  return sorted[Math.floor(sorted.length / 2)]
+}
+
 function coreExperienceImageBoxStyle(
   screen: CoreExperienceScreen,
   layout: 'mobileRow' | 'desktopGrid',
+  shared?: { w: number; h: number } | null,
 ): CSSProperties {
+  if (shared) {
+    return { aspectRatio: `${shared.w}/${shared.h}` }
+  }
   if (screen.imageWidth && screen.imageHeight) {
     return { aspectRatio: `${screen.imageWidth}/${screen.imageHeight}` }
   }
@@ -1294,12 +1317,14 @@ function CoreExperienceScreenCard({
   tone,
   size,
   bandApp,
+  sharedAspect,
 }: {
   screen: CoreExperienceScreen
   layout: 'mobileRow' | 'desktopGrid'
   tone: 'onDark' | 'onLight'
   size: 'preview' | 'popup'
   bandApp?: Appearance
+  sharedAspect?: { w: number; h: number } | null
 }) {
   if (!screen.image) return null
   const desktop = layout === 'desktopGrid'
@@ -1319,14 +1344,14 @@ function CoreExperienceScreenCard({
           className="overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.22)]"
           style={{
             backgroundColor: cardBg,
-            ...coreExperienceImageBoxStyle(screen, layout),
+            ...coreExperienceImageBoxStyle(screen, layout, sharedAspect),
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
           <img
             src={screen.image}
             alt={screen.label ?? screen.description ?? 'Product screen'}
-            className={`h-full w-full ${desktop ? 'object-contain object-top' : 'object-cover object-top'}`}
+            className="h-full w-full object-cover object-top"
           />
         </div>
         {(screen.label || screen.description) && (
@@ -1408,6 +1433,7 @@ function CoreExperienceBandPreview({
   tone: 'onDark' | 'onLight'
 }) {
   const bandApp = previewAppearance
+  const sharedAspect = coreExperienceSharedAspect(screens)
   const colGap = resolveSpacingPx(
     bandApp?.contentGap,
     { none: 0, sm: 16, md: 24, lg: 32, xl: 40 },
@@ -1472,6 +1498,7 @@ function CoreExperienceBandPreview({
                     tone={tone}
                     size="preview"
                     bandApp={bandApp}
+                    sharedAspect={sharedAspect}
                   />
                 ))}
               </div>
@@ -1485,7 +1512,7 @@ function CoreExperienceBandPreview({
   return (
     <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
       <div
-        className="mx-auto flex w-max justify-center px-2 sm:w-full sm:max-w-[min(1100px,100%)]"
+        className="mx-auto flex w-max items-start justify-center px-2 sm:w-full sm:max-w-[min(1100px,100%)]"
         style={{ gap: colGap, ...horizontalPad }}
       >
         {screens.map(sc => (
@@ -1496,6 +1523,7 @@ function CoreExperienceBandPreview({
             tone={tone}
             size="preview"
             bandApp={bandApp}
+            sharedAspect={sharedAspect}
           />
         ))}
       </div>
@@ -1556,7 +1584,7 @@ function CoreExperienceBlock({
 }) {
   const [popupOpen, setPopupOpen] = useState(false)
   const v = useCsVariant()
-  const light = isLight(s.appearance)
+  const light = bandUsesLightText(s.appearance)
   const layout = s.layoutVariant ?? 'mobileRow'
   const preview = (s.previewScreens ?? []).filter(sc => sc.image)
   const popupTabs = s.popupTabs ?? []

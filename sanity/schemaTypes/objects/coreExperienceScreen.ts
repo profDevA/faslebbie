@@ -3,7 +3,7 @@ import { defineField, defineType } from "sanity";
 import { CORE_EXPERIENCE_SCREEN_APPEARANCE } from "../../../src/lib/caseStudyDefaults";
 import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
 
-/** One screen tile in the Core Experience band or popup (Figma 2110:39499 / 2271:58148). */
+/** One screen tile in the Core Experience band or popup. */
 export const coreExperienceScreen = defineType({
   name: "coreExperienceScreen",
   title: "Experience screen",
@@ -15,7 +15,7 @@ export const coreExperienceScreen = defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Export one frame from Figma @2×+. Mobile row: ~360×640 portrait. Desktop grid: ~762×467 landscape (Acme Lending).",
+        "Export one frame at 2×+. Mobile row: ~360×640 portrait. Desktop grid: ~762×467 landscape (Acme Lending).",
       validation: (r) => r.required(),
     }),
     defineField({
@@ -23,7 +23,7 @@ export const coreExperienceScreen = defineType({
       title: "Display width (px)",
       type: "number",
       description:
-        "Optional exact render width from Figma export. Empty = template default for layout variant.",
+        "Optional exact render width from the export. Empty = template default for layout variant.",
       validation: (r) => r.min(80).integer(),
     }),
     defineField({

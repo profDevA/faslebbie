@@ -3,7 +3,7 @@ import { defineField, defineType } from "sanity";
 import { MOTION_SHOWCASE_BAND_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
 import { MOTION_SHOWCASE_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
 
-// 07 — Motion Showcase (Figma 2019:104708).
+// 07 — Motion Showcase.
 // Coral example: Key Product Experiences — Mobile + iPad.
 export const motionShowcase = defineType({
   name: "motionShowcase",
@@ -21,6 +21,8 @@ export const motionShowcase = defineType({
       title: "Band layout",
       type: "string",
       initialValue: "stacked",
+      description:
+        "Coral / Experian = stacked rows. Census = featured device. New sections default to stacked; existing documents only show a selected radio after this field is saved once.",
       options: {
         list: [
           {

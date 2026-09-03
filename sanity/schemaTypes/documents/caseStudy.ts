@@ -48,7 +48,7 @@ export const caseStudy = defineType({
       group: "content",
       options: { accept: "application/pdf" },
       description:
-        "Optional PDF for the inline “Full Case Study ↗” link at the bottom (Figma 2110:41721).",
+        "Optional PDF for the inline “Full Case Study ↗” link at the bottom.",
     }),
     defineField({
       name: "fullCaseStudyLabel",
@@ -56,7 +56,7 @@ export const caseStudy = defineType({
       type: "string",
       group: "content",
       initialValue: "Full Case Study",
-      description: "Inline link text (Figma 2110:41721). Leave blank for default.",
+      description: "Inline link text. Leave blank for default.",
     }),
     defineField({
       name: "fullCaseStudyIntro",

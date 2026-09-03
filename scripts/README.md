@@ -27,6 +27,10 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral media audit (read-only) | `check-coral-media.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
+| Experian Boost §04 Core Experience band (no View More) | `patch-experian-core-experience.ts` (Israel Figma `3860:6648`–`6250`, uncropped node export; PNG: `public/work/experian-boost/core-flow/`) |
+| Experian Boost — strip View More popup | `patch-experian-unset-ce-popup.ts` |
+| Experian Boost §05 Design Process band/panel colors | `patch-experian-design-process.ts` |
+| Experian Boost §07 Key Product Experiences — Band layout stacked | `patch-experian-key-product-layout.ts` |
 | Acme §04 Core Experience band captions | `patch-acme-core-experience-captions.ts` |
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |

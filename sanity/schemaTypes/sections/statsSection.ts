@@ -3,7 +3,7 @@ import { defineField, defineType } from "sanity";
 import { STATS_BAND_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
 import { STATS_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
 
-// §09 Impact — count-up metric band (Figma 2110:40267).
+// §09 Impact — count-up metric band.
 export const statsSection = defineType({
   name: "statsSection",
   title: "09 — Impact",

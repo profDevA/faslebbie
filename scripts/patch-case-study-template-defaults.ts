@@ -215,6 +215,7 @@ function patchMotionShowcase(section: Section, notes: string[]) {
     notes.push(`${key}→${value}`);
   };
 
+  set("layoutVariant", "stacked");
   set("titleMarginBottom", MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom);
   set(
     "titleMarginBottomDesktop",

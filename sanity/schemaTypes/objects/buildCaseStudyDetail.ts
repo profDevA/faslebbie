@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-/** Build popup long-scroll body (Figma 16:3707 / 2971:219110). */
+/** Build popup long-scroll body. */
 export const buildCaseStudyDetail = defineType({
   name: "buildCaseStudyDetail",
   title: "Modal scroll body",
