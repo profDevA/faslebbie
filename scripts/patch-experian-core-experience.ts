@@ -1,11 +1,15 @@
 /**
- * Experian Boost — Core Experience Flow band tiles only (no View More).
+ * Experian Boost — Core Experience Flow band tiles only.
  *
  * Israel's Figma frames PNG @4× (3860:6648 / 6647 / 6646 / 6203 / 6250).
  * No crop / resize — bytes are the Figma export of those nodes.
  *
+ * View More / modal: Israel is still designing it. Leave popup fields empty
+ * so the button stays hidden. Do not restore the old WP Design Interventions
+ * popup. When the modal assets land, set Studio popupTabs (Coral-style) —
+ * the frontend shows View More as soon as tabs or popupBody have content.
+ *
  * PNG source: public/work/experian-boost/core-flow/
- * Does not replace popup fields (this study has none).
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-experian-core-experience.ts --with-user-token

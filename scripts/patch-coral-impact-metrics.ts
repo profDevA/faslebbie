@@ -1,4 +1,4 @@
-/** Coral §09 Impact — live-site metric order + Funding suffix (M not M$). */
+/** Coral §09 Impact — live-site metric order + Funding $4M prefix. */
 import { getCliClient } from "sanity/cli";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
@@ -24,6 +24,7 @@ const ITEMS = [
     _type: "statItem" as const,
     _key: "ace2b8a10cdf",
     value: 4,
+    prefix: "$",
     suffix: "M",
     label: "Funding Influenced",
     note: "Experience strategy directly helped this early-stage venture secure funding",

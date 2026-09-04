@@ -13,6 +13,12 @@ export const statItem = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "prefix",
+      title: "Value Prefix",
+      type: "string",
+      description: 'Prepended to value, e.g. "$"',
+    }),
+    defineField({
       name: "suffix",
       title: "Value Suffix",
       type: "string",
@@ -27,9 +33,9 @@ export const statItem = defineType({
     defineField({ name: "note", title: "Metric Description", type: "string" }),
   ],
   preview: {
-    select: { value: "value", suffix: "suffix", label: "label" },
-    prepare: ({ value, suffix, label }) => ({
-      title: `${value ?? ""}${suffix || ""}`,
+    select: { value: "value", prefix: "prefix", suffix: "suffix", label: "label" },
+    prepare: ({ value, prefix, suffix, label }) => ({
+      title: `${prefix ?? ""}${value ?? ""}${suffix || ""}`,
       subtitle: label,
     }),
   },

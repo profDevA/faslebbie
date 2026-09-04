@@ -1,5 +1,7 @@
 /**
- * Experian Boost — remove View More popup. Band preview screens stay.
+ * Experian Boost — hide View More until Israel's modal + images are ready.
+ * Band preview screens stay. Do not restore the old WP Design Interventions
+ * popup. Re-run only if those fields get re-seeded by accident.
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-experian-unset-ce-popup.ts --with-user-token

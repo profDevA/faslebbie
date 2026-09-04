@@ -92,6 +92,7 @@ export interface DeviceTab {
 export interface StatItem {
   _key: string;
   value: number;
+  prefix?: string;
   suffix?: string;
   label: string;
   note?: string;
@@ -245,7 +246,9 @@ export type Section =
   | (Base & {
       _type: "highlightReel";
       sectionTitle?: string;
-      layout?: "grid" | "single";
+      layout?: "grid" | "single" | "composite";
+      compositeImage?: string;
+      compositeMaxWidth?: number;
       gridCellMatteColor?: SanityColor;
       gridCellInsetVerticalPercent?: number;
       gridCellInsetHorizontalPercent?: number;

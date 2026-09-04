@@ -154,7 +154,7 @@ export const overviewSection = defineType({
       title: "Media column padding left (px)",
       type: "number",
       initialValue: OVERVIEW_MEDIA_COLUMN_PAD_PAGE.paddingLeft,
-      description: "Full-page desktop + mobile inset. Overlay mobile defaults to ~36px when empty.",
+      description: "Full-page desktop + mobile inset. Overlay mobile defaults to 0 when empty.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({

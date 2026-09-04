@@ -97,6 +97,7 @@ function fixAccordion(s: Section, slug: string) {
 function stripEmptyHighlightReel(sections: Section[]) {
   return sections.filter((s) => {
     if (s._type !== "highlightReel") return true;
+    if (s.layout === "composite") return !!s.compositeImage;
     const cells = s.cells as { frames?: unknown[] }[] | undefined;
     if (!cells?.length) return false;
     return cells.some((c) => (c.frames?.length ?? 0) > 0);
@@ -136,7 +137,10 @@ async function main() {
       (s) => s._type === "accordionSection" && ((s.items as Section[])?.length ?? 0) < 3,
     );
     const hasEmptyHighlight = before.some(
-      (s) => s._type === "highlightReel" && !((s.cells as unknown[])?.length),
+      (s) =>
+        s._type === "highlightReel" &&
+        s.layout !== "composite" &&
+        !((s.cells as unknown[])?.length),
     );
 
     if (!hasLegacy && !hasStringStats && !hasBadAccordion && !hasEmptyHighlight) {

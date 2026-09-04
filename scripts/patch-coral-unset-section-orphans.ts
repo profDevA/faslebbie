@@ -74,7 +74,14 @@ const ALLOWED: Record<string, readonly string[]> = {
     "appearance",
   ],
   statsSection: ["sectionTitle", "body", "items", "appearance"],
-  highlightReel: ["sectionTitle", "layout", "cells", "appearance"],
+  highlightReel: [
+    "sectionTitle",
+    "layout",
+    "compositeImage",
+    "compositeMaxWidth",
+    "cells",
+    "appearance",
+  ],
   reflectionSection: [
     "reflectionHeading",
     "reflectionBody",

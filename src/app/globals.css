@@ -282,6 +282,7 @@ body {
 .cs-page {
   --cs-chrome-top: 3.5rem; /* h-14 */
   --cs-chrome-bottom: 3rem; /* h-12 */
+  --cs-band-bleed: 32px; /* extra band height — covers scroll peek without snap */
   --cs-section-min: calc(
     100dvh - var(--cs-chrome-top) - var(--cs-chrome-bottom)
   );
@@ -299,17 +300,19 @@ body {
 @media (min-width: 1024px) {
   .cs-page-bands {
     container-type: size;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     flex: 1 1 0;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
   }
-  .cs-page-bands > section {
-    min-height: 100cqh;
-  }
+  .cs-page-bands > section,
   .cs-page-bands > .cs-next-up {
-    min-height: 100cqh;
+    flex: none;
+    min-height: calc(100cqh + var(--cs-band-bleed));
   }
   .cs-page-bands > section:not([data-cs-stretch]):not([data-cs-hero]) {
     display: flex;
@@ -331,8 +334,8 @@ body {
 @media (min-width: 1024px) {
   .cs-page-bands > section[data-cs-stretch].grid {
     /* Overview: one screen. Don't let the side image's intrinsic height grow the band. */
-    grid-auto-rows: 100cqh;
-    max-height: 100cqh;
+    grid-auto-rows: calc(100cqh + var(--cs-band-bleed));
+    max-height: calc(100cqh + var(--cs-band-bleed));
   }
 }
 
@@ -359,6 +362,9 @@ body {
   .cs-root {
     scroll-behavior: auto;
   }
+  .cs-page-bands {
+    scroll-behavior: auto;
+  }
   .cs-root section > * {
     opacity: 1;
     transform: none;
@@ -370,6 +376,7 @@ body {
    top of each band (page bg shows through the untransformed layout box). */
 .cs-root.cs-page section > * {
   transform: none;
+  transition: opacity 1s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* Hero sits flush under the breadcrumb — visible immediately. */

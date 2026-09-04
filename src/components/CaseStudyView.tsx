@@ -32,6 +32,7 @@ import {
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
   HIGHLIGHT_REEL_GRID_DEFAULTS,
   HIGHLIGHT_REEL_SINGLE_DEFAULTS,
+  HIGHLIGHT_REEL_COMPOSITE_DEFAULTS,
   MOTION_FEATURED_BAND_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
@@ -100,6 +101,21 @@ type CsVariant = 'page' | 'overlay'
 const CsVariantContext = createContext<CsVariant>('overlay')
 function useCsVariant() {
   return useContext(CsVariantContext)
+}
+
+/** Full-page desktop: one band = scrollport + bleed (see `--cs-band-bleed` in globals). */
+function pageScreenBandClass(page: boolean) {
+  return page
+    ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:min-h-[calc(100cqh+var(--cs-band-bleed))] lg:flex lg:flex-col lg:justify-center'
+    : ''
+}
+function pageBandHeightClass(page: boolean) {
+  return page
+    ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:max-h-[calc(100cqh+var(--cs-band-bleed))]'
+    : ''
+}
+function pageScreenBandInnerClass(page: boolean) {
+  return page ? 'flex w-full flex-1 flex-col justify-center' : ''
 }
 
 /** Full-page shell (Fas Aug 2026) — wide + responsive; overlay keeps popup widths. */
@@ -716,10 +732,10 @@ function ProseGroupBlock({
   const gapLevel = pageProse ? 'md' : 'lg'
   return (
     <section
-      className={ALIGN[align]}
+      className={`${ALIGN[align]} ${pageScreenBandClass(pageProse)}`}
       style={{ ...bandStyle(first.appearance), ...padStyle }}
     >
-      <div className={csShell(v)}>
+      <div className={`${csShell(v)} ${pageScreenBandInnerClass(pageProse)}`}>
         <div
           className={`flex flex-col ${csProseInner(v, align, width)}`}
           style={sectionGapStyle(
@@ -887,22 +903,30 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       ? s.columnGap
       : OVERVIEW_COLUMN_GAP
   const desktopMediaClass = page
-    ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
+    ? contain
+      ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
+      : 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full'
     : hasVideo
       ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
       : 'relative hidden lg:flex lg:min-h-full'
   const desktopMediaSizeClass = page
-    ? 'max-h-full max-w-full object-contain object-center'
+    ? contain
+      ? 'max-h-full max-w-full object-contain object-center'
+      : 'absolute inset-0 h-full w-full object-cover object-center'
     : hasVideo
       ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
       : contain
         ? 'absolute inset-0 h-full w-full object-contain object-center'
         : 'absolute inset-0 h-full w-full object-cover object-center'
+  const mobileMediaSizeClass =
+    page && !contain
+      ? 'absolute inset-0 h-full w-full object-cover object-center'
+      : 'max-h-full max-w-full object-contain'
   return (
     <section
       data-cs-stretch
       className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch ${
-        page ? 'lg:h-[100cqh] lg:max-h-[100cqh]' : ''
+        pageBandHeightClass(page)
       }`}
       style={{
         ...bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND),
@@ -972,7 +996,9 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       </div>
       {/* One media slot: video if authored, otherwise the still. */}
       <div
-        className={`relative flex aspect-[360/552] items-center justify-center lg:hidden ${mediaOrder}`}
+        className={`relative flex aspect-[360/552] lg:hidden ${mediaOrder} ${
+          page && !contain ? 'overflow-hidden' : 'items-center justify-center'
+        }`}
         style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
         {hasVideo ? (
@@ -982,7 +1008,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             loop
             muted
             playsInline
-            className="max-h-full max-w-full object-contain"
+            className={mobileMediaSizeClass}
           />
         ) : (
           s.sideImage && (
@@ -990,7 +1016,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             <img
               src={s.sideImage}
               alt=""
-              className="max-h-full max-w-full object-contain"
+              className={mobileMediaSizeClass}
             />
           )
         )}
@@ -1133,10 +1159,10 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
     : sectionPadStyle(s.appearance, padDefaults('md', false), false)
   return (
     <section
-      className={ALIGN[align]}
+      className={`${ALIGN[align]} ${pageScreenBandClass(page)}`}
       style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
-      <div className={csShell(v)}>
+      <div className={`${csShell(v)} ${pageScreenBandInnerClass(page)}`}>
         <div
           className={`flex flex-col ${csProseInner(v, align, width)}`}
           style={sectionGapStyle(
@@ -1654,6 +1680,8 @@ function CoreExperienceBlock({
   }
 
   const onDark = light ? 'text-white' : ''
+  // View More only when Studio has popup tabs/body. Experian stays hidden
+  // until Israel supplies the modal; Coral already has tabs so it still shows.
   const hasPopup =
     popupTabs.some(t => (t.items?.length ?? 0) > 0) || Boolean(s.popupBody?.length)
 
@@ -2523,10 +2551,8 @@ function DeviceMedia({
   return null
 }
 
-// Project Highlights: either a 3×2 grid of mint-framed cells (Coral) or one
-// large card (Experian Boost 600:32123, Memory Tubes) over a coloured band.
-// Each cell cross-fades through its own frame set on a staggered loop; the
-// single-card layout rotates every authored frame through the one card.
+// Project Highlights: 3×2 grid (Coral), one static board (Experian Boost
+// Figma 3778:130432), or one rotating card (Memory Tubes Figma 600:32123).
 function highlightFrameUrls(cell: HighlightCell): string[] {
   if (cell.frames?.length) return cell.frames
   if (cell.posterImage) return [cell.posterImage]
@@ -2536,9 +2562,15 @@ function highlightFrameUrls(cell: HighlightCell): string[] {
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   const v = useCsVariant()
   const page = v === 'page'
+  const layout = s.layout ?? 'grid'
   const cells = s.cells ?? []
-  if (!cells.length) return null
-  const single = s.layout === 'single'
+  const composite = layout === 'composite'
+  if (composite) {
+    if (!s.compositeImage) return null
+  } else if (!cells.length) {
+    return null
+  }
+  const single = layout === 'single'
   const gridGap =
     typeof s.gridGap === 'number' && s.gridGap >= 0
       ? s.gridGap
@@ -2559,6 +2591,10 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
     typeof s.singleCardPadding === 'number' && s.singleCardPadding >= 0
       ? s.singleCardPadding
       : HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardPadding
+  const compositeMaxW =
+    typeof s.compositeMaxWidth === 'number' && s.compositeMaxWidth >= 320
+      ? s.compositeMaxWidth
+      : HIGHLIGHT_REEL_COMPOSITE_DEFAULTS.maxWidth
   return (
     <section
       className={csBandGutter(v)}
@@ -2571,7 +2607,9 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
           {s.sectionTitle}
         </h2>
       )}
-      {single ? (
+      {composite ? (
+        <HighlightCompositeView src={s.compositeImage!} maxWidth={compositeMaxW} />
+      ) : single ? (
         <HighlightCardView
           frames={cells.flatMap(highlightFrameUrls)}
           matteColor={singleMatte}
@@ -2595,6 +2633,21 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
         </div>
       )}
     </section>
+  )
+}
+
+// Composite layout (Experian Boost Figma 3778:130432): one static board image.
+function HighlightCompositeView({ src, maxWidth }: { src: string; maxWidth: number }) {
+  return (
+    <div className="mx-auto w-full" style={{ maxWidth }}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- highlight art */}
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        className="h-auto w-full object-contain"
+      />
+    </div>
   )
 }
 
@@ -3567,6 +3620,7 @@ function Stat({ stat }: { stat: StatItem }) {
     <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center ">
       {/* Impact stat — inherits Reckless Regular from `.cs-root`. */}
       <p className={`font-normal leading-none ${page ? 'text-[64px] sm:text-[80px] lg:text-[96px]' : 'text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]'}`}>
+        {stat.prefix}
         {n}
         {stat.suffix}
       </p>

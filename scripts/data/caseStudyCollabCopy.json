@@ -130,6 +130,12 @@
     "impact": {
       "metrics": [
         {
+          "value": "13",
+          "suffix": "pts",
+          "label": "Average Score Increase",
+          "note": "Average FICO Score lift for users who connected eligible bill payments through Boost."
+        },
+        {
           "value": "86",
           "suffix": "%",
           "label": "Thin-File Access Unlocked",
@@ -140,12 +146,6 @@
           "suffix": "%",
           "label": "Faster Loan Origination",
           "note": "Validating payment data upfront shortened lenders' loan decision timelines."
-        },
-        {
-          "value": "92",
-          "suffix": "%",
-          "label": "Bank-Link Trust Rating",
-          "note": "Users trusted the sensitive bank-linking flow enough to authorize."
         }
       ]
     },

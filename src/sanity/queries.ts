@@ -100,7 +100,8 @@ const sectionsProj = `sections[]{
     }
   },
   _type == "highlightReel" => {
-    sectionTitle, layout,
+    sectionTitle, layout, compositeMaxWidth,
+    "compositeImage": compositeImage${img},
     cells[]{
       _key, caption,
       "videoFile": videoFile.asset->url,
@@ -110,7 +111,7 @@ const sectionsProj = `sections[]{
     }
   },
   _type == "statsSection" => {
-    sectionTitle, body, items[]{ _key, value, suffix, label, note }
+    sectionTitle, body, items[]{ _key, value, prefix, suffix, label, note }
   },
   _type == "bulletSection" => { sectionTitle, items }
 }`;

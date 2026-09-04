@@ -27,6 +27,7 @@ import {
   CORE_EXPERIENCE_SCREEN_APPEARANCE,
   HIGHLIGHT_REEL_GRID_DEFAULTS,
   HIGHLIGHT_REEL_SINGLE_DEFAULTS,
+  HIGHLIGHT_REEL_COMPOSITE_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   OVERVIEW_COLUMN_GAP,
@@ -189,6 +190,8 @@ function patchHighlightReel(section: Section, notes: string[]) {
       sanityColor(HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardMatteColor),
     );
     set("singleCardPadding", HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardPadding);
+  } else if (section.layout === "composite") {
+    set("compositeMaxWidth", HIGHLIGHT_REEL_COMPOSITE_DEFAULTS.maxWidth);
   } else {
     set(
       "gridCellMatteColor",

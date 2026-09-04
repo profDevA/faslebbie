@@ -29,21 +29,21 @@ export const OVERVIEW_COPY_COLUMN_PAD_PAGE = {
 } as const;
 
 export const OVERVIEW_MEDIA_COLUMN_PAD = {
-  paddingTop: 56,
-  paddingBottom: 80,
+  paddingTop: 0,
+  paddingBottom: 0,
   paddingLeft: 0,
   paddingRight: 0,
 } as const;
 
 export const OVERVIEW_MEDIA_COLUMN_PAD_PAGE = {
-  paddingTop: 56,
-  paddingBottom: 80,
-  paddingLeft: 40,
-  paddingRight: 40,
+  paddingTop: 0,
+  paddingBottom: 0,
+  paddingLeft: 0,
+  paddingRight: 0,
 } as const;
 
-/** Overlay mobile media inset (~10% of 360px band). */
-export const OVERVIEW_MEDIA_MOBILE_INSET = 36;
+/** Overlay mobile media inset when left/right Studio fields are empty. */
+export const OVERVIEW_MEDIA_MOBILE_INSET = 0;
 
 export const OVERVIEW_COLUMN_GAP = 40;
 
@@ -61,10 +61,15 @@ export const HIGHLIGHT_REEL_GRID_DEFAULTS = {
   gridGap: 14,
 } as const;
 
-/** §10 Highlight reel — single rotating card (Experian / Memory Tubes). */
+/** §10 Highlight reel — single rotating card (legacy; Memory Tubes). */
 export const HIGHLIGHT_REEL_SINGLE_DEFAULTS = {
   cardMatteColor: "#ffffff",
   cardPadding: 4,
+} as const;
+
+/** §10 Highlight reel — one static board image (Experian Boost Figma 3778:130432). */
+export const HIGHLIGHT_REEL_COMPOSITE_DEFAULTS = {
+  maxWidth: 973,
 } as const;
 
 /** §04 Core Experience — per-screen card fallback when band preview appearance is empty. */

@@ -28,11 +28,14 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Experian Boost §04 Core Experience band (no View More) | `patch-experian-core-experience.ts` (Israel Figma `3860:6648`–`6250`, uncropped node export; PNG: `public/work/experian-boost/core-flow/`) |
-| Experian Boost — strip View More popup | `patch-experian-unset-ce-popup.ts` |
+| Experian Boost §09 Impact — 13 pts metric (matches Overview lead) | `patch-experian-impact-metrics.ts` |
+| Experian Boost §10 Project Highlights — composite board | `patch-experian-highlight-composite.ts` (Figma `3778:130432`; PNG: `public/work/experian-boost/highlights-board.png`) |
 | Experian Boost §05 Design Process band/panel colors | `patch-experian-design-process.ts` |
 | Experian Boost §07 Key Product Experiences — Band layout stacked | `patch-experian-key-product-layout.ts` |
 | Acme §04 Core Experience band captions | `patch-acme-core-experience-captions.ts` |
+| Acme §06 Research Artifacts slider @4× (Figma 3795:154389–646) | `patch-acme-research-artifacts.ts` |
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
+| Overview media column padding → 0 (overwrite stored values) | `patch-overview-media-padding-zero.ts` |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |
 | Overview horizontal/gap/teal, Reflection #171717, accordion, CE screens, highlight reel, stats/motion/showcase layout, legacy appearance, work page | `patch-case-study-template-defaults.ts` |
 | Memory Tubes — Reflection body missing (Next Steps only) | `patch-memory-tubes-reflection.ts` |
@@ -41,6 +44,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
 | Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |
 | statsSection.body stored as null (Studio portableText error) | `patch-stats-section-unset-null-body.ts` |
+| coreExperience.body / popupBody stored as null (Studio portableText error) | `patch-core-experience-unset-null-body.ts` |
 | statsSection orphan caption/cta/video keys | `patch-stats-section-unset-orphans.ts` |
 | highlightReel orphan body/cta/video/items keys | `patch-highlight-reel-unset-orphans.ts` |
 | Coral §10 highlightReel layout=grid | `patch-coral-highlight-layout.ts` |
