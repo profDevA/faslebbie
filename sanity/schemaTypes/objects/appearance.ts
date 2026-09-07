@@ -110,7 +110,7 @@ export const appearance = defineType({
       title: "Intro max width (px)",
       type: "number",
       description:
-        "Max width of headline + intro prose column, e.g. 560. Empty = template default.",
+        "Optional per-study override. Normally empty — intro width comes from the Coral template (`caseStudyDefaults.ts`).",
       validation: (r) => r.min(200).integer(),
     }),
     defineField({

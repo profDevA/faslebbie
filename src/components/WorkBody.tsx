@@ -12,7 +12,6 @@ import {
 import { useRouter } from "next/navigation";
 import { type Testimonial, type WorkToken } from "@/lib/content";
 import { workFromSanity } from "@/lib/workFromSanity";
-import CaseStudyView from "@/components/CaseStudyView";
 import { PopupTrigger } from "@/components/InlineToken";
 import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
@@ -130,14 +129,6 @@ function cardImage(url: string | undefined) {
   };
 }
 
-// Wrap-around previous/next for the in-page popup + Next-up band.
-function neighbors(list: WorkProject[], slug: string) {
-  const i = list.findIndex((p) => p.slug === slug);
-  if (i === -1) return null;
-  const n = list.length;
-  return { project: list[i], prev: list[(i - 1 + n) % n], next: list[(i + 1) % n] };
-}
-
 export default function WorkBody({
   projects,
   categories,
@@ -162,9 +153,7 @@ export default function WorkBody({
   const wordmarkTitle = work.sectionTitle?.trim() || "Design Work";
 
   // Card / narrative clicks go to `/casestudies/[slug]`.
-  // Popup overlay code kept below until Fas signs off removal.
   const router = useRouter();
-  const [openSlug, setOpenSlug] = useState<string | null>(null);
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
   const [view, setView] = usePersistedView<View>(
     WORK_VIEWS,
@@ -755,23 +744,6 @@ export default function WorkBody({
           </main>
         </>
       )}
-
-      {/* Legacy in-page popup — unused while listing navigates to `/casestudies/[slug]`. */}
-      {openSlug &&
-        (() => {
-          const found = neighbors(projects, openSlug);
-          if (!found) return null;
-          return (
-            <CaseStudyView
-              project={found.project}
-              prev={found.prev}
-              next={found.next}
-              variant="overlay"
-              onClose={() => setOpenSlug(null)}
-              onNavigate={goToStudy}
-            />
-          );
-        })()}
 
       <PasswordGate
         open={gateOpen}

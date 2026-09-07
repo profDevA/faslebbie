@@ -58,7 +58,6 @@ export default function CaseStudyAccess({
           project={project}
           prev={prev}
           next={next}
-          variant="page"
         />
       ) : (
         <div className="min-h-dvh bg-page" aria-hidden />

@@ -99,7 +99,7 @@ function bandAppearance(padLevel: "md" | "lg") {
 /** §04 Core Experience band */
 export const CORE_EXPERIENCE_BAND_APPEARANCE_DEFAULTS = bandAppearance("md");
 
-/** §04 View More popup */
+/** §04 View More popup — layout/colors stored in Sanity; intro width stays in caseStudyDefaults. */
 export const CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS = {
   contentAlignment: CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment,
   paddingTop: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingTop,
@@ -108,7 +108,6 @@ export const CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS = {
   paddingRight: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingRight,
   contentGap: CORE_EXPERIENCE_POPUP_DEFAULTS.contentGap,
   contentGapInner: CORE_EXPERIENCE_POPUP_DEFAULTS.contentGapInner,
-  introMaxWidth: CORE_EXPERIENCE_POPUP_DEFAULTS.introMaxWidth,
   tileBackgroundColor: sanityColor(
     CORE_EXPERIENCE_POPUP_DEFAULTS.tileBackgroundColor,
   ),

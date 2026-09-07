@@ -27,7 +27,7 @@ const TITLES: Record<string, string> = {
   "memory-tubes": "Memory Tubes",
   "experian-boost": "Experian Boost",
   "financial-data-exchange": "Financial Data Exchange",
-  "design-assist-ai": "Mosaic",
+  "design-assist-ai": "Circle",
   "acme-lending": "Acme Lending",
   "life-of-a-miner-vr": "Life of a Miner VR",
   "remote-assistant-object-detection": "The AR Handbook",
@@ -38,7 +38,7 @@ const TITLES: Record<string, string> = {
  * Round-robin order so desktop 4-col wall matches Figma columns:
  *   col1: Census, Snapback Watch, OC Navigator
  *   col2: Coral, Diamond, Forever a Surfer, Memory Tubes
- *   col3: Experian, FDX, Mosaic, Acme
+ *   col3: Experian, FDX, Circle, Acme
  *   col4: Miner VR, AR Handbook, OC Links
  * Then studies not on that frame.
  */

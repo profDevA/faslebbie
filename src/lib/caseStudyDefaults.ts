@@ -50,6 +50,9 @@ export const OVERVIEW_COLUMN_GAP = 40;
 /** Accordion split panel (Design Process column). */
 export const ACCORDION_PANEL_BACKGROUND = "#ffffff";
 
+/** Acme Lending full-page — Design Process accordion panel (Figma Holistic). */
+export const ACME_ACCORDION_PANEL_BACKGROUND = "#4c79c8";
+
 /** Case studies authored for the full-page template first (also render in Work overlay). */
 export const PAGE_TEMPLATE_SLUGS = ["acme-lending"] as const;
 
@@ -140,7 +143,8 @@ export const CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS = {
   imageAspectHeight: 483,
 } as const;
 
-/** Core Experience View More popup — full width by default; tune in popupAppearance. */
+/** Core Experience View More popup — full width by default; tune in popupAppearance.
+ *  introMaxWidth is template render-only (caseStudyDefaults); not stored in Sanity. */
 export const CORE_EXPERIENCE_POPUP_DEFAULTS = {
   contentAlignment: "left" as const,
   paddingTop: 40,
@@ -150,7 +154,7 @@ export const CORE_EXPERIENCE_POPUP_DEFAULTS = {
   contentGap: 24,
   contentGapInner: 12,
   tileBackgroundColor: "#4f6b76",
-  introMaxWidth: 520,
+  introMaxWidth: 960,
   gridColumnGap: 16,
   gridRowGap: 24,
 } as const;

@@ -915,7 +915,7 @@ const baseWorkProjects: WorkProject[] = [
   },
   {
     slug: 'design-assist-ai',
-    name: 'Mosaic',
+    name: 'Circle',
     tagline: 'AI UX Assistant for product designers',
     categories: ['Product Design'],
     accent: '#db2777',

@@ -27,12 +27,17 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral media audit (read-only) | `check-coral-media.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
-| Experian Boost §04 Core Experience band (no View More) | `patch-experian-core-experience.ts` (Israel Figma `3860:6648`–`6250`, uncropped node export; PNG: `public/work/experian-boost/core-flow/`) |
+| Experian Boost §04 Core Experience band (5 phone screens) | `patch-experian-core-experience.ts` (manual upload; PNG/JPG: `public/work/experian-boost/core-flow/01–05-*`) |
+| Experian Boost §04 View More popup — 8-tile grid | `patch-experian-core-experience-popup.ts` (Holistic modal `3947:17067` / `3778:130910`; tiles `3947:17071`–`27246` @4×; PNG: `public/work/experian-boost/core-flow/modal/`) |
+| Unset legacy popupRowStagger / popupColumns (all case studies) | `patch-unset-ce-popup-stagger-fields.ts` |
 | Experian Boost §09 Impact — 13 pts metric (matches Overview lead) | `patch-experian-impact-metrics.ts` |
 | Experian Boost §10 Project Highlights — composite board | `patch-experian-highlight-composite.ts` (Figma `3778:130432`; PNG: `public/work/experian-boost/highlights-board.png`) |
 | Experian Boost §05 Design Process band/panel colors | `patch-experian-design-process.ts` |
 | Experian Boost §07 Key Product Experiences — Band layout stacked | `patch-experian-key-product-layout.ts` |
-| Acme §04 Core Experience band captions | `patch-acme-core-experience-captions.ts` |
+| Acme §04 Core Experience band (4 dark-band preview tiles) | `patch-acme-core-experience.ts` (legacy PNG: `public/work/acme-lending/1481.png` etc.) |
+| Acme §04 View More popup — 6-tile grid | `patch-acme-core-experience-popup.ts` (Figma `3928:11154`; PNG: `public/work/acme-lending/core-flow/01–06-*`) |
+| Acme §04 band previewRowStagger only | `patch-acme-ce-stagger-fields.ts` |
+| Acme §04 Core Experience band captions only | `patch-acme-core-experience-captions.ts` (labels/descriptions only — no image re-upload) |
 | Acme §06 Research Artifacts slider @4× (Figma 3795:154389–646) | `patch-acme-research-artifacts.ts` |
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
 | Overview media column padding → 0 (overwrite stored values) | `patch-overview-media-padding-zero.ts` |

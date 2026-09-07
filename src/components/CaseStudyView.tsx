@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import PopupShell from '@/components/PopupShell'
@@ -97,96 +97,85 @@ const MAXW = {
 }
 const ALIGN = { left: 'text-left', center: 'text-center', right: 'text-right' }
 
-type CsVariant = 'page' | 'overlay'
-const CsVariantContext = createContext<CsVariant>('overlay')
-function useCsVariant() {
-  return useContext(CsVariantContext)
+/** Case-study typography — full-page `/casestudies/[slug]` only (+2px vs Aug 2026 baseline). */
+function csBodyText(extra = '') {
+  return `text-[19px] font-normal leading-[1.65] lg:text-[20px] ${extra}`
 }
+
+function csBodySm(extra = '') {
+  return `text-[17px] lg:text-[18px] font-normal leading-[1.6] ${extra}`
+}
+
+function csSectionTitle(sizeExtra = '') {
+  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
+  return `font-normal capitalize leading-tight ${size}`
+}
+
+function csImpactTitle(sizeExtra = '') {
+  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
+  return `font-medium capitalize leading-tight ${size}`
+}
+
+function csUiText(extra = '') {
+  return `text-[17px] lg:text-[18px] ${extra}`
+}
+
+function csMetaSm(extra = '') {
+  return `text-[16px] font-normal leading-[1.6] ${extra}`
+}
+
+function csMetaXs(extra = '') {
+  return `text-[14px] font-normal italic leading-4.25 ${extra}`
+}
+
+function csHeroCap(extra = '') {
+  return `text-[18px] leading-[1.6] lg:text-[19px] ${extra}`
+}
+
+const CS_KICKER = 'text-[13px] sm:text-[14px]'
+const CS_CAPTION_LG = 'text-[15px] sm:text-[16px]'
+const CS_CAPTION_SM = 'text-[13px] sm:text-[14px]'
 
 /** Full-page desktop: one band = scrollport + bleed (see `--cs-band-bleed` in globals). */
-function pageScreenBandClass(page: boolean) {
-  return page
-    ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:min-h-[calc(100cqh+var(--cs-band-bleed))] lg:flex lg:flex-col lg:justify-center'
-    : ''
+function pageScreenBandClass(enabled = true) {
+  return enabled ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:min-h-[calc(100cqh+var(--cs-band-bleed))] lg:flex lg:flex-col lg:justify-center' : ''
 }
-function pageBandHeightClass(page: boolean) {
-  return page
-    ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:max-h-[calc(100cqh+var(--cs-band-bleed))]'
-    : ''
+function pageBandHeightClass() {
+  return 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:max-h-[calc(100cqh+var(--cs-band-bleed))]'
 }
-function pageScreenBandInnerClass(page: boolean) {
-  return page ? 'flex w-full flex-1 flex-col justify-center' : ''
+function pageScreenBandInnerClass() {
+  return 'flex w-full flex-1 flex-col justify-center'
 }
 
-/** Full-page shell (Fas Aug 2026) — wide + responsive; overlay keeps popup widths. */
-function csShell(v: CsVariant, extra = '') {
-  if (v === 'page') {
-    return `mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12 ${extra}`
-  }
-  return `mx-auto w-full max-w-285 px-6 sm:px-10 xl:px-[3.5vw] ${extra}`
+/** Full-page shell (Fas Aug 2026). */
+function csShell(extra = '') {
+  return `mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12 ${extra}`
 }
 
 function csProseInner(
-  v: CsVariant,
   align: 'left' | 'center' | 'right',
   widthKey: keyof typeof MAXW,
 ) {
-  if (v === 'page') {
-    if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
-    if (widthKey === 'full') return 'mx-auto w-full max-w-none'
-    if (align === 'center') return 'mx-auto w-full max-w-[min(1000px,100%)]'
-    return 'mx-auto w-full max-w-[min(1000px,100%)]'
-  }
-  return `mx-auto ${align === 'center' ? 'lg:max-w-[60%]' : MAXW[widthKey]}`
+  if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
+  if (widthKey === 'full') return 'mx-auto w-full max-w-none'
+  if (align === 'center') return 'mx-auto w-full max-w-[min(1000px,100%)]'
+  return 'mx-auto w-full max-w-[min(1000px,100%)]'
 }
 
-function csBodyText(v: CsVariant, extra = '') {
-  if (v === 'page') {
-    return `text-[17px] font-normal leading-[1.65] lg:text-[18px] ${extra}`
-  }
-  return `text-[18px] font-normal leading-[1.6] xl:text-[1.25vw] ${extra}`
+function csBandGutter(extra = '') {
+  return `px-5 sm:px-8 lg:px-12 ${extra}`
 }
 
-function csSectionTitle(v: CsVariant, extra = '') {
-  if (v === 'page') {
-    return `font-normal capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
-  }
-  return `font-normal capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
+function csPagerShell(extra = '') {
+  return `flex w-full items-center justify-between ${extra}`
 }
 
-/** Impact / stats band heading — Israel QA: slightly bolder than other section titles. */
-function csImpactTitle(v: CsVariant, extra = '') {
-  if (v === 'page') {
-    return `font-medium capitalize leading-tight text-[20px] lg:text-[24px] ${extra}`
-  }
-  return `font-medium capitalize leading-tight text-[24px] xl:text-[1.5vw] ${extra}`
+function csReflectionTitle() {
+  return 'font-grotesk text-[22px] font-normal capitalize leading-tight lg:text-[26px]'
 }
 
-function csBandGutter(v: CsVariant, extra = '') {
-  if (v === 'page') return `px-5 sm:px-8 lg:px-12 ${extra}`
-  return `px-6 sm:px-10 xl:px-[3.5vw] ${extra}`
-}
-
-function csPagerShell(v: CsVariant, extra = '') {
-  if (v === 'page') {
-    return `flex w-full items-center justify-between ${extra}`
-  }
-  return `mx-auto flex w-full max-w-225 items-center justify-between px-6 ${extra}`
-}
-
-/** Figma 2110:41713 — Reflection band defaults live in caseStudyDefaults.ts */
-function csReflectionTitle(v: CsVariant) {
-  if (v === 'page') {
-    return 'font-grotesk text-[20px] font-normal capitalize leading-tight lg:text-[24px]'
-  }
-  return 'font-grotesk text-[24px] font-normal capitalize leading-tight xl:text-[1.5vw]'
-}
-
-function csReflectionBody(v: CsVariant) {
-  if (v === 'page') {
-    return 'font-grotesk text-[17px] font-light leading-[1.6] lg:text-[18px]'
-  }
-  return 'font-grotesk text-[18px] font-light leading-[1.6] xl:text-[1.25vw]'
+function csReflectionBody() {
+  return 'font-grotesk text-[19px] font-light leading-[1.6] lg:text-[20px]'
 }
 
 function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
@@ -200,27 +189,27 @@ function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
 
 function sectionStyle(
   a: Appearance | undefined,
-  page: boolean,
+  _page: boolean,
   padLevel: 'md' | 'lg',
   defaultBg?: string,
   defaultLight?: boolean,
 ) {
   return {
     ...bandStyle(a, defaultBg, defaultLight),
-    ...sectionPadStyle(a, padDefaults(padLevel, page), page),
+    ...sectionPadStyle(a, padDefaults(padLevel, true), true),
   }
 }
 
 function flexSectionStyle(
   a: Appearance | undefined,
-  page: boolean,
+  _page: boolean,
   padLevel: 'md' | 'lg',
   defaultBg?: string,
   defaultLight?: boolean,
 ) {
   return {
-    ...sectionStyle(a, page, padLevel, defaultBg, defaultLight),
-    ...sectionGapStyle(a, gapDefault(padLevel, page), page),
+    ...sectionStyle(a, true, padLevel, defaultBg, defaultLight),
+    ...sectionGapStyle(a, gapDefault(padLevel, true), true),
   }
 }
 
@@ -316,32 +305,21 @@ export default function CaseStudyView({
   project: p,
   prev,
   next,
-  variant,
-  onClose,
-  onNavigate,
 }: {
   project: Study
   prev: StudyCard
   next: StudyCard
-  variant: 'page' | 'overlay'
-  onClose?: () => void
-  onNavigate?: (slug: string) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
-  // In overlay mode the scroller lives inside PopupShell's portal, which only
-  // mounts on a later render — track the node in state so the effects below
-  // re-run once it exists.
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
   const setScrollNode = useCallback((el: HTMLDivElement | null) => {
     scrollRef.current = el
     setScroller(el)
   }, [])
-  const overlay = variant === 'overlay'
 
   useEffect(() => {
-    if (!overlay) return
     scroller?.scrollTo({ top: 0 })
-  }, [overlay, scroller, p.slug])
+  }, [scroller, p.slug])
 
   // Scroll-reveal: tag each <section> once it enters view.
   useEffect(() => {
@@ -352,9 +330,8 @@ export default function CaseStudyView({
       sections.forEach(s => s.classList.add('cs-active'))
       return
     }
-    const pageInternal =
-      !overlay && window.matchMedia('(min-width: 1024px)').matches
-    const useRoot = overlay || pageInternal
+    const pageInternal = window.matchMedia('(min-width: 1024px)').matches
+    const useRoot = pageInternal
     const reveal = (s: Element) => s.classList.add('cs-active')
     const io = new IntersectionObserver(
       entries => {
@@ -389,25 +366,15 @@ export default function CaseStudyView({
       io.disconnect()
       target.removeEventListener('scroll', onScroll)
     }
-  }, [p.slug, overlay, scroller])
+  }, [p.slug, scroller])
 
-  const goTo = (slug: string) => (e: React.MouseEvent) => {
-    if (onNavigate) {
-      e.preventDefault()
-      onNavigate(slug)
-    }
-  }
-
-  // Previous / Next pager — the shared popup footer in overlay mode, a sticky
-  // bar of its own on the standalone route.
   const pager = (
     <div
-      className={`${csPagerShell(variant)} reckless-prose font-normal ${variant === 'page' ? 'text-[15px]' : 'text-[16px] lg:text-[17px]'}`}
+      className={`${csPagerShell()} reckless-prose font-normal ${csUiText()}`}
       style={{ color: RED }}
     >
       <Link
         href={`/casestudies/${prev.slug}`}
-        onClick={goTo(prev.slug)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
       >
@@ -415,7 +382,6 @@ export default function CaseStudyView({
       </Link>
       <Link
         href={`/casestudies/${next.slug}`}
-        onClick={goTo(next.slug)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
       >
@@ -453,16 +419,13 @@ export default function CaseStudyView({
     </>
   )
 
-  const inner = (
-    <CsVariantContext.Provider value={variant}>
-      <>
-      {/* Overlay mode gets the shared popup header instead. */}
-      {!overlay && (
-        <div className="sticky top-0 z-50 shrink-0 border-b border-black/15 bg-white reckless-prose lg:static">
-          <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
+  return (
+    <div className="cs-root cs-page min-h-screen bg-white reckless-prose text-black lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
+      <div className="sticky top-0 z-50 shrink-0 border-b border-black/15 bg-white reckless-prose lg:static">
+        <div className="flex h-14 w-full shrink-0 items-center justify-between gap-4 px-5 sm:h-16 sm:px-8 lg:px-12">
           <nav
             aria-label="Breadcrumb"
-            className="flex min-w-0 items-center gap-2 text-[15px] font-normal lg:text-[16px]"
+            className={`flex min-w-0 items-center gap-2 font-normal ${csUiText()}`}
           >
             <Link
               href="/casestudies"
@@ -482,49 +445,20 @@ export default function CaseStudyView({
             href="/casestudies"
             aria-label="Close"
             data-cursor="hover"
-            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            className="shrink-0 text-[24px] leading-none text-black transition-opacity hover:opacity-60"
           >
             ×
           </Link>
-          </div>
         </div>
-      )}
+      </div>
 
-      {overlay ? (
-        bands
-      ) : (
-        <div ref={setScrollNode} className="cs-page-bands">
-          {bands}
-        </div>
-      )}
+      <div ref={setScrollNode} className="cs-page-bands">
+        {bands}
+      </div>
 
-      {!overlay && (
-        <div className="sticky bottom-0 z-50 flex h-12 shrink-0 items-center border-t border-black/10 bg-white lg:static">
-          <div className={`w-full ${csShell(variant)}`}>{pager}</div>
-        </div>
-      )}
-      </>
-    </CsVariantContext.Provider>
-  )
-
-  if (overlay) {
-    return (
-      <PopupShell
-        onClose={onClose ?? (() => {})}
-        label={p.name}
-        crumbs={[{ label: 'Case Studies', href: '/casestudies', hideOnMobile: true }, { label: p.name }]}
-        bodyRef={setScrollNode}
-        bodyClassName="cs-root cs-fullheight relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-white reckless-prose text-black"
-        footer={pager}
-      >
-        {inner}
-      </PopupShell>
-    )
-  }
-
-  return (
-    <div className="cs-root cs-page min-h-screen bg-white reckless-prose text-black lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
-      {inner}
+      <div className="sticky bottom-0 z-50 flex h-12 shrink-0 items-center border-t border-black/10 bg-white lg:static">
+        <div className={`w-full ${csShell()}`}>{pager}</div>
+      </div>
     </div>
   )
 }
@@ -543,12 +477,11 @@ function FullCaseStudyPdfFooter({
   label: string
   intro?: string
 }) {
-  const v = useCsVariant()
   const lead = intro || FULL_CASE_STUDY_INTRO_DEFAULT
-  const size = v === 'page' ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.25vw]'
+  const size = csBodyText()
   return (
     <p
-      className={`mx-auto text-center font-grotesk font-light italic leading-[1.6] text-white ${size} ${v === 'page' ? 'max-w-none' : 'max-w-[606px]'}`}
+      className={`mx-auto text-center font-grotesk font-light italic leading-[1.6] text-white ${size} ${'max-w-none'}`}
     >
       {lead}{' '}
       <span className="whitespace-nowrap">
@@ -580,8 +513,6 @@ function FullCaseStudyPdfLink({
   label: string
   intro?: string
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   return (
     <section
       className="text-white"
@@ -593,11 +524,11 @@ function FullCaseStudyPdfLink({
             paddingTop: REFLECTION_DEFAULTS.paddingTop,
             paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
           },
-          page,
+          true,
         ),
       }}
     >
-      <div className={csShell(v)}>
+      <div className={csShell()}>
         <div className="mx-auto flex min-h-[132px] max-w-[923px] items-center justify-center border-t border-[#323232] pt-8">
           <FullCaseStudyPdfFooter url={url} label={label} intro={intro} />
         </div>
@@ -713,20 +644,18 @@ function ProseGroupBlock({
 }: {
   sections: (Of<'proseSection'> | Of<'bulletSection'>)[]
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const first = sections[0]
   const light = isLight(first.appearance)
   const align = first.appearance?.contentAlignment ?? 'center'
   const width = first.appearance?.maxWidth ?? 'default'
-  const body = csBodyText(v)
+  const body = csBodyText()
   const allProse = sections.every(s => s._type === 'proseSection')
-  const pageProse = page && allProse
+  const pageProse = allProse
   const last = sections[sections.length - 1]
   const padStyle = proseGroupPadStyle(
     first.appearance,
     last.appearance,
-    page,
+    true,
     pageProse ? PAGE_PROSE_PAD : undefined,
   )
   const gapLevel = pageProse ? 'md' : 'lg'
@@ -735,9 +664,9 @@ function ProseGroupBlock({
       className={`${ALIGN[align]} ${pageScreenBandClass(pageProse)}`}
       style={{ ...bandStyle(first.appearance), ...padStyle }}
     >
-      <div className={`${csShell(v)} ${pageScreenBandInnerClass(pageProse)}`}>
+      <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
         <div
-          className={`flex flex-col ${csProseInner(v, align, width)}`}
+          className={`flex flex-col ${csProseInner( align, width)}`}
           style={sectionGapStyle(
             first.appearance,
             gapDefault(gapLevel, pageProse),
@@ -748,7 +677,7 @@ function ProseGroupBlock({
             <div key={s._key}>
               {s.sectionTitle && (
                 <h2
-                  className={`mb-5 ${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+                  className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
                 >
                   {s.sectionTitle}
                 </h2>
@@ -779,13 +708,9 @@ function HeroBlock({
   section: Of<'heroSection'>
   project: Study
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   if (!s.image && !s.imageMobile) return null
   const title = s.headingOverride ?? p.name
-  const capSize = page
-    ? 'text-[16px] leading-[1.6] lg:text-[17px]'
-    : 'text-[16px] leading-[1.6] xl:text-[1.3vw]'
+  const capSize = csHeroCap()
   const caption = (
     <>
       <p className={capSize}>
@@ -809,58 +734,40 @@ function HeroBlock({
     </>
   )
   const mobileArt = s.imageMobile?.trim() || s.image
-  // Full-page studies share Coral's stacked mobile hero (Figma 2079:26236).
-  // The black overlay crop (344:19457) is only for the Work popup when no
-  // mobile art is authored.
-  const stackedMobile = page || !!s.imageMobile
+  // Full-page studies use Coral's stacked mobile hero (Figma 2079:26236).
   return (
     <section data-cs-hero className="relative">
-      {stackedMobile ? (
-        /* Mobile hero art + caption below (Figma 2079:26236). */
-        <div className="flex flex-col gap-2.5 bg-white px-12 lg:hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-          <img
-            src={mobileArt}
-            alt={p.name}
-            className="aspect-[333/432] w-full bg-[#ededed] object-cover object-top"
-          />
-          <div className="pb-4 pt-1 text-black">
-            <p className="text-[18px] font-bold leading-[1.35] tracking-normal">
-              <span className="underline decoration-from-font underline-offset-[6px]">
-                {title}
-              </span>
+      <div className="flex flex-col gap-2.5 bg-white px-12 lg:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={mobileArt}
+          alt={p.name}
+          className="aspect-[333/432] w-full bg-[#ededed] object-cover object-top"
+        />
+        <div className="pb-4 pt-1 text-black">
+          <p className="text-[20px] font-bold leading-[1.35] tracking-normal">
+            <span className="underline decoration-from-font underline-offset-[6px]">
+              {title}
+            </span>
+          </p>
+          {(p.from || p.to) && (
+            <p className="mt-2 flex justify-between gap-4 text-[20px] leading-[1.35] tracking-normal">
+              {p.from && (
+                <span>
+                  <span className="font-normal italic">From</span>
+                  <span>: {p.from}</span>
+                </span>
+              )}
+              {p.to && (
+                <span className="text-right">
+                  <span className="font-normal italic">To</span>
+                  <span>: {p.to}</span>
+                </span>
+              )}
             </p>
-            {(p.from || p.to) && (
-              <p className="mt-2 flex justify-between gap-4 text-[18px] leading-[1.35] tracking-normal">
-                {p.from && (
-                  <span>
-                    <span className="font-normal italic">From</span>
-                    <span>: {p.from}</span>
-                  </span>
-                )}
-                {p.to && (
-                  <span className="text-right">
-                    <span className="font-normal italic">To</span>
-                    <span>: {p.to}</span>
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
+          )}
         </div>
-      ) : (
-        /* Legacy mobile — desktop art cropped in black frame (Figma 344:19457). */
-        <div className="relative aspect-[360/791] overflow-hidden bg-black lg:hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-          <img
-            src={s.image}
-            alt={p.name}
-            className="absolute inset-x-0 bottom-0 h-[73.5%] w-full object-cover object-[82%_30%]"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.25)_0%,rgba(0,0,0,0)_20%,rgba(0,0,0,0)_72%,rgba(0,0,0,0.4)_100%)]" />
-          <div className="absolute left-4.5 top-[10%] max-w-[92%] p-2.5 text-white">{caption}</div>
-        </div>
-      )}
+      </div>
       <div className="relative hidden lg:absolute lg:inset-0 lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
@@ -876,71 +783,52 @@ function HeroBlock({
 }
 
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
   const contain = s.sideImageFit === 'contain'
   const cta = s.ctaLabel ?? 'Visit Site'
-  const gutter = csBandGutter(v)
-  const body = csBodyText(v, dark)
-  const metaSm = page
-    ? 'text-[14px] font-normal leading-[1.6]'
-    : 'text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]'
-  const metaXs = page
-    ? 'text-[12px] font-normal italic leading-4.25'
-    : 'text-[12px] font-normal italic leading-4.25 xl:text-[0.82vw]'
+  const gutter = csBandGutter()
+  const body = csBodyText( dark)
+  const metaSm = csMetaSm()
+  const metaXs = csMetaXs()
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
   const hasVideo = !!s.sideVideo
   const mediaFirst = s.mediaPosition === 'left'
   const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
-  const copyPad = overviewCopyPadStyle(s, page)
-  const mediaPad = overviewMediaPadStyle(s, page)
-  const mediaPadMobile = overviewMediaPadStyle(s, page, true)
+  const copyPad = overviewCopyPadStyle(s, true)
+  const mediaPad = overviewMediaPadStyle(s, true)
+  const mediaPadMobile = overviewMediaPadStyle(s, true, true)
   const colGap =
     typeof s.columnGap === "number" && s.columnGap >= 0
       ? s.columnGap
       : OVERVIEW_COLUMN_GAP
-  const desktopMediaClass = page
-    ? contain
-      ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
-      : 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full'
-    : hasVideo
-      ? 'relative hidden items-center justify-center lg:flex lg:min-h-full lg:p-12 xl:p-[3vw]'
-      : 'relative hidden lg:flex lg:min-h-full'
-  const desktopMediaSizeClass = page
-    ? contain
-      ? 'max-h-full max-w-full object-contain object-center'
-      : 'absolute inset-0 h-full w-full object-cover object-center'
-    : hasVideo
-      ? 'h-auto max-h-full w-full max-w-90 object-contain xl:max-w-[24vw]'
-      : contain
-        ? 'absolute inset-0 h-full w-full object-contain object-center'
-        : 'absolute inset-0 h-full w-full object-cover object-center'
+  const desktopMediaClass = contain
+    ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
+    : 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full'
+  const desktopMediaSizeClass = contain
+    ? 'max-h-full max-w-full object-contain object-center'
+    : 'absolute inset-0 h-full w-full object-cover object-center'
   const mobileMediaSizeClass =
-    page && !contain
+    !contain
       ? 'absolute inset-0 h-full w-full object-cover object-center'
       : 'max-h-full max-w-full object-contain'
   return (
     <section
       data-cs-stretch
       className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch ${
-        pageBandHeightClass(page)
+        pageBandHeightClass()
       }`}
-      style={{
-        ...bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND),
-        ...(page ? {} : { columnGap: colGap }),
-      }}
+      style={bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND)}
     >
       <div
         className={`flex min-h-0 flex-col ${copyOrder} ${
-          page ? 'justify-start lg:h-full lg:justify-between' : `justify-between ${gutter}`
+          'justify-start lg:h-full lg:justify-between'
         }`}
-        style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', page), page) }}
+        style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', true), true) }}
       >
-        <div className={page ? 'max-w-[min(580px,100%)]' : undefined}>
-          <h2 className={`${csSectionTitle(v)} ${dark}`}>
+        <div className={'max-w-[min(580px,100%)]'}>
+          <h2 className={`${csSectionTitle()} ${dark}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
           <Prose value={s.body} className={`mt-[1em] ${body}`} />
@@ -951,18 +839,18 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[18px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase lg:capitalize ${page ? '' : 'xl:text-[1.15vw]'}`}
+              className={`mt-6 inline-block text-[20px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase lg:capitalize ${''}`}
             >
               {cta}
             </a>
           )}
         </div>
-        <div className={`flex flex-col gap-5 ${page ? 'max-w-[min(580px,100%)]' : ''}`}>
+        <div className={`flex flex-col gap-5 ${'max-w-[min(580px,100%)]'}`}>
           {(s.serviceCategoryLabel || s.serviceList) && (
             <div className="max-w-85">
               {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
               <h3
-                className={`text-[18px] font-normal capitalize leading-tight ${dark} ${page ? '' : 'xl:text-[1.15vw]'}`}
+                className={`text-[20px] font-normal capitalize leading-tight ${dark} ${''}`}
               >
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
@@ -997,7 +885,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       {/* One media slot: video if authored, otherwise the still. */}
       <div
         className={`relative flex aspect-[360/552] lg:hidden ${mediaOrder} ${
-          page && !contain ? 'overflow-hidden' : 'items-center justify-center'
+          !contain ? 'overflow-hidden' : 'items-center justify-center'
         }`}
         style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
@@ -1053,29 +941,27 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
 }
 
 function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
-  const v = useCsVariant()
   const light = bandUsesLightText(s.appearance)
   const items = s.items ?? []
-  const page = v === 'page'
   if (s.variant === 'split') {
     return (
       <section
         data-cs-stretch
-        style={sectionStyle(s.appearance, page, 'md', SAGE)}
+        style={sectionStyle(s.appearance, true, 'md', SAGE)}
       >
         <div
           className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${
-            page ? csShell(v, 'max-lg:!max-w-none') : csBandGutter(v)
+            csShell('max-lg:!max-w-none')
           }`}
         >
         <div className="order-2 flex flex-col justify-end lg:order-1">
-          <div className={page ? 'max-w-[min(560px,100%)]' : 'max-w-111.25'}>
+          <div className={'max-w-[min(560px,100%)]'}>
             <h2
-              className={`mb-4 ${csSectionTitle(v, 'text-[18px] lg:text-[20px]')} ${light ? 'text-white' : ''}`}
+              className={`mb-4 ${csSectionTitle('text-[20px] lg:text-[22px]')} ${light ? 'text-white' : ''}`}
             >
               {s.sideTitle ?? 'My Approach'}
             </h2>
-            <Prose value={s.sideBody} className={`mt-3 ${csBodyText(v)}`} />
+            <Prose value={s.sideBody} className={`mt-3 ${csBodyText()}`} />
           </div>
         </div>
         <div
@@ -1084,7 +970,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
-            <h2 className={`mb-5 text-center ${csSectionTitle(v, 'text-[20px] lg:text-[22px]')} text-black`}>
+            <h2 className={`mb-5 text-center ${csSectionTitle( 'text-[22px] lg:text-[24px]')} text-black`}>
               {s.sectionTitle}
             </h2>
           )}
@@ -1096,10 +982,10 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
       </section>
     )
   }
-  const pageInner = v === 'page'
+  const pageInner = true
   return (
     <section style={sectionStyle(s.appearance, pageInner, 'md', SAGE)}>
-      <div className={csShell(v)}>
+      <div className={csShell()}>
         <div className={`mx-auto ${pageInner ? 'max-w-[min(720px,100%)]' : 'max-w-120'}`}>
           {s.sectionTitle && (
             <Label center light={light}>
@@ -1116,8 +1002,6 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
 }
 
 function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const light = isLight(s.appearance)
   const align = s.appearance?.contentAlignment ?? 'center'
   const width = s.appearance?.maxWidth ?? 'default'
@@ -1126,19 +1010,19 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
       className={ALIGN[align]}
       style={{
         ...bandStyle(s.appearance),
-        ...sectionPadStyle(s.appearance, padDefaults('md', page), page),
+        ...sectionPadStyle(s.appearance, padDefaults('md', true), true),
       }}
     >
-      <div className={csShell(v)}>
-        <div className={csProseInner(v, align, width)}>
+      <div className={csShell()}>
+        <div className={csProseInner( align, width)}>
           {s.sectionTitle && (
             <h2
-              className={`mb-5 ${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+              className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
             >
               {s.sectionTitle}
             </h2>
           )}
-          <Prose value={s.body} className={`mt-5 ${csBodyText(v)}`} />
+          <Prose value={s.body} className={`mt-5 ${csBodyText()}`} />
         </div>
       </div>
     </section>
@@ -1147,28 +1031,24 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
 
 /** Figma 03 — Problem Context / What I Brought (600:12516): one centred band. */
 function ProblemContextBlock({ section: s }: { section: Of<'problemContextSection'> }) {
-  const v = useCsVariant()
   const light = isLight(s.appearance)
   const align = s.appearance?.contentAlignment ?? 'center'
   const width = s.appearance?.maxWidth ?? 'default'
-  const body = csBodyText(v)
-  const titleClass = `${csSectionTitle(v)} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
-  const page = v === 'page'
-  const padStyle = page
-    ? sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
-    : sectionPadStyle(s.appearance, padDefaults('md', false), false)
+  const body = csBodyText()
+  const titleClass = `${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
+  const padStyle = sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
   return (
     <section
-      className={`${ALIGN[align]} ${pageScreenBandClass(page)}`}
+      className={`${ALIGN[align]} ${pageScreenBandClass(true)}`}
       style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
-      <div className={`${csShell(v)} ${pageScreenBandInnerClass(page)}`}>
+      <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
         <div
-          className={`flex flex-col ${csProseInner(v, align, width)}`}
+          className={`flex flex-col ${csProseInner( align, width)}`}
           style={sectionGapStyle(
             s.appearance,
-            gapDefault('md', page),
-            page,
+            gapDefault('md', true),
+            true,
           )}
         >
           <div>
@@ -1200,30 +1080,22 @@ function ReflectionBlock({
   section: Of<'reflectionSection'>
   fullCaseStudy?: { url: string; label: string; intro?: string }
 }) {
-  const v = useCsVariant()
   const align = s.appearance?.contentAlignment ?? 'center'
   const width = s.appearance?.maxWidth ?? 'default'
-  const body = csReflectionBody(v)
-  const titleClass = `${csReflectionTitle(v)} text-white ${align === 'center' ? 'text-center' : ''}`
+  const body = csReflectionBody()
+  const titleClass = `${csReflectionTitle()} text-white ${align === 'center' ? 'text-center' : ''}`
   const steps = s.nextStepsItems ?? []
   const hasReflection = !!s.reflectionBody?.length
   if (!hasReflection && !steps.length && !fullCaseStudy?.url) return null
-  const page = v === 'page'
   const padStyle = sectionPadStyle(
     s.appearance,
-    page
-      ? {
-          paddingTop: REFLECTION_DEFAULTS.paddingTop,
-          paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
-        }
-      : padDefaults('md', false),
-    page,
+    {
+      paddingTop: REFLECTION_DEFAULTS.paddingTop,
+      paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
+    },
+    true,
   )
-  const column = page
-    ? csProseInner(v, align, width)
-    : align === 'center'
-      ? 'mx-auto w-full max-w-[693px] text-center'
-      : csProseInner(v, align, width)
+  const column = csProseInner(align, width)
   return (
     <section
       className={`${ALIGN[align]} text-white`}
@@ -1232,22 +1104,22 @@ function ReflectionBlock({
         ...padStyle,
       }}
     >
-      <div className={csShell(v)}>
+      <div className={csShell()}>
         <div
-          className={`flex flex-col ${page ? column : 'mx-auto w-full max-w-[1016px] items-center'}`}
+          className={`flex flex-col ${column}`}
           style={sectionGapStyle(
             s.appearance,
             REFLECTION_DEFAULTS.contentGap,
-            page,
+            true,
           )}
         >
           {hasReflection && (
             <div
-              className={`flex w-full flex-col ${page ? '' : `items-center ${column}`}`}
+              className={`flex w-full flex-col ${''}`}
               style={sectionInnerGapStyle(
                 s.appearance,
                 REFLECTION_DEFAULTS.contentGapInner,
-                page,
+                true,
               )}
             >
               {s.reflectionHeading && (
@@ -1255,17 +1127,17 @@ function ReflectionBlock({
               )}
               <Prose
                 value={s.reflectionBody}
-                className={`${body} ${page ? '' : 'max-w-[683px]'}`}
+                className={`${body} ${''}`}
               />
             </div>
           )}
           {steps.length > 0 && (
             <div
-              className={`flex w-full flex-col ${page ? '' : `items-center ${column}`}`}
+              className={`flex w-full flex-col ${''}`}
               style={sectionInnerGapStyle(
                 s.appearance,
                 REFLECTION_DEFAULTS.contentGapInner,
-                page,
+                true,
               )}
             >
               {s.nextStepsHeading && (
@@ -1280,7 +1152,7 @@ function ReflectionBlock({
           )}
           {fullCaseStudy?.url ? (
             <div
-              className={`flex w-full items-center justify-center border-t border-[#323232] pt-8 min-h-[132px] ${page ? '' : 'max-w-[923px]'}`}
+              className={`flex w-full items-center justify-center border-t border-[#323232] pt-8 min-h-[132px] ${''}`}
             >
               <FullCaseStudyPdfFooter
                 url={fullCaseStudy.url}
@@ -1359,13 +1231,19 @@ function CoreExperienceScreenCard({
   const cardBg = coreExperienceCardBg(screen, bandApp)
   const bandPreview = size === 'preview'
   const bandCaptionClass = desktop
-    ? `mt-3 text-left text-[13px] leading-[1.35] sm:text-[14px] lg:mt-4 ${caption}`
-    : `mt-3 text-left text-[11px] leading-[1.5] sm:text-[12px] lg:mt-4 ${caption}`
+    ? `mt-3 text-left leading-[1.35] ${CS_CAPTION_LG} lg:mt-4 ${caption}`
+    : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
 
   if (bandPreview) {
     const desktopBand = desktop
     return (
-      <figure className={desktopBand ? 'min-w-0 flex-1' : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'}>
+      <figure
+        className={
+          desktopBand
+            ? 'min-w-0 flex-1'
+            : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
+        }
+      >
         <div
           className="overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.22)]"
           style={{
@@ -1395,8 +1273,8 @@ function CoreExperienceScreenCard({
   }
 
   const popupCaptionClass = desktop
-    ? `mt-3 text-left text-[13px] leading-[1.35] sm:text-[14px] lg:mt-4 ${caption}`
-    : `mt-3 text-left text-[11px] leading-[1.5] sm:text-[12px] lg:mt-4 ${caption}`
+    ? `mt-3 text-left leading-[1.35] ${CS_CAPTION_LG} lg:mt-4 ${caption}`
+    : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
 
   const previewW = desktop
     ? 'w-[220px] sm:w-[260px] lg:w-[300px]'
@@ -1418,7 +1296,7 @@ function CoreExperienceScreenCard({
         <img
           src={screen.image}
           alt={screen.label ?? screen.description ?? 'Product screen'}
-          className={`h-full w-full ${desktop ? 'object-contain object-top' : 'object-cover object-top'}`}
+          className="h-full w-full object-cover object-top"
         />
       </div>
       {(screen.label || screen.description) && (
@@ -1539,7 +1417,11 @@ function CoreExperienceBandPreview({
     <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
       <div
         className="mx-auto flex w-max items-start justify-center px-2 sm:w-full sm:max-w-[min(1100px,100%)]"
-        style={{ gap: colGap, ...horizontalPad }}
+        style={{
+          gap: colGap,
+          ...horizontalPad,
+          ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
+        }}
       >
         {screens.map(sc => (
           <CoreExperienceScreenCard
@@ -1558,26 +1440,24 @@ function CoreExperienceBandPreview({
 }
 
 function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const light = isLight(s.appearance)
   return (
     <section
       data-cs-stretch
       className="flex flex-col justify-center"
-      style={flexSectionStyle(s.appearance, page, 'md')}
+      style={flexSectionStyle(s.appearance, true, 'md')}
     >
       {(s.sectionTitle || s.body) && (
-        <div className={`${csShell(v)} text-center`}>
+        <div className={`${csShell()} text-center`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.body}
-            className={`mx-auto mt-3 max-w-[70ch] ${csBodyText(v)}`}
+            className={`mx-auto mt-3 max-w-[70ch] ${csBodyText()}`}
           />
         </div>
       )}
       <div
-        className={`${s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'} ${page ? '' : 'flex justify-center px-6'}`}
+        className={`${s.imageMobile ? undefined : 'overflow-x-auto sm:overflow-x-visible'} ${''}`}
       >
         <picture>
           {s.imageMobile && (
@@ -1590,9 +1470,7 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
             className={`block h-auto ${
               s.imageMobile
                 ? 'w-full'
-                : page
-                  ? 'w-208 max-w-none sm:w-full sm:max-w-full'
-                  : 'w-full max-w-[min(380px,88%)]'
+                : 'w-208 max-w-none sm:w-full sm:max-w-full'
             }`}
           />
         </picture>
@@ -1609,7 +1487,6 @@ function CoreExperienceBlock({
   projectName: string
 }) {
   const [popupOpen, setPopupOpen] = useState(false)
-  const v = useCsVariant()
   const light = bandUsesLightText(s.appearance)
   const layout = s.layoutVariant ?? 'mobileRow'
   const preview = (s.previewScreens ?? []).filter(sc => sc.image)
@@ -1690,17 +1567,17 @@ function CoreExperienceBlock({
       <section
         data-cs-stretch
         className="flex flex-col items-center"
-        style={sectionStyle(s.appearance, v === 'page', 'md')}
+        style={sectionStyle(s.appearance, true, 'md')}
       >
         <div
-          className={`${csShell(v)} flex w-full flex-col items-center text-center`}
-          style={sectionGapStyle(s.appearance, gapDefault('md', v === 'page'), v === 'page')}
+          className={`${csShell()} flex w-full flex-col items-center text-center`}
+          style={sectionGapStyle(s.appearance, gapDefault('md', true), true)}
         >
-          <h2 className={`${csSectionTitle(v)} ${onDark}`}>{title}</h2>
+          <h2 className={`${csSectionTitle()} ${onDark}`}>{title}</h2>
           {s.body?.length ? (
             <Prose
               value={s.body}
-              className={`mx-auto max-w-[70ch] ${csBodyText(v, onDark)}`}
+              className={`mx-auto max-w-[70ch] ${csBodyText( onDark)}`}
             />
           ) : null}
           <CoreExperienceBandPreview
@@ -1716,7 +1593,7 @@ function CoreExperienceBlock({
               type="button"
               data-cursor="hover"
               onClick={() => setPopupOpen(true)}
-              className={`font-grotesk shrink-0 text-[16px] uppercase leading-none underline underline-offset-4 transition-opacity hover:opacity-80 xl:text-[1vw] ${light ? 'text-white' : ''}`}
+              className={`font-grotesk shrink-0 uppercase leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.1vw] ${light ? 'text-white' : ''}`}
             >
               {viewMore}
             </button>
@@ -1757,17 +1634,17 @@ function CoreExperienceBlock({
               style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
             >
               {popupKicker ? (
-                <p className="font-grotesk mb-1 text-[11px] font-normal uppercase  sm:text-[12px] lg:mb-2">
+                <p className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}>
                   {popupKicker}
                 </p>
               ) : null}
-              <h2 className={`${csSectionTitle(v)} w-full ${ALIGN[popupAlign]}`}>
+              <h2 className={`${csSectionTitle()} w-full ${ALIGN[popupAlign]}`}>
                 {popupTitle}
               </h2>
               {s.popupBody?.length ? (
                 <Prose
                   value={s.popupBody}
-                  className={`w-full ${csBodyText(v)} ${ALIGN[popupAlign]}`}
+                  className={`w-full ${csBodyText()} ${ALIGN[popupAlign]}`}
                 />
               ) : null}
             </div>
@@ -1795,9 +1672,6 @@ function DesktopMotionShowcaseBlock({
 }: {
   section: Of<'desktopMotionShowcase'>
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
-  const overlay = v === 'overlay'
   const hasVideo = !!(s.videoFile || s.videoUrl)
   const hasStaticImage = !!s.posterImage && !hasVideo
   const hasMedia = hasVideo || hasStaticImage
@@ -1807,21 +1681,21 @@ function DesktopMotionShowcaseBlock({
   const copyClass = lightText ? 'text-white' : 'text-black'
   return (
     <section
-      data-cs-stretch={page ? undefined : true}
+      
       className={`relative flex flex-col ${
-        page ? csBandGutter(v) : csBandGutter(v)
-      } ${overlay ? 'min-h-[min(847px,88vh)]' : ''}`}
-      style={flexSectionStyle(s.appearance, page, 'md', undefined, lightText)}
+        csBandGutter()
+      } `}
+      style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
     >
       {hasMedia && (
         <div
           className={`flex justify-center ${
-            page ? csShell(v, '!px-0 max-lg:!px-0') : 'px-6 sm:px-10 xl:px-[3.5vw]'
+            csShell('!px-0 max-lg:!px-0')
           } pt-12 max-lg:pt-8 lg:pt-14`}
         >
           <div
             className={`w-full overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] ${
-              page ? 'max-w-[762px]' : 'max-w-[min(728px,66%)]'
+              'max-w-[762px]'
             }`}
           >
             {hasVideo ? (
@@ -1857,78 +1731,51 @@ function DesktopMotionShowcaseBlock({
           </div>
         </div>
       )}
-      {hasCopy &&
-        (overlay ? (
+      {hasCopy && (
           <div
-            className={`absolute bottom-[min(103px,12%)] right-[max(24px,6%)] max-w-[min(445px,42%)] text-left  ${copyClass}`}
-          >
-            {copyTitle && (
-              <h2 className="text-[18px] font-normal capitalize leading-[1.6] ">
-                {copyTitle}
-              </h2>
-            )}
-            {s.body?.length ? (
-              <Prose
-                value={s.body}
-                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
-              />
-            ) : s.caption ? (
-              <p
-                className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] `}
-              >
-                {s.caption}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          <div
-            className={`w-full pb-[min(103px,12%)] pt-6  ${copyClass} ${csShell(v, '!px-0')}`}
+            className={`w-full pb-[min(103px,12%)] pt-6  ${copyClass} ${csShell('!px-0')}`}
           >
             <div className="text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)]">
               {copyTitle && (
-                <h2 className="text-[18px] font-normal capitalize leading-[1.6] max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2]">
+                <h2 className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]">
                   {copyTitle}
                 </h2>
               )}
               {s.body?.length ? (
                 <Prose
                   value={s.body}
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.4]`}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.4]`}
                 />
               ) : s.caption ? (
                 <p
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.4]`}
+                  className={`${copyTitle ? 'mt-2.5' : ''} text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.4]`}
                 >
                   {s.caption}
                 </p>
               ) : null}
             </div>
           </div>
-        ))}
+        )}
     </section>
   )
 }
 
 function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
-  const v = useCsVariant()
   const light = isLight(s.appearance)
   const items = s.items ?? []
   const multi = items.length > 1
-  const page = v === 'page'
   return (
     <section
       data-cs-stretch
       className="flex flex-col justify-center"
-      style={flexSectionStyle(s.appearance, page, 'md')}
+      style={flexSectionStyle(s.appearance, true, 'md')}
     >
       {items.length > 0 && (
         <div
           className={
             multi
-              ? `${csShell(v)} grid w-full gap-6 sm:grid-cols-2`
-              : page
-                ? csShell(v)
-                : 'mx-auto w-full max-w-225 px-6 sm:px-10 xl:px-[3.5vw]'
+              ? `${csShell()} grid w-full gap-6 sm:grid-cols-2`
+              : csShell()
           }
         >
           {items.map((m, i) => (
@@ -1937,11 +1784,11 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
         </div>
       )}
       {(s.sectionTitle || s.body) && (
-        <div className={`${csShell(v)} ml-auto max-w-[min(440px,100%)]`}>
+        <div className={`${csShell()} ml-auto max-w-[min(440px,100%)]`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.body}
-            className="mt-3 text-[12px] leading-[1.45] xl:text-[0.85vw]"
+            className="mt-3 text-[14px] leading-[1.45] xl:text-[0.95vw]"
           />
         </div>
       )}
@@ -2004,24 +1851,22 @@ function MediaUnit({ item }: { item: MediaItem }) {
 }
 
 function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const light = isLight(s.appearance)
   const initial = s.itemsBeforeViewMore ?? 6
   const tan = colorToCss(s.appearance?.backgroundColor)
   const tile = !!s.useDeviceTabs // device-tab flows use the framed tile style
   return (
     <section
-      className={csBandGutter(v)}
+      className={csBandGutter()}
       style={{
         ...bandStyle(s.appearance),
-        ...sectionPadStyle(s.appearance, padDefaults('md', page), page),
+        ...sectionPadStyle(s.appearance, padDefaults('md', true), true),
       }}
     >
       {(s.sectionTitle || s.body) && (
-        <div className={`mb-2 ${v === 'page' ? csShell(v, '!px-0') : ''}`}>
+        <div className={`mb-2 ${true ? csShell('!px-0') : ''}`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose value={s.body} className={`max-w-[70ch] ${csBodyText(v)}`} />
+          <Prose value={s.body} className={`max-w-[70ch] ${csBodyText()}`} />
         </div>
       )}
       {s.useDeviceTabs && s.tabs?.length ? (
@@ -2051,8 +1896,6 @@ function ShowcaseBlock({
   section: Of<'showcaseGallery'>
   scrollRoot?: React.RefObject<HTMLDivElement | null>
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const items = s.items ?? []
   const images = imgUrls(items)
   const light = isLight(s.appearance, true)
@@ -2073,13 +1916,13 @@ function ShowcaseBlock({
         data-cs-stretch
         className="flex flex-col justify-center"
         style={{
-          ...sectionStyle(s.appearance, page, 'md', '#000000', true),
-          ...sectionGapStyle(s.appearance, gapDefault('lg', page), page),
+          ...sectionStyle(s.appearance, true, 'md', '#000000', true),
+          ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
         }}
       >
         <div
           className="relative flex w-full flex-col px-12 sm:px-16 max-lg:!gap-5 lg:px-6 xl:px-[3.5vw]"
-          style={sectionGapStyle(s.appearance, gapDefault('lg', page), page)}
+          style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
         >
           {(s.sectionTitle || s.introBody) && (
             <div
@@ -2088,11 +1931,7 @@ function ShowcaseBlock({
             >
               {s.sectionTitle && (
                 <h2
-                  className={`text-center font-normal uppercase leading-tight lg:text-left lg:normal-case lg:capitalize ${
-                    page
-                      ? 'text-[14px] lg:text-[24px]'
-                      : 'text-[14px] lg:text-[24px] xl:text-[1.5vw]'
-                  } ${light ? 'text-white' : ''}`}
+                  className={`text-center font-normal uppercase leading-tight lg:text-left lg:normal-case lg:capitalize text-[16px] lg:text-[26px] ${light ? 'text-white' : ''}`}
                 >
                   {s.sectionTitle}
                 </h2>
@@ -2100,7 +1939,7 @@ function ShowcaseBlock({
               {s.introBody?.length ? (
                 <Prose
                   value={s.introBody}
-                  className={`mt-4 hidden lg:block ${csBodyText(v, 'text-[16px] lg:text-[17px]')}`}
+                  className={`mt-4 hidden lg:block ${csBodySm()}`}
                 />
               ) : null}
             </div>
@@ -2125,14 +1964,14 @@ function ShowcaseBlock({
     <section
       data-cs-stretch
       className="flex flex-col justify-center"
-      style={flexSectionStyle(s.appearance, page, 'md', '#000000', true)}
+      style={flexSectionStyle(s.appearance, true, 'md', '#000000', true)}
     >
       {(s.sectionTitle || s.introBody) && (
-        <div className={csShell(v)}>
+        <div className={csShell()}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <Prose
             value={s.introBody}
-            className={`mt-3 ${csBodyText(v, 'text-[15px] lg:text-[16px]')}`}
+            className={`mt-3 ${csBodySm()}`}
           />
         </div>
       )}
@@ -2163,9 +2002,6 @@ function MotionShowcaseFeaturedBand({
 }: {
   section: Of<'motionShowcase'>
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
-  const overlay = v === 'overlay'
   const [lg, setLg] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -2178,9 +2014,7 @@ function MotionShowcaseFeaturedBand({
   if (!row) return null
   const items = row.items ?? []
   const captionAlign = row.captionAlign ?? 'left'
-  const rowWidthDefault = overlay
-    ? MOTION_ROW_DEFAULTS.rowWidthPercentOverlayFeaturedMobile
-    : 34
+  const rowWidthDefault = 34
   const rowWidth =
     typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
       ? row.rowWidthPercent
@@ -2191,20 +2025,18 @@ function MotionShowcaseFeaturedBand({
       : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
   return (
     <section
-      data-cs-stretch={page ? undefined : true}
-      className={`relative flex flex-col ${page ? csBandGutter(v) : csBandGutter(v)} ${
-        overlay ? 'min-h-[min(847px,88vh)]' : ''
-      }`}
+      
+      className={`relative flex flex-col ${csBandGutter()}`}
       style={flexSectionStyle(
         s.appearance,
-        page,
+        true,
         'lg',
         MOTION_FEATURED_BAND_DEFAULTS.backgroundColor,
       )}
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle(v)} text-black`}
+          className={`text-center ${csSectionTitle()} text-black`}
           style={{ marginBottom: lg ? titleMb : titleMb }}
         >
           {s.sectionTitle}
@@ -2226,10 +2058,9 @@ function MotionShowcaseFeaturedBand({
           </div>
         </div>
       )}
-      {(row.label || row.caption) &&
-        (overlay ? (
+      {(row.label || row.caption) && (
           <div
-            className="absolute bottom-[min(51px,8%)] left-0 w-full px-6  text-black sm:px-10 xl:px-[3.5vw]"
+            className={`w-full pb-[min(51px,8%)] pt-8  text-black ${csShell('!px-0')}`}
           >
             <div
               className="text-left"
@@ -2240,42 +2071,18 @@ function MotionShowcaseFeaturedBand({
               }
             >
               {row.label && (
-                <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
+                <p className="text-[20px] font-normal capitalize leading-[1.6] xl:text-[1.25vw]">
                   {row.label}
                 </p>
               )}
               {row.caption && (
-                <p className="mt-2.5 max-w-[353px] text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
+                <p className="mt-2.5 max-w-[353px] text-[16px] font-normal leading-[1.6] xl:text-[1.05vw]">
                   {row.caption}
                 </p>
               )}
             </div>
           </div>
-        ) : (
-          <div
-            className={`w-full pb-[min(51px,8%)] pt-8  text-black ${csShell(v, '!px-0')}`}
-          >
-            <div
-              className="text-left"
-              style={
-                captionAlign === 'right'
-                  ? featuredCaptionInset('right')
-                  : featuredCaptionInset('left')
-              }
-            >
-              {row.label && (
-                <p className="text-[18px] font-normal capitalize leading-[1.6] xl:text-[1.15vw]">
-                  {row.label}
-                </p>
-              )}
-              {row.caption && (
-                <p className="mt-2.5 max-w-[353px] text-[14px] font-normal leading-[1.6] xl:text-[0.95vw]">
-                  {row.caption}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
+        )}
     </section>
   )
 }
@@ -2325,8 +2132,6 @@ function MotionShowcaseStackedBand({
 }: {
   section: Of<'motionShowcase'>
 }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const rows = s.rows ?? []
   const light = isLight(s.appearance)
   const onDark = light ? 'text-[#e3e3db]' : ''
@@ -2355,12 +2160,12 @@ function MotionShowcaseStackedBand({
   if (!rows.length) return null
   return (
     <section
-      className={csBandGutter(v)}
-      style={sectionStyle(s.appearance, page, 'lg', MOTION_BG)}
+      className={csBandGutter()}
+      style={sectionStyle(s.appearance, true, 'lg', MOTION_BG)}
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle(v)} max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2] ${light ? onDark : ''}`}
+          className={`text-center ${csSectionTitle()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${light ? onDark : ''}`}
           style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
@@ -2368,15 +2173,15 @@ function MotionShowcaseStackedBand({
       )}
       {s.intro && (
         <div
-          className={`mx-auto max-w-[min(720px,100%)] text-center ${csShell(v, '!px-0')} ${onDark}`}
+          className={`mx-auto max-w-[min(720px,100%)] text-center ${csShell('!px-0')} ${onDark}`}
           style={{ marginBottom: introMb }}
         >
-          <Prose value={s.intro} className={csBodyText(v, 'text-[15px] lg:text-[16px]')} />
+          <Prose value={s.intro} className={csBodySm()} />
         </div>
       )}
       <div
-        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${csShell(v, '!px-0')}`}
-        style={sectionGapStyle(s.appearance, gapDefault('lg', page), page)}
+        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${csShell('!px-0')}`}
+        style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
       >
         {rows.map((row, i) => (
           <MotionRowView
@@ -2406,8 +2211,6 @@ function MotionRowView({
   light: boolean
   inheritTextColor: boolean
 }) {
-  const v = useCsVariant()
-  const overlay = v === 'overlay'
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
   const aspect =
@@ -2423,19 +2226,10 @@ function MotionRowView({
         ? 'rounded-[12px] max-lg:!rounded-[4px]'
         : 'rounded-[10px] max-lg:!rounded-[4px]'
   const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
-  const rowWidthDefault =
-    overlay && device === 'mobile'
-      ? 34
-      : overlay && device === 'tablet'
-        ? 42
-        : overlay && device === 'desktop'
-          ? MOTION_ROW_DEFAULTS.rowWidthPercentOverlayDesktop
-          : MOTION_ROW_DEFAULTS.rowWidthPercent
+  const rowWidthDefault = MOTION_ROW_DEFAULTS.rowWidthPercent
   const rowWidth =
     typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
-      ? overlay && device !== 'desktop'
-        ? Math.min(row.rowWidthPercent, rowWidthDefault)
-        : row.rowWidthPercent
+      ? row.rowWidthPercent
       : rowWidthDefault
   const itemGap =
     typeof row.itemGapPercent === 'number' && row.itemGapPercent >= 0
@@ -2481,12 +2275,12 @@ function MotionRowView({
             style={{ marginTop: captionMt }}
           >
             {row.label && (
-              <p className="text-[18px] font-normal capitalize leading-[1.6] max-lg:!text-[11px] max-lg:!uppercase max-lg:!leading-[1.2] xl:text-[1.15vw]">
+              <p className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] xl:text-[1.25vw]">
                 {row.label}
               </p>
             )}
             {row.caption && (
-              <p className="mt-2.5 text-[14px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[12px] max-lg:!leading-[1.3] xl:text-[0.95vw]">
+              <p className="mt-2.5 text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.3] xl:text-[1.05vw]">
                 {row.caption}
               </p>
             )}
@@ -2560,8 +2354,6 @@ function highlightFrameUrls(cell: HighlightCell): string[] {
 }
 
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const layout = s.layout ?? 'grid'
   const cells = s.cells ?? []
   const composite = layout === 'composite'
@@ -2597,12 +2389,12 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       : HIGHLIGHT_REEL_COMPOSITE_DEFAULTS.maxWidth
   return (
     <section
-      className={csBandGutter(v)}
-      style={sectionStyle(s.appearance, page, 'lg')}
+      className={csBandGutter()}
+      style={sectionStyle(s.appearance, true, 'lg')}
     >
       {s.sectionTitle && (
         <h2
-          className={`mb-12 text-left max-lg:text-[11px]! max-lg:uppercase! lg:mb-16 lg:text-center ${csSectionTitle(v)}`}
+          className={`mb-12 text-left max-lg:text-[13px]! max-lg:uppercase! lg:mb-16 lg:text-center ${csSectionTitle()}`}
         >
           {s.sectionTitle}
         </h2>
@@ -2723,8 +2515,7 @@ function HighlightCellView({
   const i = useFrameCycle(frames.length, delay)
   if (!videoSrc && !frames.length) return null
 
-  const captionClass =
-    'mt-2.5 max-w-64 text-center text-[17px] font-normal leading-[1.245] lg:text-[18px]'
+  const captionClass = `mt-2.5 max-w-64 text-center font-normal leading-[1.245] ${csBodyText()}`
 
   return (
     <div className="flex flex-col items-center">
@@ -2782,8 +2573,6 @@ function HighlightCellView({
 }
 
 function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const items = s.items ?? []
   const [lg, setLg] = useState(false)
   useEffect(() => {
@@ -2815,17 +2604,17 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
       : STATS_BAND_DEFAULTS.bodyMarginBottom
   return (
     <section
-      className={`${csBandGutter(v)} text-center`}
-      style={sectionStyle(s.appearance, page, 'lg')}
+      className={`${csBandGutter()} text-center`}
+      style={sectionStyle(s.appearance, true, 'lg')}
     >
       {s.sectionTitle && (
-        <h2 className={csImpactTitle(v)} style={{ marginBottom: titleMb }}>
+        <h2 className={csImpactTitle()} style={{ marginBottom: titleMb }}>
           {s.sectionTitle}
         </h2>
       )}
       {s.body?.length ? (
         <div className="mx-auto max-w-[min(720px,100%)]" style={{ marginBottom: bodyMb }}>
-          <Prose value={s.body} className={csBodyText(v)} />
+          <Prose value={s.body} className={csBodyText()} />
         </div>
       ) : null}
       <div
@@ -2841,20 +2630,18 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
 }
 
 function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
-  const v = useCsVariant()
-  const page = v === 'page'
   const items = s.items ?? []
   if (!items.length) return null
   return (
     <section
-      style={sectionStyle(s.appearance, page, 'md')}
+      style={sectionStyle(s.appearance, true, 'md')}
     >
-      <div className={csShell(v)}>
-        <div className={`mx-auto ${v === 'page' ? 'max-w-[min(720px,100%)]' : 'max-w-160'}`}>
+      <div className={csShell()}>
+        <div className={`mx-auto ${true ? 'max-w-[min(720px,100%)]' : 'max-w-160'}`}>
           <Label light={isLight(s.appearance)}>
             {s.sectionTitle ?? 'Next Steps'}
           </Label>
-          <ul className={`mt-5 list-disc space-y-3 pl-5 ${csBodyText(v)}`}>
+          <ul className={`mt-5 list-disc space-y-3 pl-5 ${csBodyText()}`}>
             {items.map((it, i) => (
               <li key={i}>{it}</li>
             ))}
@@ -2882,10 +2669,9 @@ function Label({
   center?: boolean
   light?: boolean
 }) {
-  const page = useCsVariant() === 'page'
   return (
     <h2
-      className={`mb-5 capitalize leading-tight ${page ? 'text-[20px] font-normal lg:text-[24px]' : 'text-[20px] font-normal xl:mb-[0.5vw] xl:text-[1vw]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 capitalize leading-tight ${'text-[22px] font-normal lg:text-[26px]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
@@ -2904,19 +2690,10 @@ function Accordion({
     items.findIndex(i => i.defaultOpen),
   )
   const [open, setOpen] = useState(initial === -1 ? 0 : initial)
-  const page = useCsVariant() === 'page'
-  const headSize = page
-    ? variant === 'brought'
-      ? 'text-[18px] lg:text-[19px]'
-      : 'text-[17px] lg:text-[18px]'
-    : variant === 'brought'
-      ? 'text-[18px] xl:text-[1.4vw]'
-      : 'text-[18px] xl:text-[1.05vw]'
-  const bodySize = page
-    ? 'text-[16px] lg:text-[17px]'
-    : variant === 'brought'
-      ? 'text-[16px] xl:text-[1.25vw]'
-      : 'text-[16px] xl:text-[0.9vw]'
+  const headSize =
+    variant === 'brought' ? 'text-[20px] lg:text-[21px]' : 'text-[19px] lg:text-[20px]'
+  const bodySize =
+    variant === 'brought' ? 'text-[18px] lg:text-[19px]' : 'text-[18px] lg:text-[19px]'
   return (
     <div>
       {items.map((it, i) => {
@@ -2927,7 +2704,7 @@ function Accordion({
               type="button"
               onClick={() => setOpen(isOpen ? -1 : i)}
               data-cursor="hover"
-              className={`flex w-full items-center justify-between gap-6 text-left font-normal ${page ? 'py-5' : 'py-6.25 xl:py-[0.9vw]'} ${headSize}`}
+              className={`flex w-full items-center justify-between gap-6 text-left font-normal ${'py-5'} ${headSize}`}
             >
               <span>{it.title}</span>
               {/* Thin hairline +/− per Figma (stroke 0.7625 on a 12u grid). */}
@@ -3067,7 +2844,7 @@ function ArtifactSlider({
       <div className="hidden lg:block">
         {canPage && (
           // Figma 600:12626: text chevrons, Neue Haas 21px / 500 / +0.44px, 29px gap.
-          <div className="mb-5 flex items-center justify-end gap-7.25 text-[21px] font-medium leading-none  text-white xl:text-[1.35vw]">
+          <div className="mb-5 flex items-center justify-end gap-7.25 text-[23px] font-medium leading-none text-white xl:text-[1.45vw]">
             <button
               type="button"
               aria-label="Previous slide"
@@ -3453,27 +3230,30 @@ function DeviceGallery({
 }) {
   const [active, setActive] = useState(0)
   const tab = tabs[active]
+  const showTabBar = tabs.length > 1
   return (
     <div className={gridSize === 'popup' ? 'w-full' : 'mt-8'}>
-      <div className="mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]">
-        {tabs.map((v, i) => (
-          <button
-            key={v._key}
-            type="button"
-            onClick={() => setActive(i)}
-            data-cursor="hover"
-            className="shrink-0 text-[12px] uppercase leading-none sm:text-[16px] xl:text-[1vw]"
-          >
-            <span
-              className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
-                active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
-              }`}
+      {showTabBar ? (
+        <div className="mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]">
+          {tabs.map((v, i) => (
+            <button
+              key={v._key}
+              type="button"
+              onClick={() => setActive(i)}
+              data-cursor="hover"
+              className={`shrink-0 uppercase leading-none ${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`}
             >
-              {v.label}
-            </span>
-          </button>
-        ))}
-      </div>
+              <span
+                className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
+                  active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
+                }`}
+              >
+                {v.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
       <ImageGrid
         key={tab?._key}
         images={imgUrls(tab?.items)}
@@ -3520,63 +3300,69 @@ function ImageGrid({
   const popup = size === 'popup'
   const colGap = gridColumnGap ?? (popup ? 16 : undefined)
   const rowGap = gridRowGap ?? (popup ? 24 : undefined)
+
+  const renderTile = (src: string, i: number, key?: string | number) =>
+    tile ? (
+      <div
+        key={key ?? i}
+        className={`flex min-w-0 flex-1 items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
+          popup ? 'p-3 sm:min-h-[min(42vh,520px)]' : ''
+        }`}
+        style={{ backgroundColor: tileFill }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          className={
+            popup
+              ? 'w-full object-contain sm:max-h-[min(42vh,540px)]'
+              : 'h-[40vw] w-full object-contain xl:h-[20vw]'
+          }
+        />
+      </div>
+    ) : (
+      <figure key={key ?? i}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          className="block h-auto w-full object-cover"
+        />
+        {captions?.[i] && (
+          <figcaption className="mt-2 text-[15px] opacity-70">
+            {captions[i]}
+          </figcaption>
+        )}
+      </figure>
+    )
+
+  const flatGrid = (
+    <div
+      className={`grid grid-cols-1 sm:grid-cols-2 ${
+        popup ? 'mt-5' : 'mt-8 gap-y-10'
+      }`}
+      style={{
+        columnGap: colGap ?? '5vw',
+        rowGap: rowGap ?? (popup ? 24 : 40),
+      }}
+    >
+      {visible.map((src, i) => renderTile(src, i))}
+    </div>
+  )
+
   return (
     <>
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 ${
-          popup ? 'mt-5' : 'mt-8 gap-y-10'
-        }`}
-        style={{
-          columnGap: colGap ?? '5vw',
-          rowGap: rowGap ?? (popup ? 24 : 40),
-        }}
-      >
-        {visible.map((src, i) =>
-          tile ? (
-            <div
-              key={i}
-              className={`flex items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
-                popup ? 'p-3 sm:min-h-[min(42vh,520px)]' : ''
-              }`}
-              style={{ backgroundColor: tileFill }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-              <img
-                src={src}
-                alt=""
-                loading="lazy"
-                className={
-                  popup
-                    ? 'w-full object-contain sm:max-h-[min(42vh,540px)]'
-                    : 'h-[40vw] w-full object-contain xl:h-[20vw]'
-                }
-              />
-            </div>
-          ) : (
-            <figure key={i}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-              <img
-                src={src}
-                alt=""
-                loading="lazy"
-                className="block h-auto w-full object-cover"
-              />
-              {captions?.[i] && (
-                <figcaption className="mt-2 text-[13px] opacity-70">
-                  {captions[i]}
-                </figcaption>
-              )}
-            </figure>
-          ),
-        )}
-      </div>
+      {flatGrid}
       {shown < images.length && (
         <div className="mt-10 flex justify-center">
           <button
             type="button"
             onClick={() => setShown(n => n + STEP)}
             data-cursor="hover"
-            className={`relative pb-1 text-[16px] uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current xl:text-[1vw] ${light ? 'text-white' : ''}`}
+            className={`relative pb-1 uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] ${light ? 'text-white' : ''}`}
           >
             {loadMore}
           </button>
@@ -3589,7 +3375,6 @@ function ImageGrid({
 function Stat({ stat }: { stat: StatItem }) {
   const ref = useRef<HTMLDivElement>(null)
   const [n, setN] = useState(0)
-  const page = useCsVariant() === 'page'
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -3619,16 +3404,16 @@ function Stat({ stat }: { stat: StatItem }) {
   return (
     <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center ">
       {/* Impact stat — inherits Reckless Regular from `.cs-root`. */}
-      <p className={`font-normal leading-none ${page ? 'text-[64px] sm:text-[80px] lg:text-[96px]' : 'text-[64px] font-normal leading-none sm:text-[80px] xl:text-[5vw]'}`}>
+      <p className={`font-normal leading-none ${'text-[64px] sm:text-[80px] lg:text-[96px]'}`}>
         {stat.prefix}
         {n}
         {stat.suffix}
       </p>
-      <p className={`mt-5 font-normal leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
+      <p className={`mt-5 font-normal leading-[1.245] ${csBodyText()}`}>
         {stat.label}
       </p>
       {stat.note && (
-        <p className={`mt-2.5 max-w-64 font-normal leading-[1.245] ${page ? 'text-[17px] lg:text-[18px]' : 'text-[18px] xl:text-[1.15vw]'}`}>
+        <p className={`mt-2.5 max-w-64 font-normal leading-[1.245] ${csBodyText()}`}>
           {stat.note}
         </p>
       )}

@@ -1,15 +1,10 @@
 /**
- * Experian Boost — Core Experience Flow band tiles only.
+ * Experian Boost — Core Experience Flow band preview tiles only.
  *
- * Israel's Figma frames PNG @4× (3860:6648 / 6647 / 6646 / 6203 / 6250).
- * No crop / resize — bytes are the Figma export of those nodes.
+ * Five individual phone screens (manual upload). Does not touch popupTabs —
+ * View More modal: patch-experian-core-experience-popup.ts (Figma 8-tile grid).
  *
- * View More / modal: Israel is still designing it. Leave popup fields empty
- * so the button stays hidden. Do not restore the old WP Design Interventions
- * popup. When the modal assets land, set Studio popupTabs (Coral-style) —
- * the frontend shows View More as soon as tabs or popupBody have content.
- *
- * PNG source: public/work/experian-boost/core-flow/
+ * PNG/JPG source: public/work/experian-boost/core-flow/
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-experian-core-experience.ts --with-user-token
@@ -40,12 +35,12 @@ const PREVIEW = [
     description: "Securely connect the accounts used to pay bills",
   },
   {
-    file: "03-find-eligible-payments.png",
+    file: "03-find-eligible-payments.jpg",
     label: "Find Eligible Payments:",
     description: "Identify recurring bills that may qualify for Boost",
   },
   {
-    file: "04-calculate-the-boost.png",
+    file: "04-calculate-the-boost.jpg",
     label: "Calculate the Boost:",
     description: "Turn verified payment history into potential score impact",
   },
@@ -109,9 +104,7 @@ async function main() {
         [`sections[${idx}].previewAppearance.tileBackgroundColor`]: sanityColor(BAND_BG),
       })
       .commit();
-    console.log(
-      `✓ ${doc._id}: previewScreens=${previewScreens.length} (uncropped Figma export, popup unchanged)`,
-    );
+    console.log(`✓ ${doc._id}: previewScreens=${previewScreens.length} (popup unchanged)`);
   }
 }
 

@@ -21,7 +21,7 @@ export const TITLE_TO_SLUG = {
   "Acme Lending": "acme-lending",
   "The AR Handbook": "remote-assistant-object-detection",
   "OC Links": "oc-links",
-  Mosaic: "design-assist-ai",
+  Circle: "design-assist-ai",
   Galderma: "galderma",
   "Design Assist AI": "design-assist-ai",
   "Vuforia Chalk": "vuforia-chalk",

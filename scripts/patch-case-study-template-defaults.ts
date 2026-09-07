@@ -4,6 +4,7 @@
  * - Reflection band #171717 (fixes migration #000000)
  * - Accordion panel white
  * - Core Experience screen aspect sizes
+ * - Core Experience popup appearance (template colors/gaps; intro width unset — render default)
  * - Problem Context page appearance (page-template slugs)
  * - Motion mediaItem type → image when only stills uploaded
  * - Highlight reel grid/single matte colors + insets
@@ -43,6 +44,7 @@ import {
   WORK_PAGE_APPEARANCE_DEFAULTS,
 } from "../src/lib/caseStudyDefaults";
 import {
+  CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS,
   PROBLEM_CONTEXT_PAGE_APPEARANCE_DEFAULTS,
   REFLECTION_APPEARANCE_DEFAULTS,
   SECTION_APPEARANCE_DEFAULTS,
@@ -173,6 +175,24 @@ function patchCoreExperience(section: Section, notes: string[]) {
     });
   }
   if (screenNotes) notes.push(`previewScreens: ${screenNotes} field(s)`);
+
+  const { next: popupAppearance, changed: popupChanged } = mergeAppearanceDefaults(
+    next.popupAppearance as Record<string, unknown> | undefined,
+    CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS,
+  );
+  const hadIntroMax =
+    next.popupAppearance &&
+    typeof next.popupAppearance === "object" &&
+    !isUnset((next.popupAppearance as Record<string, unknown>).introMaxWidth);
+  if (hadIntroMax) {
+    delete popupAppearance.introMaxWidth;
+    if (!popupChanged.includes("introMaxWidth")) popupChanged.push("introMaxWidth→unset");
+  }
+  if (popupChanged.length) {
+    next.popupAppearance = popupAppearance;
+    notes.push(`popupAppearance: ${popupChanged.join(", ")}`);
+  }
+
   return next;
 }
 

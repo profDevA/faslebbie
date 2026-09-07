@@ -2,7 +2,7 @@
  * Patch nine Work `.img` card thumbnails + titles from Figma 2562:39172.
  * Does not replace case-study interiors. Does not re-run migrate.
  *
- * Mosaic is the Design Assist AI card (slug stays design-assist-ai).
+ * Circle is the Design Assist AI card (slug stays design-assist-ai).
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-work-img-covers.ts --with-user-token
@@ -45,7 +45,7 @@ const CARDS: { slug: string; title: string; file: string }[] = [
   },
   {
     slug: "design-assist-ai",
-    title: "Mosaic",
+    title: "Circle",
     file: "design-assist-ai.png",
   },
   {
