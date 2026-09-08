@@ -34,11 +34,13 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Experian Boost §10 Project Highlights — composite board | `patch-experian-highlight-composite.ts` (Figma `3778:130432`; PNG: `public/work/experian-boost/highlights-board.png`) |
 | Experian Boost §05 Design Process band/panel colors | `patch-experian-design-process.ts` |
 | Experian Boost §07 Key Product Experiences — Band layout stacked | `patch-experian-key-product-layout.ts` |
-| Acme §04 Core Experience band (4 dark-band preview tiles) | `patch-acme-core-experience.ts` (legacy PNG: `public/work/acme-lending/1481.png` etc.) |
-| Acme §04 View More popup — 6-tile grid | `patch-acme-core-experience-popup.ts` (Figma `3928:11154`; PNG: `public/work/acme-lending/core-flow/01–06-*`) |
+| Acme §04 Core Experience band (4 dark-band preview tiles) | `patch-acme-core-experience.ts` (Figma `3977:11414`–`11411`; PNG: `public/work/acme-lending/band/01–04-*`) |
+| Acme §04 View More popup — 3 use-case tabs (live WP) | `patch-acme-core-experience-popup.ts` (Use Case 1–3; downloads from fasandsabrina.com WP uploads; cache: `public/work/acme-lending/use-cases/`) |
 | Acme §04 band previewRowStagger only | `patch-acme-ce-stagger-fields.ts` |
 | Acme §04 Core Experience band captions only | `patch-acme-core-experience-captions.ts` (labels/descriptions only — no image re-upload) |
 | Acme §06 Research Artifacts slider @4× (Figma 3795:154389–646) | `patch-acme-research-artifacts.ts` |
+| Acme §08 Key Product Experiences — email mockup band (Figma 3795:152728) | `patch-acme-key-product-experiences.ts` (PNG: `public/work/acme-lending/key-product/email-verification-mockup.png`; drops §07 motionShowcase) |
+| Acme §09 Impact — live metric order (33 / 78 / 10) | `patch-acme-impact-metrics.ts` |
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
 | Overview media column padding → 0 (overwrite stored values) | `patch-overview-media-padding-zero.ts` |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |

@@ -1,9 +1,13 @@
 /**
- * Acme Lending — restore Core Experience **band** preview (not the popup).
+ * Acme Lending — Core Experience **band** preview tiles (not View More popup).
  *
- * Reverts mistaken band patch that applied Figma 3928:11154 popup tiles to
- * previewScreens. Band = dark #254a65 + four legacy landscape tiles.
+ * Figma band frames (2×2 grid, left→right top→bottom):
+ *   3977:11414 — Find Financial Institution
+ *   3977:11411 — Account Summary
+ *   3977:11413 — Verifying Deposits
+ *   3977:11412 — Verification Complete
  *
+ * PNG source: public/work/acme-lending/band/01–04-*.png
  * View More popup: patch-acme-core-experience-popup.ts (Figma 3928:11154).
  *
  * Run from frontend/:
@@ -19,29 +23,32 @@ import { getCliClient } from "sanity/cli";
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
 const SLUG = "acme-lending";
-const BAND_DIR = join(process.cwd(), "public/work/acme-lending");
+const BAND_DIR = join(process.cwd(), "public/work/acme-lending/band");
 
 const BAND_BG = "#254a65";
 
-/** Legacy band preview tiles (pre-popup patch). */
 const PREVIEW = [
   {
-    file: "1481.png",
+    file: "01-find-financial-institution.png",
+    figma: "3977:11414",
     label: "Find Financial Institution:",
     description: "Secure Connections: Connect trusted financial institutions.",
   },
   {
-    file: "1482.png",
+    file: "02-account-summary.png",
+    figma: "3977:11411",
     label: "Account Summary:",
     description: "Review selected accounts before sharing.",
   },
   {
-    file: "12-2.png",
+    file: "03-verifying-deposits.png",
+    figma: "3977:11413",
     label: "Verifying Deposits:",
     description: "Automated Verification: Income verification happens instantly.",
   },
   {
-    file: "13-6.png",
+    file: "04-verification-complete.png",
+    figma: "3977:11412",
     label: "Verification Complete:",
     description: "Instant Approval: Verification completed with confidence.",
   },
@@ -67,7 +74,9 @@ async function patchDoc(docId: string, idx: number) {
     const meta = await sharp(abs).metadata();
     const imageWidth = meta.width ?? 0;
     const imageHeight = meta.height ?? 0;
-    console.log(`${DRY ? "○" : "↑"} band ${row.file} ${imageWidth}x${imageHeight}`);
+    console.log(
+      `${DRY ? "○" : "↑"} band ${row.file} (${row.figma}) ${imageWidth}x${imageHeight}`,
+    );
     previewScreens.push({
       _key: key(),
       _type: "coreExperienceScreen" as const,
@@ -103,7 +112,7 @@ async function patchDoc(docId: string, idx: number) {
   }
 
   await client.patch(docId).set(patch).commit();
-  console.log(`✓ ${docId}: Acme CE band restored (${previewScreens.length} tiles, ${BAND_BG})`);
+  console.log(`✓ ${docId}: Acme CE band (${previewScreens.length} tiles, ${BAND_BG})`);
 }
 
 async function main() {

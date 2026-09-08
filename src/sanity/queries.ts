@@ -52,7 +52,7 @@ const sectionsProj = `sections[]{
     popupKicker, popupTitle,
     popupBody,
     popupAppearance{ ${appearanceFields} },
-    popupItemsBeforeViewMore, popupLoadMoreLabel,
+    popupItemsBeforeViewMore, popupLoadMoreLabel, popupLoadLessLabel,
     popupTabs[]{
       _key, label,
       items[]{ _key, caption, "image": image${img} }

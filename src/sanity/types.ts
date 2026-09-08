@@ -192,6 +192,7 @@ export type Section =
       popupTabs?: DeviceTab[];
       popupItemsBeforeViewMore?: number;
       popupLoadMoreLabel?: string;
+      popupLoadLessLabel?: string;
       /** @deprecated Legacy single band export */
       image?: string;
       /** @deprecated Legacy mobile crop */

@@ -143,6 +143,13 @@ export const coreExperience = defineType({
       initialValue: "Load More",
     }),
     defineField({
+      name: "popupLoadLessLabel",
+      title: "Popup — Show Less label",
+      type: "string",
+      initialValue: "Show Less",
+      description: "Shown after Load More expands the grid; resets to the initial item count.",
+    }),
+    defineField({
       name: "viewMoreLabel",
       title: "View-more link label",
       type: "string",

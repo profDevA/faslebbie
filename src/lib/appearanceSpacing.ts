@@ -133,10 +133,17 @@ export function sectionGapStyle(
   page: boolean,
 ): CSSProperties {
   const map = legacyGapMap(page);
+  const desktopGap = resolveSpacingPx(a?.contentGap, map, defaultGap);
   return {
-    gap: resolveSpacingPx(a?.contentGap, map, defaultGap),
+    ["--section-gap-desktop" as string]: `${desktopGap}px`,
   };
 }
+
+/**
+ * Pair with `sectionGapStyle` on flex-col bands. Page-template contentGap (e.g.
+ * 96px) is desktop rhythm; mobile stacks use BAND_STACK_GAP_MOBILE (24px).
+ */
+export const SECTION_GAP_CLASS = "gap-6 lg:gap-[var(--section-gap-desktop)]";
 
 export function sectionInnerGapStyle(
   a: AppearanceSpacing | undefined,

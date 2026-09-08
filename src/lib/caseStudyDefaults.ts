@@ -124,6 +124,17 @@ export const WORK_PAGE_APPEARANCE_DEFAULTS = {
   paddingBottom: 0,
 } as const;
 
+/** Vertical stack gap on mobile bands — not page-template contentGap (96px desktop). */
+export const BAND_STACK_GAP_MOBILE = 24;
+
+/** §08 Desktop motion showcase — centred mockup + bottom-right copy. */
+export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
+  /** Census Figma 2229:30432 */
+  mockupMaxWidth: 762,
+  /** Acme Figma 3795:152730 — art includes frame, shadow, and radius */
+  mockupMaxWidthWide: 873,
+} as const;
+
 /** Core Experience band — desktop staggered rows (Figma 2271:58148). */
 export const CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS = {
   columns: 2,
@@ -131,6 +142,11 @@ export const CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS = {
   rowGap: 87,
   rowStagger: 145,
   cardBackground: "#ffffff",
+  cardBorderRadius: 25,
+  /** Mobile stack for desktopGrid bands (Figma 3928:7320). */
+  mobileStackGap: 40,
+  mobileStackBorderRadius: 12,
+  mobileTileMaxWidth: 323,
   imageAspectWidth: 762,
   imageAspectHeight: 467,
 } as const;
@@ -157,4 +173,8 @@ export const CORE_EXPERIENCE_POPUP_DEFAULTS = {
   introMaxWidth: 960,
   gridColumnGap: 16,
   gridRowGap: 24,
+  /** Mobile single-column stack (Figma 3928:22975) — not Sanity contentGapInner. */
+  gridRowGapMobile: 40,
+  /** Popup device tab bar — Figma 3928:22982. */
+  tabGap: 46,
 } as const;

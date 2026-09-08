@@ -36,6 +36,7 @@ import {
   MOTION_FEATURED_BAND_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
+  DESKTOP_MOTION_SHOWCASE_DEFAULTS,
   SHOWCASE_ARTIFACT_DEFAULTS,
   STATS_BAND_DEFAULTS,
 } from '@/lib/caseStudyDefaults'
@@ -45,6 +46,7 @@ import {
   PAGE_PROSE_PAD,
   proseGroupPadStyle,
   sectionGapStyle,
+  SECTION_GAP_CLASS,
   sectionHorizontalPadStyle,
   sectionInnerGapStyle,
   sectionPadStyle,
@@ -666,7 +668,7 @@ function ProseGroupBlock({
     >
       <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
         <div
-          className={`flex flex-col ${csProseInner( align, width)}`}
+          className={`flex flex-col ${SECTION_GAP_CLASS} ${csProseInner( align, width)}`}
           style={sectionGapStyle(
             first.appearance,
             gapDefault(gapLevel, pageProse),
@@ -822,7 +824,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       style={bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND)}
     >
       <div
-        className={`flex min-h-0 flex-col ${copyOrder} ${
+        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} ${
           'justify-start lg:h-full lg:justify-between'
         }`}
         style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', true), true) }}
@@ -1044,7 +1046,7 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
     >
       <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
         <div
-          className={`flex flex-col ${csProseInner( align, width)}`}
+          className={`flex flex-col ${SECTION_GAP_CLASS} ${csProseInner( align, width)}`}
           style={sectionGapStyle(
             s.appearance,
             gapDefault('md', true),
@@ -1106,7 +1108,7 @@ function ReflectionBlock({
     >
       <div className={csShell()}>
         <div
-          className={`flex flex-col ${column}`}
+          className={`flex flex-col ${SECTION_GAP_CLASS} ${column}`}
           style={sectionGapStyle(
             s.appearance,
             REFLECTION_DEFAULTS.contentGap,
@@ -1167,7 +1169,8 @@ function ReflectionBlock({
   )
 }
 
-// Core Experience Flow (Figma 2110:39499 mobile row / 2271:58148 desktop grid).
+// Core Experience Flow (Figma 2110:39499 mobile row / 2271:58148 desktop grid /
+// Acme desktopGrid mobile stack 3928:7320).
 // → PopupShell popup (3670:21768): intro + device tabs + Load More grid.
 function coreExperienceCardBg(
   screen: CoreExperienceScreen,
@@ -1216,6 +1219,7 @@ function CoreExperienceScreenCard({
   size,
   bandApp,
   sharedAspect,
+  bandStack = false,
 }: {
   screen: CoreExperienceScreen
   layout: 'mobileRow' | 'desktopGrid'
@@ -1223,6 +1227,8 @@ function CoreExperienceScreenCard({
   size: 'preview' | 'popup'
   bandApp?: Appearance
   sharedAspect?: { w: number; h: number } | null
+  /** Mobile vertical stack for desktopGrid bands (Figma 3928:7320). */
+  bandStack?: boolean
 }) {
   if (!screen.image) return null
   const desktop = layout === 'desktopGrid'
@@ -1230,32 +1236,58 @@ function CoreExperienceScreenCard({
   const caption = onDark ? 'text-[#fafafa]' : 'text-black'
   const cardBg = coreExperienceCardBg(screen, bandApp)
   const bandPreview = size === 'preview'
+  const desktopBandTile =
+    bandPreview && desktop
+  const stackTile = desktopBandTile && bandStack
+  const tileRadiusClass = stackTile
+    ? 'rounded-[12px]'
+    : desktopBandTile
+      ? 'rounded-[25px]'
+      : 'rounded-xl'
+  const tileRadiusStyle = stackTile
+    ? {
+        borderRadius:
+          CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackBorderRadius,
+      }
+    : desktopBandTile
+      ? { borderRadius: CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBorderRadius }
+      : undefined
   const bandCaptionClass = desktop
-    ? `mt-3 text-left leading-[1.35] ${CS_CAPTION_LG} lg:mt-4 ${caption}`
+    ? `text-left leading-[1.35] ${CS_CAPTION_LG} ${caption} ${
+        bandStack ? 'mt-5' : 'mt-3 lg:mt-4'
+      }`
     : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
 
   if (bandPreview) {
     const desktopBand = desktop
+    const figureClass = stackTile
+      ? `mx-auto w-full max-w-[min(${CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileTileMaxWidth}px,100%)]`
+      : desktopBand
+        ? 'min-w-0 flex-1'
+        : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
+    const tileBoxStyle: CSSProperties = {
+      backgroundColor: cardBg,
+      ...tileRadiusStyle,
+      ...(stackTile
+        ? undefined
+        : coreExperienceImageBoxStyle(screen, layout, sharedAspect)),
+    }
     return (
-      <figure
-        className={
-          desktopBand
-            ? 'min-w-0 flex-1'
-            : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
-        }
-      >
+      <figure className={figureClass}>
         <div
-          className="overflow-hidden rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.22)]"
-          style={{
-            backgroundColor: cardBg,
-            ...coreExperienceImageBoxStyle(screen, layout, sharedAspect),
-          }}
+          className={`overflow-hidden ${tileRadiusClass} shadow-[0_2px_12px_rgba(0,0,0,0.22)]`}
+          style={tileBoxStyle}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
           <img
             src={screen.image}
             alt={screen.label ?? screen.description ?? 'Product screen'}
-            className="h-full w-full object-cover object-top"
+            className={`w-full ${tileRadiusClass} ${
+              stackTile
+                ? 'block h-auto'
+                : 'h-full object-cover object-top'
+            }`}
+            style={tileRadiusStyle}
           />
         </div>
         {(screen.label || screen.description) && (
@@ -1370,6 +1402,7 @@ function CoreExperienceBandPreview({
         ? previewRowStagger
         : CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.rowStagger
     const rows = chunkScreens(screens, perRow)
+    const mobileStackGap = CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackGap
 
     return (
       <div
@@ -1379,7 +1412,27 @@ function CoreExperienceBandPreview({
           ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
         }}
       >
-        <div className="flex w-full max-w-full flex-col" style={{ gap: rowGap }}>
+        {/* Mobile — vertical stack (Figma 3928:7320). */}
+        <div
+          className="flex w-full flex-col lg:hidden"
+          style={{ gap: mobileStackGap }}
+        >
+          {screens.map(sc => (
+            <CoreExperienceScreenCard
+              key={sc._key}
+              screen={sc}
+              layout={layout}
+              tone={tone}
+              size="preview"
+              bandApp={bandApp}
+              sharedAspect={sharedAspect}
+              bandStack
+            />
+          ))}
+        </div>
+
+        {/* Desktop — 2-col staggered grid (Figma 2271:58148). */}
+        <div className="hidden w-full flex-col lg:flex" style={{ gap: rowGap }}>
           {rows.map((row, rowIdx) => {
             const topRow = rowIdx % 2 === 0
             const rowWidth =
@@ -1444,7 +1497,7 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
   return (
     <section
       data-cs-stretch
-      className="flex flex-col justify-center"
+      className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       style={flexSectionStyle(s.appearance, true, 'md')}
     >
       {(s.sectionTitle || s.body) && (
@@ -1492,11 +1545,15 @@ function CoreExperienceBlock({
   const preview = (s.previewScreens ?? []).filter(sc => sc.image)
   const popupTabs = s.popupTabs ?? []
   const title = s.sectionTitle?.trim() || 'Core Experience Flow'
-  const popupTitle = s.popupTitle?.trim() || title
+  const popupTitleExplicit = s.popupTitle?.trim()
+  const popupHeadline =
+    popupTitleExplicit || (s.popupBody?.length ? title : undefined)
+  const popupShellLabel = popupHeadline ?? title
   const popupKicker = s.popupKicker?.trim()
   const viewMore = s.viewMoreLabel?.trim() || 'View More'
   const popupInitial = s.popupItemsBeforeViewMore ?? 6
   const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
+  const popupLoadLess = s.popupLoadLessLabel?.trim() || 'Show Less'
   const popupApp = s.popupAppearance
   const popupAlign = popupApp?.contentAlignment ?? CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment
   const popupBg = colorToCss(popupApp?.backgroundColor)
@@ -1514,7 +1571,7 @@ function CoreExperienceBlock({
     false,
   )
   const popupIntroGap = sectionInnerGapStyle(
-    popupApp,
+    undefined,
     CORE_EXPERIENCE_POPUP_DEFAULTS.contentGapInner,
     false,
   )
@@ -1570,7 +1627,7 @@ function CoreExperienceBlock({
         style={sectionStyle(s.appearance, true, 'md')}
       >
         <div
-          className={`${csShell()} flex w-full flex-col items-center text-center`}
+          className={`${csShell()} flex w-full flex-col items-center text-center ${SECTION_GAP_CLASS}`}
           style={sectionGapStyle(s.appearance, gapDefault('md', true), true)}
         >
           <h2 className={`${csSectionTitle()} ${onDark}`}>{title}</h2>
@@ -1604,11 +1661,11 @@ function CoreExperienceBlock({
       <PopupShell
         open={popupOpen}
         onClose={() => setPopupOpen(false)}
-        label={popupTitle}
+        label={popupShellLabel}
         crumbs={[
           { label: 'Case Studies', href: '/casestudies', hideOnMobile: true },
           { label: projectName, hideOnMobile: true },
-          { label: popupTitle },
+          { label: popupShellLabel },
         ]}
         cardClassName="bg-white"
         bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
@@ -1622,36 +1679,41 @@ function CoreExperienceBlock({
           }}
         >
           <div
-            className="flex w-full flex-col"
+            className={`flex w-full flex-col ${SECTION_GAP_CLASS}`}
             style={{
               ...popupSectionGap,
               ...popupHorizontalPad,
               ...(popupContainerMax ? { maxWidth: popupContainerMax, marginInline: 'auto' } : undefined),
             }}
           >
-            <div
-              className={`flex w-full flex-col ${ALIGN[popupAlign]} items-start`}
-              style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
-            >
-              {popupKicker ? (
-                <p className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}>
-                  {popupKicker}
-                </p>
-              ) : null}
-              <h2 className={`${csSectionTitle()} w-full ${ALIGN[popupAlign]}`}>
-                {popupTitle}
-              </h2>
-              {s.popupBody?.length ? (
-                <Prose
-                  value={s.popupBody}
-                  className={`w-full ${csBodyText()} ${ALIGN[popupAlign]}`}
-                />
-              ) : null}
-            </div>
+            {(popupKicker || popupHeadline || s.popupBody?.length) ? (
+              <div
+                className={`flex w-full flex-col ${ALIGN[popupAlign]} items-start`}
+                style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
+              >
+                {popupKicker ? (
+                  <p className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}>
+                    {popupKicker}
+                  </p>
+                ) : null}
+                {popupHeadline ? (
+                  <h2 className={`${csSectionTitle()} w-full ${ALIGN[popupAlign]}`}>
+                    {popupHeadline}
+                  </h2>
+                ) : null}
+                {s.popupBody?.length ? (
+                  <Prose
+                    value={s.popupBody}
+                    className={`w-full ${csBodyText()} ${ALIGN[popupAlign]}`}
+                  />
+                ) : null}
+              </div>
+            ) : null}
             <DeviceGallery
               tabs={popupTabs.filter(t => (t.items?.length ?? 0) > 0)}
               initial={popupInitial}
               loadMore={popupLoadMore}
+              loadLess={popupLoadLess}
               tileBg={popupTileBg}
               light={popupLight}
               gridSize="popup"
@@ -1679,12 +1741,17 @@ function DesktopMotionShowcaseBlock({
   const hasCopy = !!(copyTitle || s.body?.length || s.caption)
   const lightText = bandUsesLightText(s.appearance)
   const copyClass = lightText ? 'text-white' : 'text-black'
+  const wideMockup = s.appearance?.maxWidth === 'wide'
+  const mockupMax = wideMockup
+    ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
+    : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth
+  const mockupFrameClass = wideMockup
+    ? ''
+    : 'overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]'
   return (
     <section
       
-      className={`relative flex flex-col ${
-        csBandGutter()
-      } `}
+      className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()}`}
       style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
     >
       {hasMedia && (
@@ -1693,11 +1760,7 @@ function DesktopMotionShowcaseBlock({
             csShell('!px-0 max-lg:!px-0')
           } pt-12 max-lg:pt-8 lg:pt-14`}
         >
-          <div
-            className={`w-full overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] ${
-              'max-w-[762px]'
-            }`}
-          >
+          <div className={`w-full ${mockupFrameClass}`} style={{ maxWidth: mockupMax }}>
             {hasVideo ? (
               s.videoUrl ? (
                 <div className="aspect-[762/467] w-full">
@@ -1733,11 +1796,17 @@ function DesktopMotionShowcaseBlock({
       )}
       {hasCopy && (
           <div
-            className={`w-full pb-[min(103px,12%)] pt-6  ${copyClass} ${csShell('!px-0')}`}
+            className={`w-full pb-[min(103px,12%)] pt-0 lg:pt-6  ${copyClass} ${csShell('!px-0')}`}
           >
             <div className="text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)]">
               {copyTitle && (
-                <h2 className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]">
+                <h2
+                  className={`font-normal leading-[1.03] ${
+                    wideMockup
+                      ? 'text-[14px] uppercase max-lg:text-[13px]'
+                      : 'text-[20px] capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]'
+                  }`}
+                >
                   {copyTitle}
                 </h2>
               )}
@@ -1767,7 +1836,7 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
   return (
     <section
       data-cs-stretch
-      className="flex flex-col justify-center"
+      className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       style={flexSectionStyle(s.appearance, true, 'md')}
     >
       {items.length > 0 && (
@@ -1914,14 +1983,14 @@ function ShowcaseBlock({
     return (
       <section
         data-cs-stretch
-        className="flex flex-col justify-center"
+        className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
         style={{
           ...sectionStyle(s.appearance, true, 'md', '#000000', true),
           ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
         }}
       >
         <div
-          className="relative flex w-full flex-col px-12 sm:px-16 max-lg:!gap-5 lg:px-6 xl:px-[3.5vw]"
+          className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-12 sm:px-16 lg:px-6 xl:px-[3.5vw]`}
           style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
         >
           {(s.sectionTitle || s.introBody) && (
@@ -1963,7 +2032,7 @@ function ShowcaseBlock({
   return (
     <section
       data-cs-stretch
-      className="flex flex-col justify-center"
+      className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       style={flexSectionStyle(s.appearance, true, 'md', '#000000', true)}
     >
       {(s.sectionTitle || s.introBody) && (
@@ -2026,7 +2095,7 @@ function MotionShowcaseFeaturedBand({
   return (
     <section
       
-      className={`relative flex flex-col ${csBandGutter()}`}
+      className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()}`}
       style={flexSectionStyle(
         s.appearance,
         true,
@@ -2180,7 +2249,7 @@ function MotionShowcaseStackedBand({
         </div>
       )}
       <div
-        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${csShell('!px-0')}`}
+        className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${SECTION_GAP_CLASS} ${csShell('!px-0')}`}
         style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
       >
         {rows.map((row, i) => (
@@ -3213,6 +3282,7 @@ function DeviceGallery({
   tabs,
   initial,
   loadMore,
+  loadLess,
   tileBg,
   light,
   gridSize = 'default',
@@ -3222,6 +3292,7 @@ function DeviceGallery({
   tabs: DeviceTab[]
   initial: number
   loadMore?: string
+  loadLess?: string
   tileBg?: string
   light?: boolean
   gridSize?: 'default' | 'popup'
@@ -3231,17 +3302,27 @@ function DeviceGallery({
   const [active, setActive] = useState(0)
   const tab = tabs[active]
   const showTabBar = tabs.length > 1
+  const popupMode = gridSize === 'popup'
   return (
-    <div className={gridSize === 'popup' ? 'w-full' : 'mt-8'}>
+    <div className={popupMode ? 'w-full' : 'mt-8'}>
       {showTabBar ? (
-        <div className="mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]">
+        <div
+          className={
+            popupMode
+              ? 'mx-auto flex w-full max-w-full flex-nowrap justify-start overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center'
+              : 'mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]'
+          }
+          style={popupMode ? { gap: CORE_EXPERIENCE_POPUP_DEFAULTS.tabGap } : undefined}
+        >
           {tabs.map((v, i) => (
             <button
               key={v._key}
               type="button"
               onClick={() => setActive(i)}
               data-cursor="hover"
-              className={`shrink-0 uppercase leading-none ${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`}
+              className={`shrink-0 uppercase leading-[1.03] ${
+                popupMode ? `text-[14px] ${CS_KICKER}` : `${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
+              }`}
             >
               <span
                 className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
@@ -3259,6 +3340,7 @@ function DeviceGallery({
         images={imgUrls(tab?.items)}
         initial={initial}
         loadMore={loadMore}
+        loadLess={loadLess}
         tile
         tileBg={tileBg}
         light={light}
@@ -3275,6 +3357,7 @@ function ImageGrid({
   captions,
   initial = 6,
   loadMore = 'Load More',
+  loadLess = 'Show Less',
   tile,
   tileBg,
   light,
@@ -3286,6 +3369,7 @@ function ImageGrid({
   captions?: (string | undefined)[]
   initial?: number
   loadMore?: string
+  loadLess?: string
   tile?: boolean
   tileBg?: string
   light?: boolean
@@ -3298,15 +3382,28 @@ function ImageGrid({
   const visible = images.slice(0, shown)
   const tileFill = tileBg ?? TILE
   const popup = size === 'popup'
-  const colGap = gridColumnGap ?? (popup ? 16 : undefined)
-  const rowGap = gridRowGap ?? (popup ? 24 : undefined)
+  const colGap =
+    gridColumnGap ??
+    (popup ? CORE_EXPERIENCE_POPUP_DEFAULTS.gridColumnGap : undefined)
+  const rowGap =
+    gridRowGap ?? (popup ? CORE_EXPERIENCE_POPUP_DEFAULTS.gridRowGap : undefined)
+  const popupMobileRowGap = CORE_EXPERIENCE_POPUP_DEFAULTS.gridRowGapMobile
 
-  const renderTile = (src: string, i: number, key?: string | number) =>
+  const renderTile = (
+    src: string,
+    i: number,
+    key?: string | number,
+    mobileStack = false,
+  ) =>
     tile ? (
       <div
         key={key ?? i}
-        className={`flex min-w-0 flex-1 items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
-          popup ? 'p-3 sm:min-h-[min(42vh,520px)]' : ''
+        className={`flex min-w-0 items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
+          mobileStack
+            ? 'w-full p-3'
+            : popup
+              ? 'min-w-0 flex-1 p-3 lg:min-h-[min(42vh,520px)]'
+              : 'min-w-0 flex-1'
         }`}
         style={{ backgroundColor: tileFill }}
       >
@@ -3316,9 +3413,11 @@ function ImageGrid({
           alt=""
           loading="lazy"
           className={
-            popup
-              ? 'w-full object-contain sm:max-h-[min(42vh,540px)]'
-              : 'h-[40vw] w-full object-contain xl:h-[20vw]'
+            mobileStack
+              ? 'block h-auto w-full object-contain'
+              : popup
+                ? 'w-full object-contain lg:max-h-[min(42vh,540px)]'
+                : 'h-[40vw] w-full object-contain xl:h-[20vw]'
           }
         />
       </div>
@@ -3339,6 +3438,69 @@ function ImageGrid({
       </figure>
     )
 
+  const gridToggleButton = (() => {
+    const btnClass = `relative pb-1 uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] ${light ? 'text-white' : ''}`
+
+    if (shown < images.length) {
+      return (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() =>
+              setShown(popup && tile ? images.length : (n) => n + STEP)
+            }
+            data-cursor="hover"
+            className={btnClass}
+          >
+            {loadMore}
+          </button>
+        </div>
+      )
+    }
+
+    if (shown > initial && images.length > initial) {
+      return (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShown(initial)}
+            data-cursor="hover"
+            className={btnClass}
+          >
+            {loadLess}
+          </button>
+        </div>
+      )
+    }
+
+    return null
+  })()
+
+  if (popup && tile) {
+    return (
+      <>
+        {/* Mobile — single column (Figma 3928:22975). */}
+        <div
+          className="mt-5 flex w-full flex-col lg:hidden"
+          style={{ gap: popupMobileRowGap }}
+        >
+          {visible.map((src, i) => renderTile(src, i, undefined, true))}
+        </div>
+        {/* Desktop — 2-col grid; Sanity contentGap / contentGapInner. */}
+        <div
+          className="mt-5 hidden w-full grid-cols-2 lg:grid"
+          style={{
+            columnGap: colGap,
+            rowGap: rowGap,
+          }}
+        >
+          {visible.map((src, i) => renderTile(src, i))}
+        </div>
+        {gridToggleButton}
+      </>
+    )
+  }
+
   const flatGrid = (
     <div
       className={`grid grid-cols-1 sm:grid-cols-2 ${
@@ -3356,18 +3518,7 @@ function ImageGrid({
   return (
     <>
       {flatGrid}
-      {shown < images.length && (
-        <div className="mt-10 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setShown(n => n + STEP)}
-            data-cursor="hover"
-            className={`relative pb-1 uppercase leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] ${light ? 'text-white' : ''}`}
-          >
-            {loadMore}
-          </button>
-        </div>
-      )}
+      {gridToggleButton}
     </>
   )
 }

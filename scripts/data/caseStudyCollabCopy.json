@@ -287,22 +287,22 @@
     "impact": {
       "metrics": [
         {
-          "value": "10",
+          "value": "33",
           "suffix": "%",
-          "label": "Digital Completion Increase",
-          "note": "More borrowers finished verifying income entirely through digital channels."
+          "label": "Verification Time Reduction",
+          "note": "The average processing time dropped, with cumulative efficiency shaving 3-5 days off the total time to close a loan, bringing Acme Lending closer to industry-leading efficiency standards."
         },
         {
           "value": "78",
           "suffix": "%",
           "label": "Cost-to-Serve Reduction",
-          "note": "Digital automation slashed operational costs across every loan processed."
+          "note": "Operational costs per loan dropped from ~$150 to <$40 via digital automation."
         },
         {
-          "value": "33",
+          "value": "10",
           "suffix": "%",
-          "label": "Verification Time Reduction",
-          "note": "Faster verification reduced fraud-window risk before rate locks expired."
+          "label": "Digital Completion Rate Increase",
+          "note": "More borrowers successfully completed verification digitally, reducing manual intervention and improving overall loan origination throughput."
         }
       ]
     },
