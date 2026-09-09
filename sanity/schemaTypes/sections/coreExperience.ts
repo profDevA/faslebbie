@@ -81,7 +81,7 @@ export const coreExperience = defineType({
       type: "array",
       of: [{ type: "coreExperienceScreen" }],
       description:
-        "Screens shown on the case-study band (typically ~5). Order left → right. Upload individual frames — not one combined export.",
+        "Band tiles — 2×2 staggered grid on desktop; same tiles stacked on mobile (desktopGrid). Order left → right, top → bottom.",
       validation: (r) => r.min(1).warning(),
     }),
     defineField({

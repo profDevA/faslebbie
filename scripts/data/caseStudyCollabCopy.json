@@ -840,22 +840,22 @@
     "impact": {
       "metrics": [
         {
-          "value": "17",
-          "suffix": "%",
-          "label": "Census Response Rate Increase",
-          "note": "More immigrant families actually completed the census after outreach."
+          "value": "40",
+          "suffix": "B+",
+          "label": "In Federal Funding Retained",
+          "note": "projected by increasing census participation among immigrant families and reducing undercount risk in hard-to-reach NYC districts"
         },
         {
-          "value": "40",
-          "suffix": "",
-          "label": "In Federal Funding Retained",
-          "note": "Accurate counts kept billions in federal aid flowing locally."
+          "value": "17",
+          "suffix": "%",
+          "label": "Estimated Increase in Census Response Rate",
+          "note": "based on targeted fieldworker interventions using the benefit calculator to reframe participation as a pathway to tangible family resources"
         },
         {
           "value": "500",
-          "suffix": "",
-          "label": "At-Risk Children Made Visible",
-          "note": "Vulnerable children became visible instead of statistically disappearing entirely."
+          "suffix": "K",
+          "label": "At-risk Children Made Visible",
+          "note": "by helping immigrant households count every child, unlocking funding for schools, healthcare, and housing support"
         }
       ]
     },

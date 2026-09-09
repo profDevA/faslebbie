@@ -25,13 +25,14 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Draft out of sync after template migration | `sync-case-study-drafts-from-published.ts` |
 | Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`) |
 | Coral media audit (read-only) | `check-coral-media.ts` |
+| All case studies — Core Experience band/popup counts (read-only) | `check-case-study-ce-status.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Experian Boost §04 Core Experience band (5 phone screens) | `patch-experian-core-experience.ts` (manual upload; PNG/JPG: `public/work/experian-boost/core-flow/01–05-*`) |
 | Experian Boost §04 View More popup — 8-tile grid | `patch-experian-core-experience-popup.ts` (Holistic modal `3947:17067` / `3778:130910`; tiles `3947:17071`–`27246` @4×; PNG: `public/work/experian-boost/core-flow/modal/`) |
 | Unset legacy popupRowStagger / popupColumns (all case studies) | `patch-unset-ce-popup-stagger-fields.ts` |
 | Experian Boost §09 Impact — 13 pts metric (matches Overview lead) | `patch-experian-impact-metrics.ts` |
-| Experian Boost §10 Project Highlights — composite board | `patch-experian-highlight-composite.ts` (Figma `3778:130432`; PNG: `public/work/experian-boost/highlights-board.png`) |
+| Experian Boost §10 Project Highlights — composite board | `patch-experian-highlight-composite.ts` (Figma `3778:130432`; PNG: `public/work/experian-boost/highlights-board.png`; desktop board only — optional `compositeImageMobile` in Studio) |
 | Experian Boost §05 Design Process band/panel colors | `patch-experian-design-process.ts` |
 | Experian Boost §07 Key Product Experiences — Band layout stacked | `patch-experian-key-product-layout.ts` |
 | Acme §04 Core Experience band (4 dark-band preview tiles) | `patch-acme-core-experience.ts` (Figma `3977:11414`–`11411`; PNG: `public/work/acme-lending/band/01–04-*`) |
@@ -65,7 +66,13 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral hero image + highlight reel + accordion/stats wiped | `patch-coral-restore-hero-highlight.ts` |
 | Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
 | Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
-| Census Key Product Experiences rows + captions | `patch-census-key-product-experiences.ts` |
+| Census §05 Design Process — cream band + navy accordion (Figma 3999:53211) | `patch-census-design-process.ts` — band `#e3e3db`, panel `#194498` |
+| Census §07 featured motion — desktop caption bottom-right (Figma 3999:53406) | `patch-census-motion-caption-align.ts` — sets `captionAlign: right` only (no image re-upload) |
+| Census §10 Project Highlights — scatter collage boards (Figma 3999:53562 / 3999:55917) | `patch-census-highlight-reel.ts` — navy `#436997`, desktop + mobile composite (PNG: `public/work/2020-us-census-benefit-calculator/highlights/01–02-*`). `--appearance-only` / `--mobile-only` patch band color or mobile board without full re-upload |
+| Census §04 Core Experience — 4-tile band (Figma 3999:59093 desktop / 3999:54903 mobile stack) | `patch-census-core-experience.ts` (PNG: `core-flow/01–04-*`; same four tiles on mobile + desktop; row gap 116px). **Do not re-run after manual uploads.** Shipped Sep 9, 2026 |
+| Census §04 Core Experience View More — 8-tile flow grid | `patch-census-core-experience-popup.ts` (PNG: `core-flow/modal/00-landing-hero.png` + `01–07-*`; popup bg `#0A2A58`). **`--appearance-only`** updates colors without re-uploading. **Do not re-run full patch after manual uploads.** |
+| Census §07–08 Key Product Experiences — 2 motion bands (Figma 3999:52313 / 54687) | `patch-census-key-product-experiences.ts` (structure + copy + colors; **images often replaced manually in Studio** — export @4×: phone `4001:70876`, desktop `3999:61079`). **Do not re-run after manual uploads.** Shipped Sep 9, 2026 — `docs/meetings/2026-09-09-actions.md` |
+| Census §09 Impact — live metric order (40B+ / 17% / 500K) | `patch-census-impact-metrics.ts` |
 | Census sections wiped by bad Key Product patch | `patch-census-restore-from-history.ts` then re-run `patch-census-key-product-experiences.ts` |
 | Drag order broken (Case Studies / Categories / Testimonials) | `patch-order-ranks.ts` |
 | **All case studies — password protect** | `patch-case-studies-password-protect-all.ts` (uses Site Settings → Access password) |

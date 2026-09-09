@@ -31,11 +31,13 @@ import {
   CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
   CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS,
+  CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS,
   HIGHLIGHT_REEL_GRID_DEFAULTS,
   HIGHLIGHT_REEL_SINGLE_DEFAULTS,
   HIGHLIGHT_REEL_COMPOSITE_DEFAULTS,
   MOTION_FEATURED_BAND_DEFAULTS,
   MOTION_FEATURED_MOBILE_DEFAULTS,
+  MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   DESKTOP_MOTION_SHOWCASE_DEFAULTS,
@@ -238,6 +240,13 @@ function bandUsesLightText(a?: Appearance, defaultLight?: boolean) {
     return (r * 299 + g * 587 + b * 114) / 1000 > 180
   }
   return isLight(a, defaultLight)
+}
+
+/** White accordion copy on dark Design Process panels (Figma 3999:53215, Experian magenta, etc.). */
+function colorUsesLightText(c?: SanityColor) {
+  if (!c?.hex) return false
+  const { r, g, b } = hexToRgb(c.hex)
+  return (r * 299 + g * 587 + b * 114) / 1000 < 140
 }
 
 /** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434. */
@@ -589,11 +598,13 @@ function SectionBlock({
     case 'showcaseGallery':
       return <ShowcaseBlock section={section} scrollRoot={scrollRoot} />
     case 'motionShowcase':
-      return <MotionShowcaseBlock section={section} />
+      return (
+        <MotionShowcaseBlock section={section} projectSlug={project.slug} />
+      )
     case 'highlightReel':
       return <HighlightReelBlock section={section} />
     case 'statsSection':
-      return <StatsBlock section={section} />
+      return <StatsBlock section={section} scrollRoot={scrollRoot} />
     case 'bulletSection':
       return <BulletBlock section={section} />
     default:
@@ -946,6 +957,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
 
 function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
   const light = bandUsesLightText(s.appearance)
+  const panelLight = colorUsesLightText(s.accordionBackgroundColor)
   const items = s.items ?? []
   if (s.variant === 'split') {
     return (
@@ -969,12 +981,14 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           </div>
         </div>
         <div
-          className="order-1 self-stretch px-5 py-8 lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw]"
+          className={`order-1 self-stretch px-5 py-8 lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw] ${
+            panelLight ? 'text-white' : 'text-black'
+          }`}
           style={{ backgroundColor: colorToCss(s.accordionBackgroundColor) }}
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
-            <h2 className={`mb-5 text-center ${csSectionTitle( 'text-[22px] lg:text-[24px]')} text-black`}>
+            <h2 className={`mb-5 text-center ${csSectionTitle('text-[22px] lg:text-[24px]')}`}>
               {s.sectionTitle}
             </h2>
           )}
@@ -1233,7 +1247,7 @@ function CoreExperienceScreenCard({
     ? `text-left leading-[1.5] ${CS_CAPTION_SM} ${caption}`
     : desktop
       ? `text-left leading-[1.35] ${CS_CAPTION_LG} ${caption} ${
-          bandStack ? 'mt-5' : 'mt-3 lg:mt-4'
+          bandStack ? 'mt-5' : ''
         }`
       : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
 
@@ -1276,7 +1290,9 @@ function CoreExperienceScreenCard({
     }
     const captionMargin = mobileGridTile
       ? { marginTop: CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.captionGap }
-      : undefined
+      : desktopBandTile && !bandStack
+        ? { marginTop: CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS.captionGap }
+        : undefined
     const mobileTileWidth = CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileMaxWidth
     const figureStyle: CSSProperties | undefined = mobileGridTile
       ? {
@@ -1417,6 +1433,7 @@ function CoreExperienceBandPreview({
         ? previewRowStagger
         : CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.rowStagger
     const rows = chunkScreens(screens, perRow)
+    const mobileStack = screens.filter(sc => sc.image)
     const mobileStackGap = CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackGap
 
     return (
@@ -1427,12 +1444,12 @@ function CoreExperienceBandPreview({
           ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
         }}
       >
-        {/* Mobile — vertical stack (Figma 3928:7320). */}
+        {/* Mobile — same previewScreens stacked (Figma 3928:7320 / Census 3999:54903). */}
         <div
           className="flex w-full flex-col lg:hidden"
           style={{ gap: mobileStackGap }}
         >
-          {screens.map(sc => (
+          {mobileStack.map(sc => (
             <CoreExperienceScreenCard
               key={sc._key}
               screen={sc}
@@ -1664,17 +1681,36 @@ function CoreExperienceBlock({
   // until Israel supplies the modal; Coral already has tabs so it still shows.
   const hasPopup =
     popupTabs.some(t => (t.items?.length ?? 0) > 0) || Boolean(s.popupBody?.length)
+  const desktopGridBand = layout === 'desktopGrid'
+  const desktopGridGaps = desktopGridBand
+    ? CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS
+    : null
+  const bandSectionStyle: CSSProperties = {
+    ...sectionStyle(s.appearance, true, 'md'),
+    ...(desktopGridGaps
+      ? {
+          paddingTop: desktopGridGaps.paddingTop,
+          paddingBottom: desktopGridGaps.paddingBottom,
+        }
+      : undefined),
+  }
 
   return (
     <>
       <section
         data-cs-stretch
         className="flex flex-col items-center overflow-x-hidden"
-        style={sectionStyle(s.appearance, true, 'md')}
+        style={bandSectionStyle}
       >
         <div
-          className={`${csShell()} flex w-full flex-col items-center text-center ${SECTION_GAP_CLASS}`}
-          style={sectionGapStyle(s.appearance, gapDefault('md', true), true)}
+          className={`${csShell()} flex w-full flex-col items-center text-center ${
+            desktopGridGaps ? '' : SECTION_GAP_CLASS
+          }`}
+          style={
+            desktopGridGaps
+              ? undefined
+              : sectionGapStyle(s.appearance, gapDefault('md', true), true)
+          }
         >
           <h2
             className={`font-normal capitalize leading-tight max-lg:text-[14px] max-lg:leading-[19.2px] lg:text-[22px] lg:leading-tight xl:text-[26px] ${onDark}`}
@@ -1684,23 +1720,37 @@ function CoreExperienceBlock({
           {s.body?.length ? (
             <Prose
               value={s.body}
-              className={`mx-auto max-w-[70ch] ${csBodyText( onDark)}`}
+              className={`mx-auto max-w-[70ch] ${csBodyText(onDark)}`}
             />
           ) : null}
-          <CoreExperienceBandPreview
-            screens={preview}
-            layout={layout}
-            previewAppearance={s.previewAppearance}
-            previewColumns={s.previewColumns}
-            previewRowStagger={s.previewRowStagger}
-            tone={light ? 'onDark' : 'onLight'}
-          />
+          <div
+            className="w-full"
+            style={
+              desktopGridGaps
+                ? { marginTop: desktopGridGaps.titleToPreview }
+                : undefined
+            }
+          >
+            <CoreExperienceBandPreview
+              screens={preview}
+              layout={layout}
+              previewAppearance={s.previewAppearance}
+              previewColumns={s.previewColumns}
+              previewRowStagger={s.previewRowStagger}
+              tone={light ? 'onDark' : 'onLight'}
+            />
+          </div>
           {hasPopup && (
             <button
               type="button"
               data-cursor="hover"
               onClick={() => setPopupOpen(true)}
               className={`font-grotesk shrink-0 uppercase leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.1vw] ${light ? 'text-white' : ''}`}
+              style={
+                desktopGridGaps
+                  ? { marginTop: desktopGridGaps.previewToViewMore }
+                  : undefined
+              }
             >
               {viewMore}
             </button>
@@ -2106,25 +2156,35 @@ function ShowcaseBlock({
 const MOTION_BG = '#52747e'
 function MotionShowcaseBlock({
   section: s,
+  projectSlug,
 }: {
   section: Of<'motionShowcase'>
+  projectSlug?: string
 }) {
   const layout = s.layoutVariant ?? 'stacked'
   if (layout === 'featured') {
-    return <MotionShowcaseFeaturedBand section={s} />
+    return (
+      <MotionShowcaseFeaturedBand section={s} projectSlug={projectSlug} />
+    )
   }
   return <MotionShowcaseStackedBand section={s} />
 }
 
 function MotionShowcaseFeaturedBand({
   section: s,
+  projectSlug,
 }: {
   section: Of<'motionShowcase'>
+  projectSlug?: string
 }) {
   const row = s.rows?.[0]
   if (!row) return null
   const items = row.items ?? []
-  const captionAlign = row.captionAlign ?? 'left'
+  /** Census Figma 3999:53406 — desktop caption bottom-right, not centred under phone. */
+  const captionAlign =
+    projectSlug === '2020-us-census-benefit-calculator'
+      ? 'right'
+      : (row.captionAlign ?? 'left')
   const rowWidthDefault = 34
   const rowWidth =
     typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
@@ -2134,7 +2194,10 @@ function MotionShowcaseFeaturedBand({
     typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
       ? s.titleMarginBottom
       : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
-  const mobile = MOTION_FEATURED_MOBILE_DEFAULTS
+  const mobile =
+    projectSlug === '2020-us-census-benefit-calculator'
+      ? MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS
+      : MOTION_FEATURED_MOBILE_DEFAULTS
   const captionInset =
     captionAlign === 'right'
       ? featuredCaptionInset('right')
@@ -2160,8 +2223,11 @@ function MotionShowcaseFeaturedBand({
       )}
       {/* Mobile — Figma 3928:49325 / 3999:55762: centred phone + full-width caption below */}
       <div
-        className="mx-auto flex w-full flex-col items-center gap-[79px] lg:hidden"
-        style={{ maxWidth: mobile.contentMaxWidth }}
+        className="mx-auto flex w-full flex-col items-center lg:hidden"
+        style={{
+          maxWidth: mobile.contentMaxWidth,
+          gap: mobile.stackGap,
+        }}
       >
         {items.length > 0 && (
           <div
@@ -2545,14 +2611,16 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       style={sectionStyle(s.appearance, true, 'lg')}
     >
       {s.sectionTitle && (
-        <h2
-          className={`mb-12 text-left max-lg:text-[13px]! max-lg:uppercase! lg:mb-16 lg:text-center ${csSectionTitle()}`}
-        >
+        <h2 className={`mb-12 text-center lg:mb-16 ${csSectionTitle()}`}>
           {s.sectionTitle}
         </h2>
       )}
       {composite ? (
-        <HighlightCompositeView src={s.compositeImage!} maxWidth={compositeMaxW} />
+        <HighlightCompositeView
+          desktopSrc={s.compositeImage!}
+          mobileSrc={s.compositeImageMobile}
+          maxWidth={compositeMaxW}
+        />
       ) : single ? (
         <HighlightCardView
           frames={cells.flatMap(highlightFrameUrls)}
@@ -2580,17 +2648,35 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   )
 }
 
-// Composite layout (Experian Boost Figma 3778:130432): one static board image.
-function HighlightCompositeView({ src, maxWidth }: { src: string; maxWidth: number }) {
+// Composite layout (Experian Boost Figma 3778:130432): static board image(s).
+function HighlightCompositeView({
+  desktopSrc,
+  mobileSrc,
+  maxWidth,
+}: {
+  desktopSrc: string
+  mobileSrc?: string
+  maxWidth: number
+}) {
+  const imgClass = "h-auto w-full object-contain"
+  if (mobileSrc) {
+    return (
+      <>
+        <div className="mx-auto w-full lg:hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- highlight art */}
+          <img src={mobileSrc} alt="" loading="lazy" className={imgClass} />
+        </div>
+        <div className="mx-auto hidden w-full lg:block" style={{ maxWidth }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- highlight art */}
+          <img src={desktopSrc} alt="" loading="lazy" className={imgClass} />
+        </div>
+      </>
+    )
+  }
   return (
     <div className="mx-auto w-full" style={{ maxWidth }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- highlight art */}
-      <img
-        src={src}
-        alt=""
-        loading="lazy"
-        className="h-auto w-full object-contain"
-      />
+      <img src={desktopSrc} alt="" loading="lazy" className={imgClass} />
     </div>
   )
 }
@@ -2724,7 +2810,13 @@ function HighlightCellView({
   )
 }
 
-function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
+function StatsBlock({
+  section: s,
+  scrollRoot,
+}: {
+  section: Of<'statsSection'>
+  scrollRoot?: React.RefObject<HTMLDivElement | null>
+}) {
   const items = s.items ?? []
   const [lg, setLg] = useState(false)
   useEffect(() => {
@@ -2770,11 +2862,18 @@ function StatsBlock({ section: s }: { section: Of<'statsSection'> }) {
         </div>
       ) : null}
       <div
-        className="mx-auto grid w-full max-w-[min(1100px,100%)] grid-cols-1 sm:grid-cols-3"
-        style={{ gap: metricGap }}
+        className="mx-auto grid w-full grid-cols-1 sm:grid-cols-3"
+        style={{
+          gap: metricGap,
+          maxWidth: `min(${STATS_BAND_DEFAULTS.gridMaxWidth}px, 100%)`,
+        }}
       >
         {items.map((st, i) => (
-          <Stat key={st._key ?? `stat-${i}`} stat={st} />
+          <Stat
+            key={st._key ?? `stat-${i}`}
+            stat={st}
+            scrollRoot={scrollRoot}
+          />
         ))}
       </div>
     </section>
@@ -3606,48 +3705,80 @@ function ImageGrid({
   )
 }
 
-function Stat({ stat }: { stat: StatItem }) {
+function Stat({
+  stat,
+  scrollRoot,
+}: {
+  stat: StatItem
+  scrollRoot?: React.RefObject<HTMLDivElement | null>
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const [n, setN] = useState(0)
   useEffect(() => {
     const el = ref.current
     if (!el) return
     let raf = 0
+    let done = false
+    const run = () => {
+      if (done) return
+      done = true
+      const start = performance.now()
+      const dur = 1500
+      const tick = (t: number) => {
+        const k = Math.min(1, (t - start) / dur)
+        setN(Math.floor(k * stat.value))
+        if (k < 1) raf = requestAnimationFrame(tick)
+        else setN(stat.value)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    const pageInternal = window.matchMedia('(min-width: 1024px)').matches
+    const root =
+      pageInternal && scrollRoot?.current ? scrollRoot.current : null
     const io = new IntersectionObserver(
       entries => {
         if (!entries[0].isIntersecting) return
         io.disconnect()
-        const start = performance.now()
-        const dur = 1500
-        const tick = (t: number) => {
-          const k = Math.min(1, (t - start) / dur)
-          setN(Math.floor(k * stat.value))
-          if (k < 1) raf = requestAnimationFrame(tick)
-          else setN(stat.value)
-        }
-        raf = requestAnimationFrame(tick)
+        run()
       },
-      { threshold: 0.5 },
+      { threshold: 0.5, root },
     )
     io.observe(el)
+    const scrollTarget: HTMLElement | Window = root ?? window
+    const onScroll = () => {
+      if (done) return
+      const vh = root ? root.clientHeight : window.innerHeight
+      const rootTop = root ? root.getBoundingClientRect().top : 0
+      const top = el.getBoundingClientRect().top - rootTop
+      if (top < vh * 0.85) {
+        io.disconnect()
+        run()
+      }
+    }
+    scrollTarget.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
     return () => {
       io.disconnect()
+      scrollTarget.removeEventListener('scroll', onScroll)
       cancelAnimationFrame(raf)
     }
-  }, [stat.value])
+  }, [stat.value, scrollRoot])
   return (
-    <div ref={ref} className="mx-auto flex max-w-73 flex-col items-center text-center ">
-      {/* Impact stat — inherits Reckless Regular from `.cs-root`. */}
-      <p className={`font-normal leading-none ${'text-[64px] sm:text-[80px] lg:text-[96px]'}`}>
+    <div ref={ref} className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center sm:max-w-none sm:px-3">
+      {/* Impact stat — live WP #user_impact .impact_count (8.5vw). */}
+      <p
+        className="font-normal leading-none"
+        style={{ fontSize: STATS_BAND_DEFAULTS.valueFontSize }}
+      >
         {stat.prefix}
         {n}
         {stat.suffix}
       </p>
-      <p className={`mt-5 font-normal leading-[1.245] ${csBodyText()}`}>
+      <p className={`mt-5 max-w-[min(360px,100%)] font-normal leading-[1.245] sm:max-w-none ${csBodyText()}`}>
         {stat.label}
       </p>
       {stat.note && (
-        <p className={`mt-2.5 max-w-64 font-normal leading-[1.245] ${csBodyText()}`}>
+        <p className={`mt-2.5 max-w-[min(360px,100%)] font-normal leading-[1.245] sm:max-w-none ${csBodyText()}`}>
           {stat.note}
         </p>
       )}

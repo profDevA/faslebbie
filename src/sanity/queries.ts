@@ -102,6 +102,7 @@ const sectionsProj = `sections[]{
   _type == "highlightReel" => {
     sectionTitle, layout, compositeMaxWidth,
     "compositeImage": compositeImage${img},
+    "compositeImageMobile": compositeImageMobile${img},
     cells[]{
       _key, caption,
       "videoFile": videoFile.asset->url,

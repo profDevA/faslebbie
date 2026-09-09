@@ -87,6 +87,9 @@ export const STATS_BAND_DEFAULTS = {
   titleMarginBottom: 48,
   titleMarginBottomDesktop: 64,
   bodyMarginBottom: 48,
+  /** Live WP #user_impact .impact_count — 8.5vw desktop, 60px mobile. */
+  valueFontSize: "clamp(60px, 8.5vw, 160px)",
+  gridMaxWidth: 1280,
 } as const;
 
 /** §06 Research Artifacts expandable slider. */
@@ -129,6 +132,17 @@ export const MOTION_FEATURED_MOBILE_DEFAULTS = {
   captionBodySize: 16,
 } as const;
 
+/** §07 Featured motion band — US Census mobile (Figma 3999:55762). */
+export const MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS = {
+  contentMaxWidth: 344,
+  mockupWidth: 135,
+  stackGap: 57,
+  sectionPaddingY: 66,
+  mockupRadius: 15,
+  captionTitleSize: 14,
+  captionBodySize: 16,
+} as const;
+
 /** /work page shell — optional band tint (empty = page default). */
 export const WORK_PAGE_APPEARANCE_DEFAULTS = {
   paddingTop: 0,
@@ -146,10 +160,11 @@ export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
   mockupMaxWidthWide: 873,
 } as const;
 
-/** Core Experience band — desktop staggered rows (Figma 2271:58148). */
+/** Core Experience band — desktop staggered rows (Figma 2271:58148 Acme / 3999:59093 Census). */
 export const CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS = {
   columns: 2,
   columnGap: 43,
+  /** Acme 2271:58148 row blocks — 87px. Census 3999:59093 uses 116px (Sanity contentGapInner). */
   rowGap: 87,
   rowStagger: 145,
   cardBackground: "#ffffff",
@@ -160,6 +175,16 @@ export const CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS = {
   mobileTileMaxWidth: 323,
   imageAspectWidth: 762,
   imageAspectHeight: 467,
+} as const;
+
+/** desktopGrid band shell rhythm — Figma 3999:59093 / 2271:58148 (Acme shares layout; row gap via Sanity). */
+export const CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS = {
+  paddingTop: 120,
+  paddingBottom: 120,
+  titleToPreview: 64,
+  previewToViewMore: 96,
+  /** Tile bottom → caption (Figma ~38px). */
+  captionGap: 38,
 } as const;
 
 /** Core Experience band — mobile phone row (Coral). */

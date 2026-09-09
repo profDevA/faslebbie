@@ -249,6 +249,7 @@ export type Section =
       sectionTitle?: string;
       layout?: "grid" | "single" | "composite";
       compositeImage?: string;
+      compositeImageMobile?: string;
       compositeMaxWidth?: number;
       gridCellMatteColor?: SanityColor;
       gridCellInsetVerticalPercent?: number;

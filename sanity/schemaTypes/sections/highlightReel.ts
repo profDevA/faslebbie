@@ -27,11 +27,11 @@ export const highlightReel = defineType({
       title: "Layout",
       type: "string",
       description:
-        "Grid: six cells in a 3×2 layout (Coral). Composite: one static board image (Experian Boost). Single card: one large card cycling every frame (Memory Tubes).",
+        "Grid: six cells in a 3×2 layout (Coral). Composite: one static board image, optional separate mobile board (Experian Boost, Census). Single card: one large card cycling every frame (Memory Tubes).",
       options: {
         list: [
           { title: "Grid (3×2 cells)", value: "grid" },
-          { title: "Composite image (single board)", value: "composite" },
+          { title: "Composite image (desktop + optional mobile board)", value: "composite" },
           { title: "Single rotating card", value: "single" },
         ],
         layout: "radio",
@@ -40,10 +40,11 @@ export const highlightReel = defineType({
     }),
     defineField({
       name: "compositeImage",
-      title: "Composite board image",
+      title: "Composite board image (desktop)",
       type: "image",
       options: { hotspot: true },
-      description: "One pre-composited highlights board (Figma export). Used when layout is Composite.",
+      description:
+        "Pre-composited highlights board for desktop (Figma export). Also used on mobile when no mobile board is set.",
       hidden: ({ parent }) => parent?.layout !== "composite",
       validation: (Rule) =>
         Rule.custom((value, context) => {
@@ -53,6 +54,15 @@ export const highlightReel = defineType({
           }
           return true;
         }),
+    }),
+    defineField({
+      name: "compositeImageMobile",
+      title: "Composite board image (mobile)",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Optional mobile art direction (Figma mobile frame). When set, shown below lg; desktop board shown at lg+.",
+      hidden: ({ parent }) => parent?.layout !== "composite",
     }),
     defineField({
       name: "cells",
@@ -122,7 +132,7 @@ export const highlightReel = defineType({
       type: "number",
       initialValue: HIGHLIGHT_REEL_COMPOSITE_DEFAULTS.maxWidth,
       validation: (r) => r.min(320).integer(),
-      description: "Caps the board width on desktop. Default matches Figma 3778:130432.",
+      description: "Caps the desktop board width (lg+). Mobile board is full band width when set.",
       hidden: ({ parent }) => parent?.layout !== "composite",
     }),
     defineField({
