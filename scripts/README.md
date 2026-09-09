@@ -41,12 +41,17 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Acme §06 Research Artifacts slider @4× (Figma 3795:154389–646) | `patch-acme-research-artifacts.ts` |
 | Acme §08 Key Product Experiences — email mockup band (Figma 3795:152728) | `patch-acme-key-product-experiences.ts` (PNG: `public/work/acme-lending/key-product/email-verification-mockup.png`; drops §07 motionShowcase) |
 | Acme §09 Impact — live metric order (33 / 78 / 10) | `patch-acme-impact-metrics.ts` |
+| Acme §10 Project Highlights — composite 2×2 board (Figma 3795:152883) | `patch-acme-highlight-reel.ts` (JPG: `public/work/acme-lending/highlights-board.jpg`) |
 | Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
 | Overview media column padding → 0 (overwrite stored values) | `patch-overview-media-padding-zero.ts` |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |
+| All case studies — §04 / §07 layoutVariant unset (Studio radio blank) | `patch-section-layout-variants.ts` |
 | Overview horizontal/gap/teal, Reflection #171717, accordion, CE screens, highlight reel, stats/motion/showcase layout, legacy appearance, work page | `patch-case-study-template-defaults.ts` |
 | Memory Tubes — Reflection body missing (Next Steps only) | `patch-memory-tubes-reflection.ts` |
 | FDX — remove §06 Research Artifacts band | `patch-fdx-remove-research-artifacts.ts` |
+| FDX §04 Core Experience — 5 phone tiles (Figma 3737:89837) | `patch-fdx-core-experience.ts` (PNG: `public/work/financial-data-exchange/core-flow/01–05-*`) |
+| FDX §07–08 Key Product Experiences — 4 motion bands (Figma 3719:88185–88255) | `patch-fdx-key-product-experiences.ts` (structure + copy + colors; **images often replaced manually in Studio** — export @4×: phone `3719:88188`, desktop `3719:88226`, phone `3719:88247`, desktop `3719:88258`). **Do not re-run after manual uploads.** Shipped Sep 9, 2026 — `docs/meetings/2026-09-09-actions.md` |
+| FDX §09 Impact — live metric order (20M+ / 67% / 30+) | `patch-fdx-impact-metrics.ts` |
 | Coral §04 Core Experience popup tabs (Mobile/iPad/Desktop) | `patch-coral-core-experience-popup-tabs.ts` |
 | Coral section orphan keys (Studio “Unknown fields”) | `patch-coral-unset-section-orphans.ts` |
 | Coral §09 Impact metric order + suffix | `patch-coral-impact-metrics.ts` |

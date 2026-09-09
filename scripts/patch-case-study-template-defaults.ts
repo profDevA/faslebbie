@@ -139,9 +139,13 @@ function patchProblemContext(section: Section, pageTemplate: boolean, notes: str
   return { ...section, appearance };
 }
 
-function patchCoreExperience(section: Section, notes: string[]) {
+function patchCoreExperience(section: Section, slug: string, notes: string[]) {
   const next = { ...section };
-  const desktop = section.layoutVariant === "desktopGrid";
+  if (isUnset(next.layoutVariant)) {
+    next.layoutVariant = slug === "acme-lending" ? "desktopGrid" : "mobileRow";
+    notes.push(`layoutVariant→${next.layoutVariant}`);
+  }
+  const desktop = next.layoutVariant === "desktopGrid";
   const dims = desktop
     ? CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS
     : CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS;
@@ -230,7 +234,7 @@ function patchHighlightReel(section: Section, notes: string[]) {
   return next;
 }
 
-function patchMotionShowcase(section: Section, notes: string[]) {
+function patchMotionShowcase(section: Section, slug: string, notes: string[]) {
   const next = { ...section };
   const set = (key: string, value: unknown) => {
     if (!isUnset(next[key])) return;
@@ -238,7 +242,10 @@ function patchMotionShowcase(section: Section, notes: string[]) {
     notes.push(`${key}→${value}`);
   };
 
-  set("layoutVariant", "stacked");
+  set(
+    "layoutVariant",
+    slug === "2020-us-census-benefit-calculator" ? "featured" : "stacked",
+  );
   set("titleMarginBottom", MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom);
   set(
     "titleMarginBottomDesktop",
@@ -346,9 +353,9 @@ function patchSections(sections: Section[], slug: string) {
     } else if (s._type === "problemContextSection") {
       patched = patchProblemContext(s, pageTemplate, sectionNotes);
     } else if (s._type === "coreExperience") {
-      patched = patchCoreExperience(s, sectionNotes);
+      patched = patchCoreExperience(s, slug, sectionNotes);
     } else if (s._type === "motionShowcase") {
-      patched = patchMotionShowcase(s, sectionNotes);
+      patched = patchMotionShowcase(s, slug, sectionNotes);
     } else if (s._type === "highlightReel") {
       patched = patchHighlightReel(s, sectionNotes);
     } else if (s._type === "statsSection") {

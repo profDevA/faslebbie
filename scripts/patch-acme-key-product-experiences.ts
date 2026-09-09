@@ -31,8 +31,8 @@ const MOCKUP_FILE = join(
 const BAND_BG = "#56a3dc";
 const TEXT = "#000000";
 
-/** Figma 3795:152869 / collab desktopMotion */
-const SECTION_TITLE = "Design Interventions";
+/** §08 Key Product Experiences — not legacy WP “Design Interventions” (→ Research Artifacts). */
+const SECTION_TITLE = "Key Product Experiences";
 const SECTION_BODY =
   collab[SLUG as keyof typeof collab]?.desktopMotion?.body ??
   "A product demo shows TX Verify's API integration replacing manual document uploads with secure, user-authorized data access: a borrower grants permission once, and verified income flows through automatically thereafter.";

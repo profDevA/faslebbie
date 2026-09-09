@@ -118,6 +118,17 @@ export const MOTION_FEATURED_BAND_DEFAULTS = {
   backgroundColor: "#e3e3db",
 } as const;
 
+/** §07 Featured motion band — mobile stack (Figma FDX 3928:49325 / 3928:49660). */
+export const MOTION_FEATURED_MOBILE_DEFAULTS = {
+  contentMaxWidth: 344,
+  mockupWidth: 148,
+  stackGap: 79,
+  sectionPaddingY: 66,
+  mockupRadius: 12,
+  captionTitleSize: 14,
+  captionBodySize: 16,
+} as const;
+
 /** /work page shell — optional band tint (empty = page default). */
 export const WORK_PAGE_APPEARANCE_DEFAULTS = {
   paddingTop: 0,
@@ -157,6 +168,20 @@ export const CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS = {
   cardBackground: "#ffffff",
   imageAspectWidth: 210,
   imageAspectHeight: 483,
+} as const;
+
+/** Core Experience band — mobile 2-col rows (Figma 3928:15359 Experian / 3928:29088 Coral). */
+export const CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS = {
+  columns: 2,
+  /** Figma mobile band content width. */
+  maxWidth: 330,
+  columnGap: 37,
+  /** Figma 3928:15359 — ~22px between row groups (not 50). */
+  rowGap: 22,
+  captionGap: 27,
+  /** Figma column ~139.12px. */
+  tileMaxWidth: 139,
+  tileBorderRadius: 10,
 } as const;
 
 /** Core Experience View More popup — full width by default; tune in popupAppearance.

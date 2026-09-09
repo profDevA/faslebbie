@@ -30,10 +30,12 @@ import {
   CORE_EXPERIENCE_POPUP_DEFAULTS,
   CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
+  CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS,
   HIGHLIGHT_REEL_GRID_DEFAULTS,
   HIGHLIGHT_REEL_SINGLE_DEFAULTS,
   HIGHLIGHT_REEL_COMPOSITE_DEFAULTS,
   MOTION_FEATURED_BAND_DEFAULTS,
+  MOTION_FEATURED_MOBILE_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   DESKTOP_MOTION_SHOWCASE_DEFAULTS,
@@ -1183,25 +1185,10 @@ function coreExperienceCardBg(
   )
 }
 
-function coreExperienceSharedAspect(
-  screens: CoreExperienceScreen[],
-): { w: number; h: number } | null {
-  const pairs = screens
-    .filter(s => s.imageWidth && s.imageHeight)
-    .map(s => ({ w: s.imageWidth as number, h: s.imageHeight as number }))
-  if (!pairs.length) return null
-  const sorted = [...pairs].sort((a, b) => a.w / a.h - b.w / b.h)
-  return sorted[Math.floor(sorted.length / 2)]
-}
-
 function coreExperienceImageBoxStyle(
   screen: CoreExperienceScreen,
   layout: 'mobileRow' | 'desktopGrid',
-  shared?: { w: number; h: number } | null,
 ): CSSProperties {
-  if (shared) {
-    return { aspectRatio: `${shared.w}/${shared.h}` }
-  }
   if (screen.imageWidth && screen.imageHeight) {
     return { aspectRatio: `${screen.imageWidth}/${screen.imageHeight}` }
   }
@@ -1218,17 +1205,20 @@ function CoreExperienceScreenCard({
   tone,
   size,
   bandApp,
-  sharedAspect,
   bandStack = false,
+  bandMobileGrid = false,
+  className,
 }: {
   screen: CoreExperienceScreen
   layout: 'mobileRow' | 'desktopGrid'
   tone: 'onDark' | 'onLight'
   size: 'preview' | 'popup'
   bandApp?: Appearance
-  sharedAspect?: { w: number; h: number } | null
   /** Mobile vertical stack for desktopGrid bands (Figma 3928:7320). */
   bandStack?: boolean
+  /** Mobile 2-col band grid (Figma 3928:29088 / 3928:44401). */
+  bandMobileGrid?: boolean
+  className?: string
 }) {
   if (!screen.image) return null
   const desktop = layout === 'desktopGrid'
@@ -1239,41 +1229,67 @@ function CoreExperienceScreenCard({
   const desktopBandTile =
     bandPreview && desktop
   const stackTile = desktopBandTile && bandStack
-  const tileRadiusClass = stackTile
-    ? 'rounded-[12px]'
-    : desktopBandTile
-      ? 'rounded-[25px]'
-      : 'rounded-xl'
-  const tileRadiusStyle = stackTile
-    ? {
-        borderRadius:
-          CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackBorderRadius,
-      }
-    : desktopBandTile
-      ? { borderRadius: CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBorderRadius }
-      : undefined
-  const bandCaptionClass = desktop
-    ? `text-left leading-[1.35] ${CS_CAPTION_LG} ${caption} ${
-        bandStack ? 'mt-5' : 'mt-3 lg:mt-4'
-      }`
-    : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
+  const bandCaptionClass = bandMobileGrid
+    ? `text-left leading-[1.5] ${CS_CAPTION_SM} ${caption}`
+    : desktop
+      ? `text-left leading-[1.35] ${CS_CAPTION_LG} ${caption} ${
+          bandStack ? 'mt-5' : 'mt-3 lg:mt-4'
+        }`
+      : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
 
   if (bandPreview) {
     const desktopBand = desktop
-    const figureClass = stackTile
-      ? `mx-auto w-full max-w-[min(${CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileTileMaxWidth}px,100%)]`
-      : desktopBand
-        ? 'min-w-0 flex-1'
-        : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
+    const mobileGridTile = bandMobileGrid
+    const figureClass = mobileGridTile
+      ? 'block shrink-0'
+      : stackTile
+        ? 'mx-auto w-full max-w-[323px]'
+        : desktopBand
+          ? 'min-w-0 flex-1'
+          : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
+    const tileRadiusClass = mobileGridTile
+      ? 'rounded-[10px]'
+      : stackTile
+        ? 'rounded-[12px]'
+        : desktopBandTile
+          ? 'rounded-[25px]'
+          : 'rounded-xl'
+    const tileRadiusStyle = mobileGridTile
+      ? { borderRadius: CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileBorderRadius }
+      : stackTile
+        ? {
+            borderRadius:
+              CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackBorderRadius,
+          }
+        : desktopBandTile
+          ? { borderRadius: CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBorderRadius }
+          : undefined
+    const hasImageDims = Boolean(screen.imageWidth && screen.imageHeight)
+    /** Full-frame uploads — no shared aspect box or object-cover crop. */
+    const preserveFullFrame = mobileGridTile || stackTile || hasImageDims
     const tileBoxStyle: CSSProperties = {
       backgroundColor: cardBg,
       ...tileRadiusStyle,
-      ...(stackTile
+      ...(preserveFullFrame
         ? undefined
-        : coreExperienceImageBoxStyle(screen, layout, sharedAspect)),
+        : coreExperienceImageBoxStyle(screen, layout)),
     }
+    const captionMargin = mobileGridTile
+      ? { marginTop: CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.captionGap }
+      : undefined
+    const mobileTileWidth = CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileMaxWidth
+    const figureStyle: CSSProperties | undefined = mobileGridTile
+      ? {
+          width: mobileTileWidth,
+          maxWidth: '100%',
+        }
+      : undefined
+    const captionStyle: CSSProperties | undefined = captionMargin
     return (
-      <figure className={figureClass}>
+      <figure
+        className={className ? `${figureClass} ${className}` : figureClass}
+        style={figureStyle}
+      >
         <div
           className={`overflow-hidden ${tileRadiusClass} shadow-[0_2px_12px_rgba(0,0,0,0.22)]`}
           style={tileBoxStyle}
@@ -1283,15 +1299,15 @@ function CoreExperienceScreenCard({
             src={screen.image}
             alt={screen.label ?? screen.description ?? 'Product screen'}
             className={`w-full ${tileRadiusClass} ${
-              stackTile
+              preserveFullFrame
                 ? 'block h-auto'
-                : 'h-full object-cover object-top'
+                : 'h-full object-contain object-top'
             }`}
             style={tileRadiusStyle}
           />
         </div>
         {(screen.label || screen.description) && (
-          <figcaption className={bandCaptionClass}>
+          <figcaption className={bandCaptionClass} style={captionStyle}>
             {screen.label && <span className="font-medium">{screen.label} </span>}
             {screen.description && (
               <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
@@ -1369,7 +1385,6 @@ function CoreExperienceBandPreview({
   tone: 'onDark' | 'onLight'
 }) {
   const bandApp = previewAppearance
-  const sharedAspect = coreExperienceSharedAspect(screens)
   const colGap = resolveSpacingPx(
     bandApp?.contentGap,
     { none: 0, sm: 16, md: 24, lg: 32, xl: 40 },
@@ -1425,7 +1440,6 @@ function CoreExperienceBandPreview({
               tone={tone}
               size="preview"
               bandApp={bandApp}
-              sharedAspect={sharedAspect}
               bandStack
             />
           ))}
@@ -1455,7 +1469,6 @@ function CoreExperienceBandPreview({
                     tone={tone}
                     size="preview"
                     bandApp={bandApp}
-                    sharedAspect={sharedAspect}
                   />
                 ))}
               </div>
@@ -1466,27 +1479,60 @@ function CoreExperienceBandPreview({
     )
   }
 
+  const mobileGrid = CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS
+  const mobileGridRows = chunkScreens(screens, mobileGrid.columns)
+
   return (
-    <div className="w-full overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:overflow-x-visible">
+    <div
+      className="w-full"
+      style={{
+        ...horizontalPad,
+        ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
+      }}
+    >
+      {/* Mobile — 2-col row stack (Figma 3928:15359). */}
       <div
-        className="mx-auto flex w-max items-start justify-center px-2 sm:w-full sm:max-w-[min(1100px,100%)]"
-        style={{
-          gap: colGap,
-          ...horizontalPad,
-          ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
-        }}
+        className="mx-auto flex w-full flex-col overflow-x-hidden lg:hidden"
+        style={{ maxWidth: mobileGrid.maxWidth, gap: mobileGrid.rowGap }}
       >
-        {screens.map(sc => (
-          <CoreExperienceScreenCard
-            key={sc._key}
-            screen={sc}
-            layout={layout}
-            tone={tone}
-            size="preview"
-            bandApp={bandApp}
-            sharedAspect={sharedAspect}
-          />
+        {mobileGridRows.map((row, rowIdx) => (
+          <div
+            key={rowIdx}
+            className="flex items-start"
+            style={{ gap: mobileGrid.columnGap }}
+          >
+            {row.map(sc => (
+              <CoreExperienceScreenCard
+                key={sc._key}
+                screen={sc}
+                layout={layout}
+                tone={tone}
+                size="preview"
+                bandApp={bandApp}
+                bandMobileGrid
+              />
+            ))}
+          </div>
         ))}
+      </div>
+
+      {/* Desktop — horizontal phone strip (Figma 2110:39499). */}
+      <div className="hidden w-full lg:block">
+        <div
+          className="mx-auto flex w-full max-w-[min(1100px,100%)] items-start justify-center"
+          style={{ gap: colGap }}
+        >
+          {screens.map(sc => (
+            <CoreExperienceScreenCard
+              key={sc._key}
+              screen={sc}
+              layout={layout}
+              tone={tone}
+              size="preview"
+              bandApp={bandApp}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -1623,14 +1669,18 @@ function CoreExperienceBlock({
     <>
       <section
         data-cs-stretch
-        className="flex flex-col items-center"
+        className="flex flex-col items-center overflow-x-hidden"
         style={sectionStyle(s.appearance, true, 'md')}
       >
         <div
           className={`${csShell()} flex w-full flex-col items-center text-center ${SECTION_GAP_CLASS}`}
           style={sectionGapStyle(s.appearance, gapDefault('md', true), true)}
         >
-          <h2 className={`${csSectionTitle()} ${onDark}`}>{title}</h2>
+          <h2
+            className={`font-normal capitalize leading-tight max-lg:text-[14px] max-lg:leading-[19.2px] lg:text-[22px] lg:leading-tight xl:text-[26px] ${onDark}`}
+          >
+            {title}
+          </h2>
           {s.body?.length ? (
             <Prose
               value={s.body}
@@ -2071,14 +2121,6 @@ function MotionShowcaseFeaturedBand({
 }: {
   section: Of<'motionShowcase'>
 }) {
-  const [lg, setLg] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setLg(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
   const row = s.rows?.[0]
   if (!row) return null
   const items = row.items ?? []
@@ -2092,10 +2134,15 @@ function MotionShowcaseFeaturedBand({
     typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
       ? s.titleMarginBottom
       : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
+  const mobile = MOTION_FEATURED_MOBILE_DEFAULTS
+  const captionInset =
+    captionAlign === 'right'
+      ? featuredCaptionInset('right')
+      : featuredCaptionInset('left')
   return (
     <section
       
-      className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()}`}
+      className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()} max-lg:px-6`}
       style={flexSectionStyle(
         s.appearance,
         true,
@@ -2106,39 +2153,69 @@ function MotionShowcaseFeaturedBand({
       {s.sectionTitle && (
         <h2
           className={`text-center ${csSectionTitle()} text-black`}
-          style={{ marginBottom: lg ? titleMb : titleMb }}
+          style={{ marginBottom: titleMb }}
         >
           {s.sectionTitle}
         </h2>
       )}
-      {items.length > 0 && (
-        <div className="flex justify-center pt-2 pb-0">
+      {/* Mobile — Figma 3928:49325 / 3999:55762: centred phone + full-width caption below */}
+      <div
+        className="mx-auto flex w-full flex-col items-center gap-[79px] lg:hidden"
+        style={{ maxWidth: mobile.contentMaxWidth }}
+      >
+        {items.length > 0 && (
           <div
-            className="drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)]"
-            style={{ width: `${rowWidth}%`, maxWidth: '245px' }}
+            className="drop-shadow-[0_2.335px_17.101px_rgba(0,0,0,0.25)]"
+            style={{ width: mobile.mockupWidth, maxWidth: mobile.mockupWidth }}
           >
             {items.map((it, itemIndex) => (
               <FeaturedDeviceMedia
-                key={it._key ?? `featured-${itemIndex}`}
+                key={it._key ?? `featured-mobile-${itemIndex}`}
                 item={it}
                 poster={row.posterImage}
+                featuredMobile
               />
             ))}
           </div>
-        </div>
-      )}
-      {(row.label || row.caption) && (
-          <div
-            className={`w-full pb-[min(51px,8%)] pt-8  text-black ${csShell('!px-0')}`}
-          >
+        )}
+        {(row.label || row.caption) && (
+          <div className="w-full text-black">
+            {row.label && (
+              <p className="text-[14px] font-normal uppercase leading-[1.03]">
+                {row.label}
+              </p>
+            )}
+            {row.caption && (
+              <p className="mt-[21px] text-[16px] font-normal leading-[1.05]">
+                {row.caption}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+      {/* Desktop — Figma 2229:30253: centred phone + bottom inset caption */}
+      <div className="hidden w-full lg:block">
+        {items.length > 0 && (
+          <div className="flex justify-center pt-2 pb-0">
             <div
-              className="text-left"
-              style={
-                captionAlign === 'right'
-                  ? featuredCaptionInset('right')
-                  : featuredCaptionInset('left')
-              }
+              className="drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)]"
+              style={{ width: `${rowWidth}%`, maxWidth: '245px' }}
             >
+              {items.map((it, itemIndex) => (
+                <FeaturedDeviceMedia
+                  key={it._key ?? `featured-desktop-${itemIndex}`}
+                  item={it}
+                  poster={row.posterImage}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        {(row.label || row.caption) && (
+          <div
+            className={`w-full pb-[min(51px,8%)] pt-8 text-black ${csShell('!px-0')}`}
+          >
+            <div className="text-left" style={captionInset}>
               {row.label && (
                 <p className="text-[20px] font-normal capitalize leading-[1.6] xl:text-[1.25vw]">
                   {row.label}
@@ -2152,6 +2229,7 @@ function MotionShowcaseFeaturedBand({
             </div>
           </div>
         )}
+      </div>
     </section>
   )
 }
@@ -2159,10 +2237,15 @@ function MotionShowcaseFeaturedBand({
 function FeaturedDeviceMedia({
   item,
   poster,
+  featuredMobile = false,
 }: {
   item: MediaItem
   poster?: string
+  featuredMobile?: boolean
 }) {
+  const featuredRadius = featuredMobile
+    ? 'max-lg:rounded-[12px] lg:rounded-[24px]'
+    : 'rounded-[24px]'
   const videoPoster = item.posterImage || poster
   const videoSrc =
     typeof item.videoFile === 'string'
@@ -2173,7 +2256,7 @@ function FeaturedDeviceMedia({
   if (videoSrc) {
     return (
       <video
-        className="block h-auto w-full rounded-[24px]"
+        className={`block h-auto w-full ${featuredRadius}`}
         src={videoSrc}
         poster={videoPoster}
         autoPlay
@@ -2189,7 +2272,7 @@ function FeaturedDeviceMedia({
       <img
         src={item.image}
         alt={item.caption || ''}
-        className="block h-auto w-full rounded-[24px]"
+        className={`block h-auto w-full ${featuredRadius}`}
       />
     )
   }

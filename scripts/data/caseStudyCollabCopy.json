@@ -209,22 +209,22 @@
     "impact": {
       "metrics": [
         {
+          "value": "20",
+          "suffix": "M+",
+          "label": "Consumer Accounts Protected",
+          "note": "Transitioned Intuit's active user base from insecure screen-scraping to FDX-compliant APIs"
+        },
+        {
           "value": "67",
           "suffix": "%",
-          "label": "User Trust Signals",
-          "note": "Users trusted app-based authentication far more than manual entry."
+          "label": "Increase in User Trust Signals",
+          "note": "Achieved by replacing screen-scraping with app-based authentication"
         },
         {
           "value": "30",
-          "suffix": "",
+          "suffix": "+",
           "label": "Institutions Standardized",
-          "note": "More institutions adopted one shared, standardized data-sharing framework together."
-        },
-        {
-          "value": "20",
-          "suffix": "",
-          "label": "Accounts Protected",
-          "note": "Millions of accounts moved off risky credential-sharing methods safely."
+          "note": "Implemented FDX principles (Transparency, Granularity, Control) across banking institutions like Chase, Wells Fargo, etc."
         }
       ]
     },
