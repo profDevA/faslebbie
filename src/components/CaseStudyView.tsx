@@ -146,8 +146,9 @@ const CS_CAPTION_SM = 'text-[13px] sm:text-[14px]'
 function pageScreenBandClass(enabled = true) {
   return enabled ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:min-h-[calc(100cqh+var(--cs-band-bleed))] lg:flex lg:flex-col lg:justify-center' : ''
 }
-function pageBandHeightClass() {
-  return 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:max-h-[calc(100cqh+var(--cs-band-bleed))]'
+/** At least one scrollport tall; band grows when two-column copy exceeds 100cqh. */
+function pageBandMinHeightClass() {
+  return 'lg:min-h-[calc(100cqh+var(--cs-band-bleed))]'
 }
 function pageScreenBandInnerClass() {
   return 'flex w-full flex-1 flex-col justify-center'
@@ -593,6 +594,10 @@ function SectionBlock({
       return <MediaBlock section={section} />
     case 'desktopMotionShowcase':
       return <DesktopMotionShowcaseBlock section={section} />
+    case 'interventionCarousel':
+      return <InterventionCarouselBlock section={section} />
+    case 'interventionGrid':
+      return <InterventionGridBlock section={section} />
     case 'gallerySection':
       return <GalleryBlock section={section} />
     case 'showcaseGallery':
@@ -752,14 +757,15 @@ function HeroBlock({
   // Full-page studies use Coral's stacked mobile hero (Figma 2079:26236).
   return (
     <section data-cs-hero className="relative">
-      <div className="flex flex-col gap-2.5 bg-white px-12 lg:hidden">
+      <div className="flex flex-col gap-2.5 bg-white lg:hidden">
+        {/* Full-bleed art — no forced aspect/object-cover (tall exports get L/R cropped). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={mobileArt}
           alt={p.name}
-          className="aspect-[333/432] w-full bg-[#ededed] object-cover object-top"
+          className="block w-full h-auto bg-[#ededed]"
         />
-        <div className="pb-4 pt-1 text-black">
+        <div className="px-12 pb-4 pt-1 text-black">
           <p className="text-[20px] font-bold leading-[1.35] tracking-normal">
             <span className="underline decoration-from-font underline-offset-[6px]">
               {title}
@@ -831,15 +837,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   return (
     <section
       data-cs-stretch
-      className={`grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch ${
-        pageBandHeightClass()
-      }`}
+      className={`grid grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch lg:overflow-visible ${pageBandMinHeightClass()}`}
       style={bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND)}
     >
       <div
-        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} ${
-          'justify-start lg:h-full lg:justify-between'
-        }`}
+        className={`flex flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start lg:min-h-full lg:justify-between`}
         style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', true), true) }}
       >
         <div className={'max-w-[min(580px,100%)]'}>
@@ -963,7 +965,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
     return (
       <section
         data-cs-stretch
-        style={sectionStyle(s.appearance, true, 'md', SAGE)}
+        style={sectionStyle(s.appearance, true, 'md', OVERVIEW_BAND_BACKGROUND)}
       >
         <div
           className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${
@@ -1925,6 +1927,241 @@ function DesktopMotionShowcaseBlock({
             </div>
           </div>
         )}
+    </section>
+  )
+}
+
+// Design Assist — poster carousel (desktop 3719:64984, mobile 3936:9564).
+// Poster is a fixed 1032×630 slot; captions stack in one grid cell so the
+// band sizes to the tallest slide without clipping shorter ones on page.
+const INTERVENTION_CAROUSEL_POSTER_ASPECT = '1032 / 630'
+const INTERVENTION_CAROUSEL_POSTER_SHADOW_CLASS =
+  'shadow-[0_33px_27px_rgba(0,0,0,0.09),0_14px_11px_rgba(0,0,0,0.09),0_7px_6px_rgba(0,0,0,0.08),0_4px_3px_rgba(0,0,0,0.07),0_2px_2px_rgba(0,0,0,0.06),0_1px_1px_rgba(0,0,0,0.04)] lg:shadow-[0_100px_80px_rgba(0,0,0,0.09),0_22px_18px_rgba(0,0,0,0.08),0_3px_3px_rgba(0,0,0,0.25)]'
+const INTERVENTION_CAROUSEL_TRANSITION_MS = 500
+
+function InterventionCarouselBlock({
+  section: s,
+}: {
+  section: Of<'interventionCarousel'>
+}) {
+  const slides = (s.slides ?? []).filter(sl => sl.image)
+  const n = slides.length
+  const [index, setIndex] = useState(0)
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const touchStartX = useRef<number | null>(null)
+  const pagingLocked = useRef(false)
+  const kicker = s.sectionTitle?.trim() || 'Design Interventions'
+  const canPage = n > 1
+  const showCaption = !!(
+    kicker ||
+    slides.some(sl => sl.body?.length) ||
+    s.introBody?.length
+  )
+  const slideMotionMs = reduceMotion ? 0 : INTERVENTION_CAROUSEL_TRANSITION_MS
+  const slideMotionClass = reduceMotion
+    ? ''
+    : 'transition-opacity duration-500 ease-in-out'
+
+  useEffect(() => {
+    setReduceMotion(
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+    )
+  }, [])
+
+  const go = (dir: 1 | -1) => {
+    if (!canPage || pagingLocked.current) return
+    pagingLocked.current = true
+    setIndex(i => (i + dir + n) % n)
+    window.setTimeout(() => {
+      pagingLocked.current = false
+    }, slideMotionMs + 40)
+  }
+
+  const onPosterTouchStart = (clientX: number) => {
+    touchStartX.current = clientX
+  }
+
+  const onPosterTouchEnd = (clientX: number) => {
+    if (touchStartX.current == null || !canPage) return
+    const dx = clientX - touchStartX.current
+    if (Math.abs(dx) >= 40) go(dx > 0 ? -1 : 1)
+    touchStartX.current = null
+  }
+
+  return (
+    <section
+      data-cs-stretch
+      className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] max-lg:!py-[88px] ${csBandGutter()}`}
+      style={flexSectionStyle(s.appearance, true, 'md', '#e9eef7', false)}
+    >
+      <div className="mx-auto flex w-full max-w-[344px] flex-col gap-[57px] lg:max-w-[1032px] lg:gap-0 lg:pb-12">
+        {slides.length > 0 && (
+          <div className="w-full shrink-0 lg:pt-14">
+            <div
+              className={`grid w-full overflow-hidden bg-white ${INTERVENTION_CAROUSEL_POSTER_SHADOW_CLASS}`}
+              style={{ aspectRatio: INTERVENTION_CAROUSEL_POSTER_ASPECT }}
+              onTouchStart={e => onPosterTouchStart(e.touches[0]?.clientX ?? 0)}
+              onTouchEnd={e => onPosterTouchEnd(e.changedTouches[0]?.clientX ?? 0)}
+            >
+              {slides.map((sl, i) =>
+                sl.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                  <img
+                    key={sl._key ?? i}
+                    src={sl.image}
+                    alt={sl.title || kicker}
+                    aria-hidden={i !== index}
+                    className={`col-start-1 row-start-1 size-full object-contain object-left-top ${slideMotionClass} ${
+                      i === index
+                        ? 'pointer-events-auto opacity-100'
+                        : 'pointer-events-none opacity-0'
+                    }`}
+                  />
+                ) : null,
+              )}
+            </div>
+          </div>
+        )}
+        {(canPage || showCaption) && (
+          <div className="shrink-0 lg:mt-[25px]">
+            {canPage && (
+              <div className="mb-4 hidden h-6 shrink-0 items-center justify-end gap-7 text-[23px] font-medium leading-none text-[#171717] lg:mb-[15px] lg:flex xl:text-[1.45vw]">
+                <button
+                  type="button"
+                  aria-label="Previous slide"
+                  data-cursor="hover"
+                  onClick={() => go(-1)}
+                  className="bg-transparent transition-opacity hover:opacity-70"
+                >
+                  &lt;
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next slide"
+                  data-cursor="hover"
+                  onClick={() => go(1)}
+                  className="bg-transparent transition-opacity hover:opacity-70"
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
+            {showCaption && (
+              <div className="grid w-full text-left lg:ml-auto lg:max-w-[min(445px,42%)]">
+                {slides.map((sl, i) => {
+                  const body = sl.body?.length ? sl.body : s.introBody
+                  if (!kicker && !body?.length) return null
+                  return (
+                    <div
+                      key={sl._key ?? i}
+                      className={`col-start-1 row-start-1 ${slideMotionClass} ${
+                        i === index
+                          ? 'pointer-events-auto opacity-100'
+                          : 'pointer-events-none opacity-0'
+                      }`}
+                      aria-hidden={i !== index}
+                    >
+                      {kicker && (
+                        <h2 className="text-[14px] font-normal capitalize leading-[14.4px] lg:uppercase lg:leading-[1.03]">
+                          {kicker}
+                        </h2>
+                      )}
+                      {body?.length ? (
+                        <Prose
+                          value={body}
+                          className={`${kicker ? 'mt-[7px] lg:mt-2.5' : ''} text-[16px] font-light leading-[16.8px] tracking-[-0.14px] lg:font-normal lg:leading-[1.6] lg:tracking-normal`}
+                        />
+                      ) : null}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+// Design Assist — on-page intervention grid (Figma 3719:65044).
+// Design Assist — intervention grid (desktop 3719:65044, mobile 3938:14511).
+const INTERVENTION_GRID_CARD_SHADOW_CLASS =
+  'max-lg:shadow-[0_4px_9.6px_rgba(0,0,0,0.25)] lg:shadow-[0_12px_40px_rgba(0,0,0,0.12)]'
+
+function InterventionGridBlock({
+  section: s,
+}: {
+  section: Of<'interventionGrid'>
+}) {
+  const items = s.items ?? []
+  const initial =
+    typeof s.initialVisibleCount === 'number' && s.initialVisibleCount >= 1
+      ? s.initialVisibleCount
+      : 6
+  const [expanded, setExpanded] = useState(false)
+  const visible = expanded ? items : items.slice(0, initial)
+  const hasMore = items.length > initial
+  const readMore = s.readMoreLabel?.trim() || 'Load More'
+  const loadMoreBtnClass =
+    'relative pb-1 uppercase leading-[19.2px] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current text-[14px] font-normal tracking-wide text-[#171717] transition-opacity hover:opacity-70'
+
+  return (
+    <section
+      data-cs-stretch
+      className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] max-lg:!py-[88px] ${csBandGutter()}`}
+      style={flexSectionStyle(s.appearance, true, 'md', '#d5cfdd', false)}
+    >
+      <div className="mx-auto flex w-full max-w-[344px] flex-col lg:max-w-[min(1400px,calc(100%-2.5rem))] lg:px-12">
+        {(s.sectionTitle || s.introBody?.length) && (
+          <div className="mx-auto w-full max-w-[70ch] text-left lg:text-center">
+            {s.sectionTitle && (
+              <h2
+                className={`${csSectionTitle()} max-lg:text-[14px] max-lg:font-bold max-lg:leading-[14.4px] lg:uppercase`}
+              >
+                {s.sectionTitle}
+              </h2>
+            )}
+            {s.introBody?.length ? (
+              <Prose
+                value={s.introBody}
+                className={`${s.sectionTitle ? 'mt-4' : ''} max-lg:text-[16px] max-lg:font-light max-lg:leading-[16.8px] max-lg:tracking-[-0.14px] ${csBodySm()} text-left lg:text-center`}
+              />
+            ) : null}
+          </div>
+        )}
+        {visible.length > 0 && (
+          <div className="mt-[50px] grid grid-cols-1 gap-[50px] lg:mt-14 lg:grid-cols-2 lg:gap-8">
+            {visible.map(item =>
+              item.image ? (
+                <div
+                  key={item._key}
+                  className={`overflow-hidden bg-white ${INTERVENTION_GRID_CARD_SHADOW_CLASS}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                  <img
+                    src={item.image}
+                    alt={item.caption || 'Design intervention'}
+                    className="block h-auto w-full"
+                  />
+                </div>
+              ) : null,
+            )}
+          </div>
+        )}
+        {hasMore && !expanded && (
+          <div className="mt-[56px] flex justify-center lg:mt-14">
+            <button
+              type="button"
+              data-cursor="hover"
+              onClick={() => setExpanded(true)}
+              className={loadMoreBtnClass}
+            >
+              {readMore}
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   )
 }

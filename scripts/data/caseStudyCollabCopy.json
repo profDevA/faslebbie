@@ -525,22 +525,22 @@
     "impact": {
       "metrics": [
         {
-          "value": "90",
-          "suffix": "%",
-          "label": "Blueprint Adoption",
-          "note": "Designers chose Blueprint-compliant components far more consistently than before."
+          "value": "15",
+          "suffix": "hrs",
+          "label": "Time Reclaimed",
+          "note": "Eliminated manual system searches and compliance checks per month"
         },
         {
           "value": "45",
           "suffix": "%",
           "label": "Capacity Growth",
-          "note": "Reclaimed designer capacity equaled adding two to three designers."
+          "note": "Equivalent to adding 2-3 designers without new headcount"
         },
         {
-          "value": "15",
-          "suffix": "",
-          "label": "Time Reclaimed",
-          "note": "Reclaiming search time shrank hours lost to non-compliant rework."
+          "value": "90",
+          "suffix": "%",
+          "label": "Blueprint Adoption",
+          "note": "Grew from ~45% to 90% within 9 months of launch."
         }
       ]
     },

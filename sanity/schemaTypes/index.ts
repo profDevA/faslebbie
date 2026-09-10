@@ -8,6 +8,7 @@ import { galleryItem } from "./objects/galleryItem";
 import { deviceTab } from "./objects/deviceTab";
 import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
+import { interventionSlide } from "./objects/interventionSlide";
 import { mediaItem } from "./objects/mediaItem";
 import { highlightCell } from "./objects/highlightCell";
 import { coreExperienceScreen } from "./objects/coreExperienceScreen";
@@ -68,6 +69,8 @@ import { desktopMotionShowcase } from "./sections/desktopMotionShowcase";
 import { mediaSection } from "./sections/mediaSection";
 import { gallerySection } from "./sections/gallerySection";
 import { showcaseGallery } from "./sections/showcaseGallery";
+import { interventionCarousel } from "./sections/interventionCarousel";
+import { interventionGrid } from "./sections/interventionGrid";
 import { motionShowcase } from "./sections/motionShowcase";
 import { highlightReel } from "./sections/highlightReel";
 import { statsSection } from "./sections/statsSection";
@@ -112,6 +115,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   mediaSection,
   gallerySection,
   showcaseGallery,
+  interventionCarousel,
+  interventionGrid,
   motionShowcase,
   desktopMotionShowcase,
   highlightReel,
@@ -125,6 +130,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   deviceTab,
   statItem,
   showcaseItem,
+  interventionSlide,
   mediaItem,
   highlightCell,
   coreExperienceScreen,

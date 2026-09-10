@@ -25,7 +25,6 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Draft out of sync after template migration | `sync-case-study-drafts-from-published.ts` |
 | Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`) |
 | Coral media audit (read-only) | `check-coral-media.ts` |
-| All case studies — Core Experience band/popup counts (read-only) | `check-case-study-ce-status.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Experian Boost §04 Core Experience band (5 phone screens) | `patch-experian-core-experience.ts` (manual upload; PNG/JPG: `public/work/experian-boost/core-flow/01–05-*`) |
@@ -65,6 +64,14 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Coral motion rows + artifact images wiped | `patch-coral-restore-motion-artifacts.ts` |
 | Coral hero image + highlight reel + accordion/stats wiped | `patch-coral-restore-hero-highlight.ts` |
 | Stray empty caseStudy draft (null slug) | `patch-delete-orphan-draft.ts` |
+| Design Assist AI — section reorder (Figma sequence, no CE) | `patch-design-assist-section-order.ts` |
+| Design Assist AI §01 hero desktop + mobile | `patch-design-assist-hero.ts` → `public/work/design-assist-ai/01–02-*.png` |
+| Design Assist AI §02 Overview side image | `patch-design-assist-overview.ts` → `03-overview-side.png` |
+| Design Assist AI §04 My Approach — cream band + lavender accordion (Figma 3719:64964) | `patch-design-assist-approach.ts` — band `#e3e3db`, panel `#9687a8`, text `#231e1e` |
+| Design Assist AI §05 Research Artifacts — 4 slides (Figma 3719:66249) | `patch-design-assist-research-artifacts.ts` — band `#171717`; PNGs in `research-artifacts/01–04-*.png` |
+| Design Assist AI — Intervention Carousel + Grid (Figma 3719:64984 / 65044) | `patch-design-assist-intervention-sections.ts` — carousel `#e9eef7`, grid `#d5cfdd` (16 cards, 6 initial + Load More); PNGs in `intervention-carousel/` + `intervention-grid/`. Flags: `--carousel-only`, `--grid-only`, `--appearance-only` |
+| Design Assist AI §09 Impact — live metric order (15 hrs / 45% / 90%) | `patch-design-assist-impact-metrics.ts` |
+| Design Assist sections wiped by bad patch | `patch-design-assist-restore-from-history.ts` then re-run field-level patches only |
 | Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
 | Census §05 Design Process — cream band + navy accordion (Figma 3999:53211) | `patch-census-design-process.ts` — band `#e3e3db`, panel `#194498` |
 | Census §07 featured motion — desktop caption bottom-right (Figma 3999:53406) | `patch-census-motion-caption-align.ts` — sets `captionAlign: right` only (no image re-upload) |

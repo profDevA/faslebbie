@@ -79,6 +79,8 @@ export const caseStudy = defineType({
         { type: "coreExperience" },
         { type: "accordionSection" },
         { type: "showcaseGallery" },
+        { type: "interventionCarousel" },
+        { type: "interventionGrid" },
         { type: "motionShowcase" },
         { type: "desktopMotionShowcase" },
         { type: "statsSection" },

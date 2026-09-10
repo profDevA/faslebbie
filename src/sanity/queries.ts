@@ -85,6 +85,14 @@ const sectionsProj = `sections[]{
     sectionTitle, introBody, expandable,
     items[]{ _key, "image": image${img}, caption, "expandImage": expandImage${img} }
   },
+  _type == "interventionCarousel" => {
+    sectionTitle, introBody,
+    slides[]{ _key, title, body, "image": image${img} }
+  },
+  _type == "interventionGrid" => {
+    sectionTitle, introBody, initialVisibleCount, readMoreLabel,
+    items[]{ _key, "image": image${img}, caption, "expandImage": expandImage${img} }
+  },
   _type == "motionShowcase" => {
     sectionTitle, intro, layoutVariant,
     rows[]{

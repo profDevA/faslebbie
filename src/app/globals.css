@@ -333,9 +333,10 @@ body {
 }
 @media (min-width: 1024px) {
   .cs-page-bands > section[data-cs-stretch].grid {
-    /* Overview: one screen. Don't let the side image's intrinsic height grow the band. */
-    grid-auto-rows: calc(100cqh + var(--cs-band-bleed));
-    max-height: calc(100cqh + var(--cs-band-bleed));
+    /* Overview / split bands: at least one screen, grow when copy + metadata need more. */
+    min-height: calc(100cqh + var(--cs-band-bleed));
+    max-height: none;
+    grid-auto-rows: minmax(calc(100cqh + var(--cs-band-bleed)), auto);
   }
 }
 

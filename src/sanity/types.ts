@@ -39,6 +39,13 @@ export interface GalleryImage {
   expandImage?: string;
 }
 
+export interface InterventionSlide {
+  _key: string;
+  title?: string;
+  body?: PortableTextBlock[];
+  image?: string;
+}
+
 export interface CoreExperienceScreen {
   _key: string;
   image?: string;
@@ -232,6 +239,20 @@ export type Section =
       introBody?: PortableTextBlock[];
       expandable?: boolean;
       sliderGap?: number;
+      items?: GalleryImage[];
+    })
+  | (Base & {
+      _type: "interventionCarousel";
+      sectionTitle?: string;
+      introBody?: PortableTextBlock[];
+      slides?: InterventionSlide[];
+    })
+  | (Base & {
+      _type: "interventionGrid";
+      sectionTitle?: string;
+      introBody?: PortableTextBlock[];
+      initialVisibleCount?: number;
+      readMoreLabel?: string;
       items?: GalleryImage[];
     })
   | (Base & {

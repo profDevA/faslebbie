@@ -135,6 +135,30 @@ export function coreExperiencePreviewAppearanceDefaults(
 /** §08 Desktop motion */
 export const DESKTOP_MOTION_APPEARANCE_DEFAULTS = bandAppearance("md");
 
+function interventionBandAppearance(bg: string) {
+  return {
+    backgroundColor: sanityColor(bg),
+    textColor: sanityColor("#000000"),
+    paddingTop: mdOverlay.paddingTop,
+    paddingBottom: mdOverlay.paddingBottom,
+    contentGap: gapDefault("lg", false),
+    contentAlignment: "left" as const,
+    maxWidth: "wide" as const,
+  };
+}
+
+/** Design Assist carousel — Figma 3719:64984 */
+export const INTERVENTION_CAROUSEL_APPEARANCE_DEFAULTS =
+  interventionBandAppearance("#e9eef7");
+
+/** Design Assist grid — Figma 3719:65044 */
+export const INTERVENTION_GRID_APPEARANCE_DEFAULTS =
+  interventionBandAppearance("#d5cfdd");
+
+/** @deprecated use INTERVENTION_CAROUSEL_APPEARANCE_DEFAULTS */
+export const INTERVENTION_BAND_APPEARANCE_DEFAULTS =
+  INTERVENTION_CAROUSEL_APPEARANCE_DEFAULTS;
+
 /** §09 Impact */
 export const STATS_APPEARANCE_DEFAULTS = {
   ...bandAppearance("lg"),
@@ -156,6 +180,8 @@ export const SECTION_APPEARANCE_DEFAULTS: Record<
   problemContextSection: PROBLEM_CONTEXT_APPEARANCE_DEFAULTS,
   coreExperience: CORE_EXPERIENCE_BAND_APPEARANCE_DEFAULTS,
   desktopMotionShowcase: DESKTOP_MOTION_APPEARANCE_DEFAULTS,
+  interventionCarousel: INTERVENTION_CAROUSEL_APPEARANCE_DEFAULTS,
+  interventionGrid: INTERVENTION_GRID_APPEARANCE_DEFAULTS,
   statsSection: STATS_APPEARANCE_DEFAULTS,
   highlightReel: HIGHLIGHT_REEL_APPEARANCE_DEFAULTS,
   proseSection: PROBLEM_CONTEXT_APPEARANCE_DEFAULTS,
