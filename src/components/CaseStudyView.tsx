@@ -39,6 +39,7 @@ import {
   MOTION_FEATURED_MOBILE_DEFAULTS,
   MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS,
   MOTION_ROW_DEFAULTS,
+  MOTION_PHONE_ROW_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   DESKTOP_MOTION_SHOWCASE_DEFAULTS,
   SHOWCASE_ARTIFACT_DEFAULTS,
@@ -234,6 +235,11 @@ function isLight(a?: Appearance, defaultLight?: boolean) {
   return !!defaultLight
 }
 
+/** Dark bands — white dot cursor so it stays visible on black / navy fills. */
+function cursorInvertAttrs(light?: boolean) {
+  return light ? ({ 'data-cursor-invert': '' as const }) : {}
+}
+
 /** Render light/white copy — respects explicit textColor and dark band backgrounds. */
 function bandUsesLightText(a?: Appearance, defaultLight?: boolean) {
   if (a?.textColor?.hex) {
@@ -243,11 +249,18 @@ function bandUsesLightText(a?: Appearance, defaultLight?: boolean) {
   return isLight(a, defaultLight)
 }
 
-/** White accordion copy on dark Design Process panels (Figma 3999:53215, Experian magenta, etc.). */
-function colorUsesLightText(c?: SanityColor) {
+/** Legacy fallback when accordionTextColor is unset — only deep panels → white copy. */
+function accordionPanelUsesLightText(c?: SanityColor) {
   if (!c?.hex) return false
   const { r, g, b } = hexToRgb(c.hex)
-  return (r * 299 + g * 587 + b * 114) / 1000 < 140
+  // Tan/lavender/magenta panels (DVA, Design Assist, Experian) sit ~130–145 — black per Figma.
+  return (r * 299 + g * 587 + b * 114) / 1000 < 125
+}
+
+function sanityColorIsLight(c?: SanityColor) {
+  if (!c?.hex) return false
+  const { r, g, b } = hexToRgb(c.hex)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 180
 }
 
 /** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434. */
@@ -530,6 +543,7 @@ function FullCaseStudyPdfLink({
   return (
     <section
       className="text-white"
+      data-cursor-invert
       style={{
         ...bandStyle(undefined, REFLECTION_DEFAULTS.backgroundColor, true),
         ...sectionPadStyle(
@@ -830,10 +844,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const desktopMediaSizeClass = contain
     ? 'max-h-full max-w-full object-contain object-center'
     : 'absolute inset-0 h-full w-full object-cover object-center'
-  const mobileMediaSizeClass =
-    !contain
-      ? 'absolute inset-0 h-full w-full object-cover object-center'
-      : 'max-h-full max-w-full object-contain'
+  // Mobile Figma (e.g. DVA 4001:79403): full-bleed width, height from art — not a
+  // fixed 360×552 crop box. Cover keeps the aspect slot; contain uses natural height
+  // so panel colour does not letterbox as black bars above/below the mockup.
+  const mobileMediaSizeClass = contain
+    ? 'block h-auto w-full object-contain'
+    : 'absolute inset-0 h-full w-full object-cover object-center'
   return (
     <section
       data-cs-stretch
@@ -901,8 +917,10 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       </div>
       {/* One media slot: video if authored, otherwise the still. */}
       <div
-        className={`relative flex aspect-[360/552] lg:hidden ${mediaOrder} ${
-          !contain ? 'overflow-hidden' : 'items-center justify-center'
+        className={`relative lg:hidden ${mediaOrder} ${
+          contain
+            ? 'w-full'
+            : 'flex aspect-[360/552] overflow-hidden'
         }`}
         style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
@@ -959,7 +977,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
 
 function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
   const light = bandUsesLightText(s.appearance)
-  const panelLight = colorUsesLightText(s.accordionBackgroundColor)
+  const sideTextCss = colorToCss(s.appearance?.textColor)
+  const panelTextCss = colorToCss(s.accordionTextColor)
+  const panelLight = panelTextCss
+    ? sanityColorIsLight(s.accordionTextColor)
+    : accordionPanelUsesLightText(s.accordionBackgroundColor)
+  const panelTextClass = panelLight ? 'text-white' : 'text-black'
   const items = s.items ?? []
   if (s.variant === 'split') {
     return (
@@ -972,10 +995,13 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
             csShell('max-lg:!max-w-none')
           }`}
         >
-        <div className="order-2 flex flex-col justify-end lg:order-1">
+        <div
+          className={`order-2 flex flex-col justify-end lg:order-1 ${light ? 'text-white' : 'text-black'}`}
+          style={sideTextCss ? { color: sideTextCss } : undefined}
+        >
           <div className={'max-w-[min(560px,100%)]'}>
             <h2
-              className={`mb-4 ${csSectionTitle('text-[20px] lg:text-[22px]')} ${light ? 'text-white' : ''}`}
+              className={`mb-4 ${csSectionTitle('text-[20px] lg:text-[22px]')}`}
             >
               {s.sideTitle ?? 'My Approach'}
             </h2>
@@ -983,10 +1009,11 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           </div>
         </div>
         <div
-          className={`order-1 self-stretch px-5 py-8 lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw] ${
-            panelLight ? 'text-white' : 'text-black'
-          }`}
-          style={{ backgroundColor: colorToCss(s.accordionBackgroundColor) }}
+          className={`order-1 self-stretch px-5 py-8 lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw] ${panelTextClass}`}
+          style={{
+            backgroundColor: colorToCss(s.accordionBackgroundColor),
+            ...(panelTextCss ? { color: panelTextCss } : undefined),
+          }}
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
@@ -1059,17 +1086,14 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   const padStyle = sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
   return (
     <section
-      className={`${ALIGN[align]} ${pageScreenBandClass(true)}`}
+      className={`${ALIGN[align]} ${pageBandMinHeightClass()}`}
+      {...cursorInvertAttrs(light)}
       style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
       <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
+        {/* Figma 3719:64934 / 4001:79393 — 60px desktop, ~32px mobile between blocks. */}
         <div
-          className={`flex flex-col ${SECTION_GAP_CLASS} ${csProseInner( align, width)}`}
-          style={sectionGapStyle(
-            s.appearance,
-            gapDefault('md', true),
-            true,
-          )}
+          className={`flex flex-col max-lg:gap-8 lg:gap-[60px] ${csProseInner( align, width)}`}
         >
           <div>
             {s.problemHeading && (
@@ -1119,6 +1143,7 @@ function ReflectionBlock({
   return (
     <section
       className={`${ALIGN[align]} text-white`}
+      data-cursor-invert
       style={{
         ...bandStyle(s.appearance, REFLECTION_DEFAULTS.backgroundColor, true),
         ...padStyle,
@@ -1215,6 +1240,34 @@ function coreExperienceImageBoxStyle(
   return { aspectRatio: `${d.imageAspectWidth}/${d.imageAspectHeight}` }
 }
 
+/** Band preview tile radius — Sanity previewAppearance.tileBorderRadius overrides layout defaults. */
+function coreExperienceTileRadius(
+  bandApp: Appearance | undefined,
+  opts: {
+    layout: 'mobileRow' | 'desktopGrid'
+    bandMobileGrid: boolean
+    stackTile: boolean
+    desktopBandTile: boolean
+  },
+): number {
+  if (
+    typeof bandApp?.tileBorderRadius === 'number' &&
+    bandApp.tileBorderRadius >= 0
+  ) {
+    return bandApp.tileBorderRadius
+  }
+  if (opts.bandMobileGrid) {
+    return CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileBorderRadius
+  }
+  if (opts.stackTile) {
+    return CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackBorderRadius
+  }
+  if (opts.desktopBandTile) {
+    return CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBorderRadius
+  }
+  return CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS.tileBorderRadius
+}
+
 function CoreExperienceScreenCard({
   screen,
   layout,
@@ -1263,26 +1316,23 @@ function CoreExperienceScreenCard({
         : desktopBand
           ? 'min-w-0 flex-1'
           : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
-    const tileRadiusClass = mobileGridTile
-      ? 'rounded-[10px]'
-      : stackTile
-        ? 'rounded-[12px]'
-        : desktopBandTile
-          ? 'rounded-[25px]'
-          : 'rounded-xl'
-    const tileRadiusStyle = mobileGridTile
-      ? { borderRadius: CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileBorderRadius }
-      : stackTile
-        ? {
-            borderRadius:
-              CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.mobileStackBorderRadius,
-          }
-        : desktopBandTile
-          ? { borderRadius: CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS.cardBorderRadius }
-          : undefined
     const hasImageDims = Boolean(screen.imageWidth && screen.imageHeight)
     /** Full-frame uploads — no shared aspect box or object-cover crop. */
     const preserveFullFrame = mobileGridTile || stackTile || hasImageDims
+    const tileRadius = preserveFullFrame
+      ? 0
+      : coreExperienceTileRadius(bandApp, {
+          layout,
+          bandMobileGrid: mobileGridTile,
+          stackTile,
+          desktopBandTile,
+        })
+    const tileRadiusStyle: CSSProperties | undefined =
+      tileRadius > 0 ? { borderRadius: tileRadius } : undefined
+    /** Full-frame PNGs include device chrome / shadow — wrapper drop-shadow reads as a mismatched box. */
+    const tileShadowClass = preserveFullFrame
+      ? ''
+      : 'shadow-[0_2px_12px_rgba(0,0,0,0.22)]'
     const tileBoxStyle: CSSProperties = {
       backgroundColor: cardBg,
       ...tileRadiusStyle,
@@ -1309,19 +1359,19 @@ function CoreExperienceScreenCard({
         style={figureStyle}
       >
         <div
-          className={`overflow-hidden ${tileRadiusClass} shadow-[0_2px_12px_rgba(0,0,0,0.22)]`}
+          className={`${preserveFullFrame ? '' : 'overflow-hidden'} ${tileShadowClass}`}
           style={tileBoxStyle}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
           <img
             src={screen.image}
             alt={screen.label ?? screen.description ?? 'Product screen'}
-            className={`w-full ${tileRadiusClass} ${
+            className={`w-full ${
               preserveFullFrame
                 ? 'block h-auto'
                 : 'h-full object-contain object-top'
             }`}
-            style={tileRadiusStyle}
+            style={preserveFullFrame ? undefined : tileRadiusStyle}
           />
         </div>
         {(screen.label || screen.description) && (
@@ -2321,6 +2371,7 @@ function ShowcaseBlock({
       <section
         data-cs-stretch
         className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
+        {...cursorInvertAttrs(light)}
         style={{
           ...sectionStyle(s.appearance, true, 'md', '#000000', true),
           ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
@@ -2370,6 +2421,7 @@ function ShowcaseBlock({
     <section
       data-cs-stretch
       className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
+      {...cursorInvertAttrs(light)}
       style={flexSectionStyle(s.appearance, true, 'md', '#000000', true)}
     >
       {(s.sectionTitle || s.introBody) && (
@@ -2399,12 +2451,180 @@ function MotionShowcaseBlock({
   projectSlug?: string
 }) {
   const layout = s.layoutVariant ?? 'stacked'
+  if (layout === 'phoneRow') {
+    return <MotionShowcasePhoneRowBand section={s} />
+  }
   if (layout === 'featured') {
     return (
       <MotionShowcaseFeaturedBand section={s} projectSlug={projectSlug} />
     )
   }
   return <MotionShowcaseStackedBand section={s} />
+}
+
+/** §07 phoneRow — three full-frame phones + intro (Figma DVA 4001:76397 / 4001:79990). */
+function MotionShowcasePhoneRowBand({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const row = s.rows?.[0]
+  const items = (row?.items ?? []).filter(
+    it => it.image || it.videoFile || it.videoUrl,
+  )
+  const lightText = bandUsesLightText(s.appearance)
+  const textClass = lightText ? 'text-white' : 'text-black'
+  const titleMb =
+    typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottom
+  const titleMbLg =
+    typeof s.titleMarginBottomDesktop === 'number' &&
+    s.titleMarginBottomDesktop >= 0
+      ? s.titleMarginBottomDesktop
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottomDesktop
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const titleMargin = lg ? titleMbLg : titleMb
+  const d = MOTION_PHONE_ROW_DEFAULTS
+
+  if (!items.length) return null
+
+  return (
+    <section
+      className={csBandGutter()}
+      style={sectionStyle(s.appearance, true, 'lg', '#999999', lightText)}
+    >
+      {s.sectionTitle && (
+        <h2
+          className={`text-center ${csSectionTitle()} ${textClass}`}
+          style={{ marginBottom: titleMargin }}
+        >
+          {s.sectionTitle}
+        </h2>
+      )}
+
+      {/* Mobile — 2+1 grid (Figma 4001:79990). */}
+      <div
+        className="mx-auto grid w-full grid-cols-2 lg:hidden"
+        style={{
+          maxWidth: d.mobileMaxWidth,
+          columnGap: d.mobileColumnGap,
+          rowGap: d.mobileRowGap,
+        }}
+      >
+        {items.map((it, itemIndex) => (
+          <PhoneRowMedia
+            key={it._key ?? `phone-row-m-${itemIndex}`}
+            item={it}
+            phoneHeight={d.phoneHeightMobile}
+            className="min-w-0"
+          />
+        ))}
+      </div>
+
+      {/* Desktop — centred phone strip (Figma 4002:86609). */}
+      <div
+        className="mx-auto hidden w-full lg:block"
+        style={{ maxWidth: d.bandMaxWidth }}
+      >
+        <div
+          className="flex items-stretch justify-center"
+          style={{ gap: d.columnGap, height: d.phoneHeightDesktop }}
+        >
+          {items.map((it, itemIndex) => (
+            <PhoneRowMedia
+              key={it._key ?? `phone-row-d-${itemIndex}`}
+              item={it}
+              phoneHeight={d.phoneHeightDesktop}
+              className="min-w-0 flex-1"
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Intro — full band width, flush right on desktop (Figma 4001:76571). */}
+      {s.intro?.length ? (
+        <>
+          <div
+            className={`ml-auto hidden w-full text-left lg:block ${textClass}`}
+            style={{
+              marginTop: d.introMarginTopDesktop,
+              maxWidth: d.introMaxWidth,
+            }}
+          >
+            <Prose value={s.intro} className={csBodySm()} />
+          </div>
+          <div
+            className={`mx-auto w-full text-left lg:hidden ${textClass}`}
+            style={{
+              marginTop: d.introMarginTopMobile,
+              maxWidth: d.mobileMaxWidth,
+            }}
+          >
+            <Prose value={s.intro} className={csBodySm()} />
+          </div>
+        </>
+      ) : null}
+    </section>
+  )
+}
+
+function PhoneRowMedia({
+  item,
+  phoneHeight,
+  className = '',
+}: {
+  item: MediaItem
+  phoneHeight: number
+  className?: string
+}) {
+  const videoPoster = item.posterImage
+  const videoSrc =
+    typeof item.videoFile === 'string'
+      ? item.videoFile
+      : item.mediaType === 'video' && item.videoFile
+        ? String(item.videoFile)
+        : undefined
+  const frameClass = `flex min-h-0 justify-center ${className}`
+  /** Fixed px height — shorter PNGs scale up; width follows aspect ratio. */
+  const mediaStyle = { height: phoneHeight, width: 'auto' as const }
+  if (videoSrc) {
+    return (
+      <div className={frameClass}>
+        <video
+          className="block w-auto"
+          style={mediaStyle}
+          src={videoSrc}
+          poster={videoPoster}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      </div>
+    )
+  }
+  if (item.image) {
+    return (
+      <div className={frameClass}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={item.image}
+          alt={item.caption || ''}
+          className="block w-auto"
+          style={mediaStyle}
+        />
+      </div>
+    )
+  }
+  return null
 }
 
 function MotionShowcaseFeaturedBand({
@@ -3064,6 +3284,12 @@ function StatsBlock({
     return () => mq.removeEventListener('change', sync)
   }, [])
   if (!items.length) return null
+  const metricCols =
+    items.length === 1 ? 1 : items.length === 2 ? 2 : 3
+  const gridMaxWidth =
+    metricCols === 2
+      ? Math.min(880, STATS_BAND_DEFAULTS.gridMaxWidth)
+      : STATS_BAND_DEFAULTS.gridMaxWidth
   const metricGap = lg
     ? typeof s.metricGridGapDesktop === 'number' && s.metricGridGapDesktop >= 0
       ? s.metricGridGapDesktop
@@ -3099,10 +3325,16 @@ function StatsBlock({
         </div>
       ) : null}
       <div
-        className="mx-auto grid w-full grid-cols-1 sm:grid-cols-3"
+        className={`mx-auto grid w-full grid-cols-1 ${
+          metricCols === 1
+            ? 'sm:grid-cols-1'
+            : metricCols === 2
+              ? 'sm:grid-cols-2'
+              : 'sm:grid-cols-3'
+        }`}
         style={{
           gap: metricGap,
-          maxWidth: `min(${STATS_BAND_DEFAULTS.gridMaxWidth}px, 100%)`,
+          maxWidth: `min(${gridMaxWidth}px, 100%)`,
         }}
       >
         {items.map((st, i) => (

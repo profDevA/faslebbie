@@ -11,6 +11,8 @@ const client = getCliClient({ apiVersion: "2025-01-01" });
 const SLUG = "experian-boost";
 const BAND_BG = "#e3e3db";
 const PANEL_BG = "#bc6aa7";
+/** Figma 2166:93463 — black copy on magenta panel */
+const PANEL_TEXT = "#000000";
 
 function sanityColor(hex: string, alpha = 1) {
   return { _type: "color" as const, hex, alpha };
@@ -57,6 +59,7 @@ async function main() {
       .set({
         [`sections[${idx}].appearance.backgroundColor`]: sanityColor(BAND_BG),
         [`sections[${idx}].accordionBackgroundColor`]: sanityColor(PANEL_BG),
+        [`sections[${idx}].accordionTextColor`]: sanityColor(PANEL_TEXT),
       })
       .commit();
     console.log(`✓ ${doc._id}: band ${BAND_BG} / panel ${PANEL_BG}`);

@@ -33,6 +33,10 @@ export const motionShowcase = defineType({
             title: "Featured device (Census — centred mockup + anchored caption)",
             value: "featured",
           },
+          {
+            title: "Phone row (DVA — 3-up strip + bottom-right intro)",
+            value: "phoneRow",
+          },
         ],
         layout: "radio",
       },

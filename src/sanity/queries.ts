@@ -4,7 +4,7 @@ import { SANITY_IMAGE_PROJ } from "./image";
 
 const img = SANITY_IMAGE_PROJ;
 
-const appearanceFields = `backgroundColor, textColor, paddingTop, paddingBottom, paddingLeft, paddingRight, contentGap, contentGapInner, contentAlignment, maxWidth, tileBackgroundColor, introMaxWidth, containerMaxWidth`;
+const appearanceFields = `backgroundColor, textColor, paddingTop, paddingBottom, paddingLeft, paddingRight, contentGap, contentGapInner, contentAlignment, maxWidth, tileBackgroundColor, tileBorderRadius, introMaxWidth, containerMaxWidth`;
 
 const appearanceProj = `appearance{ ${appearanceFields} }`;
 
@@ -31,7 +31,7 @@ const sectionsProj = `sections[]{
     columnGap
   },
   _type == "accordionSection" => {
-    variant, sectionTitle, sideTitle, sideBody, accordionBackgroundColor,
+    variant, sectionTitle, sideTitle, sideBody, accordionBackgroundColor, accordionTextColor,
     items[]{ _key, title, body, defaultOpen }
   },
   _type == "proseSection" => { sectionTitle, body },

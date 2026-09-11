@@ -15,6 +15,7 @@ const PUB_ID = "cs-design-assist-ai";
 const BAND_BG = "#e3e3db";
 const PANEL_BG = "#9687a8";
 const TEXT_COLOR = "#231e1e";
+const PANEL_TEXT = "#000000";
 
 /** Live WP side copy — not in collab JSON blurb field. */
 const SIDE_BODY =
@@ -70,6 +71,7 @@ async function patchDoc(docId: string) {
     [`sections[${idx}].appearance.backgroundColor`]: sanityColor(BAND_BG),
     [`sections[${idx}].appearance.textColor`]: sanityColor(TEXT_COLOR),
     [`sections[${idx}].accordionBackgroundColor`]: sanityColor(PANEL_BG),
+    [`sections[${idx}].accordionTextColor`]: sanityColor(PANEL_TEXT),
     [`sections[${idx}].variant`]: "split",
     [`sections[${idx}].sideTitle`]: "My Approach",
     [`sections[${idx}].sectionTitle`]: "Design Process",

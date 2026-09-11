@@ -31,11 +31,17 @@ export default function DotCursor() {
     const onMove = (e: PointerEvent) => {
       targetX = e.clientX;
       targetY = e.clientY;
-      const interactive = (e.target as Element | null)?.closest?.(
+      const target = e.target as Element | null;
+      const interactive = target?.closest?.(
         "a, button, [data-cursor='hover']",
       );
+      const invert = target?.closest?.("[data-cursor-invert]");
       targetScale = interactive ? 2.8 : 1;
-      el.style.backgroundColor = interactive ? "#ea2c2c" : "#000";
+      el.style.backgroundColor = interactive
+        ? "#ea2c2c"
+        : invert
+          ? "#ffffff"
+          : "#000000";
       el.style.opacity = "1";
     };
     const onLeave = () => {

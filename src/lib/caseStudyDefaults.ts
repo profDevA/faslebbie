@@ -132,6 +132,25 @@ export const MOTION_FEATURED_MOBILE_DEFAULTS = {
   captionBodySize: 16,
 } as const;
 
+/** §07 Motion showcase — phone row (Figma DVA 4001:76397 / 4001:79990). */
+export const MOTION_PHONE_ROW_DEFAULTS = {
+  /** Desktop strip — Figma 4002:86609 (~802px). */
+  bandMaxWidth: 802,
+  columnGap: 45,
+  /** Mobile 2+1 grid — Figma 4001:79990 content ~345px. */
+  mobileMaxWidth: 345,
+  mobileColumnGap: 31,
+  mobileRowGap: 31,
+  /** Figma 4002:86612 frame height at 1440 — all phones scale to this px height. */
+  phoneHeightDesktop: 512,
+  /** Figma 4002:87856 frame height at 393. */
+  phoneHeightMobile: 350,
+  /** Desktop intro block — Figma 4001:76571 (~440px). */
+  introMaxWidth: 440,
+  introMarginTopDesktop: 56,
+  introMarginTopMobile: 32,
+} as const;
+
 /** §07 Featured motion band — US Census mobile (Figma 3999:55762). */
 export const MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS = {
   contentMaxWidth: 344,
@@ -151,6 +170,12 @@ export const WORK_PAGE_APPEARANCE_DEFAULTS = {
 
 /** Vertical stack gap on mobile bands — not page-template contentGap (96px desktop). */
 export const BAND_STACK_GAP_MOBILE = 24;
+
+/** §03 Problem Context → What I Brought (Figma 3719:64934 desktop, 4001:79393 mobile). */
+export const PROBLEM_CONTEXT_SUBSECTION_GAP = {
+  mobile: 32,
+  desktop: 60,
+} as const;
 
 /** §08 Desktop motion showcase — centred mockup + bottom-right copy. */
 export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
@@ -191,6 +216,8 @@ export const CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS = {
 export const CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS = {
   columnGap: 32,
   cardBackground: "#ffffff",
+  /** Coral mobile row — rounded-xl. Override per study in previewAppearance. */
+  tileBorderRadius: 12,
   imageAspectWidth: 210,
   imageAspectHeight: 483,
 } as const;

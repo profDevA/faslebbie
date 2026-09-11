@@ -56,6 +56,14 @@ export const accordionSection = defineType({
       options: { disableAlpha: false },
     }),
     defineField({
+      name: "accordionTextColor",
+      title: "Accordion panel text color",
+      type: "color",
+      description:
+        "Copy + rules on the Design Process panel (split layout). Set explicitly — e.g. black on tan (DVA), white on navy (Census).",
+      options: { disableAlpha: false },
+    }),
+    defineField({
       name: "items",
       title: "Items",
       type: "array",

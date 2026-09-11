@@ -49,6 +49,7 @@ async function main() {
         [`sections[${idx}].accordionBackgroundColor`]: sanityColor(
           ACME_ACCORDION_PANEL_BACKGROUND,
         ),
+        [`sections[${idx}].accordionTextColor`]: sanityColor("#000000"),
       })
       .commit();
     console.log(`✓ ${doc._id}: accordion panel → ${ACME_ACCORDION_PANEL_BACKGROUND}`);

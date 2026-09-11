@@ -26,6 +26,8 @@ export interface Appearance {
   maxWidth?: WidthToken;
   /** Image tile / nested card fill (popups, grids). */
   tileBackgroundColor?: SanityColor;
+  /** Core Experience preview tile corner radius in px. */
+  tileBorderRadius?: number;
   /** Intro / headline column max width in px. */
   introMaxWidth?: number;
   /** Outer content container max width in px. */
@@ -158,6 +160,7 @@ export type Section =
       sideTitle?: string;
       sideBody?: PortableTextBlock[];
       accordionBackgroundColor?: SanityColor;
+      accordionTextColor?: SanityColor;
       items?: AccordionEntry[];
     })
   | (Base & {
@@ -259,7 +262,7 @@ export type Section =
       _type: "motionShowcase";
       sectionTitle?: string;
       intro?: PortableTextBlock[];
-      layoutVariant?: "stacked" | "featured";
+      layoutVariant?: "stacked" | "featured" | "phoneRow";
       titleMarginBottom?: number;
       titleMarginBottomDesktop?: number;
       introMarginBottom?: number;

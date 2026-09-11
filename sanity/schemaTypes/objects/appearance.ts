@@ -106,6 +106,14 @@ export const appearance = defineType({
       options: { disableAlpha: false },
     }),
     defineField({
+      name: "tileBorderRadius",
+      title: "Tile border radius (px)",
+      type: "number",
+      description:
+        "Core Experience preview tile corner radius. Match Figma / baked PNG corners (DVA ~27). Use 0 when the export already includes the device frame.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
       name: "introMaxWidth",
       title: "Intro max width (px)",
       type: "number",
