@@ -30,7 +30,7 @@ const TITLES: Record<string, string> = {
   "design-assist-ai": "Design Assist AI",
   "acme-lending": "Acme Lending",
   "life-of-a-miner-vr": "Life of a Miner VR",
-  "remote-assistant-object-detection": "The AR Handbook",
+  "the-ar-handbook": "The AR Handbook",
   "oc-links": "OC Links",
 };
 
@@ -50,7 +50,7 @@ const ORDER = [
   "snapback-lifestyle",
   "diamond-valuation-ai",
   "financial-data-exchange",
-  "remote-assistant-object-detection",
+  "the-ar-handbook",
   "oc-digital-resource-navigator",
   "forever-a-surfer",
   "design-assist-ai",

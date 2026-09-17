@@ -221,6 +221,11 @@ export type Section =
       videoUrl?: string;
       videoFile?: string;
       posterImage?: string;
+      slides?: {
+        _key?: string;
+        alt?: string;
+        image?: string;
+      }[];
       caption?: string;
       ctaLabel?: string;
       ctaUrl?: string;
@@ -262,7 +267,7 @@ export type Section =
       _type: "motionShowcase";
       sectionTitle?: string;
       intro?: PortableTextBlock[];
-      layoutVariant?: "stacked" | "featured" | "phoneRow";
+      layoutVariant?: "stacked" | "featured" | "phoneRow" | "crossFunctional";
       titleMarginBottom?: number;
       titleMarginBottomDesktop?: number;
       introMarginBottom?: number;

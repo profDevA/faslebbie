@@ -39,7 +39,15 @@ export const desktopMotionShowcase = defineType({
       type: "image",
       options: { hotspot: true },
       description:
-        "Shown when no video is set, or as the video poster while loading. Upload a screenshot when motion is not ready.",
+        "Single poster when slides[] is empty. Also used as video poster while loading.",
+    }),
+    defineField({
+      name: "slides",
+      title: "Poster slides (carousel)",
+      type: "array",
+      of: [{ type: "desktopMotionSlide" }],
+      description:
+        "When set, renders a left/right carousel (first slide visible). AR Handbook bands 3/5/7 — Figma slider frames.",
     }),
     defineField({
       name: "caption",

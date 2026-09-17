@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/casestudies/remote-assistant-object-detection",
+        destination: "/casestudies/the-ar-handbook",
+        permanent: true,
+      },
+    ];
+  },
   // Pin the Turbopack workspace root to this app. The repo has a second
   // lockfile at the monorepo root (for the /scripts extractor tooling), which
   // otherwise makes Next infer the wrong root and mis-resolve modules.

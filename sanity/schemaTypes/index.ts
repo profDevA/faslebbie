@@ -9,6 +9,7 @@ import { deviceTab } from "./objects/deviceTab";
 import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
 import { interventionSlide } from "./objects/interventionSlide";
+import { desktopMotionSlide } from "./objects/desktopMotionSlide";
 import { mediaItem } from "./objects/mediaItem";
 import { highlightCell } from "./objects/highlightCell";
 import { coreExperienceScreen } from "./objects/coreExperienceScreen";
@@ -131,6 +132,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   statItem,
   showcaseItem,
   interventionSlide,
+  desktopMotionSlide,
   mediaItem,
   highlightCell,
   coreExperienceScreen,

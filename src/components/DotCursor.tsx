@@ -35,7 +35,9 @@ export default function DotCursor() {
       const interactive = target?.closest?.(
         "a, button, [data-cursor='hover']",
       );
-      const invert = target?.closest?.("[data-cursor-invert]");
+      const normal = target?.closest?.("[data-cursor-normal]");
+      const invert =
+        !normal && target?.closest?.("[data-cursor-invert]");
       targetScale = interactive ? 2.8 : 1;
       el.style.backgroundColor = interactive
         ? "#ea2c2c"

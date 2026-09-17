@@ -64,7 +64,7 @@ export const HIGHLIGHT_REEL_GRID_DEFAULTS = {
   gridGap: 14,
 } as const;
 
-/** §10 Highlight reel — single rotating card (legacy; Memory Tubes). */
+/** §10 Highlight reel — single rotating card (Memory Tubes). */
 export const HIGHLIGHT_REEL_SINGLE_DEFAULTS = {
   cardMatteColor: "#ffffff",
   cardPadding: 4,
@@ -119,6 +119,51 @@ export const MOTION_ROW_DEFAULTS = {
 /** §07 Featured motion band — cream mobile (Figma Census 2229:30253). */
 export const MOTION_FEATURED_BAND_DEFAULTS = {
   backgroundColor: "#e3e3db",
+} as const;
+
+/** §07 Cross-functional motion band — AR Handbook (Figma 4152:122925 desktop / 4152:125655 mobile). */
+export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
+  /** Desktop canvas — Figma 1440×2256, full viewport width. */
+  bandAspectRatio: "1440 / 2256",
+  titleMarginBottomMobile: 50,
+  titleMarginBottomDesktop: 69,
+  mobileStackGap: 80,
+  /** Figma 4152:125660 — centred phone in mobile stack; tablet/RealWear stay full column width. */
+  mobilePhoneMaxWidth: 141,
+  /** @deprecated stack is full width within band gutter on mobile — kept for Studio overrides if needed. */
+  mobileDeviceMaxWidth: 323,
+  /** Device → caption gap on mobile stack (Figma 4152:125659–667 @ 323px). */
+  mobileCaptionGapPx: [20, 34, 34] as const,
+  /** Slot anchors (% of 1440×2256 canvas — Figma 4152:122925). */
+  slots: [
+    {
+      left: "7.05%",
+      top: "8.83%",
+      width: "16.33%",
+      captionMaxWidth: 270,
+      /** 713 − 684.5px @ 1440 — vw so gap scales with full-bleed band width. */
+      captionGapVw: 1.976,
+      zIndex: 30,
+    },
+    {
+      left: "52.4%",
+      top: "34.62%",
+      width: "39.74%",
+      captionMaxWidth: 351,
+      /** 1220 − 1187.7px @ 1440 */
+      captionGapVw: 2.243,
+      zIndex: 10,
+    },
+    {
+      left: "6.96%",
+      top: "66.49%",
+      width: "49.66%",
+      captionMaxWidth: 366,
+      /** 2003 − 1976.7px @ 1440 */
+      captionGapVw: 1.828,
+      zIndex: 20,
+    },
+  ] as const,
 } as const;
 
 /** §07 Featured motion band — mobile stack (Figma FDX 3928:49325 / 3928:49660). */
@@ -183,6 +228,10 @@ export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
   mockupMaxWidth: 762,
   /** Acme Figma 3795:152730 — art includes frame, shadow, and radius */
   mockupMaxWidthWide: 873,
+  /** Poster carousel slide (AR Handbook KPE sliders) */
+  slideTransitionMs: 780,
+  /** CSS easing — smooth deceleration (track translateX) */
+  slideTransitionEasing: "cubic-bezier(0.45, 0.05, 0.15, 1)",
 } as const;
 
 /** Core Experience band — desktop staggered rows (Figma 2271:58148 Acme / 3999:59093 Census). */

@@ -315,7 +315,7 @@
       ]
     }
   },
-  "remote-assistant-object-detection": {
+  "the-ar-handbook": {
     "title": "The AR Handbook",
     "hero": {
       "projectName": "The AR Handbook",
@@ -370,19 +370,19 @@
           "value": "40",
           "suffix": "%",
           "label": "Faster Part Recognition",
-          "note": "Technicians identified parts in half their previous search time."
-        },
-        {
-          "value": "20",
-          "suffix": "",
-          "label": "Enterprise ARR Unlocked",
-          "note": "Pilot contracts converted into millions in recurring enterprise revenue."
+          "note": "Part identification improved from 15-20 min to 10-12 min."
         },
         {
           "value": "30",
           "suffix": "%",
           "label": "Error Reduction",
-          "note": "Far fewer inspection mistakes reached technicians through AI-assisted verification."
+          "note": "Fewer inspection mistakes through AI-assisted verification."
+        },
+        {
+          "value": "20",
+          "suffix": "M",
+          "label": "ARR",
+          "note": "Pilot contracts with Porsche, German automotive OEMs, and IKEA, generating significant revenue across."
         }
       ]
     },

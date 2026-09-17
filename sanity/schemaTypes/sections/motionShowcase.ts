@@ -37,6 +37,11 @@ export const motionShowcase = defineType({
             title: "Phone row (DVA — 3-up strip + bottom-right intro)",
             value: "phoneRow",
           },
+          {
+            title:
+              "Cross-functional (AR Handbook — diagonal 3-device desktop, stacked mobile)",
+            value: "crossFunctional",
+          },
         ],
         layout: "radio",
       },

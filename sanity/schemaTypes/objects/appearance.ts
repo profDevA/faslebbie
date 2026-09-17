@@ -110,7 +110,7 @@ export const appearance = defineType({
       title: "Tile border radius (px)",
       type: "number",
       description:
-        "Core Experience preview tile corner radius. Match Figma / baked PNG corners (DVA ~27). Use 0 when the export already includes the device frame.",
+        "Preview tile or §08 desktop mockup corner radius (px). Match Figma / baked PNG corners (DVA ~27). Use 0 for square art or when the export includes the device frame.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({

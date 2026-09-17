@@ -34,9 +34,9 @@ const CARDS: { slug: string; title: string; file: string }[] = [
     file: "diamond-valuation-ai.png",
   },
   {
-    slug: "remote-assistant-object-detection",
+    slug: "the-ar-handbook",
     title: "The AR Handbook",
-    file: "remote-assistant-object-detection.png",
+    file: "the-ar-handbook.png",
   },
   {
     slug: "financial-data-exchange",

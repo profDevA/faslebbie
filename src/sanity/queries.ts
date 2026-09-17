@@ -74,7 +74,8 @@ const sectionsProj = `sections[]{
     sectionTitle, body, caption, ctaLabel, ctaUrl,
     videoUrl,
     "videoFile": videoFile.asset->url,
-    "posterImage": posterImage${img}
+    "posterImage": posterImage${img},
+    slides[]{ _key, alt, "image": image${img} }
   },
   _type == "gallerySection" => {
     sectionTitle, body, useDeviceTabs, showCaptions, itemsBeforeViewMore, loadMoreLabel,

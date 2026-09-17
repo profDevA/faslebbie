@@ -1,7 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import PopupShell from '@/components/PopupShell'
@@ -40,6 +47,7 @@ import {
   MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS,
   MOTION_ROW_DEFAULTS,
   MOTION_PHONE_ROW_DEFAULTS,
+  MOTION_CROSS_FUNCTIONAL_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
   DESKTOP_MOTION_SHOWCASE_DEFAULTS,
   SHOWCASE_ARTIFACT_DEFAULTS,
@@ -430,7 +438,7 @@ export default function CaseStudyView({
             key={group[0]._key}
             section={group[0]}
             project={p}
-            scrollRoot={scrollRef}
+            scrollContainer={scroller}
           />
         ),
       )}
@@ -568,11 +576,11 @@ function FullCaseStudyPdfLink({
 function SectionBlock({
   section,
   project,
-  scrollRoot,
+  scrollContainer,
 }: {
   section: Section
   project: Study
-  scrollRoot?: React.RefObject<HTMLDivElement | null>
+  scrollContainer?: HTMLDivElement | null
 }) {
   switch (section._type) {
     case 'heroSection':
@@ -615,7 +623,7 @@ function SectionBlock({
     case 'gallerySection':
       return <GalleryBlock section={section} />
     case 'showcaseGallery':
-      return <ShowcaseBlock section={section} scrollRoot={scrollRoot} />
+      return <ShowcaseBlock section={section} scrollContainer={scrollContainer} />
     case 'motionShowcase':
       return (
         <MotionShowcaseBlock section={section} projectSlug={project.slug} />
@@ -623,7 +631,7 @@ function SectionBlock({
     case 'highlightReel':
       return <HighlightReelBlock section={section} />
     case 'statsSection':
-      return <StatsBlock section={section} scrollRoot={scrollRoot} />
+      return <StatsBlock section={section} scrollContainer={scrollContainer} />
     case 'bulletSection':
       return <BulletBlock section={section} />
     default:
@@ -1334,7 +1342,8 @@ function CoreExperienceScreenCard({
       ? ''
       : 'shadow-[0_2px_12px_rgba(0,0,0,0.22)]'
     const tileBoxStyle: CSSProperties = {
-      backgroundColor: cardBg,
+      /** Pre-rounded PNGs with alpha — no wrapper fill (white tile bg reads as corner fringe). */
+      backgroundColor: preserveFullFrame ? 'transparent' : cardBg,
       ...tileRadiusStyle,
       ...(preserveFullFrame
         ? undefined
@@ -1879,16 +1888,225 @@ function CoreExperienceBlock({
   )
 }
 
+/** §08 mockup wrapper — appearance.tileBorderRadius: 0 = square art (no device chrome). */
+function desktopMotionMockupFrame(
+  appearance: Appearance | undefined,
+  wideMockup: boolean,
+): { className: string; style?: CSSProperties } {
+  const mockupShadow =
+    'drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]'
+  const explicitRadius =
+    typeof appearance?.tileBorderRadius === 'number' &&
+    appearance.tileBorderRadius >= 0
+      ? appearance.tileBorderRadius
+      : undefined
+
+  if (wideMockup && explicitRadius === undefined) {
+    return { className: '' }
+  }
+  if (explicitRadius === 0) {
+    return wideMockup
+      ? { className: '' }
+      : { className: `overflow-hidden ${mockupShadow}` }
+  }
+  if (explicitRadius !== undefined) {
+    return {
+      className: `overflow-hidden bg-white ${mockupShadow} max-lg:border-[5px] max-lg:border-[#f3efe8]`,
+      style: { borderRadius: explicitRadius },
+    }
+  }
+  return {
+    className:
+      'overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]',
+  }
+}
+
 // 08 — Desktop Motion Showcase (Figma 2110:40096 / Census 2229:30432): band colour
 // from Sanity appearance, centred desktop mockup, title + body bottom-right.
+// AR Handbook KPE bands 3/5/7 — slides[] carousel (Figma slider frames).
+function DesktopMotionPosterCarousel({
+  slides,
+  fallbackAlt,
+  mockupFrame,
+  mockupMax,
+  arrowClass,
+}: {
+  slides: NonNullable<Of<'desktopMotionShowcase'>['slides']>
+  fallbackAlt: string
+  mockupFrame: { className: string; style?: CSSProperties }
+  mockupMax: number
+  arrowClass: string
+}) {
+  const items = slides.filter(sl => sl.image)
+  const n = items.length
+  const [index, setIndex] = useState(0)
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const [dragDx, setDragDx] = useState(0)
+  const [slideWidth, setSlideWidth] = useState(0)
+  const [motionEnabled, setMotionEnabled] = useState(true)
+  const dragStartX = useRef<number | null>(null)
+  const dragging = useRef(false)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const pagingLocked = useRef(false)
+  const canPage = n > 1
+  const dragThresholdPx = 40
+  const transitionMs = DESKTOP_MOTION_SHOWCASE_DEFAULTS.slideTransitionMs
+  const slideMotionMs = reduceMotion ? 0 : transitionMs
+  const slideEase = DESKTOP_MOTION_SHOWCASE_DEFAULTS.slideTransitionEasing
+
+  useEffect(() => {
+    setReduceMotion(
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+    )
+  }, [])
+
+  useEffect(() => {
+    setIndex(i => (n ? Math.min(i, n - 1) : 0))
+  }, [n])
+
+  useLayoutEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const sync = () => setSlideWidth(el.clientWidth)
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const trackOffsetPx = -index * slideWidth + dragDx
+  const trackTransition =
+    motionEnabled && !reduceMotion && slideWidth > 0
+      ? `transform ${slideMotionMs}ms ${slideEase}`
+      : 'none'
+
+  const go = (dir: 1 | -1) => {
+    if (!canPage || pagingLocked.current) return
+    pagingLocked.current = true
+    setMotionEnabled(true)
+    setDragDx(0)
+    setIndex(i => (i + dir + n) % n)
+    window.setTimeout(() => {
+      pagingLocked.current = false
+    }, slideMotionMs + 40)
+  }
+
+  const finishDrag = (clientX: number, target: HTMLElement, pointerId: number) => {
+    if (!dragging.current || dragStartX.current == null) return
+    const dx = clientX - dragStartX.current
+    dragging.current = false
+    dragStartX.current = null
+    try {
+      target.releasePointerCapture(pointerId)
+    } catch {
+      /* already released */
+    }
+    setMotionEnabled(true)
+    if (canPage && Math.abs(dx) >= dragThresholdPx) {
+      setDragDx(0)
+      go(dx > 0 ? -1 : 1)
+      return
+    }
+    setDragDx(0)
+  }
+
+  if (!n) return null
+
+  return (
+    <div className="mx-auto w-full" style={{ maxWidth: mockupMax }}>
+      <div
+        className={`w-full ${mockupFrame.className}`}
+        style={mockupFrame.style}
+      >
+        <div
+          ref={viewportRef}
+          className={`w-full touch-pan-y overflow-hidden select-none ${
+            canPage ? 'cursor-grab active:cursor-grabbing' : ''
+          }`}
+          onPointerDown={e => {
+            if (!canPage || e.button !== 0) return
+            dragging.current = true
+            setMotionEnabled(false)
+            dragStartX.current = e.clientX
+            setDragDx(0)
+            e.currentTarget.setPointerCapture(e.pointerId)
+          }}
+          onPointerMove={e => {
+            if (!dragging.current || dragStartX.current == null) return
+            setDragDx(e.clientX - dragStartX.current)
+          }}
+          onPointerUp={e =>
+            finishDrag(e.clientX, e.currentTarget, e.pointerId)
+          }
+          onPointerCancel={e =>
+            finishDrag(e.clientX, e.currentTarget, e.pointerId)
+          }
+        >
+          <div
+            className="flex w-full will-change-transform"
+            style={{
+              transform: `translateX(${trackOffsetPx}px)`,
+              transition: trackTransition,
+            }}
+          >
+            {items.map((sl, i) =>
+              sl.image ? (
+                <div
+                  key={sl._key ?? i}
+                  className="w-full shrink-0"
+                  aria-hidden={i !== index}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                  <img
+                    src={sl.image}
+                    alt={sl.alt || fallbackAlt}
+                    draggable={false}
+                    className="block h-auto w-full max-w-full object-center"
+                  />
+                </div>
+              ) : null,
+            )}
+          </div>
+        </div>
+      </div>
+      {canPage && (
+        <div
+          className={`mt-4 flex justify-end gap-7 text-[23px] font-medium leading-none lg:mt-5 ${arrowClass}`}
+        >
+          <button
+            type="button"
+            aria-label="Previous slide"
+            data-cursor="hover"
+            onClick={() => go(-1)}
+            className="bg-transparent transition-opacity hover:opacity-70"
+          >
+            &lt;
+          </button>
+          <button
+            type="button"
+            aria-label="Next slide"
+            data-cursor="hover"
+            onClick={() => go(1)}
+            className="bg-transparent transition-opacity hover:opacity-70"
+          >
+            &gt;
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DesktopMotionShowcaseBlock({
   section: s,
 }: {
   section: Of<'desktopMotionShowcase'>
 }) {
+  const carouselSlides = (s.slides ?? []).filter(sl => sl.image)
+  const hasCarousel = carouselSlides.length > 0
   const hasVideo = !!(s.videoFile || s.videoUrl)
-  const hasStaticImage = !!s.posterImage && !hasVideo
-  const hasMedia = hasVideo || hasStaticImage
+  const hasStaticImage = !!s.posterImage && !hasVideo && !hasCarousel
+  const hasMedia = hasVideo || hasStaticImage || hasCarousel
   const copyTitle = s.sectionTitle?.trim()
   const hasCopy = !!(copyTitle || s.body?.length || s.caption)
   const lightText = bandUsesLightText(s.appearance)
@@ -1897,9 +2115,7 @@ function DesktopMotionShowcaseBlock({
   const mockupMax = wideMockup
     ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
     : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth
-  const mockupFrameClass = wideMockup
-    ? ''
-    : 'overflow-hidden rounded-[20px] bg-white drop-shadow-[0_10px_16px_rgba(0,0,0,0.25)] max-lg:rounded-[6px] max-lg:border-[5px] max-lg:border-[#f3efe8] max-lg:drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]'
+  const mockupFrame = desktopMotionMockupFrame(s.appearance, wideMockup)
   return (
     <section
       
@@ -1912,38 +2128,51 @@ function DesktopMotionShowcaseBlock({
             csShell('!px-0 max-lg:!px-0')
           } pt-12 max-lg:pt-8 lg:pt-14`}
         >
-          <div className={`w-full ${mockupFrameClass}`} style={{ maxWidth: mockupMax }}>
-            {hasVideo ? (
-              s.videoUrl ? (
-                <div className="aspect-[762/467] w-full">
-                  <iframe
-                    src={s.videoUrl}
-                    title={copyTitle || 'Desktop animation'}
-                    className="h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+          {hasCarousel ? (
+            <DesktopMotionPosterCarousel
+              slides={carouselSlides}
+              fallbackAlt={copyTitle || 'Design Interventions'}
+              mockupFrame={mockupFrame}
+              mockupMax={mockupMax}
+              arrowClass={copyClass}
+            />
+          ) : (
+            <div
+              className={`mx-auto w-full ${mockupFrame.className}`}
+              style={{ maxWidth: mockupMax, ...mockupFrame.style }}
+            >
+              {hasVideo ? (
+                s.videoUrl ? (
+                  <div className="aspect-[762/467] w-full">
+                    <iframe
+                      src={s.videoUrl}
+                      title={copyTitle || 'Desktop animation'}
+                      className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <video
+                    className="block h-auto w-full"
+                    src={s.videoFile}
+                    poster={s.posterImage}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
                   />
-                </div>
+                )
               ) : (
-                <video
+                // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                <img
+                  src={s.posterImage}
+                  alt={copyTitle || 'Desktop showcase'}
                   className="block h-auto w-full"
-                  src={s.videoFile}
-                  poster={s.posterImage}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
                 />
-              )
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element -- case-study art
-              <img
-                src={s.posterImage}
-                alt={copyTitle || 'Desktop showcase'}
-                className="block h-auto w-full"
-              />
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       )}
       {hasCopy && (
@@ -2347,18 +2576,15 @@ function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
 
 function ShowcaseBlock({
   section: s,
-  scrollRoot,
+  scrollContainer,
 }: {
   section: Of<'showcaseGallery'>
-  scrollRoot?: React.RefObject<HTMLDivElement | null>
+  scrollContainer?: HTMLDivElement | null
 }) {
   const items = s.items ?? []
   const images = imgUrls(items)
+  const lightboxImages = lightboxUrls(items)
   const light = isLight(s.appearance, true)
-  // Lightbox art defaults to the slide art when no hi-res variant is authored.
-  const expandImages = s.expandable
-    ? items.map(i => i.expandImage ?? i.image).filter((u): u is string => !!u)
-    : undefined
 
   // Redesigned Research Artifacts (Figma 600:12544): 3-up landscape slider on
   // top, title + body BELOW it (left-aligned). Only the expandable variant.
@@ -2404,8 +2630,8 @@ function ShowcaseBlock({
           {images.length > 0 && (
             <div className="order-2 lg:order-1">
               <ArtifactSlider
-                images={expandImages ?? images}
-                scrollRoot={scrollRoot}
+                images={lightboxImages.length ? lightboxImages : images}
+                scrollContainer={scrollContainer}
                 gutter={false}
                 gap={artifactGap}
               />
@@ -2434,14 +2660,19 @@ function ShowcaseBlock({
         </div>
       )}
       {images.length > 0 && (
-        <CenterSlider images={images} expandImages={expandImages} />
+        <CenterSlider
+          images={images}
+          lightboxImages={lightboxImages.length ? lightboxImages : images}
+          scrollContainer={scrollContainer}
+        />
       )}
     </section>
   )
 }
 
-// Motion Showcase ("Key Product Experiences"): stacked labelled device rows (Coral)
-// or featured centred device band (Census mobile — Figma 2229:30253).
+// Motion Showcase ("Key Product Experiences"): stacked labelled device rows (Coral),
+// featured centred device band (Census — Figma 2229:30253), or cross-functional
+// triptych (AR Handbook — Figma 4152:122925 / 4152:125655).
 const MOTION_BG = '#52747e'
 function MotionShowcaseBlock({
   section: s,
@@ -2458,6 +2689,9 @@ function MotionShowcaseBlock({
     return (
       <MotionShowcaseFeaturedBand section={s} projectSlug={projectSlug} />
     )
+  }
+  if (layout === 'crossFunctional') {
+    return <MotionShowcaseCrossFunctionalBand section={s} />
   }
   return <MotionShowcaseStackedBand section={s} />
 }
@@ -2620,6 +2854,210 @@ function PhoneRowMedia({
           alt={item.caption || ''}
           className="block w-auto"
           style={mediaStyle}
+        />
+      </div>
+    )
+  }
+  return null
+}
+
+/** §07 crossFunctional — AR Handbook teal triptych (Figma 4152:122925 / 4152:125655). */
+function MotionShowcaseCrossFunctionalBand({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const rows = (s.rows ?? []).slice(0, 3)
+  const d = MOTION_CROSS_FUNCTIONAL_DEFAULTS
+  const lightText = bandUsesLightText(s.appearance)
+  const textClass = lightText ? 'text-white' : 'text-black'
+  const titleMbMobile =
+    typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : d.titleMarginBottomMobile
+  const titleMbDesktop =
+    typeof s.titleMarginBottomDesktop === 'number' &&
+    s.titleMarginBottomDesktop >= 0
+      ? s.titleMarginBottomDesktop
+      : d.titleMarginBottomDesktop
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const titleMargin = lg ? titleMbDesktop : titleMbMobile
+  if (!rows.length) return null
+
+  return (
+    <section
+      className="w-full max-w-full overflow-x-hidden"
+      style={sectionStyle(s.appearance, true, 'lg', MOTION_BG, lightText)}
+    >
+      {s.sectionTitle && (
+        <h2
+          className={`text-center ${csSectionTitle()} ${csBandGutter()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${textClass}`}
+          style={{ marginBottom: titleMargin }}
+        >
+          {s.sectionTitle}
+        </h2>
+      )}
+
+      {/* Mobile — Figma 4152:125655: centred phone, full-width tablet/RealWear + captions. */}
+      <div
+        className={`flex w-full flex-col lg:hidden ${csBandGutter()}`}
+        style={{ gap: d.mobileStackGap }}
+      >
+        {rows.map((row, i) => (
+          <CrossFunctionalRowStack
+            key={row._key ?? `cross-functional-m-${i}`}
+            row={row}
+            textClass={textClass}
+            captionGapPx={
+              d.mobileCaptionGapPx[i] ??
+              d.mobileCaptionGapPx[d.mobileCaptionGapPx.length - 1]
+            }
+          />
+        ))}
+      </div>
+
+      {/* Desktop — Figma 4152:122925: full-bleed diagonal stagger (1440 canvas). */}
+      <div className="relative hidden w-full max-w-none lg:block">
+        <div
+          className="relative w-full"
+          style={{ aspectRatio: d.bandAspectRatio }}
+        >
+          {rows.map((row, i) => {
+            const slot = d.slots[i] ?? d.slots[d.slots.length - 1]
+            return (
+              <div
+                key={row._key ?? `cross-functional-d-${i}`}
+                className="absolute flex flex-col"
+                style={{
+                  left: slot.left,
+                  top: slot.top,
+                  width: slot.width,
+                  maxWidth: slot.width,
+                  zIndex: slot.zIndex,
+                }}
+              >
+                <CrossFunctionalDeviceMedia row={row} />
+                {(row.label || row.caption) && (
+                  <div
+                    className={textClass}
+                    style={{
+                      maxWidth: slot.captionMaxWidth,
+                      marginTop: `${slot.captionGapVw}vw`,
+                    }}
+                  >
+                    {row.label && (
+                      <p className="text-[16px] font-normal leading-[1.05] xl:text-[1.05vw]">
+                        {row.label}
+                      </p>
+                    )}
+                    {row.caption && (
+                      <p className="mt-1 text-[16px] font-normal leading-[1.05] xl:text-[1.05vw]">
+                        {row.caption}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CrossFunctionalRowStack({
+  row,
+  textClass,
+  captionGapPx,
+}: {
+  row: MotionRow
+  textClass: string
+  captionGapPx: number
+}) {
+  return (
+    <div className="flex w-full flex-col">
+      <CrossFunctionalDeviceMedia row={row} mobile />
+      {(row.label || row.caption) && (
+        <div
+          className={`w-full text-left ${textClass}`}
+          style={{ marginTop: captionGapPx }}
+        >
+          {row.label && (
+            <p className="text-[14px] font-normal leading-[1.2]">{row.label}</p>
+          )}
+          {row.caption && (
+            <p className="mt-1 text-[14px] font-normal leading-[1.2]">
+              {row.caption}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CrossFunctionalDeviceMedia({
+  row,
+  mobile = false,
+}: {
+  row: MotionRow
+  mobile?: boolean
+}) {
+  const item = (row.items ?? []).find(
+    it => it.image || it.videoFile || it.videoUrl,
+  )
+  if (!item) return null
+  const device = row.device ?? 'mobile'
+  const phoneSlot = mobile && device === 'mobile'
+  const phoneMax = MOTION_CROSS_FUNCTIONAL_DEFAULTS.mobilePhoneMaxWidth
+  const frameClass = phoneSlot ? 'mx-auto w-full' : 'w-full'
+  const frameStyle = phoneSlot ? { maxWidth: phoneMax } : undefined
+  const shadowClass =
+    'drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)] lg:drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]'
+  const videoPoster = item.posterImage || row.posterImage
+  const videoSrc =
+    typeof item.videoFile === 'string'
+      ? item.videoFile
+      : item.mediaType === 'video' && item.videoFile
+        ? String(item.videoFile)
+        : undefined
+  if (videoSrc) {
+    return (
+      <div
+        className={`${frameClass} ${shadowClass}`}
+        style={frameStyle}
+      >
+        <video
+          className="block h-auto w-full"
+          src={videoSrc}
+          poster={videoPoster}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      </div>
+    )
+  }
+  if (item.image) {
+    return (
+      <div
+        className={`${frameClass} ${shadowClass}`}
+        style={frameStyle}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img
+          src={item.image}
+          alt={row.label || row.caption || ''}
+          className="block h-auto w-full"
         />
       </div>
     )
@@ -3269,10 +3707,10 @@ function HighlightCellView({
 
 function StatsBlock({
   section: s,
-  scrollRoot,
+  scrollContainer,
 }: {
   section: Of<'statsSection'>
-  scrollRoot?: React.RefObject<HTMLDivElement | null>
+  scrollContainer?: HTMLDivElement | null
 }) {
   const items = s.items ?? []
   const [lg, setLg] = useState(false)
@@ -3341,7 +3779,7 @@ function StatsBlock({
           <Stat
             key={st._key ?? `stat-${i}`}
             stat={st}
-            scrollRoot={scrollRoot}
+            scrollContainer={scrollContainer}
           />
         ))}
       </div>
@@ -3375,6 +3813,11 @@ function BulletBlock({ section: s }: { section: Of<'bulletSection'> }) {
 // ── shared bits ───────────────────────────────────────────────────────────────
 function imgUrls(items?: GalleryImage[]): string[] {
   return (items ?? []).map(i => i.image).filter((u): u is string => !!u)
+}
+function lightboxUrls(items?: GalleryImage[]): string[] {
+  return (items ?? [])
+    .map(i => i.expandImage ?? i.image)
+    .filter((u): u is string => !!u)
 }
 function capList(items?: GalleryImage[]): (string | undefined)[] {
   return (items ?? []).map(i => i.caption)
@@ -3465,12 +3908,12 @@ function Accordion({
  *  No coverflow scaling/dimming — every card is shown at full opacity/size. */
 function ArtifactSlider({
   images,
-  scrollRoot,
+  scrollContainer,
   gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
   gutter = true,
 }: {
   images: string[]
-  scrollRoot?: React.RefObject<HTMLDivElement | null>
+  scrollContainer?: HTMLDivElement | null
   gap?: number
   /** Outer inset. False when the parent already provides the same gutter. */
   gutter?: boolean
@@ -3627,7 +4070,7 @@ function ArtifactSlider({
           index={lightbox}
           onIndex={setLightbox}
           onClose={() => setLightbox(null)}
-          container={scrollRoot?.current ?? null}
+          scrollContainer={scrollContainer}
         />
       )}
     </div>
@@ -3638,10 +4081,12 @@ function ArtifactSlider({
  *  infinite loop, white prev/next arrows. */
 function CenterSlider({
   images,
-  expandImages,
+  lightboxImages,
+  scrollContainer,
 }: {
   images: string[]
-  expandImages?: string[]
+  lightboxImages: string[]
+  scrollContainer?: HTMLDivElement | null
 }) {
   const n = images.length
   const [visible, setVisible] = useState(5)
@@ -3651,7 +4096,7 @@ function CenterSlider({
   const locked = useRef(false)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewportW, setViewportW] = useState(0)
-  const expandable = !!expandImages?.length
+  const canExpand = lightboxImages.length > 0
 
   useEffect(() => {
     const update = () => {
@@ -3773,7 +4218,7 @@ function CenterSlider({
                   // Clicking the centered artifact opens the full-screen
                   // lightbox; clicking a side slide just centers it.
                   if (i === index) {
-                    if (expandable) setLightbox(realIdx)
+                    if (canExpand) setLightbox(realIdx)
                     return
                   }
                   if (locked.current || n < 1) return
@@ -3815,117 +4260,155 @@ function CenterSlider({
           })}
         </div>
       </div>
-      {expandable && lightbox !== null && expandImages && (
+      {canExpand && lightbox !== null && (
         <ArtifactLightbox
-          images={expandImages}
+          images={lightboxImages}
           index={lightbox}
           onIndex={setLightbox}
           onClose={() => setLightbox(null)}
+          scrollContainer={scrollContainer}
         />
       )}
     </div>
   )
 }
 
-/** Artifact viewer (Fas 07/23 — "when you tap on it… it expands").
- *  In the case-study modal it's scoped INSIDE the modal (Figma 359:13865): black
- *  fills the modal's content area and the card is smaller than the modal. On the
- *  standalone page it falls back to a full-screen overlay. ←/→ move, Esc/✕ close. */
+type ViewportRect = { top: number; left: number; width: number; height: number }
+
+/** Desktop: clip lightbox to `.cs-page-bands` (internal scroll). Mobile: window scrolls — use full viewport. */
+function measureScrollViewport(
+  el: HTMLElement | null | undefined,
+  useInternalScroll: boolean,
+): ViewportRect | null {
+  if (!useInternalScroll || !el) return null
+  const r = el.getBoundingClientRect()
+  return { top: r.top, left: r.left, width: r.width, height: r.height }
+}
+
+/** Research-artifact sub-modal (Figma 4152:125289): black backdrop, max-size image, ✕ close.
+ *  Letterboxes on black when aspect ratio ≠ viewport. Breadcrumb + pager stay visible. */
 function ArtifactLightbox({
   images,
   index,
   onIndex,
   onClose,
-  container,
+  scrollContainer,
 }: {
   images: string[]
   index: number
   onIndex: (i: number) => void
   onClose: () => void
-  container?: HTMLElement | null
+  scrollContainer?: HTMLDivElement | null
 }) {
   const n = images.length
+  const [mounted, setMounted] = useState(false)
+  const [pageInternal, setPageInternal] = useState(false)
+  const [frame, setFrame] = useState<ViewportRect | null>(null)
+
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setPageInternal(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  useLayoutEffect(() => {
+    const update = () =>
+      setFrame(measureScrollViewport(scrollContainer, pageInternal))
+    update()
+    if (!pageInternal) return
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    scrollContainer?.addEventListener('scroll', update, { passive: true })
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+      scrollContainer?.removeEventListener('scroll', update)
+    }
+  }, [scrollContainer, pageInternal])
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
-      else if (e.key === 'ArrowRight') onIndex((index + 1) % n)
-      else if (e.key === 'ArrowLeft') onIndex((index - 1 + n) % n)
+      else if (e.key === 'ArrowRight' && n > 1) onIndex((index + 1) % n)
+      else if (e.key === 'ArrowLeft' && n > 1) onIndex((index - 1 + n) % n)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [index, n, onIndex, onClose])
 
-  // While open, block wheel/touch scroll on the host so the scoped (absolute)
-  // overlay stays pinned over the modal's visible area.
   useEffect(() => {
-    const el = container
-    if (!el) return
-    const block = (e: Event) => e.preventDefault()
-    el.addEventListener('wheel', block, { passive: false })
-    el.addEventListener('touchmove', block, { passive: false })
-    return () => {
-      el.removeEventListener('wheel', block)
-      el.removeEventListener('touchmove', block)
-    }
-  }, [container])
-
-  if (typeof document === 'undefined') return null
-  const scoped = !!container
-  const target = container ?? document.body
-  // Cover the modal's *visible* area (it's a scroll container); scroll is frozen above.
-  const scopedStyle = scoped
-    ? {
-        position: 'absolute' as const,
-        top: container!.scrollTop,
-        left: 0,
-        right: 0,
-        height: container!.clientHeight,
+    if (pageInternal) {
+      const block = (e: Event) => e.preventDefault()
+      scrollContainer?.addEventListener('wheel', block, { passive: false })
+      scrollContainer?.addEventListener('touchmove', block, { passive: false })
+      return () => {
+        scrollContainer?.removeEventListener('wheel', block)
+        scrollContainer?.removeEventListener('touchmove', block)
       }
-    : undefined
-  // Definite width so every artifact renders at the SAME display size — even the
-  // low-res one (it upscales) — instead of shrinking to its natural width.
-  const cardW = scoped ? 'w-[90%]' : 'w-[90vw] max-w-[1100px]'
+    }
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [scrollContainer, pageInternal])
+
+  if (!mounted || typeof document === 'undefined') return null
+
+  const overlayStyle: CSSProperties = frame
+    ? {
+        position: 'fixed',
+        top: frame.top,
+        left: frame.left,
+        width: frame.width,
+        height: frame.height,
+        zIndex: 60,
+      }
+    : { position: 'fixed', inset: 0, zIndex: 120 }
+
+  const maxH = frame?.height
+  const maxW = frame?.width
 
   return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Research artifact"
+      data-cursor-invert
+      style={overlayStyle}
       onClick={onClose}
-      style={scopedStyle}
-      className={`${scoped ? 'absolute z-40' : 'fixed inset-0 z-120'} flex items-center justify-center bg-black px-4 py-10 animate-[panel-in_0.2s_ease-out]`}
+      className="relative flex h-full w-full items-center justify-center bg-black animate-[panel-in_0.2s_ease-out]"
     >
-      {/* Card + close ✕ move together; ✕ sits on the card's top-right (Figma 359:13865). */}
       <div
-        className={`relative ${cardW}`}
+        data-cursor-normal
+        className="relative inline-flex max-h-full max-w-full leading-none"
         onClick={e => e.stopPropagation()}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- artifact art */}
+        <img
+          src={images[index]}
+          alt=""
+          className="block max-h-full max-w-full object-contain"
+          style={
+            maxH && maxW ? { maxHeight: maxH, maxWidth: maxW } : undefined
+          }
+        />
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute right-3 top-3 z-10 text-black transition-transform hover:scale-110"
+          className="absolute right-5 top-5 z-20 shrink-0 text-[24px] leading-none text-black transition-opacity hover:opacity-60"
         >
-          {/* Figma close glyph: plain ✕, 19u grid, stroke 2.46 rounded (rendered smaller). */}
-          <svg width="13" height="13" viewBox="0 0 19 19" fill="none" aria-hidden>
-            <path
-              d="M1.23071 17.2308L9.23071 9.23077L17.2307 1.23077M9.23071 9.23077L1.23071 1.23077L17.2307 17.2308"
-              stroke="currentColor"
-              strokeWidth="2.46154"
-              strokeLinecap="round"
-            />
-          </svg>
+          ×
         </button>
-        {/* eslint-disable-next-line @next/next/no-img-element -- artifact art */}
-        <img
-          src={images[index]}
-          alt=""
-          className="block h-auto w-full max-h-[82vh] bg-white object-contain"
-        />
       </div>
     </div>,
-    target,
+    document.body,
   )
 }
 
@@ -4176,10 +4659,10 @@ function ImageGrid({
 
 function Stat({
   stat,
-  scrollRoot,
+  scrollContainer,
 }: {
   stat: StatItem
-  scrollRoot?: React.RefObject<HTMLDivElement | null>
+  scrollContainer?: HTMLDivElement | null
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [n, setN] = useState(0)
@@ -4202,8 +4685,7 @@ function Stat({
       raf = requestAnimationFrame(tick)
     }
     const pageInternal = window.matchMedia('(min-width: 1024px)').matches
-    const root =
-      pageInternal && scrollRoot?.current ? scrollRoot.current : null
+    const root = pageInternal && scrollContainer ? scrollContainer : null
     const io = new IntersectionObserver(
       entries => {
         if (!entries[0].isIntersecting) return
@@ -4231,7 +4713,7 @@ function Stat({
       scrollTarget.removeEventListener('scroll', onScroll)
       cancelAnimationFrame(raf)
     }
-  }, [stat.value, scrollRoot])
+  }, [stat.value, scrollContainer])
   return (
     <div ref={ref} className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center sm:max-w-none sm:px-3">
       {/* Impact stat — live WP #user_impact .impact_count (8.5vw). */}

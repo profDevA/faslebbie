@@ -1709,16 +1709,16 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "Implement Predictive Analytics: Utilize aggregated intake data to forecast resource demand, optimizing “Resource Allocation Efficiency” before surges occur."
     ]
   },
-  "remote-assistant-object-detection": {
+  "the-ar-handbook": {
     "hero": {
-      "image": "/work/remote-assistant-object-detection/RTOD_Hero.Jpg-scaled.png"
+      "image": "/work/the-ar-handbook/RTOD_Hero.Jpg-scaled.png"
     },
     "overview": {
       "body": "In industrial manufacturing, the gap between a broken machine and the correct replacement part is often a 20-minute search through outdated PDF manuals. PTC’s Innovation Runway team, led by Dr. Eva Agapaki, had developed breakthrough AI research: a pipeline that could train computer vision models using synthetic CAD data instead of thousands of real-world photos. This solved the data scarcity problem, but it created a productization gap. The AI sat in labs for six years, not shipping. The raw output was probabilistic, generating bounding boxes and confidence scores, not definitive answers. For a technician standing in a loud, dimly lit factory wearing safety gloves, a “73% confidence” rating is useless. They need certainty, speed, and zero tolerance for errors that stop production lines.",
       "disciplines": "Product Design Lead · Strategic Leadership · AI Human Factors · Cross-Platform Architecture · Technical Prototyping · Team Development Tech Stack: Unity, Vuforia Studio, Azure Cognitive Services, TensorFlow, Windchill PLM, RealWear HMT-1",
       "duration": "2021-2022",
       "team": "Fas Lebbie (Design Lead), Dr. Eva Agapaki (AI Research Lead), Deep Learning Engineers, Full-Stack Developers, Product Management, 17-person cross-functional team across 6 countries",
-      "image": "/work/remote-assistant-object-detection/ae.png"
+      "image": "/work/the-ar-handbook/ae.png"
     },
     "brought": [
       {
@@ -1807,7 +1807,7 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
     "productDemo": {
       "heading": "Product Demo",
       "body": "",
-      "video": "/work/remote-assistant-object-detection/rtod-prototype-vidburner.com_-1.mp4"
+      "video": "/work/the-ar-handbook/rtod-prototype-vidburner.com_-1.mp4"
     },
     "coreFlows": {
       "heading": "Core Experience Flows",
@@ -1817,68 +1817,68 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
           "id": "mobile-view",
           "label": "Mobile View",
           "images": [
-            "/work/remote-assistant-object-detection/1-4-scaled.png",
-            "/work/remote-assistant-object-detection/2-3-scaled.png",
-            "/work/remote-assistant-object-detection/3-4-scaled.png",
-            "/work/remote-assistant-object-detection/4-4-scaled.png",
-            "/work/remote-assistant-object-detection/5-4-scaled.png",
-            "/work/remote-assistant-object-detection/6-4-scaled.png",
-            "/work/remote-assistant-object-detection/7-4-scaled.png",
-            "/work/remote-assistant-object-detection/8-3-scaled.png",
-            "/work/remote-assistant-object-detection/9-3-scaled.png",
-            "/work/remote-assistant-object-detection/10-4-scaled.png",
-            "/work/remote-assistant-object-detection/11-3-scaled.png",
-            "/work/remote-assistant-object-detection/12-6-scaled.png"
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/1-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/2-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/3-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/4-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/5-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/6-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/7-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/8-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/9-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/10-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/11-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/mobile-view/12-6-scaled.png"
           ]
         },
         {
           "id": "ipad-view",
           "label": "Ipad View",
           "images": [
-            "/work/remote-assistant-object-detection/1-5-scaled.png",
-            "/work/remote-assistant-object-detection/2-4-scaled.png",
-            "/work/remote-assistant-object-detection/3-5-scaled.png",
-            "/work/remote-assistant-object-detection/4-5-scaled.png",
-            "/work/remote-assistant-object-detection/5-5-scaled.png",
-            "/work/remote-assistant-object-detection/6-5-scaled.png",
-            "/work/remote-assistant-object-detection/7-5-scaled.png",
-            "/work/remote-assistant-object-detection/8-4-scaled.png",
-            "/work/remote-assistant-object-detection/9-4-scaled.png",
-            "/work/remote-assistant-object-detection/10-5-scaled.png",
-            "/work/remote-assistant-object-detection/11-4-scaled.png",
-            "/work/remote-assistant-object-detection/12-7-scaled.png",
-            "/work/remote-assistant-object-detection/13-12-scaled.png",
-            "/work/remote-assistant-object-detection/14-8-scaled.png"
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/1-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/2-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/3-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/4-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/5-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/6-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/7-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/8-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/9-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/10-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/11-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/12-7-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/13-12-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/ipad-view/14-8-scaled.png"
           ]
         },
         {
           "id": "desktop-view",
           "label": "Realwear",
           "images": [
-            "/work/remote-assistant-object-detection/1-6-scaled.png",
-            "/work/remote-assistant-object-detection/2-5-scaled.png",
-            "/work/remote-assistant-object-detection/3-6-scaled.png",
-            "/work/remote-assistant-object-detection/4-6-scaled.png",
-            "/work/remote-assistant-object-detection/5-6-scaled.png",
-            "/work/remote-assistant-object-detection/6-6-scaled.png",
-            "/work/remote-assistant-object-detection/7-6-scaled.png",
-            "/work/remote-assistant-object-detection/8-5-scaled.png",
-            "/work/remote-assistant-object-detection/9-5-scaled.png",
-            "/work/remote-assistant-object-detection/10-6-scaled.png",
-            "/work/remote-assistant-object-detection/11-5-scaled.png",
-            "/work/remote-assistant-object-detection/12-8-scaled.png",
-            "/work/remote-assistant-object-detection/13-13-scaled.png",
-            "/work/remote-assistant-object-detection/14-9-scaled.png",
-            "/work/remote-assistant-object-detection/15-3-scaled.png",
-            "/work/remote-assistant-object-detection/16-4-scaled.png",
-            "/work/remote-assistant-object-detection/17-4-scaled.png",
-            "/work/remote-assistant-object-detection/18-3-scaled.png",
-            "/work/remote-assistant-object-detection/19-2-scaled.png",
-            "/work/remote-assistant-object-detection/20-2-scaled.png",
-            "/work/remote-assistant-object-detection/21-3-scaled.png",
-            "/work/remote-assistant-object-detection/22-3-scaled.png",
-            "/work/remote-assistant-object-detection/23-4-scaled.png",
-            "/work/remote-assistant-object-detection/24-3-scaled.png"
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/1-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/2-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/3-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/4-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/5-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/6-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/7-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/8-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/9-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/10-6-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/11-5-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/12-8-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/13-13-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/14-9-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/15-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/16-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/17-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/18-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/19-2-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/20-2-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/21-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/22-3-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/23-4-scaled.png",
+            "/work/the-ar-handbook/core-flow/popup-tabs/realwear/24-3-scaled.png"
           ]
         }
       ]
@@ -1887,21 +1887,21 @@ export const generatedCaseStudies: Record<string, CaseStudy> = {
       "heading": "Research Outputs",
       "body": "Field research across 10+ manufacturing facilities revealed a $10B visual search market opportunity and validated product-market fit. Pilots with Porsche, German automotive OEMs, and IKEA demonstrated 90% accuracy in real factory conditions (grease, noise, low light). These trials generated $20M ARR across 30,000 enterprise customers and proved the three-flow system (Classify, Detect, Label & Train) scaled across diverse manufacturing contexts, transforming design from research experiment into business pillar.",
       "images": [
-        "/work/remote-assistant-object-detection/1441-4.png",
-        "/work/remote-assistant-object-detection/1442-3.png",
-        "/work/remote-assistant-object-detection/1443-4.png",
-        "/work/remote-assistant-object-detection/13-9.png",
-        "/work/remote-assistant-object-detection/1444-3.png",
-        "/work/remote-assistant-object-detection/1445-5.png",
-        "/work/remote-assistant-object-detection/1446-4.png",
-        "/work/remote-assistant-object-detection/1447-5.png",
-        "/work/remote-assistant-object-detection/1448-4.png",
-        "/work/remote-assistant-object-detection/1449-6.png",
-        "/work/remote-assistant-object-detection/1450-3.png",
-        "/work/remote-assistant-object-detection/1451-3.png",
-        "/work/remote-assistant-object-detection/24-1.png",
-        "/work/remote-assistant-object-detection/23-1.png",
-        "/work/remote-assistant-object-detection/25-2.png"
+        "/work/the-ar-handbook/1441-4.png",
+        "/work/the-ar-handbook/1442-3.png",
+        "/work/the-ar-handbook/1443-4.png",
+        "/work/the-ar-handbook/13-9.png",
+        "/work/the-ar-handbook/1444-3.png",
+        "/work/the-ar-handbook/1445-5.png",
+        "/work/the-ar-handbook/1446-4.png",
+        "/work/the-ar-handbook/1447-5.png",
+        "/work/the-ar-handbook/1448-4.png",
+        "/work/the-ar-handbook/1449-6.png",
+        "/work/the-ar-handbook/1450-3.png",
+        "/work/the-ar-handbook/1451-3.png",
+        "/work/the-ar-handbook/24-1.png",
+        "/work/the-ar-handbook/23-1.png",
+        "/work/the-ar-handbook/25-2.png"
       ]
     },
     "stats": [
@@ -2250,7 +2250,7 @@ export const generatedMeta: Record<string, { name: string }> = {
   "oc-links": {
     "name": "OC Links"
   },
-  "remote-assistant-object-detection": {
+  "the-ar-handbook": {
     "name": "The AR Handbook"
   },
   "snapback-lifestyle": {

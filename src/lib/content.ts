@@ -941,7 +941,7 @@ const baseWorkProjects: WorkProject[] = [
     image: '/work/forever-a-surfer.png',
   },
   {
-    slug: 'remote-assistant-object-detection',
+    slug: 'the-ar-handbook',
     name: 'The AR Handbook',
     tagline:
       'Spare parts recognition for remote assistance in industrial manufacturing',
@@ -1121,7 +1121,7 @@ export const workNarrative: WorkToken[][] = [
       t: 'text',
       text: ', I explored how augmented reality, artificial intelligence, and human expertise can work together to improve learning, collaboration, and decision making. This period also produced knowledge-sharing initiatives such as ',
     },
-    wp('remote-assistant-object-detection', 'The AR Handbook'),
+    wp('the-ar-handbook', 'The AR Handbook'),
     {
       t: 'text',
       text: ', helping translate complex technical ideas into practical tools and frameworks for broader audiences.',
