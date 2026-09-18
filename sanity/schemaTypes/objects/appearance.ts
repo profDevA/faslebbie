@@ -110,7 +110,7 @@ export const appearance = defineType({
       title: "Tile border radius (px)",
       type: "number",
       description:
-        "Preview tile or §08 desktop mockup corner radius (px). Match Figma / baked PNG corners (DVA ~27). Use 0 for square art or when the export includes the device frame.",
+        "Clip radius (px) for every tile in this section. Leave empty for pre-rounded art. Set a number to cut white edges (Census CE ~15–25).",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({

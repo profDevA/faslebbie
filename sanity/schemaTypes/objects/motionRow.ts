@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 
 import { MOTION_ROW_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
-import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
 
 // One product-flow row inside 07 — Motion Showcase.
 export const motionRow = defineType({
@@ -64,7 +63,8 @@ export const motionRow = defineType({
       name: "tileBackgroundColor",
       title: "Frame background color",
       type: "color",
-      initialValue: sanityColor(MOTION_ROW_DEFAULTS.tileBackgroundColor),
+      description:
+        "Leave empty (or white) for pre-rounded screens — corners stay transparent so the band shows through. Set a fill only when the asset needs a matte.",
       options: { disableAlpha: false },
     }),
     defineField({

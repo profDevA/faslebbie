@@ -426,7 +426,10 @@ export default function WorkBody({
 
   const goToStudy = (slug: string) => {
     const study = projects.find((p) => p.slug === slug);
-    const nav = () => router.push(`/casestudies/${slug}`);
+    const nav = () =>
+      router.push(
+        `/casestudies/${slug}?view=${encodeURIComponent(view)}`,
+      );
     if (study?.passwordProtected) {
       requestAccess(nav);
       return;

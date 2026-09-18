@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CaseStudyAccess from "@/components/CaseStudyAccess";
+import {
+  parseWorkListingView,
+  workListingHref,
+} from "@/lib/caseStudyNav";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
@@ -30,10 +34,15 @@ export async function generateMetadata({
 
 export default async function CaseStudyPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ view?: string }>;
 }) {
   const { slug } = await params;
+  const { view: viewParam } = await searchParams;
+  const listingView = parseWorkListingView(viewParam);
+  const listingHref = workListingHref(listingView);
   const found = await findStudy(slug);
   if (!found) notFound();
 
@@ -42,6 +51,8 @@ export default async function CaseStudyPage({
       project={found.project}
       prev={found.prev}
       next={found.next}
+      listingView={listingView}
+      listingHref={listingHref}
     />
   );
 }

@@ -386,6 +386,17 @@ body {
   transition: none;
 }
 
+/* Hero: fill the scrollport exactly (no bleed peek of Overview). Caption sits
+   on the hero art black panel — lifted off the bottom edge (Coral QA). */
+@media (min-width: 1024px) {
+  .cs-page-bands > section[data-cs-hero] {
+    min-height: 100cqh;
+  }
+  .cs-page-bands > section[data-cs-hero] .cs-hero-caption {
+    bottom: 2rem;
+  }
+}
+
 /* Work `.img` grid reveal — clones faslebbie.com/works: cards fade up from
    opacity 0 + ~28px. Triggered as each card scrolls into view (JS adds `.is-in`)
    with a small per-card stagger (transition-delay set inline by index). */

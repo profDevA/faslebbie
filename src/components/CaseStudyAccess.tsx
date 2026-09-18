@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CaseStudyView from "@/components/CaseStudyView";
 import PasswordGate from "@/components/PasswordGate";
 import { readAccessUnlocked } from "@/lib/access";
+import type { WorkListingView } from "@/lib/caseStudyNav";
 import type { Study } from "@/sanity/types";
 
 /**
@@ -15,10 +16,14 @@ export default function CaseStudyAccess({
   project,
   prev,
   next,
+  listingView = null,
+  listingHref = "/casestudies",
 }: {
   project: Study;
   prev: Study;
   next: Study;
+  listingView?: WorkListingView | null;
+  listingHref?: string;
 }) {
   const router = useRouter();
   const needsGate = Boolean(project.passwordProtected);
@@ -42,7 +47,7 @@ export default function CaseStudyAccess({
 
   const dismiss = () => {
     setGateOpen(false);
-    if (!allowed) router.push("/casestudies");
+    if (!allowed) router.push(listingHref);
   };
 
   // PasswordGate → verifyAccessPassword already sets sessionStorage.
@@ -58,6 +63,8 @@ export default function CaseStudyAccess({
           project={project}
           prev={prev}
           next={next}
+          listingView={listingView}
+          listingHref={listingHref}
         />
       ) : (
         <div className="min-h-dvh bg-page" aria-hidden />

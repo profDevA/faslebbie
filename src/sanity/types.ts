@@ -26,7 +26,7 @@ export interface Appearance {
   maxWidth?: WidthToken;
   /** Image tile / nested card fill (popups, grids). */
   tileBackgroundColor?: SanityColor;
-  /** Core Experience preview tile corner radius in px. */
+  /** Preview tile / §07 motion (desktop lg+; mobile scales down) / §08 mockup corner radius in px. */
   tileBorderRadius?: number;
   /** Intro / headline column max width in px. */
   introMaxWidth?: number;

@@ -116,6 +116,12 @@ export const MOTION_ROW_DEFAULTS = {
   tileBackgroundColor: "#ffffff",
 } as const;
 
+/** §07 — assets are pre-rounded PNGs; CSS radius is off unless Studio sets a clip. */
+export const MOTION_RADIUS_SCALE = {
+  stacked: { desktop: 14, mobile: 4 },
+  featured: { desktop: 24, mobile: 12 },
+} as const;
+
 /** §07 Featured motion band — cream mobile (Figma Census 2229:30253). */
 export const MOTION_FEATURED_BAND_DEFAULTS = {
   backgroundColor: "#e3e3db",
@@ -190,8 +196,10 @@ export const MOTION_PHONE_ROW_DEFAULTS = {
   phoneHeightDesktop: 512,
   /** Figma 4002:87856 frame height at 393. */
   phoneHeightMobile: 350,
-  /** Desktop intro block — Figma 4001:76571 (~440px). */
+  /** Desktop intro — Figma 4001:76571 (440×105 at x=957 on 1440). */
   introMaxWidth: 440,
+  /** Offset from the 802px phone strip so copy sits under the right mockup. */
+  introOffsetLeft: 638,
   introMarginTopDesktop: 56,
   introMarginTopMobile: 32,
 } as const;

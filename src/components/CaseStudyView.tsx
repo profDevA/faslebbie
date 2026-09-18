@@ -46,6 +46,7 @@ import {
   MOTION_FEATURED_MOBILE_DEFAULTS,
   MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS,
   MOTION_ROW_DEFAULTS,
+  MOTION_RADIUS_SCALE,
   MOTION_PHONE_ROW_DEFAULTS,
   MOTION_CROSS_FUNCTIONAL_DEFAULTS,
   MOTION_SHOWCASE_BAND_DEFAULTS,
@@ -53,6 +54,7 @@ import {
   SHOWCASE_ARTIFACT_DEFAULTS,
   STATS_BAND_DEFAULTS,
 } from '@/lib/caseStudyDefaults'
+import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
 import {
   gapDefault,
   padDefaults,
@@ -112,7 +114,7 @@ const MAXW = {
 }
 const ALIGN = { left: 'text-left', center: 'text-center', right: 'text-right' }
 
-/** Case-study typography — full-page `/casestudies/[slug]` only (+2px vs Aug 2026 baseline). */
+/** Case-study type — 19/22 mobile, 20/26 laptop. No vw scale (too big on wide screens). */
 function csBodyText(extra = '') {
   return `text-[19px] font-normal leading-[1.65] lg:text-[20px] ${extra}`
 }
@@ -181,6 +183,9 @@ function csProseInner(
 function csBandGutter(extra = '') {
   return `px-5 sm:px-8 lg:px-12 ${extra}`
 }
+
+/** Desktop inset shared by split My Approach + Research Artifacts. */
+const CS_WIDE_BAND_GUTTER = 'lg:px-6 xl:px-[3.5vw]'
 
 function csPagerShell(extra = '') {
   return `flex w-full items-center justify-between ${extra}`
@@ -340,10 +345,14 @@ export default function CaseStudyView({
   project: p,
   prev,
   next,
+  listingView = null,
+  listingHref = '/casestudies',
 }: {
   project: Study
   prev: StudyCard
   next: StudyCard
+  listingView?: WorkListingView | null
+  listingHref?: string
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
@@ -409,14 +418,14 @@ export default function CaseStudyView({
       style={{ color: RED }}
     >
       <Link
-        href={`/casestudies/${prev.slug}`}
+        href={caseStudyHref(prev.slug, listingView)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
       >
         &lt; Previous
       </Link>
       <Link
-        href={`/casestudies/${next.slug}`}
+        href={caseStudyHref(next.slug, listingView)}
         data-cursor="hover"
         className="transition-opacity hover:opacity-70"
       >
@@ -463,7 +472,7 @@ export default function CaseStudyView({
             className={`flex min-w-0 items-center gap-2 font-normal ${csUiText()}`}
           >
             <Link
-              href="/casestudies"
+              href={listingHref}
               data-cursor="hover"
               className="text-black/55 transition-colors hover:text-black"
             >
@@ -477,7 +486,7 @@ export default function CaseStudyView({
             </span>
           </nav>
           <Link
-            href="/casestudies"
+            href={listingHref}
             aria-label="Close"
             data-cursor="hover"
             className="shrink-0 text-[24px] leading-none text-black transition-opacity hover:opacity-60"
@@ -776,37 +785,44 @@ function HeroBlock({
     </>
   )
   const mobileArt = s.imageMobile?.trim() || s.image
-  // Full-page studies use Coral's stacked mobile hero (Figma 2079:26236).
+  const mobileTagline = s.caption ?? p.tagline
+  // Full-page mobile hero — Figma 3928:28893 / 4173:68708 (MV_Hero collage + overlay copy).
   return (
     <section data-cs-hero className="relative">
-      <div className="flex flex-col gap-2.5 bg-white lg:hidden">
-        {/* Full-bleed art — no forced aspect/object-cover (tall exports get L/R cropped). */}
+      <div className="relative bg-[#171717] lg:hidden">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={mobileArt}
-          alt={p.name}
-          className="block w-full h-auto bg-[#ededed]"
+          alt=""
+          className="block w-full h-auto"
         />
-        <div className="px-12 pb-4 pt-1 text-black">
-          <p className="text-[20px] font-bold leading-[1.35] tracking-normal">
-            <span className="underline decoration-from-font underline-offset-[6px]">
-              {title}
-            </span>
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(23,23,23,0)_45%,rgba(23,23,23,0.85)_100%)]"
+          aria-hidden
+        />
+        <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-20 text-white">
+          <p className="text-[18px] font-bold uppercase leading-[1.15] tracking-normal">
+            {title}
           </p>
+          {mobileTagline ? (
+            <p className="mt-2.5 text-[14px] font-medium leading-[1.15]">
+              {mobileTagline}
+            </p>
+          ) : null}
           {(p.from || p.to) && (
-            <p className="mt-2 flex justify-between gap-4 text-[20px] leading-[1.35] tracking-normal">
-              {p.from && (
+            <p className="mt-2 flex flex-wrap items-baseline gap-x-8 text-[14px] leading-[1.6]">
+              {p.from ? (
                 <span>
-                  <span className="font-normal italic">From</span>
-                  <span>: {p.from}</span>
+                  <span className="font-medium">From:</span>{' '}
+                  <span className="font-normal">{p.from}</span>
                 </span>
-              )}
-              {p.to && (
-                <span className="text-right">
-                  <span className="font-normal italic">To</span>
-                  <span>: {p.to}</span>
+              ) : null}
+              {p.to ? (
+                <span>
+                  <span className="font-medium">To:</span>{' '}
+                  <span className="font-normal">{p.to}</span>
                 </span>
-              )}
+              ) : null}
             </p>
           )}
         </div>
@@ -819,7 +835,9 @@ function HeroBlock({
           className="block h-full w-full object-cover object-left"
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
-        <div className="absolute bottom-4 left-7.5 p-2.5 text-white">{caption}</div>
+        <div className="cs-hero-caption absolute left-7.5 p-2.5 text-white">
+          {caption}
+        </div>
       </div>
     </section>
   )
@@ -999,9 +1017,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         style={sectionStyle(s.appearance, true, 'md', OVERVIEW_BAND_BACKGROUND)}
       >
         <div
-          className={`grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${
-            csShell('max-lg:!max-w-none')
-          }`}
+          className={`mx-auto grid w-full grid-cols-1 gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:grid-rows-[1fr] ${CS_WIDE_BAND_GUTTER}`}
         >
         <div
           className={`order-2 flex flex-col justify-end lg:order-1 ${light ? 'text-white' : 'text-black'}`}
@@ -1327,16 +1343,26 @@ function CoreExperienceScreenCard({
     const hasImageDims = Boolean(screen.imageWidth && screen.imageHeight)
     /** Full-frame uploads — no shared aspect box or object-cover crop. */
     const preserveFullFrame = mobileGridTile || stackTile || hasImageDims
-    const tileRadius = preserveFullFrame
-      ? 0
-      : coreExperienceTileRadius(bandApp, {
-          layout,
-          bandMobileGrid: mobileGridTile,
-          stackTile,
-          desktopBandTile,
-        })
-    const tileRadiusStyle: CSSProperties | undefined =
-      tileRadius > 0 ? { borderRadius: tileRadius } : undefined
+    const studioRadius =
+      typeof bandApp?.tileBorderRadius === 'number' &&
+      bandApp.tileBorderRadius >= 0
+        ? bandApp.tileBorderRadius
+        : undefined
+    const tileRadius =
+      studioRadius !== undefined
+        ? studioRadius
+        : preserveFullFrame
+          ? 0
+          : coreExperienceTileRadius(bandApp, {
+              layout,
+              bandMobileGrid: mobileGridTile,
+              stackTile,
+              desktopBandTile,
+            })
+    const clipCorners = tileRadius > 0
+    const tileRadiusStyle: CSSProperties | undefined = clipCorners
+      ? { borderRadius: tileRadius }
+      : undefined
     /** Full-frame PNGs include device chrome / shadow — wrapper drop-shadow reads as a mismatched box. */
     const tileShadowClass = preserveFullFrame
       ? ''
@@ -1368,7 +1394,7 @@ function CoreExperienceScreenCard({
         style={figureStyle}
       >
         <div
-          className={`${preserveFullFrame ? '' : 'overflow-hidden'} ${tileShadowClass}`}
+          className={`${clipCorners || !preserveFullFrame ? 'overflow-hidden' : ''} ${tileShadowClass}`}
           style={tileBoxStyle}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -1380,7 +1406,7 @@ function CoreExperienceScreenCard({
                 ? 'block h-auto'
                 : 'h-full object-contain object-top'
             }`}
-            style={preserveFullFrame ? undefined : tileRadiusStyle}
+            style={preserveFullFrame && !clipCorners ? undefined : tileRadiusStyle}
           />
         </div>
         {(screen.label || screen.description) && (
@@ -1594,10 +1620,12 @@ function CoreExperienceBandPreview({
         ))}
       </div>
 
-      {/* Desktop — horizontal phone strip (Figma 2110:39499). */}
+      {/* Desktop — horizontal phone strip (Figma 2110:39499). Full shell
+          width + justify-between so ultrawide viewports gain space between
+          fixed-width tiles (Israel QA) — min gap stays colGap. */}
       <div className="hidden w-full lg:block">
         <div
-          className="mx-auto flex w-full max-w-[min(1100px,100%)] items-start justify-center"
+          className="flex w-full items-start justify-between max-xl:justify-center"
           style={{ gap: colGap }}
         >
           {screens.map(sc => (
@@ -2181,25 +2209,17 @@ function DesktopMotionShowcaseBlock({
           >
             <div className="text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)]">
               {copyTitle && (
-                <h2
-                  className={`font-normal leading-[1.03] ${
-                    wideMockup
-                      ? 'text-[14px] uppercase max-lg:text-[13px]'
-                      : 'text-[20px] capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]'
-                  }`}
-                >
+                <h2 className={csSectionTitle()}>
                   {copyTitle}
                 </h2>
               )}
               {s.body?.length ? (
                 <Prose
                   value={s.body}
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.4]`}
+                  className={`${copyTitle ? 'mt-2.5' : ''} ${csBodyText()}`}
                 />
               ) : s.caption ? (
-                <p
-                  className={`${copyTitle ? 'mt-2.5' : ''} text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.4]`}
-                >
+                <p className={`${copyTitle ? 'mt-2.5' : ''} ${csBodyText()}`}>
                   {s.caption}
                 </p>
               ) : null}
@@ -2304,24 +2324,40 @@ function InterventionCarouselBlock({
         {(canPage || showCaption) && (
           <div className="shrink-0 lg:mt-[25px]">
             {canPage && (
-              <div className="mb-4 hidden h-6 shrink-0 items-center justify-end gap-7 text-[23px] font-medium leading-none text-[#171717] lg:mb-[15px] lg:flex xl:text-[1.45vw]">
+              <div className="mb-4 hidden shrink-0 items-center justify-end gap-7 text-[#171717] lg:mb-[15px] lg:flex">
                 <button
                   type="button"
                   aria-label="Previous slide"
                   data-cursor="hover"
                   onClick={() => go(-1)}
-                  className="bg-transparent transition-opacity hover:opacity-70"
+                  className="bg-transparent p-0.5 transition-opacity hover:opacity-70"
                 >
-                  &lt;
+                  <svg width="14" height="24" viewBox="0 0 14 24" fill="none" aria-hidden>
+                    <path
+                      d="M12 2 2 12l10 10"
+                      stroke="currentColor"
+                      strokeWidth="2.75"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
+                    />
+                  </svg>
                 </button>
                 <button
                   type="button"
                   aria-label="Next slide"
                   data-cursor="hover"
                   onClick={() => go(1)}
-                  className="bg-transparent transition-opacity hover:opacity-70"
+                  className="bg-transparent p-0.5 transition-opacity hover:opacity-70"
                 >
-                  &gt;
+                  <svg width="14" height="24" viewBox="0 0 14 24" fill="none" aria-hidden>
+                    <path
+                      d="M2 2l10 10L2 22"
+                      stroke="currentColor"
+                      strokeWidth="2.75"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
+                    />
+                  </svg>
                 </button>
               </div>
             )}
@@ -2341,14 +2377,12 @@ function InterventionCarouselBlock({
                       aria-hidden={i !== index}
                     >
                       {kicker && (
-                        <h2 className="text-[14px] font-normal capitalize leading-[14.4px] lg:uppercase lg:leading-[1.03]">
-                          {kicker}
-                        </h2>
+                        <h2 className={csSectionTitle()}>{kicker}</h2>
                       )}
                       {body?.length ? (
                         <Prose
                           value={body}
-                          className={`${kicker ? 'mt-[7px] lg:mt-2.5' : ''} text-[16px] font-light leading-[16.8px] tracking-[-0.14px] lg:font-normal lg:leading-[1.6] lg:tracking-normal`}
+                          className={`${kicker ? 'mt-2.5' : ''} ${csBodyText()}`}
                         />
                       ) : null}
                     </div>
@@ -2393,24 +2427,22 @@ function InterventionGridBlock({
     >
       <div className="mx-auto flex w-full max-w-[344px] flex-col lg:max-w-[min(1400px,calc(100%-2.5rem))] lg:px-12">
         {(s.sectionTitle || s.introBody?.length) && (
-          <div className="mx-auto w-full max-w-[70ch] text-left lg:text-center">
+          <div className="w-full max-w-[607px] text-left">
             {s.sectionTitle && (
-              <h2
-                className={`${csSectionTitle()} max-lg:text-[14px] max-lg:font-bold max-lg:leading-[14.4px] lg:uppercase`}
-              >
+              <h2 className={`${csSectionTitle()} uppercase`}>
                 {s.sectionTitle}
               </h2>
             )}
             {s.introBody?.length ? (
               <Prose
                 value={s.introBody}
-                className={`${s.sectionTitle ? 'mt-4' : ''} max-lg:text-[16px] max-lg:font-light max-lg:leading-[16.8px] max-lg:tracking-[-0.14px] ${csBodySm()} text-left lg:text-center`}
+                className={`${s.sectionTitle ? 'mt-4' : ''} ${csBodyText()} text-left`}
               />
             ) : null}
           </div>
         )}
         {visible.length > 0 && (
-          <div className="mt-[50px] grid grid-cols-1 gap-[50px] lg:mt-14 lg:grid-cols-2 lg:gap-8">
+          <div className="mt-[50px] grid grid-cols-1 gap-[50px] lg:mt-14 lg:grid-cols-2 lg:gap-x-[120px] lg:gap-y-[100px]">
             {visible.map(item =>
               item.image ? (
                 <div
@@ -2604,7 +2636,7 @@ function ShowcaseBlock({
         }}
       >
         <div
-          className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-12 sm:px-16 lg:px-6 xl:px-[3.5vw]`}
+          className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-12 sm:px-16 ${CS_WIDE_BAND_GUTTER}`}
           style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
         >
           {(s.sectionTitle || s.introBody) && (
@@ -2733,7 +2765,10 @@ function MotionShowcasePhoneRowBand({
   return (
     <section
       className={csBandGutter()}
-      style={sectionStyle(s.appearance, true, 'lg', '#999999', lightText)}
+      style={{
+        ...sectionStyle(s.appearance, true, 'lg', '#999999', lightText),
+        justifyContent: 'flex-start',
+      }}
     >
       {s.sectionTitle && (
         <h2
@@ -2759,13 +2794,15 @@ function MotionShowcasePhoneRowBand({
             item={it}
             phoneHeight={d.phoneHeightMobile}
             className="min-w-0"
+            appearance={s.appearance}
           />
         ))}
       </div>
 
-      {/* Desktop — centred phone strip (Figma 4002:86609). */}
+      {/* Desktop — centred phone strip + intro under the right mockup
+          (Figma 4002:86609 / 4001:76571). */}
       <div
-        className="mx-auto hidden w-full lg:block"
+        className="mx-auto hidden w-full overflow-visible lg:block"
         style={{ maxWidth: d.bandMaxWidth }}
       >
         <div
@@ -2778,33 +2815,34 @@ function MotionShowcasePhoneRowBand({
               item={it}
               phoneHeight={d.phoneHeightDesktop}
               className="min-w-0 flex-1"
+              appearance={s.appearance}
             />
           ))}
         </div>
-      </div>
-
-      {/* Intro — full band width, flush right on desktop (Figma 4001:76571). */}
-      {s.intro?.length ? (
-        <>
+        {s.intro?.length ? (
           <div
-            className={`ml-auto hidden w-full text-left lg:block ${textClass}`}
+            className={`text-left ${textClass}`}
             style={{
               marginTop: d.introMarginTopDesktop,
-              maxWidth: d.introMaxWidth,
+              marginLeft: d.introOffsetLeft,
+              width: d.introMaxWidth,
             }}
           >
             <Prose value={s.intro} className={csBodySm()} />
           </div>
-          <div
-            className={`mx-auto w-full text-left lg:hidden ${textClass}`}
-            style={{
-              marginTop: d.introMarginTopMobile,
-              maxWidth: d.mobileMaxWidth,
-            }}
-          >
-            <Prose value={s.intro} className={csBodySm()} />
-          </div>
-        </>
+        ) : null}
+      </div>
+
+      {s.intro?.length ? (
+        <div
+          className={`mx-auto w-full text-left lg:hidden ${textClass}`}
+          style={{
+            marginTop: d.introMarginTopMobile,
+            maxWidth: d.mobileMaxWidth,
+          }}
+        >
+          <Prose value={s.intro} className={csBodySm()} />
+        </div>
       ) : null}
     </section>
   )
@@ -2814,10 +2852,12 @@ function PhoneRowMedia({
   item,
   phoneHeight,
   className = '',
+  appearance,
 }: {
   item: MediaItem
   phoneHeight: number
   className?: string
+  appearance?: Appearance
 }) {
   const videoPoster = item.posterImage
   const videoSrc =
@@ -2826,14 +2866,22 @@ function PhoneRowMedia({
       : item.mediaType === 'video' && item.videoFile
         ? String(item.videoFile)
         : undefined
+  const frame = motionRadiusFrame(
+    motionRadiusPair(appearance, MOTION_RADIUS_SCALE.stacked),
+  )
   const frameClass = `flex min-h-0 justify-center ${className}`
   /** Fixed px height — shorter PNGs scale up; width follows aspect ratio. */
-  const mediaStyle = { height: phoneHeight, width: 'auto' as const }
+  const mediaStyle = {
+    height: phoneHeight,
+    width: 'auto' as const,
+    ...frame.style,
+  }
+  const mediaClass = `block w-auto ${frame.className}`
   if (videoSrc) {
     return (
       <div className={frameClass}>
         <video
-          className="block w-auto"
+          className={mediaClass}
           style={mediaStyle}
           src={videoSrc}
           poster={videoPoster}
@@ -2852,7 +2900,7 @@ function PhoneRowMedia({
         <img
           src={item.image}
           alt={item.caption || ''}
-          className="block w-auto"
+          className={mediaClass}
           style={mediaStyle}
         />
       </div>
@@ -2919,6 +2967,7 @@ function MotionShowcaseCrossFunctionalBand({
               d.mobileCaptionGapPx[i] ??
               d.mobileCaptionGapPx[d.mobileCaptionGapPx.length - 1]
             }
+            appearance={s.appearance}
           />
         ))}
       </div>
@@ -2943,7 +2992,7 @@ function MotionShowcaseCrossFunctionalBand({
                   zIndex: slot.zIndex,
                 }}
               >
-                <CrossFunctionalDeviceMedia row={row} />
+                <CrossFunctionalDeviceMedia row={row} appearance={s.appearance} />
                 {(row.label || row.caption) && (
                   <div
                     className={textClass}
@@ -2953,12 +3002,12 @@ function MotionShowcaseCrossFunctionalBand({
                     }}
                   >
                     {row.label && (
-                      <p className="text-[16px] font-normal leading-[1.05] xl:text-[1.05vw]">
+                      <p className="text-[16px] font-normal leading-[1.05]">
                         {row.label}
                       </p>
                     )}
                     {row.caption && (
-                      <p className="mt-1 text-[16px] font-normal leading-[1.05] xl:text-[1.05vw]">
+                      <p className="mt-1 text-[16px] font-normal leading-[1.05]">
                         {row.caption}
                       </p>
                     )}
@@ -2977,14 +3026,16 @@ function CrossFunctionalRowStack({
   row,
   textClass,
   captionGapPx,
+  appearance,
 }: {
   row: MotionRow
   textClass: string
   captionGapPx: number
+  appearance?: Appearance
 }) {
   return (
     <div className="flex w-full flex-col">
-      <CrossFunctionalDeviceMedia row={row} mobile />
+      <CrossFunctionalDeviceMedia row={row} mobile appearance={appearance} />
       {(row.label || row.caption) && (
         <div
           className={`w-full text-left ${textClass}`}
@@ -3007,9 +3058,11 @@ function CrossFunctionalRowStack({
 function CrossFunctionalDeviceMedia({
   row,
   mobile = false,
+  appearance,
 }: {
   row: MotionRow
   mobile?: boolean
+  appearance?: Appearance
 }) {
   const item = (row.items ?? []).find(
     it => it.image || it.videoFile || it.videoUrl,
@@ -3029,6 +3082,11 @@ function CrossFunctionalDeviceMedia({
       : item.mediaType === 'video' && item.videoFile
         ? String(item.videoFile)
         : undefined
+  const radius = motionRadiusFrame(
+    motionRadiusPair(appearance, MOTION_RADIUS_SCALE.stacked),
+  )
+  const mediaClass = `block h-auto w-full ${radius.className}`
+  const mediaStyle = radius.style
   if (videoSrc) {
     return (
       <div
@@ -3036,7 +3094,8 @@ function CrossFunctionalDeviceMedia({
         style={frameStyle}
       >
         <video
-          className="block h-auto w-full"
+          className={mediaClass}
+          style={mediaStyle}
           src={videoSrc}
           poster={videoPoster}
           autoPlay
@@ -3057,7 +3116,8 @@ function CrossFunctionalDeviceMedia({
         <img
           src={item.image}
           alt={row.label || row.caption || ''}
-          className="block h-auto w-full"
+          className={mediaClass}
+          style={mediaStyle}
         />
       </div>
     )
@@ -3134,7 +3194,7 @@ function MotionShowcaseFeaturedBand({
                 key={it._key ?? `featured-mobile-${itemIndex}`}
                 item={it}
                 poster={row.posterImage}
-                featuredMobile
+                appearance={s.appearance}
               />
             ))}
           </div>
@@ -3167,6 +3227,7 @@ function MotionShowcaseFeaturedBand({
                   key={it._key ?? `featured-desktop-${itemIndex}`}
                   item={it}
                   poster={row.posterImage}
+                  appearance={s.appearance}
                 />
               ))}
             </div>
@@ -3178,12 +3239,12 @@ function MotionShowcaseFeaturedBand({
           >
             <div className="text-left" style={captionInset}>
               {row.label && (
-                <p className="text-[20px] font-normal capitalize leading-[1.6] xl:text-[1.25vw]">
+                <p className="text-[20px] font-normal capitalize leading-[1.6]">
                   {row.label}
                 </p>
               )}
               {row.caption && (
-                <p className="mt-2.5 max-w-[353px] text-[16px] font-normal leading-[1.6] xl:text-[1.05vw]">
+                <p className="mt-2.5 max-w-[353px] text-[16px] font-normal leading-[1.6]">
                   {row.caption}
                 </p>
               )}
@@ -3198,15 +3259,15 @@ function MotionShowcaseFeaturedBand({
 function FeaturedDeviceMedia({
   item,
   poster,
-  featuredMobile = false,
+  appearance,
 }: {
   item: MediaItem
   poster?: string
-  featuredMobile?: boolean
+  appearance?: Appearance
 }) {
-  const featuredRadius = featuredMobile
-    ? 'max-lg:rounded-[12px] lg:rounded-[24px]'
-    : 'rounded-[24px]'
+  const frame = motionRadiusFrame(
+    motionRadiusPair(appearance, MOTION_RADIUS_SCALE.featured),
+  )
   const videoPoster = item.posterImage || poster
   const videoSrc =
     typeof item.videoFile === 'string'
@@ -3217,7 +3278,8 @@ function FeaturedDeviceMedia({
   if (videoSrc) {
     return (
       <video
-        className={`block h-auto w-full ${featuredRadius}`}
+        className={`block h-auto w-full ${frame.className}`}
+        style={frame.style}
         src={videoSrc}
         poster={videoPoster}
         autoPlay
@@ -3233,7 +3295,8 @@ function FeaturedDeviceMedia({
       <img
         src={item.image}
         alt={item.caption || ''}
-        className={`block h-auto w-full ${featuredRadius}`}
+        className={`block h-auto w-full ${frame.className}`}
+        style={frame.style}
       />
     )
   }
@@ -3304,11 +3367,56 @@ function MotionShowcaseStackedBand({
             centerRow={rows.length === 1}
             light={light}
             inheritTextColor={!!s.appearance?.textColor?.hex}
+            appearance={s.appearance}
           />
         ))}
       </div>
     </section>
   )
+}
+
+function isCssWhite(css?: string): boolean {
+  if (!css) return false
+  const h = css.replace('#', '').toLowerCase()
+  return h === 'fff' || h === 'ffffff'
+}
+
+/** Pre-rounded PNGs — no white matte (same as CE full-frame). Band shows through alpha. */
+function motionStackedFrameFill(rowTileBg?: SanityColor): string | undefined {
+  const css = colorToCss(rowTileBg)
+  if (!css || isCssWhite(css)) return undefined
+  return css
+}
+
+/** Studio tileBorderRadius is desktop (lg+). Unset/0 = pre-rounded PNG, no CSS clip. */
+function motionRadiusPair(
+  appearance: Appearance | undefined,
+  scale: { desktop: number; mobile: number },
+): { desktop: number; mobile: number } {
+  const explicit = appearance?.tileBorderRadius
+  if (typeof explicit !== 'number' || explicit <= 0) {
+    return { desktop: 0, mobile: 0 }
+  }
+  const scaled = Math.round(explicit * (scale.mobile / scale.desktop))
+  return {
+    desktop: explicit,
+    mobile: Math.min(explicit, Math.max(scaled, 1)),
+  }
+}
+
+function motionRadiusFrame(pair: { desktop: number; mobile: number }): {
+  className: string
+  style?: CSSProperties
+} {
+  if (pair.desktop <= 0 && pair.mobile <= 0) return { className: '' }
+  return {
+    className:
+      'overflow-hidden rounded-[var(--cs-motion-r)] max-lg:!rounded-[var(--cs-motion-r-m)]',
+    style: {
+      ['--cs-motion-r' as string]: `${pair.desktop}px`,
+      ['--cs-motion-r-m' as string]: `${pair.mobile}px`,
+    },
+  }
 }
 
 function MotionRowView({
@@ -3317,27 +3425,20 @@ function MotionRowView({
   centerRow = false,
   light,
   inheritTextColor,
+  appearance,
 }: {
   row: MotionRow
   alignRight: boolean
   centerRow?: boolean
   light: boolean
   inheritTextColor: boolean
+  appearance?: Appearance
 }) {
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
-  const aspect =
-    device === 'mobile'
-      ? 'aspect-[170/367]'
-      : device === 'tablet'
-        ? 'aspect-[3/4]'
-        : 'aspect-[7/5]'
-  const radius =
-    device === 'mobile'
-      ? 'rounded-[14px] max-lg:!rounded-[4px]'
-      : device === 'tablet'
-        ? 'rounded-[12px] max-lg:!rounded-[4px]'
-        : 'rounded-[10px] max-lg:!rounded-[4px]'
+  const frameRadius = motionRadiusFrame(
+    motionRadiusPair(appearance, MOTION_RADIUS_SCALE.stacked),
+  )
   const captionColor = inheritTextColor ? '' : light ? 'text-[#e3e3db]' : 'text-black'
   const rowWidthDefault = MOTION_ROW_DEFAULTS.rowWidthPercent
   const rowWidth =
@@ -3352,8 +3453,8 @@ function MotionRowView({
     typeof row.captionMarginTop === 'number' && row.captionMarginTop >= 0
       ? row.captionMarginTop
       : MOTION_ROW_DEFAULTS.captionMarginTop
-  const tileBg =
-    colorToCss(row.tileBackgroundColor) ?? MOTION_ROW_DEFAULTS.tileBackgroundColor
+  const tileBg = motionStackedFrameFill(row.tileBackgroundColor)
+  const frameMatte = Boolean(tileBg)
   return (
     <div
       className={`flex max-lg:justify-center ${centerRow ? 'justify-center' : alignRight ? 'lg:justify-end' : 'lg:justify-start'}`}
@@ -3375,8 +3476,13 @@ function MotionRowView({
           {items.map((it, itemIndex) => (
             <div
               key={it._key ?? `motion-${itemIndex}`}
-              className={`flex-1 ${aspect} overflow-hidden ${radius} border border-black/5`}
-              style={{ backgroundColor: tileBg }}
+              className={`min-w-0 flex-1 ${frameRadius.className}${
+                frameMatte ? ' border border-black/5' : ''
+              }`}
+              style={{
+                backgroundColor: tileBg ?? 'transparent',
+                ...frameRadius.style,
+              }}
             >
               <DeviceMedia item={it} poster={row.posterImage} device={device} />
             </div>
@@ -3388,12 +3494,12 @@ function MotionRowView({
             style={{ marginTop: captionMt }}
           >
             {row.label && (
-              <p className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] xl:text-[1.25vw]">
+              <p className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]">
                 {row.label}
               </p>
             )}
             {row.caption && (
-              <p className="mt-2.5 text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.3] xl:text-[1.05vw]">
+              <p className="mt-2.5 text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.3]">
                 {row.caption}
               </p>
             )}
@@ -3407,13 +3513,11 @@ function MotionRowView({
 function DeviceMedia({
   item,
   poster,
-  device = 'mobile',
 }: {
   item: MediaItem
   poster?: string
   device?: 'mobile' | 'tablet' | 'desktop'
 }) {
-  const imageFit = device === 'desktop' ? 'object-contain' : 'object-cover'
   const videoPoster = item.posterImage || poster
   const videoSrc =
     typeof item.videoFile === 'string'
@@ -3424,7 +3528,7 @@ function DeviceMedia({
   if (videoSrc) {
     return (
       <video
-        className="h-full w-full object-cover"
+        className="block h-auto w-full"
         src={videoSrc}
         poster={videoPoster}
         autoPlay
@@ -3439,7 +3543,7 @@ function DeviceMedia({
       <iframe
         src={item.videoUrl}
         title={item.caption || 'Animation'}
-        className="h-full w-full"
+        className="block aspect-video w-full"
         allow="autoplay; encrypted-media"
         allowFullScreen
       />
@@ -3451,7 +3555,7 @@ function DeviceMedia({
       <img
         src={item.image}
         alt={item.caption || ''}
-        className={`h-full w-full ${imageFit}`}
+        className="block h-auto w-full"
       />
     )
   }
@@ -3834,7 +3938,7 @@ function Label({
 }) {
   return (
     <h2
-      className={`mb-5 capitalize leading-tight ${'text-[22px] font-normal lg:text-[26px]'} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
     >
       {children}
     </h2>
@@ -4725,7 +4829,7 @@ function Stat({
         {n}
         {stat.suffix}
       </p>
-      <p className={`mt-5 max-w-[min(360px,100%)] font-normal leading-[1.245] sm:max-w-none ${csBodyText()}`}>
+      <p className={`mt-5 max-w-[min(360px,100%)] leading-[1.245] sm:max-w-none ${csBodyText('!font-bold')}`}>
         {stat.label}
       </p>
       {stat.note && (
