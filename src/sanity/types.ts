@@ -217,6 +217,7 @@ export type Section =
   | (Base & {
       _type: "desktopMotionShowcase";
       sectionTitle?: string;
+      layoutVariant?: "single" | "staggeredPair";
       body?: PortableTextBlock[];
       videoUrl?: string;
       videoFile?: string;
@@ -225,6 +226,15 @@ export type Section =
         _key?: string;
         alt?: string;
         image?: string;
+      }[];
+      carousels?: {
+        _key?: string;
+        body?: PortableTextBlock[];
+        slides?: {
+          _key?: string;
+          alt?: string;
+          image?: string;
+        }[];
       }[];
       caption?: string;
       ctaLabel?: string;

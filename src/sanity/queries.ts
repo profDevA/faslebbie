@@ -71,11 +71,15 @@ const sectionsProj = `sections[]{
     }
   },
   _type == "desktopMotionShowcase" => {
-    sectionTitle, body, caption, ctaLabel, ctaUrl,
+    sectionTitle, body, caption, ctaLabel, ctaUrl, layoutVariant,
     videoUrl,
     "videoFile": videoFile.asset->url,
     "posterImage": posterImage${img},
-    slides[]{ _key, alt, "image": image${img} }
+    slides[]{ _key, alt, "image": image${img} },
+    carousels[]{
+      _key, body,
+      slides[]{ _key, alt, "image": image${img} }
+    }
   },
   _type == "gallerySection" => {
     sectionTitle, body, useDeviceTabs, showCaptions, itemsBeforeViewMore, loadMoreLabel,
@@ -110,6 +114,8 @@ const sectionsProj = `sections[]{
   },
   _type == "highlightReel" => {
     sectionTitle, layout, compositeMaxWidth,
+    gridCellMatteColor, gridCellInsetVerticalPercent, gridCellInsetHorizontalPercent, gridGap,
+    singleCardMatteColor, singleCardPadding,
     "compositeImage": compositeImage${img},
     "compositeImageMobile": compositeImageMobile${img},
     cells[]{

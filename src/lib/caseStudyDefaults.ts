@@ -236,6 +236,7 @@ export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
   mockupMaxWidth: 762,
   /** Acme Figma 3795:152730 — art includes frame, shadow, and radius */
   mockupMaxWidthWide: 873,
+  /** Staggered-pair sliders — Figma 4004:116820 mockups 578/1444; scale with the band, no px cap. */
   /** Poster carousel slide (AR Handbook KPE sliders) */
   slideTransitionMs: 780,
   /** CSS easing — smooth deceleration (track translateX) */

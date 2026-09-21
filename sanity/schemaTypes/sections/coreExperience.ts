@@ -134,7 +134,7 @@ export const coreExperience = defineType({
       title: "Popup — items before Load More",
       type: "number",
       initialValue: 6,
-      validation: (r) => r.min(1).max(12),
+      validation: (r) => r.min(1),
     }),
     defineField({
       name: "popupLoadMoreLabel",

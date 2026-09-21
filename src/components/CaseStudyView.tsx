@@ -1023,7 +1023,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           className={`order-2 flex flex-col justify-end lg:order-1 ${light ? 'text-white' : 'text-black'}`}
           style={sideTextCss ? { color: sideTextCss } : undefined}
         >
-          <div className={'max-w-[min(560px,100%)]'}>
+          <div className="w-full">
             <h2
               className={`mb-4 ${csSectionTitle('text-[20px] lg:text-[22px]')}`}
             >
@@ -1916,6 +1916,19 @@ function CoreExperienceBlock({
   )
 }
 
+/** Keep PNG alpha. Sanity `auto=format` serves AVIF and fills transparent corners black. */
+function motionSlideSrc(url: string) {
+  if (!url.includes('cdn.sanity.io') || !/\.png(?:\?|$)/i.test(url)) return url
+  try {
+    const u = new URL(url)
+    u.searchParams.delete('auto')
+    u.searchParams.set('fm', 'png')
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
 /** §08 mockup wrapper — appearance.tileBorderRadius: 0 = square art (no device chrome). */
 function desktopMotionMockupFrame(
   appearance: Appearance | undefined,
@@ -1958,12 +1971,14 @@ function DesktopMotionPosterCarousel({
   mockupFrame,
   mockupMax,
   arrowClass,
+  align = 'center',
 }: {
   slides: NonNullable<Of<'desktopMotionShowcase'>['slides']>
   fallbackAlt: string
   mockupFrame: { className: string; style?: CSSProperties }
-  mockupMax: number
+  mockupMax?: number
   arrowClass: string
+  align?: 'center' | 'start' | 'end'
 }) {
   const items = slides.filter(sl => sl.image)
   const n = items.length
@@ -2040,8 +2055,14 @@ function DesktopMotionPosterCarousel({
 
   if (!n) return null
 
+  const alignClass =
+    align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
+
   return (
-    <div className="mx-auto w-full" style={{ maxWidth: mockupMax }}>
+    <div
+      className={`${alignClass} w-full`}
+      style={mockupMax ? { maxWidth: mockupMax } : undefined}
+    >
       <div
         className={`w-full ${mockupFrame.className}`}
         style={mockupFrame.style}
@@ -2086,7 +2107,7 @@ function DesktopMotionPosterCarousel({
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                   <img
-                    src={sl.image}
+                    src={motionSlideSrc(sl.image)}
                     alt={sl.alt || fallbackAlt}
                     draggable={false}
                     className="block h-auto w-full max-w-full object-center"
@@ -2125,11 +2146,64 @@ function DesktopMotionPosterCarousel({
   )
 }
 
+function DesktopMotionStaggeredPair({
+  section: s,
+}: {
+  section: Of<'desktopMotionShowcase'>
+}) {
+  const lightText = bandUsesLightText(s.appearance)
+  const copyClass = lightText ? 'text-white' : 'text-black'
+  const mockupFrame = desktopMotionMockupFrame(s.appearance, true)
+  const title = s.sectionTitle?.trim()
+  const pairs = (s.carousels ?? []).slice(0, 2)
+  return (
+    <section
+      className={`relative flex flex-col ${SECTION_GAP_CLASS} px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
+      style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
+    >
+      {title ? (
+        <h2 className={`text-center ${csSectionTitle()} ${copyClass}`}>
+          {title}
+        </h2>
+      ) : null}
+      <div className="flex w-full flex-col gap-12 lg:gap-[8.7rem]">
+        {pairs.map((carousel, i) => {
+          const slides = (carousel.slides ?? []).filter(sl => sl.image)
+          const end = i % 2 === 1
+          return (
+            <div
+              key={carousel._key ?? i}
+              className={`w-full lg:w-[calc(50%-1.75rem)] ${end ? 'lg:self-end' : 'lg:self-start'}`}
+            >
+              <DesktopMotionPosterCarousel
+                slides={slides}
+                fallbackAlt={title || 'Key Product Experiences'}
+                mockupFrame={mockupFrame}
+                arrowClass={copyClass}
+                align={end ? 'end' : 'start'}
+              />
+              {carousel.body?.length ? (
+                <Prose
+                  value={carousel.body}
+                  className={`mt-6 ${csBodyText()} ${copyClass}`}
+                />
+              ) : null}
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 function DesktopMotionShowcaseBlock({
   section: s,
 }: {
   section: Of<'desktopMotionShowcase'>
 }) {
+  if (s.layoutVariant === 'staggeredPair') {
+    return <DesktopMotionStaggeredPair section={s} />
+  }
   const carouselSlides = (s.slides ?? []).filter(sl => sl.image)
   const hasCarousel = carouselSlides.length > 0
   const hasVideo = !!(s.videoFile || s.videoUrl)
@@ -2146,7 +2220,6 @@ function DesktopMotionShowcaseBlock({
   const mockupFrame = desktopMotionMockupFrame(s.appearance, wideMockup)
   return (
     <section
-      
       className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()}`}
       style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
     >
@@ -3628,7 +3701,7 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
         />
       ) : (
         <div
-          className="mx-auto grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:gap-[1vw]"
+          className="mx-auto grid w-full grid-cols-2 grid-flow-col grid-rows-3 lg:grid-cols-3 lg:grid-flow-row lg:grid-rows-2 xl:gap-[1vw]"
           style={{ gap: gridGap }}
         >
           {cells.map((c, i) => (
