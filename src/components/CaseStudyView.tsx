@@ -7,14 +7,60 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import PopupShell from '@/components/PopupShell'
+import { CaseStudyProse } from '@/components/caseStudyView/Prose'
+import {
+  bandStyle,
+  cursorInvertAttrs,
+  featuredCaptionInset,
+  flexSectionStyle,
+  isLight,
+  bandUsesLightText,
+  sectionStyle,
+} from '@/components/caseStudyView/bandAppearance'
+import {
+  accordionPanelUsesLightText,
+  colorToCss,
+  sanityColorIsLight,
+} from '@/components/caseStudyView/colors'
+import {
+  CS_RED,
+  CS_SAGE,
+  CS_TEAL,
+  CS_TILE,
+} from '@/components/caseStudyView/constants'
+import {
+  CS_TEXT_ALIGN,
+  CS_WIDE_BAND_GUTTER,
+  csBandGutter,
+  csPagerShell,
+  csProseInner,
+  csShell,
+  pageBandMinHeightClass,
+  pageScreenBandClass,
+  pageScreenBandInnerClass,
+} from '@/components/caseStudyView/layoutClasses'
+import {
+  CS_CAPTION_LG,
+  CS_CAPTION_SM,
+  CS_KICKER,
+  csBodySm,
+  csBodyText,
+  csHeroCap,
+  csImpactTitle,
+  csMetaSm,
+  csMetaXs,
+  csReflectionBody,
+  csReflectionTitle,
+  csSectionTitle,
+  csUiText,
+} from '@/components/caseStudyView/typography'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { ExternalArrow } from '@/components/InlineToken'
-import type { PortableTextBlock } from '@portabletext/types'
-
 import type {
   AccordionEntry,
   Appearance,
@@ -33,7 +79,6 @@ import type {
 import {
   REFLECTION_DEFAULTS,
   OVERVIEW_BAND_BACKGROUND,
-  OVERVIEW_COLUMN_GAP,
   CORE_EXPERIENCE_POPUP_DEFAULTS,
   CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS,
   CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS,
@@ -78,267 +123,6 @@ import {
  * load-more grids, "Next up" band) is carried over from the previous
  * hard-coded template.
  */
-
-const RED = '#e06164'
-const SAGE = '#99B29D66'
-const TEAL = '#52747e'
-const TILE = '#4f6b76'
-
-// ── appearance helpers ───────────────────────────────────────────────────────
-function hexToRgb(hex: string) {
-  const h = hex.replace('#', '')
-  const full =
-    h.length === 3
-      ? h
-          .split('')
-          .map(c => c + c)
-          .join('')
-      : h
-  const int = parseInt(full.slice(0, 6), 16)
-  return { r: (int >> 16) & 255, g: (int >> 8) & 255, b: int & 255 }
-}
-
-function colorToCss(c?: SanityColor): string | undefined {
-  if (!c?.hex) return undefined
-  const a = c.alpha ?? 1
-  if (a >= 1) return c.hex
-  const { r, g, b } = hexToRgb(c.hex)
-  return `rgba(${r}, ${g}, ${b}, ${a})`
-}
-
-const MAXW = {
-  narrow: 'max-w-160',
-  default: 'max-w-285',
-  wide: 'max-w-[1440px]',
-  full: 'max-w-none',
-}
-const ALIGN = { left: 'text-left', center: 'text-center', right: 'text-right' }
-
-/** Case-study type — 19/22 mobile, 20/26 laptop. No vw scale (too big on wide screens). */
-function csBodyText(extra = '') {
-  return `text-[19px] font-normal leading-[1.65] lg:text-[20px] ${extra}`
-}
-
-function csBodySm(extra = '') {
-  return `text-[17px] lg:text-[18px] font-normal leading-[1.6] ${extra}`
-}
-
-function csSectionTitle(sizeExtra = '') {
-  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
-  return `font-normal capitalize leading-tight ${size}`
-}
-
-function csImpactTitle(sizeExtra = '') {
-  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
-  return `font-medium capitalize leading-tight ${size}`
-}
-
-function csUiText(extra = '') {
-  return `text-[17px] lg:text-[18px] ${extra}`
-}
-
-function csMetaSm(extra = '') {
-  return `text-[16px] font-normal leading-[1.6] ${extra}`
-}
-
-function csMetaXs(extra = '') {
-  return `text-[14px] font-normal italic leading-4.25 ${extra}`
-}
-
-function csHeroCap(extra = '') {
-  return `text-[18px] leading-[1.6] lg:text-[19px] ${extra}`
-}
-
-const CS_KICKER = 'text-[13px] sm:text-[14px]'
-const CS_CAPTION_LG = 'text-[15px] sm:text-[16px]'
-const CS_CAPTION_SM = 'text-[13px] sm:text-[14px]'
-
-/** Full-page desktop: one band = scrollport + bleed (see `--cs-band-bleed` in globals). */
-function pageScreenBandClass(enabled = true) {
-  return enabled ? 'lg:h-[calc(100cqh+var(--cs-band-bleed))] lg:min-h-[calc(100cqh+var(--cs-band-bleed))] lg:flex lg:flex-col lg:justify-center' : ''
-}
-/** At least one scrollport tall; band grows when two-column copy exceeds 100cqh. */
-function pageBandMinHeightClass() {
-  return 'lg:min-h-[calc(100cqh+var(--cs-band-bleed))]'
-}
-function pageScreenBandInnerClass() {
-  return 'flex w-full flex-1 flex-col justify-center'
-}
-
-/** Full-page shell (Fas Aug 2026). */
-function csShell(extra = '') {
-  return `mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12 ${extra}`
-}
-
-function csProseInner(
-  align: 'left' | 'center' | 'right',
-  widthKey: keyof typeof MAXW,
-) {
-  if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
-  if (widthKey === 'full') return 'mx-auto w-full max-w-none'
-  if (align === 'center') return 'mx-auto w-full max-w-[min(1000px,100%)]'
-  return 'mx-auto w-full max-w-[min(1000px,100%)]'
-}
-
-function csBandGutter(extra = '') {
-  return `px-5 sm:px-8 lg:px-12 ${extra}`
-}
-
-/** Desktop inset shared by split My Approach + Research Artifacts. */
-const CS_WIDE_BAND_GUTTER = 'lg:px-6 xl:px-[3.5vw]'
-
-function csPagerShell(extra = '') {
-  return `flex w-full items-center justify-between ${extra}`
-}
-
-function csReflectionTitle() {
-  return 'font-grotesk text-[22px] font-normal capitalize leading-tight lg:text-[26px]'
-}
-
-function csReflectionBody() {
-  return 'font-grotesk text-[19px] font-light leading-[1.6] lg:text-[20px]'
-}
-
-function bandStyle(a?: Appearance, defaultBg?: string, defaultLight?: boolean) {
-  const style: React.CSSProperties = {}
-  const bg = colorToCss(a?.backgroundColor) ?? defaultBg
-  if (bg) style.backgroundColor = bg
-  const tc = colorToCss(a?.textColor) ?? (defaultLight ? '#ffffff' : undefined)
-  if (tc) style.color = tc
-  return style
-}
-
-function sectionStyle(
-  a: Appearance | undefined,
-  _page: boolean,
-  padLevel: 'md' | 'lg',
-  defaultBg?: string,
-  defaultLight?: boolean,
-) {
-  return {
-    ...bandStyle(a, defaultBg, defaultLight),
-    ...sectionPadStyle(a, padDefaults(padLevel, true), true),
-  }
-}
-
-function flexSectionStyle(
-  a: Appearance | undefined,
-  _page: boolean,
-  padLevel: 'md' | 'lg',
-  defaultBg?: string,
-  defaultLight?: boolean,
-) {
-  return {
-    ...sectionStyle(a, true, padLevel, defaultBg, defaultLight),
-    ...sectionGapStyle(a, gapDefault(padLevel, true), true),
-  }
-}
-
-/** True when a band should treat its text as light (for default label colour). */
-function isLight(a?: Appearance, defaultLight?: boolean) {
-  if (a?.textColor?.hex) {
-    const { r, g, b } = hexToRgb(a.textColor.hex)
-    return (r * 299 + g * 587 + b * 114) / 1000 > 180
-  }
-  const bg = a?.backgroundColor
-  if (bg?.hex && (bg.alpha ?? 1) > 0.5) {
-    const { r, g, b } = hexToRgb(bg.hex)
-    return (r * 299 + g * 587 + b * 114) / 1000 < 140
-  }
-  return !!defaultLight
-}
-
-/** Dark bands — white dot cursor so it stays visible on black / navy fills. */
-function cursorInvertAttrs(light?: boolean) {
-  return light ? ({ 'data-cursor-invert': '' as const }) : {}
-}
-
-/** Render light/white copy — respects explicit textColor and dark band backgrounds. */
-function bandUsesLightText(a?: Appearance, defaultLight?: boolean) {
-  if (a?.textColor?.hex) {
-    const { r, g, b } = hexToRgb(a.textColor.hex)
-    return (r * 299 + g * 587 + b * 114) / 1000 > 180
-  }
-  return isLight(a, defaultLight)
-}
-
-/** Legacy fallback when accordionTextColor is unset — only deep panels → white copy. */
-function accordionPanelUsesLightText(c?: SanityColor) {
-  if (!c?.hex) return false
-  const { r, g, b } = hexToRgb(c.hex)
-  // Tan/lavender/magenta panels (DVA, Design Assist, Experian) sit ~130–145 — black per Figma.
-  return (r * 299 + g * 587 + b * 114) / 1000 < 125
-}
-
-function sanityColorIsLight(c?: SanityColor) {
-  if (!c?.hex) return false
-  const { r, g, b } = hexToRgb(c.hex)
-  return (r * 299 + g * 587 + b * 114) / 1000 > 180
-}
-
-/** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434. */
-function featuredCaptionInset(side: 'left' | 'right') {
-  return side === 'right'
-    ? { marginLeft: 'auto' as const, maxWidth: 'min(445px, 42%)' }
-    : { marginLeft: 'max(24px, calc(50% - 220px))' as const, maxWidth: 'min(445px, 90%)' }
-}
-
-// ── Portable Text ────────────────────────────────────────────────────────────
-const ptComponents: PortableTextComponents = {
-  block: {
-    normal: ({ children }) => <p>{children}</p>,
-    h3: ({ children }) => (
-      <h3 className="text-[1.1em] font-semibold">{children}</h3>
-    ),
-    blockquote: ({ children }) => (
-      <blockquote className="border-l-2 border-current/40 pl-4 italic">
-        {children}
-      </blockquote>
-    ),
-  },
-  list: {
-    bullet: ({ children }) => (
-      <ul className="list-disc space-y-3 pl-5">{children}</ul>
-    ),
-    number: ({ children }) => (
-      <ol className="list-decimal space-y-3 pl-5">{children}</ol>
-    ),
-  },
-  listItem: {
-    bullet: ({ children }) => <li>{children}</li>,
-    number: ({ children }) => <li>{children}</li>,
-  },
-  marks: {
-    strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-    em: ({ children }) => <em className="italic">{children}</em>,
-    link: ({ children, value }) => (
-      <a
-        href={value?.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        data-cursor="hover"
-        className="underline underline-offset-2 transition-colors hover:text-accent"
-      >
-        {children}
-      </a>
-    ),
-  },
-}
-
-function Prose({
-  value,
-  className = '',
-}: {
-  value?: PortableTextBlock[]
-  className?: string
-}) {
-  if (!value?.length) return null
-  return (
-    <div className={`space-y-5 ${className}`}>
-      <PortableText value={value} components={ptComponents} />
-    </div>
-  )
-}
 
 // ── main component ────────────────────────────────────────────────────────────
 export default function CaseStudyView({
@@ -415,7 +199,7 @@ export default function CaseStudyView({
   const pager = (
     <div
       className={`${csPagerShell()} reckless-prose font-normal ${csUiText()}`}
-      style={{ color: RED }}
+      style={{ color: CS_RED }}
     >
       <Link
         href={caseStudyHref(prev.slug, listingView)}
@@ -712,7 +496,7 @@ function ProseGroupBlock({
   const gapLevel = pageProse ? 'md' : 'lg'
   return (
     <section
-      className={`${ALIGN[align]} ${pageScreenBandClass(pageProse)}`}
+      className={`${CS_TEXT_ALIGN[align]} ${pageScreenBandClass(pageProse)}`}
       style={{ ...bandStyle(first.appearance), ...padStyle }}
     >
       <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
@@ -742,7 +526,7 @@ function ProseGroupBlock({
                   ))}
                 </ul>
               ) : (
-                <Prose value={s.body} className={body} />
+                <CaseStudyProse value={s.body} className={body} />
               )}
             </div>
           ))}
@@ -888,11 +672,10 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
   const cta = s.ctaLabel ?? 'Visit Site'
-  const gutter = csBandGutter()
   const body = csBodyText( dark)
   const metaSm = csMetaSm()
   const metaXs = csMetaXs()
-  const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
+  const sideBg = colorToCss(s.sideImageBackgroundColor) ?? CS_TEAL
   const hasVideo = !!s.sideVideo
   /** Both set → video over still (Memory Tubes overview only in practice). */
   const stackedSideMedia = hasVideo && !!s.sideImage
@@ -902,10 +685,6 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const copyPad = overviewCopyPadStyle(s, true)
   const mediaPad = overviewMediaPadStyle(s, true)
   const mediaPadMobile = overviewMediaPadStyle(s, true, true)
-  const colGap =
-    typeof s.columnGap === "number" && s.columnGap >= 0
-      ? s.columnGap
-      : OVERVIEW_COLUMN_GAP
   /** Desktop: row height follows the taller column (usually copy). Side art uses
    *  contain inside that column — full file visible, no inner scroll (Option C
    *  natural height only on Hero; Overview is contain-in-row). */
@@ -928,7 +707,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           <h2 className={`${csSectionTitle()} ${dark}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
-          <Prose value={s.body} className={`mt-[1em] ${body}`} />
+          <CaseStudyProse value={s.body} className={`mt-[1em] ${body}`} />
           {s.ctaUrl && (
             // Mobile Figma uses "Visit SITE"; desktop stays sentence case.
             <a
@@ -1079,7 +858,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
             >
               {s.sideTitle ?? 'My Approach'}
             </h2>
-            <Prose value={s.sideBody} className={`mt-3 ${csBodyText()}`} />
+            <CaseStudyProse value={s.sideBody} className={`mt-3 ${csBodyText()}`} />
           </div>
         </div>
         <div
@@ -1105,7 +884,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
   }
   const pageInner = true
   return (
-    <section style={sectionStyle(s.appearance, pageInner, 'md', SAGE)}>
+    <section style={sectionStyle(s.appearance, pageInner, 'md', CS_SAGE)}>
       <div className={csShell()}>
         <div className={`mx-auto ${pageInner ? 'max-w-[min(720px,100%)]' : 'max-w-120'}`}>
           {s.sectionTitle && (
@@ -1128,7 +907,7 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
   const width = s.appearance?.maxWidth ?? 'default'
   return (
     <section
-      className={ALIGN[align]}
+      className={CS_TEXT_ALIGN[align]}
       style={{
         ...bandStyle(s.appearance),
         ...sectionPadStyle(s.appearance, padDefaults('md', true), true),
@@ -1143,7 +922,7 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
               {s.sectionTitle}
             </h2>
           )}
-          <Prose value={s.body} className={`mt-5 ${csBodyText()}`} />
+          <CaseStudyProse value={s.body} className={`mt-5 ${csBodyText()}`} />
         </div>
       </div>
     </section>
@@ -1160,7 +939,7 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   const padStyle = sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
   return (
     <section
-      className={`${ALIGN[align]} ${pageBandMinHeightClass()}`}
+      className={`${CS_TEXT_ALIGN[align]} ${pageBandMinHeightClass()}`}
       {...cursorInvertAttrs(light)}
       style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
@@ -1173,16 +952,16 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
             {s.problemHeading && (
               <h2 className={`mb-5 ${titleClass}`}>{s.problemHeading}</h2>
             )}
-            <Prose value={s.problemBody} className={body} />
+            <CaseStudyProse value={s.problemBody} className={body} />
           </div>
           <div>
             {s.broughtHeading && (
               <h2 className={`mb-5 ${titleClass}`}>{s.broughtHeading}</h2>
             )}
-            <Prose value={s.broughtBody} className={body} />
+            <CaseStudyProse value={s.broughtBody} className={body} />
           </div>
           {s.supportingCopy?.length ? (
-            <Prose value={s.supportingCopy} className={body} />
+            <CaseStudyProse value={s.supportingCopy} className={body} />
           ) : null}
         </div>
       </div>
@@ -1216,7 +995,7 @@ function ReflectionBlock({
   const column = csProseInner(align, width)
   return (
     <section
-      className={`${ALIGN[align]} text-white`}
+      className={`${CS_TEXT_ALIGN[align]} text-white`}
       data-cursor-invert
       style={{
         ...bandStyle(s.appearance, REFLECTION_DEFAULTS.backgroundColor, true),
@@ -1244,7 +1023,7 @@ function ReflectionBlock({
               {s.reflectionHeading && (
                 <h2 className={titleClass}>{s.reflectionHeading}</h2>
               )}
-              <Prose
+              <CaseStudyProse
                 value={s.reflectionBody}
                 className={`${body} ${''}`}
               />
@@ -1705,7 +1484,7 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
       {(s.sectionTitle || s.body) && (
         <div className={`${csShell()} text-center`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose
+          <CaseStudyProse
             value={s.body}
             className={`mx-auto mt-3 max-w-[70ch] ${csBodyText()}`}
           />
@@ -1718,7 +1497,6 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
           {s.imageMobile && (
             <source media="(max-width: 640px)" srcSet={s.imageMobile} />
           )}
-          {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
           <img
             src={s.image}
             alt={s.sectionTitle ?? 'Core experience screens'}
@@ -1857,7 +1635,7 @@ function CoreExperienceBlock({
             {title}
           </h2>
           {s.body?.length ? (
-            <Prose
+            <CaseStudyProse
               value={s.body}
               className={`mx-auto max-w-[70ch] ${csBodyText(onDark)}`}
             />
@@ -1927,7 +1705,7 @@ function CoreExperienceBlock({
           >
             {(popupKicker || popupHeadline || s.popupBody?.length) ? (
               <div
-                className={`flex w-full flex-col ${ALIGN[popupAlign]} items-start`}
+                className={`flex w-full flex-col ${CS_TEXT_ALIGN[popupAlign]} items-start`}
                 style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
               >
                 {popupKicker ? (
@@ -1936,14 +1714,14 @@ function CoreExperienceBlock({
                   </p>
                 ) : null}
                 {popupHeadline ? (
-                  <h2 className={`${csSectionTitle()} w-full ${ALIGN[popupAlign]}`}>
+                  <h2 className={`${csSectionTitle()} w-full ${CS_TEXT_ALIGN[popupAlign]}`}>
                     {popupHeadline}
                   </h2>
                 ) : null}
                 {s.popupBody?.length ? (
-                  <Prose
+                  <CaseStudyProse
                     value={s.popupBody}
-                    className={`w-full ${csBodyText()} ${ALIGN[popupAlign]}`}
+                    className={`w-full ${csBodyText()} ${CS_TEXT_ALIGN[popupAlign]}`}
                   />
                 ) : null}
               </div>
@@ -2033,7 +1811,8 @@ function DesktopMotionPosterCarousel({
   const items = slides.filter(sl => sl.image)
   const n = items.length
   const [index, setIndex] = useState(0)
-  const [reduceMotion, setReduceMotion] = useState(false)
+  const reduceMotion = usePrefersReducedMotion()
+  const activeIndex = n > 0 ? Math.min(index, n - 1) : 0
   const [dragDx, setDragDx] = useState(0)
   const [slideWidth, setSlideWidth] = useState(0)
   const [motionEnabled, setMotionEnabled] = useState(true)
@@ -2047,16 +1826,6 @@ function DesktopMotionPosterCarousel({
   const slideMotionMs = reduceMotion ? 0 : transitionMs
   const slideEase = DESKTOP_MOTION_SHOWCASE_DEFAULTS.slideTransitionEasing
 
-  useEffect(() => {
-    setReduceMotion(
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
-    )
-  }, [])
-
-  useEffect(() => {
-    setIndex(i => (n ? Math.min(i, n - 1) : 0))
-  }, [n])
-
   useLayoutEffect(() => {
     const el = viewportRef.current
     if (!el) return
@@ -2067,7 +1836,7 @@ function DesktopMotionPosterCarousel({
     return () => ro.disconnect()
   }, [])
 
-  const trackOffsetPx = -index * slideWidth + dragDx
+  const trackOffsetPx = -activeIndex * slideWidth + dragDx
   const trackTransition =
     motionEnabled && !reduceMotion && slideWidth > 0
       ? `transform ${slideMotionMs}ms ${slideEase}`
@@ -2153,7 +1922,7 @@ function DesktopMotionPosterCarousel({
                 <div
                   key={sl._key ?? i}
                   className="w-full shrink-0"
-                  aria-hidden={i !== index}
+                  aria-hidden={i !== activeIndex}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                   <img
@@ -2233,7 +2002,7 @@ function DesktopMotionStaggeredPair({
                 align={end ? 'end' : 'start'}
               />
               {carousel.body?.length ? (
-                <Prose
+                <CaseStudyProse
                   value={carousel.body}
                   className={`mt-6 ${csBodyText()} ${copyClass}`}
                 />
@@ -2337,7 +2106,7 @@ function DesktopMotionShowcaseBlock({
                 </h2>
               )}
               {s.body?.length ? (
-                <Prose
+                <CaseStudyProse
                   value={s.body}
                   className={`${copyTitle ? 'mt-2.5' : ''} ${csBodyText()}`}
                 />
@@ -2369,7 +2138,7 @@ function InterventionCarouselBlock({
   const slides = (s.slides ?? []).filter(sl => sl.image)
   const n = slides.length
   const [index, setIndex] = useState(0)
-  const [reduceMotion, setReduceMotion] = useState(false)
+  const reduceMotion = usePrefersReducedMotion()
   const touchStartX = useRef<number | null>(null)
   const pagingLocked = useRef(false)
   const kicker = s.sectionTitle?.trim() || 'Design Interventions'
@@ -2383,12 +2152,6 @@ function InterventionCarouselBlock({
   const slideMotionClass = reduceMotion
     ? ''
     : 'transition-opacity duration-500 ease-in-out'
-
-  useEffect(() => {
-    setReduceMotion(
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
-    )
-  }, [])
 
   const go = (dir: 1 | -1) => {
     if (!canPage || pagingLocked.current) return
@@ -2503,7 +2266,7 @@ function InterventionCarouselBlock({
                         <h2 className={csSectionTitle()}>{kicker}</h2>
                       )}
                       {body?.length ? (
-                        <Prose
+                        <CaseStudyProse
                           value={body}
                           className={`${kicker ? 'mt-2.5' : ''} ${csBodyText()}`}
                         />
@@ -2557,7 +2320,7 @@ function InterventionGridBlock({
               </h2>
             )}
             {s.introBody?.length ? (
-              <Prose
+              <CaseStudyProse
                 value={s.introBody}
                 className={`${s.sectionTitle ? 'mt-4' : ''} ${csBodyText()} text-left`}
               />
@@ -2626,7 +2389,7 @@ function MediaBlock({ section: s }: { section: Of<'mediaSection'> }) {
       {(s.sectionTitle || s.body) && (
         <div className={`${csShell()} ml-auto max-w-[min(440px,100%)]`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose
+          <CaseStudyProse
             value={s.body}
             className="mt-3 text-[14px] leading-[1.45] xl:text-[0.95vw]"
           />
@@ -2706,7 +2469,7 @@ function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
       {(s.sectionTitle || s.body) && (
         <div className={`mb-2 ${true ? csShell('!px-0') : ''}`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose value={s.body} className={`max-w-[70ch] ${csBodyText()}`} />
+          <CaseStudyProse value={s.body} className={`max-w-[70ch] ${csBodyText()}`} />
         </div>
       )}
       {s.useDeviceTabs && s.tabs?.length ? (
@@ -2775,7 +2538,7 @@ function ShowcaseBlock({
                 </h2>
               )}
               {s.introBody?.length ? (
-                <Prose
+                <CaseStudyProse
                   value={s.introBody}
                   className={`mt-4 hidden lg:block ${csBodySm()}`}
                 />
@@ -2808,7 +2571,7 @@ function ShowcaseBlock({
       {(s.sectionTitle || s.introBody) && (
         <div className={csShell()}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
-          <Prose
+          <CaseStudyProse
             value={s.introBody}
             className={`mt-3 ${csBodySm()}`}
           />
@@ -2951,7 +2714,7 @@ function MotionShowcasePhoneRowBand({
               width: d.introMaxWidth,
             }}
           >
-            <Prose value={s.intro} className={csBodySm()} />
+            <CaseStudyProse value={s.intro} className={csBodySm()} />
           </div>
         ) : null}
       </div>
@@ -2964,7 +2727,7 @@ function MotionShowcasePhoneRowBand({
             maxWidth: d.mobileMaxWidth,
           }}
         >
-          <Prose value={s.intro} className={csBodySm()} />
+          <CaseStudyProse value={s.intro} className={csBodySm()} />
         </div>
       ) : null}
     </section>
@@ -3470,7 +3233,7 @@ function MotionShowcaseStackedBand({
           className={`mx-auto max-w-[min(720px,100%)] text-center ${csShell('!px-0')} ${onDark}`}
           style={{ marginBottom: introMb }}
         >
-          <Prose value={s.intro} className={csBodySm()} />
+          <CaseStudyProse value={s.intro} className={csBodySm()} />
         </div>
       )}
       <div
@@ -3981,7 +3744,7 @@ function StatsBlock({
       )}
       {s.body?.length ? (
         <div className="mx-auto max-w-[min(720px,100%)]" style={{ marginBottom: bodyMb }}>
-          <Prose value={s.body} className={csBodyText()} />
+          <CaseStudyProse value={s.body} className={csBodyText()} />
         </div>
       ) : null}
       <div
@@ -4113,7 +3876,7 @@ function Accordion({
               </svg>
             </button>
             {isOpen && it.body && (
-              <Prose
+              <CaseStudyProse
                 value={it.body}
                 className={`pb-6 font-normal leading-normal ${bodySize}`}
               />
@@ -4523,12 +4286,14 @@ function ArtifactLightbox({
   scrollContainer?: HTMLDivElement | null
 }) {
   const n = images.length
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
   const [pageInternal, setPageInternal] = useState(false)
   const [frame, setFrame] = useState<ViewportRect | null>(null)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
-
-  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -4752,7 +4517,7 @@ function ImageGrid({
   const STEP = 4
   const [shown, setShown] = useState(initial)
   const visible = images.slice(0, shown)
-  const tileFill = tileBg ?? TILE
+  const tileFill = tileBg ?? CS_TILE
   const popup = size === 'popup'
   const colGap =
     gridColumnGap ??
