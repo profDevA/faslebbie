@@ -27,7 +27,7 @@ export const highlightReel = defineType({
       title: "Layout",
       type: "string",
       description:
-        "Grid: six cells in a 3×2 layout (Coral). Composite: one static board image, optional separate mobile board (Experian Boost, Census). Single card: one large card cycling every frame (Memory Tubes).",
+        "Grid: six cells in a 3×2 layout (Coral). Composite: one static board image, optional separate mobile board (Experian Boost, Census). Single card: one large card cycling every frame (Memory Tubes, AR Handbook).",
       options: {
         list: [
           { title: "Grid (3×2 cells)", value: "grid" },

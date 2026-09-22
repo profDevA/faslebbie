@@ -1,95 +1,136 @@
 /**
- * Memory Tubes — restore Reflection body + Next Steps (Israel QA: band showed
- * only Next Steps). Source: caseStudyCollabCopy.json reflection block.
+ * Memory Tubes §11 Reflection + Next Steps — collab copy on existing reflectionSection.
+ * Dark band #171717 (Coral template). Ignore Figma lorem.
  *
  * Run from frontend/:
  *   npx sanity exec scripts/patch-memory-tubes-reflection.ts --with-user-token -- --dry
  *   npx sanity exec scripts/patch-memory-tubes-reflection.ts --with-user-token
+ *   npx sanity exec scripts/patch-memory-tubes-reflection.ts --with-user-token -- --appearance-only
  */
+import { randomUUID } from "node:crypto";
+
 import { getCliClient } from "sanity/cli";
 
+import collab from "./data/caseStudyCollabCopy.json";
+import { REFLECTION_APPEARANCE_DEFAULTS } from "../src/lib/sanityAppearanceDefaults";
+
 const client = getCliClient({ apiVersion: "2025-01-01" });
+const DRY = process.argv.includes("--dry");
+const APPEARANCE_ONLY = process.argv.includes("--appearance-only");
+const SLUG = "memory-tubes";
 
-const DOC_IDS = ["cs-memory-tubes", "drafts.cs-memory-tubes"];
-const dry = process.argv.includes("--dry");
+const COPY = (
+  collab[SLUG as keyof typeof collab] as {
+    reflection?: { body?: string; nextSteps?: string[] };
+  }
+).reflection;
 
-const REFLECTION_BODY = [
-  {
-    _type: "block",
-    _key: "mt-reflect-1",
-    style: "normal",
-    markDefs: [],
-    children: [
-      {
-        _type: "span",
-        _key: "mt-reflect-1-span",
-        text: "Shifting our prompt from a memory-based question to a present-moment one worked: asking strangers how they felt right now instead of asking them to recall the past tripled participation, revealing that busy urban contexts reward immediate emotional honesty over quiet reflection. Watching each engaged participant inspire two or three others to follow told me that collective joy spreads through visible permission, not private invitation extended one wary stranger at a time. If I could revisit one decision, I'd have made our recording equipment visible from the very first deployment instead of only the second one, since transparency built real trust we spent our whole first phase assuming we had to hide.",
-        marks: [],
-      },
-    ],
-  },
-];
+const BODY = COPY?.body?.trim();
+const STEPS = COPY?.nextSteps ?? [];
 
-const NEXT_STEPS = [
-  "Next, we're collaborating with NYC Parks and transit authorities to expand Memory Tube installations across more boroughs and high-traffic spaces.",
-  "We're partnering with community groups to co-create a simple, open-source toolkit for replicating these urban interventions.",
-  "We're launching a digital archive to document and share participant stories, audio clips, and engagement data.",
-  "We're working with city planners and public art programs to embed prototyping insights into future public space designs.",
-];
+const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
 
-type Section = {
-  _key: string;
-  _type: string;
-  reflectionBody?: unknown;
-  reflectionHeading?: string;
-  nextStepsHeading?: string;
-  nextStepsItems?: string[];
-};
+type Section = Record<string, unknown> & { _key: string; _type: string };
 
-async function main() {
-  for (const id of DOC_IDS) {
-    const doc = await client.fetch<{ sections: Section[] }>(
-      `*[_id == $id][0]{ sections[] }`,
-      { id },
-    );
-    if (!doc?.sections?.length) {
-      console.log(`skip ${id}`);
-      continue;
+function pt(text: string) {
+  return [
+    {
+      _type: "block" as const,
+      _key: key(),
+      style: "normal" as const,
+      markDefs: [],
+      children: [{ _type: "span" as const, _key: key(), text, marks: [] }],
+    },
+  ];
+}
+
+function appearance() {
+  return {
+    _type: "appearance" as const,
+    ...REFLECTION_APPEARANCE_DEFAULTS,
+  };
+}
+
+function copyFields() {
+  return {
+    reflectionHeading: "Reflection",
+    reflectionBody: pt(BODY!),
+    nextStepsHeading: "Next Steps",
+    nextStepsItems: STEPS,
+    appearance: appearance(),
+  };
+}
+
+async function patchDoc(docId: string) {
+  const doc = await client.getDocument(docId);
+  if (!doc) return false;
+
+  const sections = [...((doc.sections ?? []) as Section[])];
+  let idx = sections.findIndex((s) => s._type === "reflectionSection");
+  const highlightIdx = sections.findIndex((s) => s._type === "highlightReel");
+
+  if (APPEARANCE_ONLY) {
+    if (idx < 0) throw new Error(`${docId}: no reflectionSection`);
+    if (!DRY) {
+      await client
+        .patch(docId)
+        .set({ [`sections[${idx}].appearance`]: appearance() })
+        .commit();
     }
+    console.log(`✓ ${docId}: reflection appearance #171717${DRY ? " (dry)" : ""}`);
+    return true;
+  }
 
-    const idx = doc.sections.findIndex((s) => s._type === "reflectionSection");
-    if (idx < 0) {
-      console.log(`skip ${id} — no reflectionSection`);
-      continue;
-    }
-
-    const cur = doc.sections[idx]!;
-    const hasBody =
-      Array.isArray(cur.reflectionBody) && cur.reflectionBody.length > 0;
-    if (hasBody) {
-      console.log(`skip ${id} — reflection body already set`);
-      continue;
-    }
-
-    const next = doc.sections.map((s, i) =>
-      i === idx
-        ? {
-            ...s,
-            reflectionHeading: s.reflectionHeading ?? "Reflection",
-            reflectionBody: REFLECTION_BODY,
-            nextStepsHeading: s.nextStepsHeading ?? "Next Steps",
-            nextStepsItems: s.nextStepsItems?.length
-              ? s.nextStepsItems
-              : NEXT_STEPS,
-          }
-        : s,
-    );
-
-    console.log(`${dry ? "(dry run) " : ""}→ ${id}: patch reflectionSection body`);
-    if (!dry) {
-      await client.patch(id).set({ sections: next }).commit();
+  if (idx < 0) {
+    const insertAt = highlightIdx >= 0 ? highlightIdx + 1 : sections.length;
+    sections.splice(insertAt, 0, {
+      _type: "reflectionSection",
+      _key: key(),
+      ...copyFields(),
+    });
+    idx = insertAt;
+    console.log(`${docId}: insert reflectionSection at sections[${idx}]`);
+    if (!DRY) await client.patch(docId).set({ sections }).commit();
+  } else {
+    console.log(`${docId}: patch reflectionSection at sections[${idx}]`);
+    if (!DRY) {
+      await client
+        .patch(docId)
+        .set(
+          Object.fromEntries(
+            Object.entries(copyFields()).map(([k, v]) => [
+              `sections[${idx}].${k}`,
+              v,
+            ]),
+          ),
+        )
+        .commit();
     }
   }
+
+  console.log(
+    `✓ ${docId}: Reflection + ${STEPS.length} next step(s)${DRY ? " (dry)" : ""}`,
+  );
+  return true;
+}
+
+async function main() {
+  console.log(
+    `patch-memory-tubes-reflection (${DRY ? "dry" : APPEARANCE_ONLY ? "appearance-only" : "live"})`,
+  );
+  if (!BODY || !STEPS.length) {
+    throw new Error(`missing ${SLUG}.reflection in caseStudyCollabCopy.json`);
+  }
+
+  const pub = await client.fetch<{ _id: string }>(
+    `*[_type == "caseStudy" && slug.current == $slug && !(_id in path("drafts.**"))][0]{ _id }`,
+    { slug: SLUG },
+  );
+  if (!pub?._id) throw new Error(`Missing published ${SLUG}`);
+
+  await patchDoc(pub._id);
+  const draftId = `drafts.${pub._id}`;
+  if (await client.getDocument(draftId)) await patchDoc(draftId);
 }
 
 main().catch((err) => {

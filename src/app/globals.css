@@ -386,11 +386,16 @@ body {
   transition: none;
 }
 
-/* Hero: fill the scrollport exactly (no bleed peek of Overview). Caption sits
-   on the hero art black panel — lifted off the bottom edge (Coral QA). */
+/* Hero + Overview Option C — band height follows art (no one-screen crop).
+   Caption sits on the hero art black panel — lifted off the bottom edge (Coral QA). */
 @media (min-width: 1024px) {
-  .cs-page-bands > section[data-cs-hero] {
-    min-height: 100cqh;
+  .cs-page-bands > section[data-cs-media-natural] {
+    min-height: auto;
+  }
+  .cs-page-bands > section[data-cs-stretch][data-cs-media-natural].grid {
+    min-height: auto;
+    max-height: none;
+    grid-auto-rows: auto;
   }
   .cs-page-bands > section[data-cs-hero] .cs-hero-caption {
     bottom: 2rem;

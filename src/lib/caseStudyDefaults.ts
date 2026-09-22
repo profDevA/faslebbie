@@ -64,7 +64,7 @@ export const HIGHLIGHT_REEL_GRID_DEFAULTS = {
   gridGap: 14,
 } as const;
 
-/** §10 Highlight reel — single rotating card (Memory Tubes). */
+/** §10 Highlight reel — single rotating card (Memory Tubes, AR Handbook). */
 export const HIGHLIGHT_REEL_SINGLE_DEFAULTS = {
   cardMatteColor: "#ffffff",
   cardPadding: 4,

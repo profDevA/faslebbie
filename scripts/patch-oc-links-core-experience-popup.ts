@@ -96,8 +96,8 @@ async function patchDoc(docId: string, idx: number) {
     [`sections[${idx}].popupAppearance.contentAlignment`]: "left",
     [`sections[${idx}].popupAppearance.tileBackgroundColor`]:
       sanityColor(POPUP_TILE_BG),
-    [`sections[${idx}].popupAppearance.contentGap`]: 124,
-    [`sections[${idx}].popupAppearance.contentGapInner`]: 92,
+    [`sections[${idx}].popupAppearance.contentGap`]: 43,
+    [`sections[${idx}].popupAppearance.contentGapInner`]: 87,
   };
 
   if (TRIM_TO_12) {

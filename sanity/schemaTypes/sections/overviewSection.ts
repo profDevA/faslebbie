@@ -59,6 +59,8 @@ export const overviewSection = defineType({
       title: "Side feature image",
       type: "image",
       options: { hotspot: true },
+      description:
+        "Overview media still. When side video is also set, the site stacks video on top and this image below (Memory Tubes only).",
     }),
     defineField({
       name: "sideVideo",
@@ -66,7 +68,7 @@ export const overviewSection = defineType({
       type: "file",
       options: { accept: "video/*" },
       description:
-        "Optional looping video on the media side. When empty, the side image is shown instead.",
+        "Optional looping video on the media side. When empty, only the side image is shown. When both video and side image are set, they stack (video above image) — use only on Memory Tubes.",
     }),
     defineField({
       name: "sideImageFit",

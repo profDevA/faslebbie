@@ -23,7 +23,7 @@ const PANEL_TEXT_BY_SLUG: Record<string, string> = {
   "2020-us-census-benefit-calculator": "#ffffff", // Figma 3999:53215
   "financial-data-exchange": "#000000", // live WP text-dark on teal panel
   "coral-health": "#000000", // live WP text-dark on orange panel
-  "memory-tubes": "#000000", // live WP text-dark on sage panel
+  "memory-tubes": "#ffffff", // Figma 4152:101879 #007b76 panel
 };
 
 function sanityColor(hex: string, alpha = 1) {

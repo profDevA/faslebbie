@@ -788,7 +788,7 @@ function HeroBlock({
   const mobileTagline = s.caption ?? p.tagline
   // Full-page mobile hero — Figma 3928:28893 / 4173:68708 (MV_Hero collage + overlay copy).
   return (
-    <section data-cs-hero className="relative">
+    <section data-cs-hero data-cs-media-natural className="relative">
       <div className="relative bg-[#171717] lg:hidden">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
@@ -827,12 +827,12 @@ function HeroBlock({
           )}
         </div>
       </div>
-      <div className="relative hidden lg:absolute lg:inset-0 lg:block">
+      <div className="relative hidden bg-[#171717] lg:block">
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={s.image}
           alt={p.name}
-          className="block h-full w-full object-cover object-left"
+          className="block h-auto w-full"
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
         <div className="cs-hero-caption absolute left-7.5 p-2.5 text-white">
@@ -843,10 +843,50 @@ function HeroBlock({
   )
 }
 
+/** Memory Tubes overview side — Figma LW_PO.Jpg plate proportions (834×458 + 769×435). */
+function OverviewStackedSideMedia({
+  videoSrc,
+  imageSrc,
+  fillColumn,
+}: {
+  videoSrc: string
+  imageSrc: string
+  /** Desktop media column: fill band height with proportional rows. */
+  fillColumn: boolean
+}) {
+  const gridClass = fillColumn
+    ? 'grid h-full min-h-0 w-full flex-1 grid-rows-[458fr_435fr]'
+    : 'grid w-full grid-rows-[auto_auto]'
+  const topSlotClass = fillColumn
+    ? 'relative min-h-0 overflow-hidden'
+    : 'relative aspect-[834/458] w-full overflow-hidden'
+  const bottomSlotClass = fillColumn
+    ? 'relative min-h-0 overflow-hidden'
+    : 'relative aspect-[769/435] w-full overflow-hidden'
+  const mediaClass = 'absolute inset-0 h-full w-full object-cover object-center'
+  return (
+    <div className={gridClass}>
+      <div className={topSlotClass}>
+        <video
+          src={videoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={mediaClass}
+        />
+      </div>
+      <div className={bottomSlotClass}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+        <img src={imageSrc} alt="" className={mediaClass} />
+      </div>
+    </div>
+  )
+}
+
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const light = isLight(s.appearance)
   const dark = light ? 'text-white' : ''
-  const contain = s.sideImageFit === 'contain'
   const cta = s.ctaLabel ?? 'Visit Site'
   const gutter = csBandGutter()
   const body = csBodyText( dark)
@@ -854,6 +894,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const metaXs = csMetaXs()
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? TEAL
   const hasVideo = !!s.sideVideo
+  /** Both set → video over still (Memory Tubes overview only in practice). */
+  const stackedSideMedia = hasVideo && !!s.sideImage
   const mediaFirst = s.mediaPosition === 'left'
   const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
@@ -864,26 +906,22 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     typeof s.columnGap === "number" && s.columnGap >= 0
       ? s.columnGap
       : OVERVIEW_COLUMN_GAP
-  const desktopMediaClass = contain
-    ? 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
-    : 'relative hidden min-h-0 overflow-hidden lg:flex lg:h-full lg:max-h-full'
-  const desktopMediaSizeClass = contain
-    ? 'max-h-full max-w-full object-contain object-center'
-    : 'absolute inset-0 h-full w-full object-cover object-center'
-  // Mobile Figma (e.g. DVA 4001:79403): full-bleed width, height from art — not a
-  // fixed 360×552 crop box. Cover keeps the aspect slot; contain uses natural height
-  // so panel colour does not letterbox as black bars above/below the mockup.
-  const mobileMediaSizeClass = contain
-    ? 'block h-auto w-full object-contain'
-    : 'absolute inset-0 h-full w-full object-cover object-center'
+  /** Desktop: row height follows the taller column (usually copy). Side art uses
+   *  contain inside that column — full file visible, no inner scroll (Option C
+   *  natural height only on Hero; Overview is contain-in-row). */
+  const desktopMediaClass =
+    'relative hidden min-h-0 w-full overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
+  const desktopMediaSizeClass =
+    'block max-h-full w-full object-contain object-center'
+  const mobileMediaSizeClass = 'block h-auto w-full'
   return (
     <section
       data-cs-stretch
-      className={`grid grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch lg:overflow-visible ${pageBandMinHeightClass()}`}
+      className="grid grid-cols-1 overflow-hidden lg:grid-cols-2 lg:items-stretch"
       style={bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND)}
     >
       <div
-        className={`flex flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start lg:min-h-full lg:justify-between`}
+        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start lg:min-h-full lg:justify-between`}
         style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', true), true) }}
       >
         <div className={'max-w-[min(580px,100%)]'}>
@@ -941,16 +979,18 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           )}
         </div>
       </div>
-      {/* One media slot: video if authored, otherwise the still. */}
+      {/* One media slot, or stacked video + still when both are authored. */}
       <div
-        className={`relative lg:hidden ${mediaOrder} ${
-          contain
-            ? 'w-full'
-            : 'flex aspect-[360/552] overflow-hidden'
-        }`}
+        className={`relative w-full lg:hidden ${mediaOrder}`}
         style={{ backgroundColor: sideBg, ...mediaPadMobile }}
       >
-        {hasVideo ? (
+        {stackedSideMedia ? (
+          <OverviewStackedSideMedia
+            videoSrc={s.sideVideo!}
+            imageSrc={s.sideImage!}
+            fillColumn={false}
+          />
+        ) : hasVideo ? (
           <video
             src={s.sideVideo}
             autoPlay
@@ -972,13 +1012,23 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       </div>
       {(hasVideo || s.sideImage) && (
         <div
-          className={`${desktopMediaClass} ${mediaOrder}`}
+          className={`${
+            stackedSideMedia
+              ? 'relative hidden min-h-0 w-full overflow-hidden lg:flex lg:h-full lg:min-h-full lg:flex-col'
+              : desktopMediaClass
+          } ${mediaOrder}`}
           style={{
             backgroundColor: sideBg,
             ...mediaPad,
           }}
         >
-          {hasVideo ? (
+          {stackedSideMedia ? (
+            <OverviewStackedSideMedia
+              videoSrc={s.sideVideo!}
+              imageSrc={s.sideImage!}
+              fillColumn
+            />
+          ) : hasVideo ? (
             <video
               src={s.sideVideo}
               autoPlay
@@ -3208,11 +3258,7 @@ function MotionShowcaseFeaturedBand({
   const row = s.rows?.[0]
   if (!row) return null
   const items = row.items ?? []
-  /** Census Figma 3999:53406 — desktop caption bottom-right, not centred under phone. */
-  const captionAlign =
-    projectSlug === '2020-us-census-benefit-calculator'
-      ? 'right'
-      : (row.captionAlign ?? 'left')
+  const captionAlign = row.captionAlign ?? 'left'
   const rowWidthDefault = 34
   const rowWidth =
     typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
@@ -3232,7 +3278,6 @@ function MotionShowcaseFeaturedBand({
       : featuredCaptionInset('left')
   return (
     <section
-      
       className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()} max-lg:px-6`}
       style={flexSectionStyle(
         s.appearance,
@@ -4481,6 +4526,7 @@ function ArtifactLightbox({
   const [mounted, setMounted] = useState(false)
   const [pageInternal, setPageInternal] = useState(false)
   const [frame, setFrame] = useState<ViewportRect | null>(null)
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
   useEffect(() => setMounted(true), [])
 
@@ -4547,8 +4593,19 @@ function ArtifactLightbox({
       }
     : { position: 'fixed', inset: 0, zIndex: 120 }
 
-  const maxH = frame?.height
-  const maxW = frame?.width
+  const boxW = frame?.width ?? (typeof window !== 'undefined' ? window.innerWidth : 0)
+  const boxH = frame?.height ?? (typeof window !== 'undefined' ? window.innerHeight : 0)
+  const scale =
+    natural && boxW > 0 && boxH > 0
+      ? Math.min(boxW / natural.w, boxH / natural.h)
+      : null
+  const imgStyle: CSSProperties =
+    scale != null && natural
+      ? { width: natural.w * scale, height: natural.h * scale }
+      : {
+          maxHeight: boxH || '100%',
+          maxWidth: boxW || '100%',
+        }
 
   return createPortal(
     <div
@@ -4562,17 +4619,21 @@ function ArtifactLightbox({
     >
       <div
         data-cursor-normal
-        className="relative inline-flex max-h-full max-w-full leading-none"
+        className="relative inline-flex leading-none"
         onClick={e => e.stopPropagation()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- artifact art */}
         <img
           src={images[index]}
           alt=""
-          className="block max-h-full max-w-full object-contain"
-          style={
-            maxH && maxW ? { maxHeight: maxH, maxWidth: maxW } : undefined
-          }
+          className="block"
+          style={imgStyle}
+          onLoad={e => {
+            const el = e.currentTarget
+            if (el.naturalWidth && el.naturalHeight) {
+              setNatural({ w: el.naturalWidth, h: el.naturalHeight })
+            }
+          }}
         />
         <button
           type="button"
@@ -4709,13 +4770,11 @@ function ImageGrid({
     tile ? (
       <div
         key={key ?? i}
-        className={`flex min-w-0 items-center justify-center shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)] ${
-          mobileStack
-            ? 'w-full p-3'
-            : popup
-              ? 'min-w-0 flex-1 p-3 lg:min-h-[min(42vh,520px)]'
-              : 'min-w-0 flex-1'
-        }`}
+        className={`flex min-w-0 items-center justify-center ${
+          popup || mobileStack
+            ? ''
+            : 'shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]'
+        } ${mobileStack ? 'w-full' : 'min-w-0 flex-1'}`}
         style={{ backgroundColor: tileFill }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -4724,11 +4783,9 @@ function ImageGrid({
           alt=""
           loading="lazy"
           className={
-            mobileStack
+            popup || mobileStack
               ? 'block h-auto w-full object-contain'
-              : popup
-                ? 'w-full object-contain lg:max-h-[min(42vh,540px)]'
-                : 'h-[40vw] w-full object-contain xl:h-[20vw]'
+              : 'h-[40vw] w-full object-contain xl:h-[20vw]'
           }
         />
       </div>

@@ -9,7 +9,7 @@ import {
 // Accordion band. Two variants:
 //  - "centered": narrow centred accordion (What I Brought / My Role).
 //  - "split": left side-copy (My Approach) + right accordion (Design Process).
-// Live rule: 3–6 items.
+// Typical: 2–6 items (Snapback Design Process has 2; most case studies 3–5).
 export const accordionSection = defineType({
   name: "accordionSection",
   title: "Accordion",
@@ -68,7 +68,7 @@ export const accordionSection = defineType({
       title: "Items",
       type: "array",
       of: [{ type: "accordionItem" }],
-      validation: (r) => r.min(3).max(6),
+      validation: (r) => r.min(2).max(6),
     }),
     defineField({
       name: "appearance",
