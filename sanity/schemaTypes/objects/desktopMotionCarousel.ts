@@ -1,6 +1,6 @@
 import { defineField, defineType } from "sanity";
 
-/** One slider in §08 staggered-pair layout (OC Links dual carousels). */
+/** One slider in the staggered-pair layout (OC Links uses two; Circle KPE uses three). */
 export const desktopMotionCarousel = defineType({
   name: "desktopMotionCarousel",
   title: "Desktop motion carousel",

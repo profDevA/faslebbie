@@ -1,5 +1,8 @@
 # Sanity scripts
 
+**Case study status:** `docs/case-studies-tracker.md` (**11 shipped**, Sep 22, 2026).
+Sep 21–22 batch summary: `docs/meetings/2026-09-22-actions.md`.
+
 Run from `frontend/`:
 
 ```bash
@@ -59,6 +62,17 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Forever a Surfer §10 Project Highlights — 3×2 grid (Figma `4162:23691`) | `patch-forever-a-surfer-highlight-reel.ts` — sage `#8facaa`, 6 cells `4170:20539`–`20548`; gap 17. PNG: `highlights/01–06-*`. **Do not re-run after manual Studio uploads.** Flag: `--appearance-only` |
 | Forever a Surfer §11 Reflection + Next Steps (Figma `4162:23711`) | `patch-forever-a-surfer-reflection.ts` — WP / `case-studies.generated.ts`; black `#171717`. Flag: `--appearance-only` |
 | Forever a Surfer — two motion carousels (Figma `4170:20458` / `4170:20484`) | `patch-forever-a-surfer-motion-showcases.ts` — drops legacy `showcaseGallery`; band 1 sage `#bbcdbe` (9 slides `4162:22783`–`22778`), band 2 grey `#9b9f9c` (4 slides `4162:22811`–`22748`); WP Phase 1 + Design Interventions copy. PNG: `motion-1/01–09`, `motion-2/01–04`. **Do not re-run after manual Studio uploads.** Flag: `--appearance-only` |
+| Circle — create Sanity doc (once) | `seed-circle-case-study.ts` — clones Memory Tubes Coral spine → `cs-circle` |
+| Circle §01 Hero + §02 Overview (Figma `4171:32095` / `4171:37062`) | `patch-circle-hero-overview.ts` — heroes `4412:35227` / `4412:35779`; overview side Live AR mock; band `#e3e3db`, panel `#2a2828`. Collab `circle` (lorem until Fas export). **Do not re-run after manual Studio uploads.** Flags: `--copy-only`, `--hero-only`, `--overview-only` |
+| Circle §03 Problem Context (Figma `4171:32293` / mobile `4171:37248`) | `patch-circle-problem-context.ts` — existing `problemContextSection`; black `#171717`. Headings Problem Context / What I Brought (layer name “Emotional Browsing” is the text style). Desktop lorem; ignore leftover Coral Health copy on mobile. Flag: `--appearance-only` |
+| Circle §04 Core Experience band (Figma `4171:48253` / mobile `4171:37257`) | `patch-circle-core-experience.ts` — inserts `coreExperience` after Problem Context; `mobileRow` 5 phones; band `#2f2f2f`. Desktop captions. Ignore leftover Experian captions on mobile. Does not write popup tabs. PNG `core-flow/01–05-*`. **Do not re-run after manual Studio uploads.** |
+| Circle §04 View More popup — 8-plate grid (Figma `4409:26000`) | `patch-circle-core-experience-popup.ts` — 8 composite plates @4×; heading Design Interventions + Figma lorem; cream `#e3e3db`, tiles `#222222`; gaps 43/87. PNG `core-flow/modal/01–08-*`. Plate `4409:27025` matches `4409:26680` in the frame. **Do not re-run after manual Studio uploads.** |
+| Circle §05 My Approach (Figma `4171:32996`) | `patch-circle-approach.ts` — cream `#e3e3db`, black accordion `#171717`, left `#231e1e`, panel text white. Four titles; side lorem; each row body is provisional lorem. Flag: `--colors-only` |
+| Circle Research Artifacts — 4 slides (Figma `4171:33016`) | `patch-circle-research-artifacts.ts` — inserts `showcaseGallery` after My Approach; expandable 3-up; black `#171717`; intro lorem; gap 40. Slides `4411:32058` / `32097` / `32130` / `32163` @4×. PNG `research-artifacts/01–04-*`. **Do not re-run after manual Studio uploads.** |
+| Circle Key Product Experiences + Early prototyping | `patch-circle-key-product-experiences.ts` — after Research Artifacts. KPE `staggeredPair` ×3 (`4171:48769` / mobile `4171:38193`; cream `#e3e3db`; plates `4171:49077` / `48773` / `48989`). Early prototyping `single` 6-slide carousel (`4171:49948` / mobile `4174:72569`; `#171717`; slides `4412:33475` / `33681` / `34123` / `34281` / `34552` / `34729`). PNG `key-product/slider/01–06.png`. Re-run keeps an existing KPE section. **Do not re-run after manual Studio uploads.** |
+| Circle Impact (Figma `4171:33540`) | `patch-circle-impact-metrics.ts` — sage `#e6ece8`. 35M+ / 13pts / 47%. Frame copy is Experian Boost leftover; provisional until Circle metrics exist. |
+| Circle §10 Project Highlights (Figma `4171:50138` / mobile `4171:38511`) | `patch-circle-highlight-reel.ts` — composite card, band `#232323`, max width 1180. PNG `highlights/01-bar.png` (`4171:50143`). **Do not re-run after manual Studio uploads.** |
+| Circle §11 Reflection (Figma `4171:33600` / mobile `4171:38559`) | `patch-circle-reflection.ts` — existing `reflectionSection`, `#171717`. Figma lorem; Next Steps is one paragraph. Does not set the PDF. |
 | Snapback Lifestyle §01 Hero + §02 Overview (Figma `4152:143794` / mobile `4152:145288`) | `patch-snapback-lifestyle-hero-overview.ts` — heroes + overview side `4152:151745`; live WP copy (ignore Figma lorem). Flags: `--copy-only`, `--hero-only`, `--overview-only` |
 | Snapback Lifestyle §03 Problem Context (Campaign Background + What I Brought) | `patch-snapback-lifestyle-problem-context.ts` — live WP / `case-studies.generated.ts`; black `#171717`. Flag: `--appearance-only` |
 | Snapback Lifestyle §05 My Approach / Design Process (Figma `4152:143854`) | `patch-snapback-lifestyle-approach.ts` — cream `#e3e3db`, mustard panel `#f3db75`, black panel text; live WP accordion ×2. Flag: `--colors-only` |
@@ -144,6 +158,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Research artifacts inline book (Figma 3393:3429) | `patch-research-artifacts-chip.ts` |
 | Teaching prose / students / slides / exhibition | `patch-teaching-prose.ts`, `patch-teaching-student-extras.ts`, `patch-student-popup-slides.ts`, `patch-exhibition-tiles.ts` |
 | Work `.img` titles/order/covers, tool stack | `patch-work-img-titles-order.ts`, `patch-work-img-covers.ts`, `patch-work-tool-stack*.ts` |
+| Work `.txt` intro — **Design Assist AI** + **Circle** project links | `patch-work-intro-circle-link.ts` → `design-assist-ai` + `circle` (repairs if one mark was retargeted wrongly) |
 | Build listing, covers, popup copy | `patch-build-final-copy.ts`, `patch-build-covers.ts`, `patch-build-project-copy.ts`, `patch-build-case-study-details.ts`, `patch-build-strip-legacy-fields.ts`, `patch-build-leoney-concept.ts`, `patch-build-popup-images-migrate.ts`, `patch-build-output-visuals.ts` |
 | Build popup scroll body empty (`caseStudyDetail` missing on all projects) | `patch-build-case-study-details.ts` — safe to re-run; does not touch images |
 | About / home / site chrome / SEO / portraits | `patch-about-final-copy.ts`, `patch-about-family-photo.ts`, `patch-about-expansions.ts`, `patch-home-final-copy.ts`, `patch-site-chrome.ts`, `patch-seo-share.ts`, `patch-master-portrait.ts`, `patch-home-portrait.ts` |

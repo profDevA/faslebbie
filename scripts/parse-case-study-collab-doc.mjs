@@ -32,6 +32,7 @@ export const TITLE_TO_SLUG = {
   "Vuforia Editor": "vuforia-expert-capture",
   "Snapback Lifestyle": "snapback-lifestyle",
   "Forever a Surfer": "forever-a-surfer",
+  Circle: "circle",
 };
 
 function decodeEntities(s) {

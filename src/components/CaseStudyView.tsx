@@ -1974,7 +1974,7 @@ function DesktopMotionStaggeredPair({
   const copyClass = lightText ? 'text-white' : 'text-black'
   const mockupFrame = desktopMotionMockupFrame(s.appearance, true)
   const title = s.sectionTitle?.trim()
-  const pairs = (s.carousels ?? []).slice(0, 2)
+  const pairs = s.carousels ?? []
   return (
     <section
       className={`relative flex flex-col ${SECTION_GAP_CLASS} px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
@@ -2032,10 +2032,16 @@ function DesktopMotionShowcaseBlock({
   const hasCopy = !!(copyTitle || s.body?.length || s.caption)
   const lightText = bandUsesLightText(s.appearance)
   const copyClass = lightText ? 'text-white' : 'text-black'
-  const wideMockup = s.appearance?.maxWidth === 'wide'
-  const mockupMax = wideMockup
-    ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
-    : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth
+  // `full` grows with the window (Circle Early prototyping). `wide` stays 873px.
+  const fluidMockup = s.appearance?.maxWidth === 'full'
+  const wideMockup = fluidMockup || s.appearance?.maxWidth === 'wide'
+  const mockupMax = fluidMockup
+    ? undefined
+    : wideMockup
+      ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
+      : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth
+  const fluidWrap =
+    'mx-auto w-full lg:max-w-[min(100%,max(873px,60vw))]'
   const mockupFrame = desktopMotionMockupFrame(s.appearance, wideMockup)
   return (
     <section
@@ -2044,9 +2050,9 @@ function DesktopMotionShowcaseBlock({
     >
       {hasMedia && (
         <div
-          className={`flex justify-center ${
-            csShell('!px-0 max-lg:!px-0')
-          } pt-12 max-lg:pt-8 lg:pt-14`}
+          className={`flex justify-center pt-12 max-lg:pt-8 lg:pt-14 ${
+            fluidMockup ? fluidWrap : csShell('!px-0 max-lg:!px-0')
+          }`}
         >
           {hasCarousel ? (
             <DesktopMotionPosterCarousel
@@ -2097,9 +2103,15 @@ function DesktopMotionShowcaseBlock({
       )}
       {hasCopy && (
           <div
-            className={`w-full pb-[min(103px,12%)] pt-0 lg:pt-6  ${copyClass} ${csShell('!px-0')}`}
+            className={`w-full pb-[min(103px,12%)] pt-0 lg:pt-6 ${copyClass} ${
+              fluidMockup ? fluidWrap : csShell('!px-0')
+            }`}
           >
-            <div className="text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)]">
+            <div
+              className={`text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)] ${
+                fluidMockup ? 'lg:translate-x-[clamp(72px,8vw,160px)]' : ''
+              }`}
+            >
               {copyTitle && (
                 <h2 className={csSectionTitle()}>
                   {copyTitle}

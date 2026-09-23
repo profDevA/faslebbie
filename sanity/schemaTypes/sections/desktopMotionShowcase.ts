@@ -20,11 +20,11 @@ export const desktopMotionShowcase = defineType({
       title: "Band layout",
       type: "string",
       description:
-        "Unset / single = one centred mockup or slides[] carousel. Staggered pair = two independent sliders (OC Links Figma 4004:116820).",
+        "Unset / single = one centred mockup or slides[] carousel. Staggered pair = two or three independent sliders (OC Links uses two; Circle Key Product Experiences uses three).",
       options: {
         list: [
           { title: "Single mockup or carousel", value: "single" },
-          { title: "Staggered pair (two sliders)", value: "staggeredPair" },
+          { title: "Staggered pair (two or three sliders)", value: "staggeredPair" },
         ],
         layout: "radio",
       },
@@ -41,14 +41,15 @@ export const desktopMotionShowcase = defineType({
       type: "array",
       of: [{ type: "desktopMotionCarousel" }],
       description:
-        "Two sliders: first left / top, second right / below. Each has its own slides + caption.",
+        "Two or three sliders. Odd rows sit left, even rows sit right. Each has its own slides + caption.",
       hidden: ({ parent }) => parent?.layoutVariant !== "staggeredPair",
       validation: (r) =>
-        r.max(2).custom((value, ctx) => {
+        r.max(3).custom((value, ctx) => {
           const parent = ctx.parent as { layoutVariant?: string } | undefined;
           if (parent?.layoutVariant !== "staggeredPair") return true;
-          if (!value || value.length !== 2) {
-            return "Staggered pair needs exactly two sliders";
+          const n = value?.length ?? 0;
+          if (n < 2 || n > 3) {
+            return "Staggered pair needs two or three sliders";
           }
           return true;
         }),
