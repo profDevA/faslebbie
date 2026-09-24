@@ -47,7 +47,10 @@ async function patchDoc(docId: string, image: unknown) {
   if (idx < 0) throw new Error(`${docId}: no overviewSection`);
 
   if (!DRY) {
-    await client.patch(docId).set({ [`sections[${idx}].image`]: image }).commit();
+    await client
+      .patch(docId)
+      .set({ [`sections[${idx}].sideImage`]: image })
+      .commit();
   }
   return true;
 }

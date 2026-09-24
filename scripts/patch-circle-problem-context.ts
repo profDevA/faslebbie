@@ -14,6 +14,7 @@
  *   npx sanity exec scripts/patch-circle-problem-context.ts --with-user-token -- --dry
  *   npx sanity exec scripts/patch-circle-problem-context.ts --with-user-token
  *   npx sanity exec scripts/patch-circle-problem-context.ts --with-user-token -- --appearance-only
+ *   npx sanity exec scripts/patch-circle-problem-context.ts --with-user-token -- --copy-only
  */
 import { randomUUID } from "node:crypto";
 
@@ -26,6 +27,7 @@ import collab from "./data/caseStudyCollabCopy.json";
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
 const APPEARANCE_ONLY = process.argv.includes("--appearance-only");
+const COPY_ONLY = process.argv.includes("--copy-only");
 const SLUG = "circle";
 
 const BAND_BG = "#171717";
@@ -69,9 +71,10 @@ async function patchDoc(docId: string, idx: number) {
     textColor: sanityColor(TEXT),
     contentAlignment: "center",
   };
-  const patch = client.patch(docId).set({
-    [`sections[${idx}].appearance`]: appearance,
-  });
+  const patch = client.patch(docId);
+  if (!COPY_ONLY) {
+    patch.set({ [`sections[${idx}].appearance`]: appearance });
+  }
   if (!APPEARANCE_ONLY) {
     patch.set({
       [`sections[${idx}].problemHeading`]: "Problem Context",
@@ -85,7 +88,7 @@ async function patchDoc(docId: string, idx: number) {
 
 async function main() {
   console.log(
-    `patch-circle-problem-context (${DRY ? "dry" : "live"}${APPEARANCE_ONLY ? ", appearance-only" : ""})`,
+    `patch-circle-problem-context (${DRY ? "dry" : "live"}${APPEARANCE_ONLY ? ", appearance-only" : ""}${COPY_ONLY ? ", copy-only" : ""})`,
   );
 
   const pub = await client.fetch<{ _id: string; sections: Section[] }>(

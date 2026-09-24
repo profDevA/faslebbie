@@ -12,6 +12,7 @@
  *   npx sanity exec scripts/patch-circle-approach.ts --with-user-token -- --dry
  *   npx sanity exec scripts/patch-circle-approach.ts --with-user-token
  *   npx sanity exec scripts/patch-circle-approach.ts --with-user-token -- --colors-only
+ *   npx sanity exec scripts/patch-circle-approach.ts --with-user-token -- --copy-only
  */
 import { randomUUID } from "node:crypto";
 
@@ -22,6 +23,7 @@ import collab from "./data/caseStudyCollabCopy.json";
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
 const COLORS_ONLY = process.argv.includes("--colors-only");
+const COPY_ONLY = process.argv.includes("--copy-only");
 const SLUG = "circle";
 
 /** Figma 4171:32996 band */
@@ -86,15 +88,19 @@ async function patchDoc(docId: string) {
     `before accordion: band=${sections[idx].appearance?.backgroundColor?.hex ?? "unset"} panel=${sections[idx].accordionBackgroundColor?.hex ?? "unset"}`,
   );
 
-  const patch = client.patch(docId).set({
-    [`sections[${idx}].appearance.backgroundColor`]: sanityColor(BAND_BG),
-    [`sections[${idx}].appearance.textColor`]: sanityColor(TEXT_COLOR),
-    [`sections[${idx}].accordionBackgroundColor`]: sanityColor(PANEL_BG),
-    [`sections[${idx}].accordionTextColor`]: sanityColor(PANEL_TEXT),
-    [`sections[${idx}].variant`]: "split",
-    [`sections[${idx}].sideTitle`]: "My Approach",
-    [`sections[${idx}].sectionTitle`]: "Design Process",
-  });
+  const patch = client.patch(docId);
+
+  if (!COPY_ONLY) {
+    patch.set({
+      [`sections[${idx}].appearance.backgroundColor`]: sanityColor(BAND_BG),
+      [`sections[${idx}].appearance.textColor`]: sanityColor(TEXT_COLOR),
+      [`sections[${idx}].accordionBackgroundColor`]: sanityColor(PANEL_BG),
+      [`sections[${idx}].accordionTextColor`]: sanityColor(PANEL_TEXT),
+      [`sections[${idx}].variant`]: "split",
+      [`sections[${idx}].sideTitle`]: "My Approach",
+      [`sections[${idx}].sectionTitle`]: "Design Process",
+    });
+  }
 
   if (!COLORS_ONLY) {
     const blurb = approach.approach?.blurb?.trim();
@@ -123,7 +129,7 @@ async function patchDoc(docId: string) {
 
 async function main() {
   console.log(
-    `patch-circle-approach (${DRY ? "dry" : COLORS_ONLY ? "colors-only" : "live"})`,
+    `patch-circle-approach (${DRY ? "dry" : COLORS_ONLY ? "colors-only" : COPY_ONLY ? "copy-only" : "live"})`,
   );
 
   const pub = await client.fetch<{ _id: string }>(

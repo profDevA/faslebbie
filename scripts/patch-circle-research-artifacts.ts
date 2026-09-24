@@ -18,6 +18,7 @@
  *   npx sanity exec scripts/patch-circle-research-artifacts.ts --with-user-token
  *
  * Do not re-run after manual Studio image uploads.
+ *   npx sanity exec scripts/patch-circle-research-artifacts.ts --with-user-token -- --copy-only
  */
 import { createReadStream, existsSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -27,8 +28,11 @@ import { getCliClient } from "sanity/cli";
 
 import { sanityColor } from "../src/lib/sanityAppearanceDefaults";
 
+import collab from "./data/caseStudyCollabCopy.json";
+
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
+const COPY_ONLY = process.argv.includes("--copy-only");
 const SLUG = "circle";
 const ART_DIR = join(process.cwd(), "public/work/circle/research-artifacts");
 const SECTION_TITLE = "Research Artifacts";
@@ -38,8 +42,14 @@ const BAND_BG = "#171717";
 const TEXT = "#ffffff";
 const SLIDER_GAP = 40;
 
-const INTRO =
+const INTRO_DEFAULT =
   "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut.";
+
+const introFromCollab = (
+  collab[SLUG as keyof typeof collab] as { artifacts?: { intro?: string } }
+)?.artifacts?.intro?.trim();
+
+const INTRO = introFromCollab || INTRO_DEFAULT;
 
 const ARTIFACTS = [
   { file: "01-business-goal.png", caption: "Mosaic’s Business Goal", figma: "4411:32058" },
@@ -142,8 +152,16 @@ async function ensureSection(docId: string) {
 async function patchDoc(docId: string, items: Awaited<ReturnType<typeof buildItems>>) {
   const idx = await ensureSection(docId);
   if (idx < 0) return;
-  console.log(`→ patch ${docId} showcaseGallery[${idx}] (${items.length} slides)`);
+  console.log(`→ patch ${docId} showcaseGallery[${idx}]${COPY_ONLY ? " intro only" : ` (${items.length} slides)`}`);
   if (DRY) return;
+
+  if (COPY_ONLY) {
+    await client
+      .patch(docId)
+      .set({ [`sections[${idx}].introBody`]: pt(INTRO) })
+      .commit();
+    return;
+  }
 
   await client
     .patch(docId)
@@ -160,8 +178,10 @@ async function patchDoc(docId: string, items: Awaited<ReturnType<typeof buildIte
 }
 
 async function main() {
-  console.log(`patch-circle-research-artifacts (${DRY ? "dry" : "live"})`);
-  const items = await buildItems();
+  console.log(
+    `patch-circle-research-artifacts (${DRY ? "dry" : "live"}${COPY_ONLY ? ", copy-only" : ""})`,
+  );
+  const items = COPY_ONLY ? [] : await buildItems();
 
   const pub = await client.fetch<{ _id: string } | null>(
     `*[_type == "caseStudy" && slug.current == $slug && !(_id in path("drafts.**"))][0]{ _id }`,
@@ -180,7 +200,9 @@ async function main() {
     console.log("(dry run — no writes)");
     return;
   }
-  console.log(`✓ Circle Research Artifacts (${items.length} slides, ${BAND_BG})`);
+  console.log(
+    `✓ Circle Research Artifacts${COPY_ONLY ? " intro" : ` (${items.length} slides)`}, ${BAND_BG})`,
+  );
 }
 
 main().catch((err) => {

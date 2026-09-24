@@ -98,6 +98,14 @@ export interface DeviceTab {
   items?: GalleryImage[];
 }
 
+export interface ViewMorePopupPage {
+  _key: string;
+  popupKicker?: string;
+  popupTitle?: string;
+  popupBody?: PortableTextBlock[];
+  popupTabs?: DeviceTab[];
+}
+
 export interface StatItem {
   _key: string;
   value: number;
@@ -282,6 +290,12 @@ export type Section =
       titleMarginBottomDesktop?: number;
       introMarginBottom?: number;
       rows?: MotionRow[];
+      viewMoreLabel?: string;
+      viewMorePopups?: ViewMorePopupPage[];
+      popupAppearance?: Appearance;
+      popupItemsBeforeViewMore?: number;
+      popupLoadMoreLabel?: string;
+      popupLoadLessLabel?: string;
     })
   | (Base & {
       _type: "highlightReel";

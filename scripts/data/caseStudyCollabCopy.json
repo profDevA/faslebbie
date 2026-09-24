@@ -14,7 +14,7 @@
       "team": "Fas Lebbie, Patrick Wesonga, Dr. Fatima Cody Stanford, Dr. Chris T. Pernell"
     },
     "problemContext": {
-      "problem": "Black patients experience worse outcomes across 83% of health measures than White patients, and Black women face three times the pregnancy-related mortality rate — yet the system treats these disparities as inevitable rather than fixable. Sixty-five percent of Black adults and 54% of Latinx adults struggle to find providers who understand their cultural background, while heavy reliance on primary-care referrals, surprise costs, and infrequent checkups keep employees of color from engaging early. The less visible constraint was systemic: users were forced to act as their own case managers inside fragmented directories and cold clinical portals. That absence of representation, more than logistics, is what kept people delaying care until too late.",
+      "problem": "Black patients experience worse outcomes across 83% of health measures than White patients, and Black women face three times the pregnancy-related mortality rate \u2014 yet the system treats these disparities as inevitable rather than fixable. Sixty-five percent of Black adults and 54% of Latinx adults struggle to find providers who understand their cultural background, while heavy reliance on primary-care referrals, surprise costs, and infrequent checkups keep employees of color from engaging early. The less visible constraint was systemic: users were forced to act as their own case managers inside fragmented directories and cold clinical portals. That absence of representation, more than logistics, is what kept people delaying care until too late.",
       "brought": "As the sole founding product designer and strategist, I architected Coral Health's ecosystem alongside the clinical team. I owned the assessment logic and testing flows, established a Design KPI Framework connecting UX signals to clinical outcomes, and led the mixed-methods research that reframed our opportunity from access to psychological safety, aligning engineering and clinical operations around trust as a shared, measurable metric."
     },
     "approach": {
@@ -22,11 +22,11 @@
       "accordion": [
         {
           "title": "Baseline Information",
-          "body": "Before a single screen existed, the picture was chaotic: patients bounced between insurance directories, reviews, and outdated websites for days or weeks just to find a doctor they might trust. Despite 77% reporting satisfaction with current providers, deeper interviews revealed many felt unheard or culturally misunderstood — proof the starting line wasn't zero, but a deficit of trust and cognitive overhead."
+          "body": "Before a single screen existed, the picture was chaotic: patients bounced between insurance directories, reviews, and outdated websites for days or weeks just to find a doctor they might trust. Despite 77% reporting satisfaction with current providers, deeper interviews revealed many felt unheard or culturally misunderstood \u2014 proof the starting line wasn't zero, but a deficit of trust and cognitive overhead."
         },
         {
           "title": "Research & Strategy",
-          "body": "I led triangulated research across Black, Latinx, and immigrant patients alongside MDs and care navigators, using Theory of Change to map how cultural matching could drive earlier detection, and Value Proposition Canvas to align patient pains — fear of judgment, cost confusion — with proposed solutions. The findings pivoted our strategy from access toward representation and psychological safety."
+          "body": "I led triangulated research across Black, Latinx, and immigrant patients alongside MDs and care navigators, using Theory of Change to map how cultural matching could drive earlier detection, and Value Proposition Canvas to align patient pains \u2014 fear of judgment, cost confusion \u2014 with proposed solutions. The findings pivoted our strategy from access toward representation and psychological safety."
         },
         {
           "title": "Summary of Findings",
@@ -38,7 +38,7 @@
         },
         {
           "title": "Prototyping & Implementation Strategy",
-          "body": "We chose design-by-accretion over a single big-bang launch — low-fidelity first to validate lane logic, then high-fidelity for emotional resonance in the Cora guide and results screens. We traded a slower rollout for the ability to validate matching KPIs before the operational cost of physical test kits, phasing Foundation matching ahead of Guided Screening logistics."
+          "body": "We chose design-by-accretion over a single big-bang launch \u2014 low-fidelity first to validate lane logic, then high-fidelity for emotional resonance in the Cora guide and results screens. We traded a slower rollout for the ability to validate matching KPIs before the operational cost of physical test kits, phasing Foundation matching ahead of Guided Screening logistics."
         }
       ]
     },
@@ -71,7 +71,7 @@
       ]
     },
     "reflection": {
-      "body": "Anchoring decisions in the UX KPI framework worked because it shifted the internal conversation from features to outcomes: connecting content clarity and time-to-relevant-match to the 75% provider-r etention result gave clinical and engineering stakeholders proof that trust could be measured, not just felt, and let Dr. Stanford and Dr. Pernell's expertise scale into a repeatable digital experience rather than staying tacit. If I could revisit one decision, I'd have built employer-facing analytics dashboards alongside the patient experience from day one, rather than treating them as a later addition — employer buy-in shaped adoption speed nearly as much as patient trust did, and earning it sooner would have compressed our timeline to scale.",
+      "body": "Anchoring decisions in the UX KPI framework worked because it shifted the internal conversation from features to outcomes: connecting content clarity and time-to-relevant-match to the 75% provider-r etention result gave clinical and engineering stakeholders proof that trust could be measured, not just felt, and let Dr. Stanford and Dr. Pernell's expertise scale into a repeatable digital experience rather than staying tacit. If I could revisit one decision, I'd have built employer-facing analytics dashboards alongside the patient experience from day one, rather than treating them as a later addition \u2014 employer buy-in shaped adoption speed nearly as much as patient trust did, and earning it sooner would have compressed our timeline to scale.",
       "nextSteps": [
         "Next, we're expanding the validated modular framework to other high-disparity conditions like diabetes and hypertension, and deepening the matching algorithm with richer variables such as communication style to further reduce time to relevant match.",
         "We're also automating human-in-the-loop reminders to sustain at-home completion rates, and building employer analytics dashboards that visualize the ROI of equity directly against each employer partner's bottom line."
@@ -150,7 +150,7 @@
       ]
     },
     "reflection": {
-      "body": "Connecting consent-flow clarity to Time-to-Data-Capture worked because it gave engineering a concrete, shared reason to prioritize latency reduction, and it proved out clearly in the resulting numbers: a 92% trust rating on the bank-linking flow and a 33% cut in partner loan origination timelines. That direct link between design decisions and lagging business metrics is what secured continued, hard-won institutional buy-in. If I could revisit one decision, I'd have designed the streaming and telco data expansion and the monthly re-verification loop into the MVP scope from day one, rather than deferring both to phase two — younger, thinner-file users were the population most likely to disengage before that expansion ever shipped.",
+      "body": "Connecting consent-flow clarity to Time-to-Data-Capture worked because it gave engineering a concrete, shared reason to prioritize latency reduction, and it proved out clearly in the resulting numbers: a 92% trust rating on the bank-linking flow and a 33% cut in partner loan origination timelines. That direct link between design decisions and lagging business metrics is what secured continued, hard-won institutional buy-in. If I could revisit one decision, I'd have designed the streaming and telco data expansion and the monthly re-verification loop into the MVP scope from day one, rather than deferring both to phase two \u2014 younger, thinner-file users were the population most likely to disengage before that expansion ever shipped.",
       "nextSteps": [
         "Next, we're expanding data ingestion to include streaming and telco payments, increasing the Match Rate for younger demographics with limited utility history.",
         "We're refining re-verification by gamifying the monthly re-scan process to lift retention and keep scores dynamic.",
@@ -590,7 +590,7 @@
         },
         {
           "title": "Prototyping & Implementation Strategy",
-          "body": "We worked backward from the Habit Moment itself, using a Skateboard/Scooter/Car model to manage scope under Brazil's strict regulatory pilot timeline. The Skateboard MVP tested only the Activation Flow, whether users could complete Setup and reach Aha, stripping away every non-essential \"Casual\" feature. We briefed the Build Team using the User Engagement State diagram as the literal architecture map, then validated every Access action directly with 15 HCPs in Brazil. The source's own real \"AART is a methodology to create individualized treatment\" framework artifact — Assessment, Anatomy, Range, Treatment."
+          "body": "We worked backward from the Habit Moment itself, using a Skateboard/Scooter/Car model to manage scope under Brazil's strict regulatory pilot timeline. The Skateboard MVP tested only the Activation Flow, whether users could complete Setup and reach Aha, stripping away every non-essential \"Casual\" feature. We briefed the Build Team using the User Engagement State diagram as the literal architecture map, then validated every Access action directly with 15 HCPs in Brazil. The source's own real \"AART is a methodology to create individualized treatment\" framework artifact \u2014 Assessment, Anatomy, Range, Treatment."
         }
       ]
     },
@@ -610,7 +610,7 @@
         },
         {
           "value": "3.2",
-          "suffix": "×",
+          "suffix": "\u00d7",
           "label": "Engagement",
           "note": "Interactive modules tripled engagement, deepening Casual to Core usage."
         },
@@ -668,7 +668,7 @@
         },
         {
           "title": "Prototyping & Implementation Strategy",
-          "body": "Implementation diverged by device to respect each one's native physics. For mobile, we built a Host/Participant hierarchy with Lobbies and Waiting Rooms, turning the app into a securable command center. For RealWear, we replaced natural speech with a phonetic soft keyboard and flattened nested menus into high-contrast, instantly pronounceable tiles built for high-decibel environments. Real screenshot (received after the first build): the Vuforia Chalk RealWear splash screen — \"See it. Solve it. Together.\""
+          "body": "Implementation diverged by device to respect each one's native physics. For mobile, we built a Host/Participant hierarchy with Lobbies and Waiting Rooms, turning the app into a securable command center. For RealWear, we replaced natural speech with a phonetic soft keyboard and flattened nested menus into high-contrast, instantly pronounceable tiles built for high-decibel environments. Real screenshot (received after the first build): the Vuforia Chalk RealWear splash screen \u2014 \"See it. Solve it. Together.\""
         }
       ]
     },
@@ -940,7 +940,7 @@
       ]
     },
     "reflection": {
-      "body": "Treating stigma as a design constraint, not a footnote, worked: 119 structured interviews across 13 workgroups surfaced barriers that engagement data alone never would have caught, and it paid off directly in a 47% drop in crisis-response time and 35% more completed referrals. Building trust into the SDoH screener before ever optimizing its funnel is what made both numbers possible in the first place. If I could revisit just one decision, I'd have built the provider dashboard and referral tracking alongside the resident-facing screener from day one, instead of phasing it entirely into Next Steps — the personal spreadsheets driving provider-side fragmentation were as urgent as anything residents themselves were facing.",
+      "body": "Treating stigma as a design constraint, not a footnote, worked: 119 structured interviews across 13 workgroups surfaced barriers that engagement data alone never would have caught, and it paid off directly in a 47% drop in crisis-response time and 35% more completed referrals. Building trust into the SDoH screener before ever optimizing its funnel is what made both numbers possible in the first place. If I could revisit just one decision, I'd have built the provider dashboard and referral tracking alongside the resident-facing screener from day one, instead of phasing it entirely into Next Steps \u2014 the personal spreadsheets driving provider-side fragmentation were as urgent as anything residents themselves were facing.",
       "nextSteps": [
         "Next, we're expanding the Provider Dashboard with referral tracking and outcome measurement to improve accountability and service follow-through, and integrating health records for seamless coordination between county systems and providers.",
         "We're developing culturally responsive access through a Spanish-language interface and tailored resource categories, and building a mobile app optimized for offline use so residents in low-connectivity areas aren't locked out of care."
@@ -1065,7 +1065,7 @@
         },
         {
           "title": "Prototyping & Implementation Strategy",
-          "body": "Implementation moved through two deployment phases rather than one big launch. Phase one tested a memory-based prompt across three locations, yielding rich observations about curiosity without much direct participation. Phase two refined the prompt to a present-moment question at Union Square, experimenting with recording-equipment visibility and producing dramatically higher engagement and a wider range of emotional expression. Real \"Sense Making\" synthesis wall (confirmed accurate) — the team's own post-it and photo synthesis of field observations from the Union Square deployment. Real \"Integrated Methodology\" summary (confirmed accurate) — the team's own four-phase research framework, from Urban Needs Analysis through Sense Making."
+          "body": "Implementation moved through two deployment phases rather than one big launch. Phase one tested a memory-based prompt across three locations, yielding rich observations about curiosity without much direct participation. Phase two refined the prompt to a present-moment question at Union Square, experimenting with recording-equipment visibility and producing dramatically higher engagement and a wider range of emotional expression. Real \"Sense Making\" synthesis wall (confirmed accurate) \u2014 the team's own post-it and photo synthesis of field observations from the Union Square deployment. Real \"Integrated Methodology\" summary (confirmed accurate) \u2014 the team's own four-phase research framework, from Urban Needs Analysis through Sense Making."
         }
       ]
     },
@@ -1079,7 +1079,7 @@
       "metrics": [
         {
           "value": "3",
-          "suffix": "×",
+          "suffix": "\u00d7",
           "label": "Engagement Jump",
           "note": "Present-moment prompts tripled real participation over memory-based prompts here."
         },
@@ -1110,39 +1110,72 @@
     "title": "Circle",
     "hero": {
       "projectName": "Circle",
-      "statement": "Lorem ipsum dolor sit amet consectetur adipiscing.",
-      "from": "Lorem",
-      "to": "Ipsum"
+      "statement": "Trust converts fastest. Community scales, not credits.",
+      "from": "Platform Ratings",
+      "to": "Trusted Circles"
     },
     "overview": {
-      "body": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum. Replace when Franki / Circle collab copy is exported — Figma `4171:32108` still carries Coral placeholder.",
-      "disciplines": "Product strategy, emotional UX, social discovery, AR prototyping, brand.",
-      "duration": "8-month development cycle",
-      "team": "Cross-functional team of 12, including designers and developers"
-    },
-    "problemContext": {
-      "problem": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit.",
-      "brought": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt."
+      "body": "Mosaic set out to increase first-purchase conversion using community as the lever, without spending more on rewards. Research reframed the brief entirely: users weren't missing incentives, they were missing trust. Two personas crystallized the gap. Christina, a group planner, needed social validation, not a bigger reward. Daniel, new to the city, needed proof he belonged, not more stranger reviews. Credits could answer what do I get, but only a trusted human voice could answer is this right for me. The Trusted Circle direction replaced platform ratings with person-to-person trust as the conversion mechanism, closing today's activation gap while building tomorrow's match-intelligence data.",
+      "disciplines": "Systems Design, Product-Led Growth Strategy, Onboarding UX, Interaction Design, Prototyping, Spatial and AR Design, Research.",
+      "duration": "Three weeks",
+      "team": "Fas Lebbie"
     },
     "approach": {
-      "blurb": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "blurb": "The starting point was a stated goal with a hidden assumption: raise first-purchase conversion through community, without touching reward spend.",
       "accordion": [
         {
-          "title": "Project Overview + Baseline Information",
-          "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+          "title": "Baseline Information",
+          "body": "The starting point was a stated goal with a hidden assumption: raise first-purchase conversion through community, without touching reward spend. Two personas exposed the assumption. Christina, a group planner, wanted social validation, not a bigger incentive. Daniel, new to the city, wanted proof he belonged, not another stranger's star rating. Credits answer what do I get. Neither of them was asking that."
         },
         {
-          "title": "Design Research & Strategy",
-          "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+          "title": "Research & Strategy",
+          "body": "The UX KPI framework mapped each brief goal to a design hypothesis and a measurable signal: a trusted human voice at the conversion moment, session depth on the Experience Card, and organic seven-day return with no push dependency. Category baseline for first-purchase conversion sat at two to four percent, so the framework set direction, not a fixed number, ahead of Phase 1 testing."
         },
         {
           "title": "Summary of Findings",
-          "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+          "body": "Three directions were modeled against all three metrics at once, not conversion alone. The Belonging Trigger softened booking anxiety but kept the signal platform-voiced, so the loop never closed. The Game Before Purchase moved investment earlier but never activated contribution, leaving the community lever empty. Only the Trusted Circle solved conversion, contribution, and organic return simultaneously, which is why it was selected over the other two."
+        },
+        {
+          "title": "Defining Design KPI's",
+          "body": "Four onboarding concepts were compared before committing to Character Choice: Video Swipe, Video Stack, and Mood Board Grid all calibrated taste through content, not people. Character Choice asked whose taste feels closest to yours, turning calibration into a relationship instead of a preference category. It carried the highest conceptual risk and the highest strategic payoff, since the circle, not a swipe, becomes the profile."
         },
         {
           "title": "Prototyping & Implementation Strategy",
-          "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+          "body": "Flows moved from low-fidelity logic to high-fidelity interaction rationale across five phases: Onboarding, Discovery, Booking, Experience, and Habit. Each screen carries a documented decision, trade-off, and user action, down to language choices like Book & Earn instead of Book Now. The first draft was reviewed with the product and design stakeholders on the receiving team before the flow was finalized."
         }
+      ]
+    },
+    "artifacts": {
+      "intro": "A KPI-to-hypothesis framework and a five-phase system map aligned every screen to a metric."
+    },
+    "impact": {
+      "metrics": [
+        {
+          "value": "13",
+          "suffix": "%",
+          "label": "First-Purchase Conversion (target)",
+          "note": "Modeled improvement once ratings gave way to real people."
+        },
+        {
+          "value": "30",
+          "prefix": ">",
+          "suffix": "%",
+          "label": "Post-Experience Contribution (target)",
+          "note": "The loop-closing signal proving the system feeds itself back."
+        },
+        {
+          "value": "40",
+          "prefix": ">",
+          "suffix": "%",
+          "label": "Contributor Retention (target)",
+          "note": "The intrinsic-return bar that credits alone could never clear."
+        }
+      ]
+    },
+    "reflection": {
+      "body": "The most important move wasn't a screen, it was the reframe: treating a stated rewards problem as an unsolved trust problem changed which directions were even worth modeling. Testing all three candidate directions against every success metric, not conversion alone, is what surfaced how easily a plausible idea like the Belonging Trigger can look like progress while leaving the actual loop unclosed. If I could revisit one decision, I would have pressure-tested the Character Choice onboarding's cognitive load earlier, since asking someone to choose a person before they trust the product at all is the single highest-risk moment in the system, and it deserved its own validation pass before Phase 1.",
+      "nextSteps": [
+        "The immediate next step is proving the trust signal moves the number: instrumenting A/B tests on the Experience Card and solving cold-start UX for users with no circle. If that validates, ownership expands to the loop: a taste profile as a social object, and a Creator tier. The AR discovery layer waits on Phase 1 contribution density before spatial signals turn meaningful."
       ]
     }
   }

@@ -90,7 +90,8 @@ export const overviewSection = defineType({
       title: "Side feature image background color",
       type: "color",
       initialValue: sanityColor(OVERVIEW_SIDE_TEAL),
-      description: "Panel colour behind the side mockup when fit is Contain (e.g. Coral teal #52747E).",
+      description:
+        "Panel colour behind the side mockup (right column). Uses the color picker — if it looks empty, hard-refresh Studio; patch scripts must write full hsl/hsv/rgb (sanityColor helper).",
       options: { disableAlpha: false },
     }),
     defineField({

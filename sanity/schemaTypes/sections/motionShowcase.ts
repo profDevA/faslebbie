@@ -1,7 +1,10 @@
 import { defineField, defineType } from "sanity";
 
 import { MOTION_SHOWCASE_BAND_DEFAULTS } from "../../../src/lib/caseStudyDefaults";
-import { MOTION_SHOWCASE_APPEARANCE_DEFAULTS } from "../../../src/lib/sanityAppearanceDefaults";
+import {
+  MOTION_SHOWCASE_APPEARANCE_DEFAULTS,
+  MOTION_SHOWCASE_POPUP_APPEARANCE_DEFAULTS,
+} from "../../../src/lib/sanityAppearanceDefaults";
 
 // 07 — Motion Showcase.
 // Coral example: Key Product Experiences — Mobile + iPad.
@@ -85,6 +88,47 @@ export const motionShowcase = defineType({
       name: "appearance",
       type: "appearance",
       initialValue: MOTION_SHOWCASE_APPEARANCE_DEFAULTS,
+    }),
+    defineField({
+      name: "viewMoreLabel",
+      title: "View More label",
+      type: "string",
+      initialValue: "View More",
+      description:
+        "Cross-functional bands only — underlined CTA under the device layout.",
+    }),
+    defineField({
+      name: "viewMorePopups",
+      title: "View More popup pages",
+      type: "array",
+      of: [{ type: "viewMorePopupPage" }],
+      description:
+        "Design Interventions modal — same device-tab + Load More pattern as Core Experience View More. Extra array entries only if you truly need a separate popup page (footer pager).",
+    }),
+    defineField({
+      name: "popupAppearance",
+      title: "View More — layout & colors",
+      type: "appearance",
+      initialValue: MOTION_SHOWCASE_POPUP_APPEARANCE_DEFAULTS,
+    }),
+    defineField({
+      name: "popupItemsBeforeViewMore",
+      title: "Popup — items before Load More",
+      type: "number",
+      initialValue: 6,
+      validation: (r) => r.min(1),
+    }),
+    defineField({
+      name: "popupLoadMoreLabel",
+      title: "Popup — Load More label",
+      type: "string",
+      initialValue: "Load More",
+    }),
+    defineField({
+      name: "popupLoadLessLabel",
+      title: "Popup — Show Less label",
+      type: "string",
+      initialValue: "Show Less",
     }),
   ],
   preview: {

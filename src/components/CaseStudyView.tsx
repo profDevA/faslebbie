@@ -11,7 +11,7 @@ import {
   type CSSProperties,
 } from 'react'
 import { createPortal } from 'react-dom'
-import PopupShell from '@/components/PopupShell'
+import PopupShell, { PopupDots, PopupPagerButton } from '@/components/PopupShell'
 import { CaseStudyProse } from '@/components/caseStudyView/Prose'
 import {
   bandStyle,
@@ -76,6 +76,7 @@ import type {
   HighlightCell,
   CoreExperienceScreen,
 } from '@/sanity/types'
+import type { PortableTextBlock } from '@portabletext/types'
 import {
   REFLECTION_DEFAULTS,
   OVERVIEW_BAND_BACKGROUND,
@@ -419,7 +420,11 @@ function SectionBlock({
       return <ShowcaseBlock section={section} scrollContainer={scrollContainer} />
     case 'motionShowcase':
       return (
-        <MotionShowcaseBlock section={section} projectSlug={project.slug} />
+        <MotionShowcaseBlock
+          section={section}
+          projectSlug={project.slug}
+          projectName={project.name}
+        />
       )
     case 'highlightReel':
       return <HighlightReelBlock section={section} />
@@ -669,10 +674,11 @@ function OverviewStackedSideMedia({
 }
 
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
-  const light = isLight(s.appearance)
-  const dark = light ? 'text-white' : ''
+  const light = bandUsesLightText(s.appearance)
+  const textClass = light ? 'text-white' : 'text-black'
+  const sideTextCss = colorToCss(s.appearance?.textColor)
   const cta = s.ctaLabel ?? 'Visit Site'
-  const body = csBodyText( dark)
+  const body = csBodyText(textClass)
   const metaSm = csMetaSm()
   const metaXs = csMetaXs()
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? CS_TEAL
@@ -700,11 +706,15 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       style={bandStyle(s.appearance, OVERVIEW_BAND_BACKGROUND)}
     >
       <div
-        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start lg:min-h-full lg:justify-between`}
-        style={{ ...copyPad, ...sectionGapStyle(s.appearance, gapDefault('md', true), true) }}
+        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start lg:min-h-full lg:justify-between ${textClass}`}
+        style={{
+          ...copyPad,
+          ...sectionGapStyle(s.appearance, gapDefault('md', true), true),
+          ...(sideTextCss ? { color: sideTextCss } : undefined),
+        }}
       >
         <div className={'max-w-[min(580px,100%)]'}>
-          <h2 className={`${csSectionTitle()} ${dark}`}>
+          <h2 className={`${csSectionTitle()} ${textClass}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
           <CaseStudyProse value={s.body} className={`mt-[1em] ${body}`} />
@@ -715,7 +725,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[20px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${dark} max-lg:uppercase lg:capitalize ${''}`}
+              className={`mt-6 inline-block text-[20px] font-normal underline underline-offset-4 transition-colors hover:text-accent ${textClass} max-lg:uppercase lg:capitalize ${''}`}
             >
               {cta}
             </a>
@@ -726,19 +736,19 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             <div className="max-w-85">
               {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
               <h3
-                className={`text-[20px] font-normal capitalize leading-tight ${dark} ${''}`}
+                className={`text-[20px] font-normal capitalize leading-tight ${textClass} ${''}`}
               >
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
               {s.serviceList && (
-                <p className={`mt-2 ${metaSm} ${dark}`}>
+                <p className={`mt-2 ${metaSm} ${textClass}`}>
                   {s.serviceList}
                 </p>
               )}
             </div>
           )}
           {/* Figma 600:12514 — 45 Light 14px, labels 55 Roman. */}
-          <div className={`max-w-85 space-y-1 ${metaSm} ${dark}`}>
+          <div className={`max-w-85 space-y-1 ${metaSm} ${textClass}`}>
             {s.duration && (
               <p>
                 <span className="font-normal">Duration</span>: {s.duration}
@@ -1512,30 +1522,28 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
   )
 }
 
-function CoreExperienceBlock({
-  section: s,
-  projectName,
+/** Shared §04 Core Experience View More body — device tabs + Load More grid inside PopupShell. */
+function DeviceTabsViewMorePopupBody({
+  popupApp,
+  popupKicker,
+  popupHeadline,
+  popupBody,
+  popupTabs,
+  popupInitial = 6,
+  popupLoadMore = 'Load More',
+  popupLoadLess = 'Show Less',
 }: {
-  section: Of<'coreExperience'>
-  projectName: string
+  popupApp?: Appearance
+  popupKicker?: string
+  popupHeadline?: string
+  popupBody?: PortableTextBlock[]
+  popupTabs: DeviceTab[]
+  popupInitial?: number
+  popupLoadMore?: string
+  popupLoadLess?: string
 }) {
-  const [popupOpen, setPopupOpen] = useState(false)
-  const light = bandUsesLightText(s.appearance)
-  const layout = s.layoutVariant ?? 'mobileRow'
-  const preview = (s.previewScreens ?? []).filter(sc => sc.image)
-  const popupTabs = s.popupTabs ?? []
-  const title = s.sectionTitle?.trim() || 'Core Experience Flow'
-  const popupTitleExplicit = s.popupTitle?.trim()
-  const popupHeadline =
-    popupTitleExplicit || (s.popupBody?.length ? title : undefined)
-  const popupShellLabel = popupHeadline ?? title
-  const popupKicker = s.popupKicker?.trim()
-  const viewMore = s.viewMoreLabel?.trim() || 'View More'
-  const popupInitial = s.popupItemsBeforeViewMore ?? 6
-  const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
-  const popupLoadLess = s.popupLoadLessLabel?.trim() || 'Show Less'
-  const popupApp = s.popupAppearance
-  const popupAlign = popupApp?.contentAlignment ?? CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment
+  const popupAlign =
+    popupApp?.contentAlignment ?? CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment
   const popupBg = colorToCss(popupApp?.backgroundColor)
   const popupText = colorToCss(popupApp?.textColor)
   const popupTileBg =
@@ -1587,6 +1595,92 @@ function CoreExperienceBlock({
     { none: 0, sm: 16, md: 24, lg: 32, xl: 40 },
     CORE_EXPERIENCE_POPUP_DEFAULTS.gridRowGap,
   )
+
+  return (
+    <div
+      className={`min-h-full ${popupBg ? '' : 'bg-close'} ${popupLight ? 'text-white' : 'text-black'}`}
+      style={{
+        ...popupPad,
+        ...(popupBg ? { backgroundColor: popupBg } : undefined),
+        ...(popupText ? { color: popupText } : undefined),
+      }}
+    >
+      <div
+        className={`flex w-full flex-col ${SECTION_GAP_CLASS}`}
+        style={{
+          ...popupSectionGap,
+          ...popupHorizontalPad,
+          ...(popupContainerMax
+            ? { maxWidth: popupContainerMax, marginInline: 'auto' }
+            : undefined),
+        }}
+      >
+        {(popupKicker || popupHeadline || popupBody?.length) ? (
+          <div
+            className={`flex w-full flex-col ${CS_TEXT_ALIGN[popupAlign]} items-start`}
+            style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
+          >
+            {popupKicker ? (
+              <p
+                className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}
+              >
+                {popupKicker}
+              </p>
+            ) : null}
+            {popupHeadline ? (
+              <h2
+                className={`${csSectionTitle()} w-full ${CS_TEXT_ALIGN[popupAlign]}`}
+              >
+                {popupHeadline}
+              </h2>
+            ) : null}
+            {popupBody?.length ? (
+              <CaseStudyProse
+                value={popupBody}
+                className={`w-full ${csBodyText()} ${CS_TEXT_ALIGN[popupAlign]}`}
+              />
+            ) : null}
+          </div>
+        ) : null}
+        <DeviceGallery
+          tabs={popupTabs.filter(t => (t.items?.length ?? 0) > 0)}
+          initial={popupInitial}
+          loadMore={popupLoadMore}
+          loadLess={popupLoadLess}
+          tileBg={popupTileBg}
+          light={popupLight}
+          gridSize="popup"
+          gridColumnGap={popupGridColumnGap}
+          gridRowGap={popupGridRowGap}
+        />
+      </div>
+    </div>
+  )
+}
+
+function CoreExperienceBlock({
+  section: s,
+  projectName,
+}: {
+  section: Of<'coreExperience'>
+  projectName: string
+}) {
+  const [popupOpen, setPopupOpen] = useState(false)
+  const light = bandUsesLightText(s.appearance)
+  const layout = s.layoutVariant ?? 'mobileRow'
+  const preview = (s.previewScreens ?? []).filter(sc => sc.image)
+  const popupTabs = s.popupTabs ?? []
+  const title = s.sectionTitle?.trim() || 'Core Experience Flow'
+  const popupTitleExplicit = s.popupTitle?.trim()
+  const popupHeadline =
+    popupTitleExplicit || (s.popupBody?.length ? title : undefined)
+  const popupShellLabel = popupHeadline ?? title
+  const popupKicker = s.popupKicker?.trim()
+  const viewMore = s.viewMoreLabel?.trim() || 'View More'
+  const popupInitial = s.popupItemsBeforeViewMore ?? 6
+  const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
+  const popupLoadLess = s.popupLoadLessLabel?.trim() || 'Show Less'
+  const popupApp = s.popupAppearance
 
   if (!preview.length) {
     if (!s.image) return null
@@ -1687,58 +1781,16 @@ function CoreExperienceBlock({
         cardClassName="bg-white"
         bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
       >
-        <div
-          className={`min-h-full ${popupBg ? '' : 'bg-close'} ${popupLight ? 'text-white' : 'text-black'}`}
-          style={{
-            ...popupPad,
-            ...(popupBg ? { backgroundColor: popupBg } : undefined),
-            ...(popupText ? { color: popupText } : undefined),
-          }}
-        >
-          <div
-            className={`flex w-full flex-col ${SECTION_GAP_CLASS}`}
-            style={{
-              ...popupSectionGap,
-              ...popupHorizontalPad,
-              ...(popupContainerMax ? { maxWidth: popupContainerMax, marginInline: 'auto' } : undefined),
-            }}
-          >
-            {(popupKicker || popupHeadline || s.popupBody?.length) ? (
-              <div
-                className={`flex w-full flex-col ${CS_TEXT_ALIGN[popupAlign]} items-start`}
-                style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
-              >
-                {popupKicker ? (
-                  <p className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}>
-                    {popupKicker}
-                  </p>
-                ) : null}
-                {popupHeadline ? (
-                  <h2 className={`${csSectionTitle()} w-full ${CS_TEXT_ALIGN[popupAlign]}`}>
-                    {popupHeadline}
-                  </h2>
-                ) : null}
-                {s.popupBody?.length ? (
-                  <CaseStudyProse
-                    value={s.popupBody}
-                    className={`w-full ${csBodyText()} ${CS_TEXT_ALIGN[popupAlign]}`}
-                  />
-                ) : null}
-              </div>
-            ) : null}
-            <DeviceGallery
-              tabs={popupTabs.filter(t => (t.items?.length ?? 0) > 0)}
-              initial={popupInitial}
-              loadMore={popupLoadMore}
-              loadLess={popupLoadLess}
-              tileBg={popupTileBg}
-              light={popupLight}
-              gridSize="popup"
-              gridColumnGap={popupGridColumnGap}
-              gridRowGap={popupGridRowGap}
-            />
-          </div>
-        </div>
+        <DeviceTabsViewMorePopupBody
+          popupApp={popupApp}
+          popupKicker={popupKicker}
+          popupHeadline={popupHeadline}
+          popupBody={s.popupBody}
+          popupTabs={popupTabs}
+          popupInitial={popupInitial}
+          popupLoadMore={popupLoadMore}
+          popupLoadLess={popupLoadLess}
+        />
       </PopupShell>
     </>
   )
@@ -2604,12 +2656,117 @@ function ShowcaseBlock({
 // featured centred device band (Census — Figma 2229:30253), or cross-functional
 // triptych (AR Handbook — Figma 4152:122925 / 4152:125655).
 const MOTION_BG = '#52747e'
+
+type ViewMorePopupPageContent = {
+  _key?: string
+  popupKicker?: string
+  popupTitle?: string
+  popupBody?: PortableTextBlock[]
+  popupTabs?: DeviceTab[]
+}
+
+function ViewMoreDeviceTabsModal({
+  open,
+  onClose,
+  projectName,
+  fallbackLabel,
+  pages,
+  popupAppearance: popupApp,
+  popupItemsBeforeViewMore = 6,
+  popupLoadMoreLabel = 'Load More',
+  popupLoadLessLabel = 'Show Less',
+}: {
+  open: boolean
+  onClose: () => void
+  projectName: string
+  fallbackLabel: string
+  pages: ViewMorePopupPageContent[]
+  popupAppearance?: Appearance
+  popupItemsBeforeViewMore?: number
+  popupLoadMoreLabel?: string
+  popupLoadLessLabel?: string
+}) {
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    if (open) setPageIndex(0)
+  }, [open])
+
+  const activePages = pages.filter(
+    p =>
+      p.popupBody?.length ||
+      (p.popupTabs ?? []).some(t => (t.items?.length ?? 0) > 0),
+  )
+  if (!activePages.length) return null
+
+  const page = activePages[pageIndex] ?? activePages[0]
+  const popupTabs = page.popupTabs ?? []
+  const popupTitleExplicit = page.popupTitle?.trim()
+  const popupHeadline =
+    popupTitleExplicit ||
+    (page.popupBody?.length ? fallbackLabel : undefined)
+  const popupShellLabel = popupHeadline ?? fallbackLabel
+  const popupKicker = page.popupKicker?.trim()
+
+  const totalPages = activePages.length
+  const prev = () =>
+    setPageIndex(i => (i - 1 + totalPages) % totalPages)
+  const next = () => setPageIndex(i => (i + 1) % totalPages)
+
+  return (
+    <PopupShell
+      open={open}
+      onClose={onClose}
+      label={popupShellLabel}
+      crumbs={[
+        { label: 'Case Studies', href: '/casestudies', hideOnMobile: true },
+        { label: projectName, hideOnMobile: true },
+        { label: popupShellLabel },
+      ]}
+      cardClassName="bg-white"
+      bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
+      footerClassName="reckless-prose"
+      footer={
+        totalPages > 1 ? (
+          <div className="flex w-full max-w-[620px] items-center justify-between">
+            <PopupPagerButton onClick={prev}>{'< Previous'}</PopupPagerButton>
+            <PopupDots
+              className="flex"
+              count={totalPages}
+              active={pageIndex}
+              onSelect={setPageIndex}
+              labelFor={i =>
+                activePages[i]?.popupTitle?.trim() ||
+                `${fallbackLabel} ${i + 1}`
+              }
+            />
+            <PopupPagerButton onClick={next}>{'Next >'}</PopupPagerButton>
+          </div>
+        ) : undefined
+      }
+    >
+      <DeviceTabsViewMorePopupBody
+        popupApp={popupApp}
+        popupKicker={popupKicker}
+        popupHeadline={popupHeadline}
+        popupBody={page.popupBody}
+        popupTabs={popupTabs}
+        popupInitial={popupItemsBeforeViewMore}
+        popupLoadMore={popupLoadMoreLabel}
+        popupLoadLess={popupLoadLessLabel}
+      />
+    </PopupShell>
+  )
+}
+
 function MotionShowcaseBlock({
   section: s,
   projectSlug,
+  projectName,
 }: {
   section: Of<'motionShowcase'>
   projectSlug?: string
+  projectName?: string
 }) {
   const layout = s.layoutVariant ?? 'stacked'
   if (layout === 'phoneRow') {
@@ -2621,7 +2778,12 @@ function MotionShowcaseBlock({
     )
   }
   if (layout === 'crossFunctional') {
-    return <MotionShowcaseCrossFunctionalBand section={s} />
+    return (
+      <MotionShowcaseCrossFunctionalBand
+        section={s}
+        projectName={projectName ?? 'Case Study'}
+      />
+    )
   }
   return <MotionShowcaseStackedBand section={s} />
 }
@@ -2810,13 +2972,25 @@ function PhoneRowMedia({
 /** §07 crossFunctional — AR Handbook teal triptych (Figma 4152:122925 / 4152:125655). */
 function MotionShowcaseCrossFunctionalBand({
   section: s,
+  projectName,
 }: {
   section: Of<'motionShowcase'>
+  projectName: string
 }) {
+  const [popupOpen, setPopupOpen] = useState(false)
   const rows = (s.rows ?? []).slice(0, 3)
   const d = MOTION_CROSS_FUNCTIONAL_DEFAULTS
   const lightText = bandUsesLightText(s.appearance)
   const textClass = lightText ? 'text-white' : 'text-black'
+  const viewMore = s.viewMoreLabel?.trim() || 'View More'
+  const popupPages = s.viewMorePopups ?? []
+  const hasPopup = popupPages.some(
+    p =>
+      p.popupBody?.length ||
+      (p.popupTabs ?? []).some(t => (t.items?.length ?? 0) > 0),
+  )
+  const fallbackLabel =
+    s.sectionTitle?.trim() || 'Cross Functional Experiences'
   const titleMbMobile =
     typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
       ? s.titleMarginBottom
@@ -2838,10 +3012,11 @@ function MotionShowcaseCrossFunctionalBand({
   if (!rows.length) return null
 
   return (
-    <section
-      className="w-full max-w-full overflow-x-hidden"
-      style={sectionStyle(s.appearance, true, 'lg', MOTION_BG, lightText)}
-    >
+    <>
+      <section
+        className="w-full max-w-full overflow-x-hidden"
+        style={sectionStyle(s.appearance, true, 'lg', MOTION_BG, lightText)}
+      >
       {s.sectionTitle && (
         <h2
           className={`text-center ${csSectionTitle()} ${csBandGutter()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${textClass}`}
@@ -2916,7 +3091,35 @@ function MotionShowcaseCrossFunctionalBand({
           })}
         </div>
       </div>
-    </section>
+
+        {hasPopup ? (
+          <div className={`${csBandGutter()} flex justify-center pb-12 pt-10 lg:pb-16 lg:pt-14`}>
+            <button
+              type="button"
+              data-cursor="hover"
+              onClick={() => setPopupOpen(true)}
+              className={`font-grotesk shrink-0 capitalize leading-[1.6] tracking-[0.5px] underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} text-[20px] ${textClass}`}
+            >
+              {viewMore}
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      {hasPopup ? (
+        <ViewMoreDeviceTabsModal
+          open={popupOpen}
+          onClose={() => setPopupOpen(false)}
+          projectName={projectName}
+          fallbackLabel={fallbackLabel}
+          pages={popupPages}
+          popupAppearance={s.popupAppearance}
+          popupItemsBeforeViewMore={s.popupItemsBeforeViewMore}
+          popupLoadMoreLabel={s.popupLoadMoreLabel}
+          popupLoadLessLabel={s.popupLoadLessLabel}
+        />
+      ) : null}
+    </>
   )
 }
 

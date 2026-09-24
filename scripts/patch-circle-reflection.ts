@@ -15,6 +15,7 @@
  *   npx sanity exec scripts/patch-circle-reflection.ts --with-user-token -- --dry
  *   npx sanity exec scripts/patch-circle-reflection.ts --with-user-token
  *   npx sanity exec scripts/patch-circle-reflection.ts --with-user-token -- --appearance-only
+ *   npx sanity exec scripts/patch-circle-reflection.ts --with-user-token -- --copy-only
  */
 import { randomUUID } from "node:crypto";
 
@@ -22,15 +23,25 @@ import { getCliClient } from "sanity/cli";
 
 import { REFLECTION_APPEARANCE_DEFAULTS } from "../src/lib/sanityAppearanceDefaults";
 
+import collab from "./data/caseStudyCollabCopy.json";
+
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const DRY = process.argv.includes("--dry");
 const APPEARANCE_ONLY = process.argv.includes("--appearance-only");
+const COPY_ONLY = process.argv.includes("--copy-only");
 const SLUG = "circle";
 
+const circleCopy = collab[SLUG as keyof typeof collab] as {
+  reflection?: { body?: string; nextSteps?: string[] };
+};
+
 const BODY =
+  circleCopy.reflection?.body?.trim() ||
   "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit.";
 
 const NEXT =
+  circleCopy.reflection?.nextSteps?.join(" ")?.trim() ||
+  circleCopy.reflection?.nextSteps?.[0]?.trim() ||
   "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt.";
 
 const key = () => randomUUID().replace(/-/g, "").slice(0, 12);
@@ -57,13 +68,14 @@ function appearance() {
 }
 
 function copyFields() {
-  return {
+  const fields: Record<string, unknown> = {
     reflectionHeading: "reflections",
     reflectionBody: pt(BODY),
     nextStepsHeading: "Next Steps",
     nextStepsItems: [NEXT],
-    appearance: appearance(),
   };
+  if (!COPY_ONLY) fields.appearance = appearance();
+  return fields;
 }
 
 async function main() {
@@ -73,11 +85,13 @@ async function main() {
   );
   if (!doc?._id) throw new Error(`case study not found: ${SLUG}`);
 
+  console.log(
+    `${SLUG} — Reflection (Figma 4171:33600 / 4171:38559)${COPY_ONLY ? " copy-only" : ""}`,
+  );
+
   const sections = [...(doc.sections ?? [])];
   let idx = sections.findIndex((s) => s._type === "reflectionSection");
   const highlightIdx = sections.findIndex((s) => s._type === "highlightReel");
-
-  console.log(`${SLUG} — Reflection (Figma 4171:33600 / 4171:38559)`);
 
   if (APPEARANCE_ONLY) {
     if (idx < 0) throw new Error("no reflectionSection");

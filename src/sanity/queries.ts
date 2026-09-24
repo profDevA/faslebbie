@@ -100,6 +100,16 @@ const sectionsProj = `sections[]{
   },
   _type == "motionShowcase" => {
     sectionTitle, intro, layoutVariant,
+    viewMoreLabel,
+    popupAppearance{ ${appearanceFields} },
+    popupItemsBeforeViewMore, popupLoadMoreLabel, popupLoadLessLabel,
+    viewMorePopups[]{
+      _key, popupKicker, popupTitle, popupBody,
+      popupTabs[]{
+        _key, label,
+        items[]{ _key, caption, "image": image${img} }
+      }
+    },
     rows[]{
       _key, device, label, caption, captionAlign, rowWidthPercent,
       "posterImage": posterImage${img},

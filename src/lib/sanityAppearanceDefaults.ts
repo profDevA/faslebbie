@@ -15,10 +15,113 @@ export type SanityColorValue = {
   _type: "color";
   hex: string;
   alpha: number;
+  hsl: {
+    _type: "hslaColor";
+    h: number;
+    s: number;
+    l: number;
+    a: number;
+  };
+  hsv: {
+    _type: "hsvaColor";
+    h: number;
+    s: number;
+    v: number;
+    a: number;
+  };
+  rgb: {
+    _type: "rgbaColor";
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+  };
 };
 
+function hexChannel(hex: string) {
+  const h = hex.replace("#", "");
+  const full =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h.slice(0, 6);
+  const int = parseInt(full, 16);
+  return {
+    r: (int >> 16) & 255,
+    g: (int >> 8) & 255,
+    b: int & 255,
+  };
+}
+
+function rgbToHsl(r: number, g: number, b: number, a: number) {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn:
+        h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6;
+        break;
+      case gn:
+        h = ((bn - rn) / d + 2) / 6;
+        break;
+      default:
+        h = ((rn - gn) / d + 4) / 6;
+        break;
+    }
+  }
+  return { h: h * 360, s, l, a };
+}
+
+function rgbToHsv(r: number, g: number, b: number, a: number) {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const v = max;
+  const d = max - min;
+  const s = max === 0 ? 0 : d / max;
+  let h = 0;
+  if (max !== min) {
+    switch (max) {
+      case rn:
+        h = (gn - bn) / d + (gn < bn ? 6 : 0);
+        break;
+      case gn:
+        h = (bn - rn) / d + 2;
+        break;
+      default:
+        h = (rn - gn) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+  return { h: h * 360, s, v, a };
+}
+
+/** Full @sanity/color-input shape — hex-only objects break the Studio picker (renders blank). */
 export function sanityColor(hex: string, alpha = 1): SanityColorValue {
-  return { _type: "color", hex, alpha };
+  const { r, g, b } = hexChannel(hex);
+  const hsl = rgbToHsl(r, g, b, alpha);
+  const hsv = rgbToHsv(r, g, b, alpha);
+  return {
+    _type: "color",
+    hex,
+    alpha,
+    hsl: { _type: "hslaColor", ...hsl },
+    hsv: { _type: "hsvaColor", ...hsv },
+    rgb: { _type: "rgbaColor", r, g, b, a: alpha },
+  };
 }
 
 const mdOverlay = padDefaults("md", false);
@@ -111,6 +214,20 @@ export const CORE_EXPERIENCE_POPUP_APPEARANCE_DEFAULTS = {
   tileBackgroundColor: sanityColor(
     CORE_EXPERIENCE_POPUP_DEFAULTS.tileBackgroundColor,
   ),
+};
+
+/** §07 cross-functional View More — Figma 4290:23592 sage band, dark tiles. */
+export const MOTION_SHOWCASE_POPUP_APPEARANCE_DEFAULTS = {
+  contentAlignment: CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment,
+  paddingTop: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingTop,
+  paddingBottom: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingBottom,
+  paddingLeft: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingLeft,
+  paddingRight: CORE_EXPERIENCE_POPUP_DEFAULTS.paddingRight,
+  contentGap: CORE_EXPERIENCE_POPUP_DEFAULTS.contentGap,
+  contentGapInner: CORE_EXPERIENCE_POPUP_DEFAULTS.contentGapInner,
+  backgroundColor: sanityColor("#bbcdbe"),
+  textColor: sanityColor("#000000"),
+  tileBackgroundColor: sanityColor("#4d585a"),
 };
 
 export function coreExperiencePreviewAppearanceDefaults(

@@ -1,17 +1,39 @@
 /**
- * Parse case-study copy from the collaboration doc extract.
- * Run: node scripts/parse-case-study-collab-doc.mjs
- * Output: scripts/data/caseStudyCollabCopy.json
+ * Parse case-study copy from the collaboration doc extract, or from Word:
+ *   python scripts/extract-circle-collab-docx.py "path/to/SITE FINAL COPY.docx"
+ * Then:
+ *   npx sanity exec scripts/patch-circle-copy-all.ts --with-user-token
+ * Default extract: docs/reference/circle-mosaic-final-copy-extract.txt
+ * Merges parsed slugs into scripts/data/caseStudyCollabCopy.json (does not wipe other studies).
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const extractPath = join(__dir, "_tmp-collab-doc-extract.txt");
+const extractPath =
+  process.argv[2] ??
+  join(__dir, "../../docs/reference/circle-mosaic-final-copy-extract.txt");
+const fallbackExtract = join(__dir, "_tmp-collab-doc-extract.txt");
 const outPath = join(__dir, "data", "caseStudyCollabCopy.json");
 
-const DOC = readFileSync(extractPath, "utf8");
+const sourcePath = existsSync(extractPath)
+  ? extractPath
+  : existsSync(fallbackExtract)
+    ? fallbackExtract
+    : extractPath;
+
+if (!existsSync(sourcePath)) {
+  console.error(
+    `Missing extract: ${extractPath}\n` +
+      `  Paste the Mosaic — Filled Case Study block from the collab Google Doc, or use:\n` +
+      `  node scripts/parse-case-study-collab-doc.mjs path/to/extract.txt`,
+  );
+  process.exit(1);
+}
+
+const DOC = readFileSync(sourcePath, "utf8");
+console.log(`Reading ${sourcePath}`);
 
 /** Map collaboration doc titles → Sanity slug.current */
 export const TITLE_TO_SLUG = {
@@ -33,6 +55,7 @@ export const TITLE_TO_SLUG = {
   "Snapback Lifestyle": "snapback-lifestyle",
   "Forever a Surfer": "forever-a-surfer",
   Circle: "circle",
+  Mosaic: "circle",
 };
 
 function decodeEntities(s) {
@@ -48,7 +71,10 @@ function decodeEntities(s) {
 }
 
 function cleanLine(s) {
-  return decodeEntities(s.replace(/\s+/g, " ").trim());
+  return decodeEntities(s.replace(/\s+/g, " ").trim()).replace(
+    /^\[(?:SOURCED|SPECULATIVE[^\]]*)\]\s*/i,
+    "",
+  );
 }
 
 /** Value on the line after a label, before [TAG] or blank line. */
@@ -185,8 +211,36 @@ function parseStudy(text, title) {
 }
 
 const studies = splitStudies(DOC);
-writeFileSync(outPath, JSON.stringify(studies, null, 2), "utf8");
-console.log(`parsed ${Object.keys(studies).length} studies → ${outPath}`);
+const existing = existsSync(outPath)
+  ? JSON.parse(readFileSync(outPath, "utf8"))
+  : {};
+
+function studyHasCopy(study) {
+  return Boolean(
+    study?.hero?.statement?.trim() ||
+      study?.overview?.body?.trim() ||
+      study?.problemContext?.problem?.trim(),
+  );
+}
+
+const merged = { ...existing };
+for (const [slug, parsed] of Object.entries(studies)) {
+  if (!studyHasCopy(parsed)) {
+    console.warn(
+      `! skip "${slug}": extract has no 01–03 copy yet — paste full Mosaic sections before parsing (JSON unchanged for this slug).`,
+    );
+    continue;
+  }
+  merged[slug] = parsed;
+}
+
+if (!Object.keys(studies).some((slug) => studyHasCopy(studies[slug]))) {
+  console.error("No usable case-study copy parsed — fix the extract and retry.");
+  process.exit(1);
+}
+
+writeFileSync(outPath, JSON.stringify(merged, null, 2), "utf8");
+console.log(`parsed ${Object.keys(studies).length} studies → ${outPath} (merged)`);
 for (const [slug, s] of Object.entries(studies)) {
   const ok = [
     s.hero.statement ? "hero" : "",

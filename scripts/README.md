@@ -45,7 +45,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Acme §08 Key Product Experiences — email mockup band (Figma 3795:152728) | `patch-acme-key-product-experiences.ts` (PNG: `public/work/acme-lending/key-product/email-verification-mockup.png`; drops §07 motionShowcase) |
 | Acme §09 Impact — live metric order (33 / 78 / 10) | `patch-acme-impact-metrics.ts` |
 | Acme §10 Project Highlights — composite 2×2 board (Figma 3795:152883) | `patch-acme-highlight-reel.ts` (JPG: `public/work/acme-lending/highlights-board.jpg`) |
-| Overview copy/media column padding (Figma 56/80 prefilled in Studio) | `patch-case-study-overview-padding-defaults.ts` (superseded by template defaults for horizontal/gap/teal) |
+| Overview copy/media column padding | ~~`patch-case-study-overview-padding-defaults.ts`~~ **removed** — use `patch-case-study-template-defaults.ts` |
 | Overview media column padding → 0 (overwrite stored values) | `patch-overview-media-padding-zero.ts` |
 | Case study section appearance (Reflection, Motion, Core Experience popup, etc.) | `patch-case-study-appearance-defaults.ts` |
 | All case studies — §04 / §07 layoutVariant unset (Studio radio blank) | `patch-section-layout-variants.ts` |
@@ -63,7 +63,8 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Forever a Surfer §11 Reflection + Next Steps (Figma `4162:23711`) | `patch-forever-a-surfer-reflection.ts` — WP / `case-studies.generated.ts`; black `#171717`. Flag: `--appearance-only` |
 | Forever a Surfer — two motion carousels (Figma `4170:20458` / `4170:20484`) | `patch-forever-a-surfer-motion-showcases.ts` — drops legacy `showcaseGallery`; band 1 sage `#bbcdbe` (9 slides `4162:22783`–`22778`), band 2 grey `#9b9f9c` (4 slides `4162:22811`–`22748`); WP Phase 1 + Design Interventions copy. PNG: `motion-1/01–09`, `motion-2/01–04`. **Do not re-run after manual Studio uploads.** Flag: `--appearance-only` |
 | Circle — create Sanity doc (once) | `seed-circle-case-study.ts` — clones Memory Tubes Coral spine → `cs-circle` |
-| Circle §01 Hero + §02 Overview (Figma `4171:32095` / `4171:37062`) | `patch-circle-hero-overview.ts` — heroes `4412:35227` / `4412:35779`; overview side Live AR mock; band `#e3e3db`, panel `#2a2828`. Collab `circle` (lorem until Fas export). **Do not re-run after manual Studio uploads.** Flags: `--copy-only`, `--hero-only`, `--overview-only` |
+| Circle §01 Hero + §02 Overview (Figma `4171:32095` / `4171:37062`) | `patch-circle-hero-overview.ts` — heroes `4412:35227` / `4412:35779`; overview side Live AR mock; band `#e3e3db`, panel `#2a2828`. Collab `circle`. **Do not re-run after manual Studio uploads.** Flags: `--copy-only`, `--hero-only`, `--overview-only` |
+| Circle — collab copy (green cells only) | `python scripts/extract-circle-collab-docx.py` on `SITE FINAL COPY.docx` → merges `caseStudyCollabCopy.json`, then `patch-circle-copy-all.ts` (skips §03 while doc marks it red). Re-run extract when more sections turn green. |
 | Circle §03 Problem Context (Figma `4171:32293` / mobile `4171:37248`) | `patch-circle-problem-context.ts` — existing `problemContextSection`; black `#171717`. Headings Problem Context / What I Brought (layer name “Emotional Browsing” is the text style). Desktop lorem; ignore leftover Coral Health copy on mobile. Flag: `--appearance-only` |
 | Circle §04 Core Experience band (Figma `4171:48253` / mobile `4171:37257`) | `patch-circle-core-experience.ts` — inserts `coreExperience` after Problem Context; `mobileRow` 5 phones; band `#2f2f2f`. Desktop captions. Ignore leftover Experian captions on mobile. Does not write popup tabs. PNG `core-flow/01–05-*`. **Do not re-run after manual Studio uploads.** |
 | Circle §04 View More popup — 8-plate grid (Figma `4409:26000`) | `patch-circle-core-experience-popup.ts` — 8 composite plates @4×; heading Design Interventions + Figma lorem; cream `#e3e3db`, tiles `#222222`; gaps 43/87. PNG `core-flow/modal/01–08-*`. Plate `4409:27025` matches `4409:26680` in the frame. **Do not re-run after manual Studio uploads.** |
@@ -99,6 +100,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Design Assist AI — section reorder (Figma sequence, no CE) | `patch-design-assist-section-order.ts` |
 | Design Assist AI §01 hero desktop + mobile | `patch-design-assist-hero.ts` → `public/work/design-assist-ai/01–02-*.png` |
 | Design Assist AI §02 Overview side image | `patch-design-assist-overview.ts` → `03-overview-side.png` |
+| Design Assist AI §02 Overview side panel `#f4f7fc` (media column only) | `patch-design-assist-overview-appearance.ts` |
 | Design Assist AI §04 My Approach — cream band + lavender accordion (Figma 3719:64964) | `patch-design-assist-approach.ts` — band `#e3e3db`, panel `#9687a8`, text `#231e1e` |
 | Design Assist AI §05 Research Artifacts — 4 slides (Figma 3719:66249) | `patch-design-assist-research-artifacts.ts` — band `#171717`; PNGs in `research-artifacts/01–04-*.png` |
 | Design Assist AI — Intervention Carousel + Grid (Figma 3719:64984 / 65044) | `patch-design-assist-intervention-sections.ts` — carousel `#e9eef7`, grid `#d5cfdd` (16 cards, 6 initial + Load More); PNGs in `intervention-carousel/` + `intervention-grid/`. Flags: `--carousel-only`, `--grid-only`, `--appearance-only` |
@@ -132,9 +134,8 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Diamond Valuation AI §09 Impact — live WP metrics (70% / 40%) | `patch-diamond-valuation-impact-metrics.ts` — two stats + Impact heading (faslebbie.com #user_impact copy) |
 | Diamond Valuation AI §10 Project Highlights — composite 2×2 board (Figma 4001:76592 / 4002:86913) | `patch-diamond-valuation-highlight-reel.ts` — tan `#a4856e`, PNG: `public/work/diamond-valuation-ai/highlights/01-desktop-board.png`. **`--appearance-only`** updates band colour without re-upload |
 | The AR Handbook slug rename (`remote-assistant-object-detection` → `the-ar-handbook`) | `patch-ar-handbook-slug.ts` — permanent redirect in `next.config.ts` |
-| The AR Handbook §04 Core Experience — 4-tile band (Figma 4152:122786) | `patch-ar-handbook-core-experience.ts` — `desktopGrid`, teal `#4c6060`, PNGs in `the-ar-handbook/core-flow/01–04-*`; stagger 191px, row gap 115px. **Pre-rounded PNGs:** `tileBackgroundColor` = band (not white); renderer uses transparent wrapper when `imageWidth`/`imageHeight` set. **`--appearance-only`** fixes tile bg after manual Studio uploads |
+| The AR Handbook — **remove §04 Core Experience** | `patch-ar-handbook-remove-core-experience.ts` — drops `coreExperience` from published + draft. Device flows live on KPE View More (`patch-ar-handbook-kpe-view-more-popups.ts`). Old CE band/popup patch scripts were **deleted** (Sep 2026 — use git history if needed). |
 | The AR Handbook §05 My Approach / Design Process (Figma 4152:122805) | `patch-ar-handbook-approach.ts` — cream `#e3e3db`, teal accordion `#658181`, left `#231e1e`, panel text black; copy from collab JSON. **`--colors-only`** |
-| The AR Handbook §04 View More popup — 3 device tabs (live WP / Coral pattern) | `patch-ar-handbook-core-experience-popup-tabs.ts` — Mobile (12) + Ipad (14) + Realwear (24) from fasandsabrina.com; popup bg `#658181`, tile `#4d585a`, Load More after 6. **`--appearance-only`** updates colors without re-uploading. **Do not re-run full patch after manual uploads.** |
 | Coral motionShowcase title fix | `patch-coral-key-product-title.ts` |
 | All shipped case studies — accordion panel text color from Figma | `patch-accordion-panel-text-colors.ts` — black on tan/lavender/magenta/teal/orange/sage/blue; white on Census navy |
 | Census §05 Design Process — cream band + navy accordion (Figma 3999:53211) | `patch-census-design-process.ts` — band `#e3e3db`, panel `#194498` |
@@ -143,6 +144,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Census §04 Core Experience — 4-tile band (Figma 3999:59093 desktop / 3999:54903 mobile stack) | `patch-census-core-experience.ts` (PNG: `core-flow/01–04-*`; same four tiles on mobile + desktop; row gap 116px). **Do not re-run after manual uploads.** Shipped Sep 9, 2026 |
 | Census §04 Core Experience View More — 8-tile flow grid | `patch-census-core-experience-popup.ts` (PNG: `core-flow/modal/00-landing-hero.png` + `01–07-*`; popup bg `#0A2A58`). **`--appearance-only`** updates colors without re-uploading. **Do not re-run full patch after manual uploads.** |
 | Census §07–08 Key Product Experiences — 2 motion bands (Figma 3999:52313 / 54687) | `patch-census-key-product-experiences.ts` (structure + copy + colors; **images often replaced manually in Studio** — export @4×: phone `4001:70876`, desktop `3999:61079`). **Do not re-run after manual uploads.** Shipped Sep 9, 2026 — `docs/meetings/2026-09-09-actions.md` |
+| AR Handbook KPE bands **2 / 4 / 6** — View More + Design Interventions popups | `patch-ar-handbook-kpe-view-more-popups.ts` — **2 Detect** M4/I8/R10, **4 Label & Train** M2/I4/R4, **6 Classify** M6/I10/R10; one CE-style modal per band (Figma `4290:23592`+`4292:25396`, `4292:27867`+`4292:28529`, `4292:30155`). Figma plates → `key-product/view-more/{detect,label-train,classify}/page-1/{mobile,ipad,realwear}/01.png`. **`--appearance-only`**. **Do not re-run full patch after manual Studio uploads.** |
 | AR Handbook §07–13 Key Product Experiences — 7 bands (Figma 4152:122554 / mobile 4152:125338) | `patch-ar-handbook-key-product-experiences.ts` — 4× `desktopMotionShowcase` (sage) + 3× `motionShowcase` `crossFunctional` (teal). PNG: `public/work/the-ar-handbook/key-product/01–07-*`. **`--appearance-only`** sets `tileBorderRadius: 0` on desktop bands (no image re-upload). **Do not re-run full patch after manual Studio uploads.** |
 | AR Handbook KPE bands **3 / 5 / 7** — poster **carousels** (4 + 3 + 4 Figma frames @4×) | `patch-ar-handbook-kpe-sliders.ts` — sets `desktopMotionShowcase.slides[]`; band 1 stays video. PNG: `public/work/the-ar-handbook/key-product/slider/03-slide-*.png`, `05-slide-*.png`, `07-slide-*.png`. **Does not** replace cross-functional bands or band 1. |
 | The AR Handbook §09 Impact — live metric order (40% / 30% / 20M ARR) | `patch-ar-handbook-impact-metrics.ts` — labels + notes from faslebbie.com #user_impact |
@@ -183,4 +185,11 @@ Use **`patch-*`** for single-field or copy updates. Use **`migrate-case-studies-
 
 See `CLAUDE.md` for page-specific source-of-truth files.
 
-**Do not add `_tmp-*` scripts** — throwaway audits belong in agent sessions, not the repo.
+**Do not add `_tmp-*` or `_audit-*` scripts** — throwaway audits belong in agent sessions, not the repo. (Removed Sep 2026: `audit-*-sanity-history`, `inspect-circle-sanity-copy`, `_audit-about-page`, `_audit-approach-page`.)
+
+## Repo hygiene (scripts + `public/work`)
+
+- **~200 `patch-*` scripts are normal** — one (or a few) per shipped case-study section. Do not bulk-delete; use this README + `docs/case-studies-tracker.md` to see what is still active.
+- **Deleted when obsolete:** deprecated AR Handbook §04 CE patches; superseded overview-padding patch; one-off Sanity audit scripts (recover from git if ever needed).
+- **`public/work/`** — Figma @4× exports for patches you re-run; commit PNGs for case studies you own in git. **Safe to delete locally** (not in git): WP download caches e.g. `public/work/**/core-flow/popup-tabs/`, interim files under `public/work/the-ar-handbook/core-flow/` after Sanity has the assets. Only two shared SVGs are tracked under `public/work/` today; most art lives in Sanity CDN after patch.
+- **Never delete:** `migrate-pages.ts` / `migrate-research.ts` stay in repo but are listed under **Do not re-run** below.

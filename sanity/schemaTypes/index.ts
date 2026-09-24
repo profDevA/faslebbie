@@ -6,6 +6,7 @@ import { portableText } from "./objects/portableText";
 import { accordionItem } from "./objects/accordionItem";
 import { galleryItem } from "./objects/galleryItem";
 import { deviceTab } from "./objects/deviceTab";
+import { viewMorePopupPage } from "./objects/viewMorePopupPage";
 import { statItem } from "./objects/statItem";
 import { showcaseItem } from "./objects/showcaseItem";
 import { interventionSlide } from "./objects/interventionSlide";
@@ -130,6 +131,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   accordionItem,
   galleryItem,
   deviceTab,
+  viewMorePopupPage,
   statItem,
   showcaseItem,
   interventionSlide,
