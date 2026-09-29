@@ -53,7 +53,7 @@ export default function AboutBody({
       {/* Desktop pin: sticks under the nav (82px) for `pin` px of scroll
           so the content brightens in place before the page scrolls. */}
       <div className={STICKY_UNDER_NAV}>
-        <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-10 lg:pb-16 lg:pt-32`}>
+        <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-6 max-lg:pt-6 lg:pb-16 lg:pt-32`}>
         {/* Portrait column — shared sticky offset so the photo rests at the same
             height as every other page (Fas 07/28). */}
         <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
@@ -74,7 +74,7 @@ export default function AboutBody({
             // hovers/clicks — only interactive once it has settled in front.
             pointerEvents: r < 1 ? "none" : undefined,
           }}
-          className="relative z-10 mt-12 will-change-[opacity,filter,transform] lg:mt-0"
+          className="relative z-10 mt-8 max-lg:pointer-events-none max-lg:max-w-[240px] max-lg:mx-auto will-change-[opacity,filter,transform] max-lg:mt-6 lg:mt-0"
         >
           <AboutContent
             className="pb-24"

@@ -116,7 +116,7 @@ export default function BuildBody({
       ) : (
         <>
           {viewToggle}
-          <main className="relative z-10 w-full pb-24 pt-8 lg:pt-12">
+          <main className="relative z-10 w-full pb-24 pt-6 max-lg:pt-6 lg:pt-12">
             <BuildGallery items={buildProjects} onOpen={setOpenId} />
           </main>
         </>

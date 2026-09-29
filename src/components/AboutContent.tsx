@@ -29,7 +29,7 @@ import { aboutLogos } from '@/lib/content'
 import { hiResUrl } from '@/sanity/image'
 import { textAfterExpandedKey } from '@/lib/aboutExpansionNormalize'
 
-const POPUP_KEY_CLASS = `box-decoration-clone ${POPUP_LINK_HOVER}`
+const POPUP_KEY_CLASS = `box-decoration-clone ${POPUP_LINK}`
 
 /** Map keyword text → popup kind (from Sanity redKey marks in intro + bio). */
 function popupByKeyword(paragraphs: AboutToken[][]) {
@@ -308,7 +308,7 @@ function renderKeyPill(
           onClick(e.currentTarget)
         }
       }}
-      className={className}
+      className={`relative z-10 ${className}`}
     >
       {displayText}
     </span>
@@ -547,7 +547,7 @@ function MeasuredParagraph({
   }, [])
 
   return (
-    <div className="mb-7">
+    <div className="about-measured-para mb-7">
       {para.map((tok, j) => {
         if (placement?.kind === 'split' && placement.index === j) {
           if (tok.t === 'key') {

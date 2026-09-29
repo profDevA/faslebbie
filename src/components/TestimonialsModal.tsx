@@ -77,7 +77,7 @@ export default function TestimonialsModal({
         </div>
       }
     >
-      <div className="flex h-[538px] shrink-0 items-center justify-center bg-[#c2c2c2] px-4 lg:h-auto lg:min-h-0 lg:flex-1">
+      <div className="flex max-h-[42vh] min-h-[220px] shrink-0 items-center justify-center bg-[#c2c2c2] px-4 sm:max-h-none sm:h-[538px] lg:h-auto lg:min-h-0 lg:flex-1">
         <div className="flex w-full max-w-[330px] flex-col items-center gap-3 lg:gap-[18px]">
           <div className="size-[68px] overflow-hidden bg-white lg:size-24">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -97,7 +97,7 @@ export default function TestimonialsModal({
           </div>
         </div>
       </div>
-      <div className="flex h-[538px] shrink-0 items-center justify-center bg-[#1a1a1a] px-6 lg:h-auto lg:min-h-0 lg:flex-1 lg:px-14">
+      <div className="flex min-h-[200px] shrink-0 items-center justify-center bg-[#1a1a1a] px-6 py-8 sm:h-[538px] sm:py-0 lg:h-auto lg:min-h-0 lg:flex-1 lg:px-14">
         <p className="w-full text-center text-[14px] font-normal leading-4 text-[#e0e0d7] lg:max-w-[540px] lg:text-[16px] lg:leading-[1.55]">
           “{t.quote}”
         </p>

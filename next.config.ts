@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
     // Next 16 only allows 75 unless listed here, and unlisted values warn
     // (and can fail to optimize) on every page that uses those assets.
     qualities: [75, 92],
+    // Local dev: the optimizer pulls remotes from Node. Slow VPN / Sanity CDN
+    // hits "upstream image response timed out" and every portrait/cover breaks.
+    // Production keeps the default optimizer path.
+    unoptimized: process.env.NODE_ENV === "development",
   },
   // Keep the huge case-study media out of serverless bundles (Vercel 250MB
   // limit). Do NOT exclude all of `public/` — About logo SVGs are read via

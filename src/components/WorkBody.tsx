@@ -496,7 +496,7 @@ export default function WorkBody({
                 {viewToggle}
               </div>
             )}
-            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-8 lg:pb-16 lg:pt-20`}>
+            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-6 max-lg:pt-6 lg:pb-16 lg:pt-20`}>
               {/* Portrait column width = photo width so Stack wraps under it
                   (Figma 1:9885), not across the page over the watermark. */}
               <div

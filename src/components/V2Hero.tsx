@@ -32,8 +32,6 @@ let documentPainted = false;
  * · Centered portrait on top + centered bio come forward (brighten / de-blur)
  */
 
-const MAX_PARA_SIZE = 28;
-const MIN_PARA_SIZE = 15;
 
 const NEAR_BLACK: [number, number, number] = [32, 32, 30];
 const FADED_GREY: [number, number, number] = [183, 183, 175];
@@ -42,22 +40,25 @@ function mix(t: number) {
   return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
 
-function startProgress() {
-  if (!HOME_INTRO_REVEAL) return 1;
-  if (typeof window === "undefined" || !documentPainted) return 0;
-  return sessionStorage.getItem(REVEAL_KEY) ? 1 : 0;
-}
+const MOBILE_HERO_PORTRAIT_CLASS =
+  "aspect-161/145 w-[132px] shrink-0 bg-[#f0f0f0] object-cover object-top";
 
 export default function V2Hero({ content }: { content?: HomeContentData }) {
   const { brand } = useSite();
   const ref = useRef<HTMLElement>(null);
-  const [start] = useState(startProgress);
-  const [p, setP] = useState(start);
-  const [fade, setFade] = useState(start);
-  const fadeMax = useRef(start);
+  const [introActive, setIntroActive] = useState(false);
+  const [p, setP] = useState(1);
+  const [fade, setFade] = useState(1);
+  const fadeMax = useRef(1);
 
   useEffect(() => {
     documentPainted = true;
+    if (!HOME_INTRO_REVEAL || window.innerWidth < 768) return;
+    if (sessionStorage.getItem(REVEAL_KEY)) return;
+    fadeMax.current = 0;
+    setFade(0);
+    setP(0);
+    setIntroActive(true);
   }, []);
 
   const boxRef = useRef<HTMLDivElement>(null);
@@ -65,26 +66,13 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
 
   useEffect(() => {
     const fit = () => {
-      const box = boxRef.current;
-      const para = paraRef.current;
-      if (!box || !para) return;
-      if (window.innerWidth >= 768) {
-        para.style.removeProperty("--hero-para-size");
-        return;
-      }
-      let size = MAX_PARA_SIZE;
-      para.style.setProperty("--hero-para-size", `${size}px`);
-      while (size > MIN_PARA_SIZE && para.scrollHeight > box.clientHeight) {
-        size -= 1;
-        para.style.setProperty("--hero-para-size", `${size}px`);
-      }
+      if (window.innerWidth < 768) return;
+      paraRef.current?.style.removeProperty("--hero-para-size");
     };
     fit();
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
   }, [content]);
-
-  const introActive = start === 0;
 
   useEffect(() => {
     // Settled return-to-Home: same visual shell as post-intro, so pin scroll
@@ -132,8 +120,34 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
     ? "h-[200vh]"
     : `h-[calc(100vh-${NAV_H_PX}px)]`;
 
+  const storyHref = content?.storyHref ?? "/about";
+  const segments = content?.segments ?? [];
+
   return (
-    <section ref={ref} className={`relative shrink-0 ${heroHeight}`}>
+    <>
+      {/* Mobile (Fas Sep 28 QA): skip wordmark scroll; in-flow hero, document scroll only. */}
+      <section className="relative shrink-0 px-6 pt-5 pb-10 md:hidden">
+        <div className="mx-auto flex w-full max-w-[360px] flex-col items-center gap-5">
+          <Image
+            src={brand.homePortraitSrc}
+            alt="Portrait of Fas Lebbie"
+            width={HOME_PORTRAIT_WIDTH}
+            height={HOME_PORTRAIT_HEIGHT}
+            priority
+            className={MOBILE_HERO_PORTRAIT_CLASS}
+          />
+          <HeroParagraph
+            className="home-hero-prose max-w-none text-left text-[22px] leading-[1.5] tracking-[1px]"
+            storyHref={storyHref}
+            segments={segments}
+          />
+        </div>
+      </section>
+
+      <section
+        ref={ref}
+        className={`relative hidden shrink-0 md:block ${heroHeight}`}
+      >
       <div
         aria-hidden
         style={{
@@ -200,12 +214,13 @@ export default function V2Hero({ content }: { content?: HomeContentData }) {
           >
             <HeroParagraph
               className="max-w-272 text-left tracking-[1.65px] md:text-center"
-              storyHref={content?.storyHref ?? "/about"}
-              segments={content?.segments ?? []}
+              storyHref={storyHref}
+              segments={segments}
             />
           </div>
         </div>
       </div>
     </section>
+    </>
   );
 }

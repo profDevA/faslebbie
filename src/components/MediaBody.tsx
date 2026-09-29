@@ -200,7 +200,7 @@ export default function MediaBody({
   }
 
   return (
-    <div className="reckless-prose flex w-full max-w-[1397px] flex-col gap-[17px] pt-10 lg:flex-row lg:items-start lg:gap-[28px] lg:pt-16">
+    <div className="reckless-prose flex w-full max-w-[1397px] flex-col gap-3 pt-10 max-md:gap-2 lg:flex-row lg:items-start lg:gap-[28px] lg:pt-16">
       <FeaturedCard featured={featured} onClick={onOpenFeatured} />
       {talks.length ? (
         <TalkMasonry

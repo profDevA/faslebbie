@@ -61,7 +61,7 @@ export default function AboutWatermark() {
   return (
     <WordmarkFrame
       style={{ color, textShadow: shadow, opacity }}
-      className={`font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] ${WORDMARK_TOP} ${
+      className={`font-grotesk font-bold capitalize leading-[0.95] tracking-[1px] lg:leading-[0.88] lg:tracking-[-0.021em] pt-[404px] max-lg:hidden ${WORDMARK_TOP} ${
         desktopFront ? "lg:z-30" : "lg:-z-10"
       }`}
     >

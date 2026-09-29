@@ -26,10 +26,8 @@ export default async function BlogsPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { view: viewFromUrl } = await searchParams;
-  const [blogsPage, site] = await Promise.all([getBlogsPage(), getSiteSettings()]);
+  const blogsPage = await getBlogsPage();
   const { posts, mediaFeatured, media, publications } = blogsFromSanity(blogsPage);
-  const defaultAuthorAvatar =
-    site?.masterPortrait?.trim() || "/portrait-master.png";
   return (
     <>
       <Nav dark />
@@ -39,7 +37,6 @@ export default async function BlogsPage({
         media={media}
         publications={publications}
         viewFromUrl={viewFromUrl ?? null}
-        defaultAuthorAvatar={defaultAuthorAvatar}
       />
     </>
   );

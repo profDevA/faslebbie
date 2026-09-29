@@ -37,11 +37,14 @@ export default function ContactDrawer({
       role="dialog"
       aria-modal="true"
       aria-label={contact.drawerTitle}
-      className="fixed inset-0 z-100 flex animate-[panel-in_0.3s_ease-out] justify-end"
+      className="fixed inset-0 z-100 flex animate-[panel-in_0.3s_ease-out] justify-end max-md:justify-center"
     >
       {/* Soft wash over the page (Figma: rgba(225,225,216,0.5)). */}
-      <div className="absolute inset-0 bg-[#e1e1d8]/50" onClick={onClose} />
-      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#d2d2c8] text-black shadow-[-8px_0_28px_rgba(0,0,0,0.18)]">
+      <div
+        className="absolute inset-0 bg-[#e1e1d8]/50 max-md:bg-[#d2d2c8]"
+        onClick={onClose}
+      />
+      <div className="relative z-10 flex h-full w-full max-w-[480px] animate-[drawer-in_0.35s_ease-out] flex-col bg-[#d2d2c8] text-black shadow-[-8px_0_28px_rgba(0,0,0,0.18)] max-md:max-w-none max-md:shadow-none">
         <div
           className={`flex ${NAV_H} shrink-0 items-center justify-between border-b border-black bg-white px-7`}
         >
@@ -58,7 +61,7 @@ export default function ContactDrawer({
             ✕
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-[30px] pb-16 pt-16">
+        <div className="min-h-0 flex-1 overflow-y-auto px-[30px] pb-10 pt-8 max-md:px-6 max-md:pt-6 max-md:pb-8">
           <ContactForm />
         </div>
       </div>

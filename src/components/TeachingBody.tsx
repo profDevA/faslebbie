@@ -170,7 +170,7 @@ export default function TeachingBody({
             >
               {viewToggle}
             </div>
-            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-8 lg:pb-16 lg:pt-20`}>
+            <main className={`relative z-10 ${LISTING_SHELL} ${LISTING_GRID} pb-12 pt-6 max-lg:pt-6 lg:pb-16 lg:pt-20`}>
               <div className={`flex flex-col lg:sticky lg:self-start ${PORTRAIT_STICKY_TOP}`}>
                 <h1 className="sr-only">Teaching</h1>
                 <PagePortrait
@@ -202,7 +202,7 @@ export default function TeachingBody({
       ) : (
         <>
           {viewToggle}
-          <main className="relative z-10 w-full pb-24 pt-8 lg:pt-12">
+          <main className="relative z-10 w-full pb-24 pt-6 max-lg:pt-6 lg:pt-12">
             <TeachingGallery
               students={students}
               onOpenStudent={openStudent}

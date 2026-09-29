@@ -54,11 +54,14 @@ body {
 @utility page-body-prose {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1.55;
   font-synthesis: none;
   font-feature-settings: "ss04", "ss06", "ss07", "ss10", "ss14";
   @media (width >= 768px) {
+    font-size: 26px;
+  }
+  @media (width >= 1024px) {
     font-size: 30px;
   }
 }
@@ -68,6 +71,23 @@ body {
   line-height: 1.48;
   @media (width >= 1024px) {
     line-height: 1.5;
+  }
+}
+
+/* About mobile: narrow column — long <p> line boxes can stack over keyword
+   hits (Fas QA). Disable hits on the prose shell; re-enable on pills/links. */
+@media (max-width: 1023px) {
+  .page-body-prose-about {
+    pointer-events: none;
+  }
+  .page-body-prose-about :is(
+      [data-about-key],
+      [data-about-expansion],
+      a,
+      button,
+      .logo-chip
+    ) {
+    pointer-events: auto;
   }
 }
 
@@ -199,6 +219,18 @@ body {
   pointer-events: none;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 767px) {
+  .logo-chip {
+    height: 1.125rem;
+  }
+}
+
+@media (hover: none) {
+  .logo-chip-preview {
+    display: none;
+  }
 }
 
 .logo-chip:hover .logo-chip-preview,

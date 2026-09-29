@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import BlogModal from "@/components/BlogModal";
 import BlogsWatermark from "@/components/BlogsWatermark";
 import MediaBody from "@/components/MediaBody";
 import MediaPopup from "@/components/MediaPopup";
@@ -22,14 +22,12 @@ export default function BlogsBody({
   media,
   publications,
   viewFromUrl = null,
-  defaultAuthorAvatar = "/portrait-master.png",
 }: {
   posts: BlogPost[];
   mediaFeatured: MediaFeatured | null;
   media: MediaItem[];
   publications: PublicationsData;
   viewFromUrl?: string | null;
-  defaultAuthorAvatar?: string;
 }) {
   const [tab, setTab] = usePersistedView<Tab>(
     ["blogs", "words", "media"] as const,
@@ -37,7 +35,6 @@ export default function BlogsBody({
     { blog: "blogs" },
     viewFromUrl,
   );
-  const [openBlog, setOpenBlog] = useState<number | null>(null);
   const [openMediaCarousel, setOpenMediaCarousel] = useState<number | null>(
     null,
   );
@@ -71,7 +68,7 @@ export default function BlogsBody({
             className="gap-8 sm:gap-12 lg:gap-[84px]"
           />
         </div>
-        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-12 pt-8 lg:px-12 lg:pb-16 lg:pt-12">
+        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-12 pt-6 max-lg:pt-6 lg:px-12 lg:pb-16 lg:pt-12">
           <div
             style={{
               opacity,
@@ -84,7 +81,7 @@ export default function BlogsBody({
             {tab === "blogs" ? (
               /* Mobile 16:2335 — 85px stack. Desktop keeps vh rhythm. */
               <div className="flex w-full max-w-[700px] flex-col gap-[85px] pt-[52px] pb-[28vh] lg:gap-[12vh] lg:pt-[10vh] lg:pb-[32vh]">
-                {posts.map((post, index) => (
+                {posts.map((post) => (
                   <article
                     key={post.slug}
                     data-blog-scroll-item
@@ -93,14 +90,13 @@ export default function BlogsBody({
                     <p className="reckless-prose text-[14px] font-normal leading-[1.19] text-black lg:text-[18px] lg:leading-[1.15]">
                       {post.meta}
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setOpenBlog(index)}
+                    <Link
+                      href={`/blogs/${encodeURIComponent(post.slug)}`}
                       data-cursor="hover"
-                      className="mt-[21px] reckless-prose text-[28px] font-normal capitalize leading-[1.67] tracking-[-1.04px] text-accent underline decoration-1 underline-offset-[6px] lg:mt-7 lg:text-[42px] lg:leading-[1.37] lg:tracking-[-1.28px]"
+                      className="mt-[21px] reckless-prose text-[24px] font-normal capitalize leading-[1.5] tracking-[-0.5px] text-accent underline decoration-1 underline-offset-[6px] lg:mt-7 lg:text-[42px] lg:leading-[1.37] lg:tracking-[-1.28px]"
                     >
                       {post.title}
-                    </button>
+                    </Link>
                   </article>
                 ))}
               </div>
@@ -126,12 +122,6 @@ export default function BlogsBody({
       {/* Pin scroll distance (desktop only) for the watermark recede. */}
       <div aria-hidden className="hidden lg:block" style={{ height: pin }} />
 
-      <BlogModal
-        index={openBlog}
-        posts={posts}
-        onClose={() => setOpenBlog(null)}
-        defaultAuthorAvatar={defaultAuthorAvatar}
-      />
       <MediaPopup
         index={openMediaCarousel}
         featured={mediaFeatured}

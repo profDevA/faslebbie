@@ -46,9 +46,9 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[420px] flex-col">
+    <div className="mx-auto flex w-full max-w-[420px] flex-col max-md:max-w-none">
       {/* Figma 2647:3713 — same Home crop (161×145). */}
-      <div className="relative mx-auto aspect-161/145 w-[161px] overflow-hidden">
+      <div className="relative mx-auto aspect-161/145 w-[120px] overflow-hidden max-md:w-[120px] sm:w-[161px]">
         <Image
           src={contact.portraitSrc}
           alt="Fas Lebbie"
@@ -59,7 +59,7 @@ export default function ContactForm() {
         />
       </div>
 
-      <h1 className="mt-11 text-center font-grotesk text-[38px] font-medium leading-none text-black sm:text-[44px]">
+      <h1 className="mt-6 text-center font-grotesk text-[32px] font-medium leading-none text-black max-md:mt-5 sm:mt-11 sm:text-[44px]">
         {contact.heading}
       </h1>
 
@@ -81,7 +81,7 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="mt-9 flex flex-col gap-[18px]" noValidate>
+        <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3 max-md:mt-5 sm:mt-9 sm:gap-[18px]" noValidate>
           <label className="flex flex-col gap-1.5">
             <span className="font-grotesk text-[16px] text-black">Name</span>
             <input
@@ -118,8 +118,8 @@ export default function ContactForm() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Message"
               required
-              rows={4}
-              className={`${inputClass} h-[98px] resize-none py-2.5 leading-normal`}
+              rows={3}
+              className={`${inputClass} h-[72px] resize-none py-2.5 leading-normal max-md:h-[64px] sm:h-[98px]`}
             />
           </label>
 

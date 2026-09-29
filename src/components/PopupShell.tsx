@@ -151,10 +151,10 @@ export default function PopupShell({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)]"
+        className="absolute inset-0 cursor-pointer bg-[rgba(226,226,218,0.82)] max-sm:bg-close"
       />
       <div
-        className={`absolute inset-4 flex min-h-0 flex-col overflow-hidden sm:inset-5 ${cardClassName ?? "bg-close"}`}
+        className={`absolute inset-4 flex min-h-0 flex-col overflow-hidden max-sm:inset-0 sm:inset-5 ${cardClassName ?? "bg-close"}`}
       >
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-black/15 bg-white px-5 sm:h-16 sm:px-8">
           <Breadcrumbs crumbs={crumbs} onClose={onClose} />

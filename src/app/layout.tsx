@@ -47,8 +47,12 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${poppins.variable} ${nhaas.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
+      <body
+        className="flex min-h-full flex-col"
+        suppressHydrationWarning
+      >
         <SiteProvider value={site}>
           <DotCursor />
           {children}
