@@ -20,8 +20,8 @@ import {
 import { hiResUrl } from "@/sanity/image";
 
 // Research section popups (Figma 2854:1464–1925 desktop, 2869:* mobile).
-// Paradigms / Principles / Modalities / Manifesto share a 4-dot pager.
-// Field Notes pages its own notes.
+// Paradigms / Principles / Modalities / Manifesto share a 4-dot section pager.
+// Field Notes pages only its own notes — never mixed into that carousel (Fas Sep 30 QA).
 
 function SquarePlaceholder({ className = "" }: { className?: string }) {
   return <div className={`aspect-square bg-white ${className}`} />;
@@ -205,8 +205,13 @@ function NodeCluster({
 
 function ModalitiesView({ c }: { c: ModalitiesContent }) {
   return (
-    <div>
-      <SquarePlaceholder className="mx-auto mb-10 w-[224px] max-w-full lg:hidden" />
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[207px_minmax(0,1fr)] lg:gap-12">
+      <SectionCover
+        src={c.image}
+        alt="Modalities"
+        className="mx-auto w-[232px] lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]"
+      />
+      <div>
       <div className="border-b border-black pb-10">
         <p className="font-grotesk text-[18px] font-medium text-black text-shadow-token lg:text-[24px]">
           {c.kicker}
@@ -243,6 +248,7 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
       <p className="-mt-2 text-center font-grotesk text-[15px] text-black/70 lg:text-[18px]">
         {c.footnote}
       </p>
+      </div>
     </div>
   );
 }
@@ -253,16 +259,16 @@ function ManifestoView({ c }: { c: ManifestoContent }) {
       {c.paragraphs.map((runs, i) => (
         <div
           key={i}
-          className={`mb-10 max-w-[704px] ${
+          className={`mb-8 max-w-[704px] lg:mb-10 ${
             i % 2 === 0 ? "lg:ml-auto" : "lg:ml-0"
           }`}
         >
           {i === 0 && (
-            <p className="mb-3 font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
+            <p className="mb-3 font-grotesk text-[18px] font-medium text-black text-shadow-token lg:text-[24px]">
               Manifesto
             </p>
           )}
-          <p className="font-grotesk text-[28px] font-medium leading-[1.35] text-black text-shadow-token lg:text-[32px]">
+          <p className="font-grotesk text-[22px] font-medium leading-[1.4] text-black text-shadow-token lg:text-[32px] lg:leading-[1.35]">
             {runs.map((run, j) =>
               run.bold ? (
                 <span key={j} className="font-black">
@@ -315,17 +321,29 @@ function FieldNotesView({
 
   const src = images[Math.min(slide, Math.max(images.length - 1, 0))];
 
-  const imageEl = (
-    <div className="relative h-full min-h-0 overflow-hidden bg-[#d9d5ed]">
+  const imageEl = (fillParent: boolean) => (
+    <div
+      className={`relative overflow-hidden bg-[#d9d5ed] ${
+        fillParent ? "h-full min-h-0" : "h-full w-full"
+      }`}
+    >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element -- static design asset
         <img
           src={src}
           alt={note.place}
-          className="h-full w-full object-cover object-bottom"
+          className={`w-full object-cover object-bottom ${
+            fillParent
+              ? "h-full"
+              : "max-h-[min(52vh,440px)] min-h-[200px]"
+          }`}
         />
       ) : (
-        <div className="h-full min-h-[280px] w-full bg-white lg:min-h-0" />
+        <div
+          className={`w-full bg-white ${
+            fillParent ? "h-full min-h-[280px] lg:min-h-0" : "min-h-[200px]"
+          }`}
+        />
       )}
       {images.length > 1 && (
         <>
@@ -352,42 +370,38 @@ function FieldNotesView({
     </div>
   );
 
+  const noteCopy = (
+    <>
+      <p className="font-grotesk text-[11px] font-light tracking-wide capitalize max-lg:text-[12px]">
+        {note.place}
+      </p>
+      <p className="mt-2 max-w-[389px] font-grotesk text-[28px] font-normal leading-[1.15] tracking-tight max-lg:mx-auto max-lg:max-w-[282px] lg:mt-2 lg:text-[36px] xl:text-[50px] xl:leading-[1.09]">
+        {note.quote}
+      </p>
+      <p className="mt-3 max-w-[329px] font-grotesk text-[14px] font-light leading-[1.35] tracking-[0.72px] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:leading-[1.2] lg:tracking-[1px]">
+        {note.insight}
+      </p>
+      <p className="mt-3 font-grotesk text-[14px] font-light italic leading-[1.35] tracking-[0.72px] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:tracking-[1px]">
+        {note.themes}
+      </p>
+    </>
+  );
+
   return (
     <>
       <div className="hidden min-h-0 lg:contents">
-        <div className="min-h-0 overflow-hidden">{imageEl}</div>
+        <div className="min-h-0 overflow-hidden">{imageEl(true)}</div>
         <div className="flex min-h-0 flex-col items-center justify-center bg-[#1a1a1a] px-10 text-center text-[#e0e0d7]">
-          <p className="font-grotesk text-[11px] font-light tracking-wide capitalize">
-            {note.place}
-          </p>
-          <p className="mt-2 max-w-[389px] font-grotesk text-[36px] font-normal leading-[1.1] tracking-tight xl:text-[50px] xl:leading-[1.09]">
-            {note.quote}
-          </p>
-          <p className="mt-4 max-w-[329px] font-grotesk text-[14px] font-light leading-[1.2] tracking-[1px]">
-            {note.insight}
-          </p>
-          <p className="mt-4 font-grotesk text-[14px] font-light italic tracking-[1px]">
-            {note.themes}
-          </p>
+          {noteCopy}
         </div>
       </div>
 
+      {/* Mobile (Fas Sep 30): image first, copy below — scroll inside popup body. */}
       <div className="flex flex-col lg:hidden">
-        <div className="flex h-[538px] shrink-0 flex-col items-center justify-center bg-[#1a1a1a] px-8 text-center text-[#e0e0d7]">
-          <p className="font-grotesk text-[12px] font-light tracking-tight">
-            {note.place}
-          </p>
-          <p className="mt-2.5 max-w-[282px] font-grotesk text-[36px] font-normal leading-[1.1] tracking-tight">
-            {note.quote}
-          </p>
-          <p className="mt-2.5 max-w-[282px] font-grotesk text-[14px] font-thin leading-4 tracking-[0.72px]">
-            {note.insight}
-          </p>
-          <p className="mt-2.5 max-w-[282px] font-grotesk text-[14px] font-thin italic leading-4 tracking-[0.72px]">
-            {note.themes}
-          </p>
+        <div className="w-full shrink-0">{imageEl(false)}</div>
+        <div className="shrink-0 bg-[#1a1a1a] px-6 py-8 text-center text-[#e0e0d7]">
+          {noteCopy}
         </div>
-        <div className="h-[538px] shrink-0 overflow-hidden">{imageEl}</div>
       </div>
     </>
   );
@@ -427,16 +441,21 @@ export default function ResearchModal({
 }) {
   const [noteIndex, setNoteIndex] = useState(0);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const pagerIds = useMemo(
-    () => researchPagerIds.filter((id) => sections[id]),
+  const sectionPagerIds = useMemo(
+    () =>
+      researchPagerIds.filter(
+        (id) => id !== "field-notes" && sections[id],
+      ),
     [sections],
   );
-  const pagerIndex = openId ? pagerIds.indexOf(openId) : -1;
-  const inSectionPager = pagerIndex >= 0;
   const fieldNotes = sections["field-notes"];
   const noteCount =
     fieldNotes?.kind === "field-notes" ? fieldNotes.notes.length : 0;
-  const pagingNotes = openId === "field-notes" && noteCount > 1;
+  const isFieldNotesOpen = openId === "field-notes";
+  const pagingFieldNotes = isFieldNotesOpen && noteCount > 1;
+  const sectionPagerIndex =
+    openId && !isFieldNotesOpen ? sectionPagerIds.indexOf(openId) : -1;
+  const inSectionPager = sectionPagerIndex >= 0;
 
   useEffect(() => setNoteIndex(0), [openId]);
   useEffect(() => {
@@ -444,17 +463,36 @@ export default function ResearchModal({
   }, [openId, noteIndex]);
 
   useEffect(() => {
-    if (!inSectionPager || pagingNotes) return;
+    if (pagingFieldNotes) {
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const d = e.key === "ArrowRight" ? 1 : -1;
+        setNoteIndex((p) => (p + d + noteCount) % noteCount);
+      };
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    }
+    if (!inSectionPager) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       const d = e.key === "ArrowRight" ? 1 : -1;
       const next =
-        pagerIds[(pagerIndex + d + pagerIds.length) % pagerIds.length];
+        sectionPagerIds[
+          (sectionPagerIndex + d + sectionPagerIds.length) %
+            sectionPagerIds.length
+        ];
       onNavigate(next);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [inSectionPager, pagingNotes, pagerIds, pagerIndex, onNavigate]);
+  }, [
+    inSectionPager,
+    noteCount,
+    onNavigate,
+    pagingFieldNotes,
+    sectionPagerIds,
+    sectionPagerIndex,
+  ]);
 
   if (!openId) return null;
 
@@ -467,7 +505,11 @@ export default function ResearchModal({
 
   const goSection = (d: 1 | -1) => {
     if (!inSectionPager) return;
-    const next = pagerIds[(pagerIndex + d + pagerIds.length) % pagerIds.length];
+    const next =
+      sectionPagerIds[
+        (sectionPagerIndex + d + sectionPagerIds.length) %
+          sectionPagerIds.length
+      ];
     onNavigate(next);
   };
 
@@ -502,7 +544,7 @@ export default function ResearchModal({
     </div>
   );
 
-  const sectionFooter = pagingNotes
+  const sectionFooter = pagingFieldNotes
     ? pagerRow(
         notes.length,
         noteIndex,
@@ -513,12 +555,12 @@ export default function ResearchModal({
       )
     : inSectionPager
       ? pagerRow(
-          pagerIds.length,
-          pagerIndex,
+          sectionPagerIds.length,
+          sectionPagerIndex,
           () => goSection(-1),
           () => goSection(1),
-          (i) => onNavigate(pagerIds[i]),
-          (i) => researchSectionLabel[pagerIds[i]],
+          (i) => onNavigate(sectionPagerIds[i]),
+          (i) => researchSectionLabel[sectionPagerIds[i]],
         )
       : undefined;
 
@@ -535,7 +577,7 @@ export default function ResearchModal({
       ]}
       bodyClassName={
         isFieldNotes
-          ? "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
+          ? "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto max-lg:!px-0 lg:grid-cols-2 lg:overflow-hidden"
           : "min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
       }
       footer={sectionFooter}

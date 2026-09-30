@@ -457,6 +457,7 @@ export interface SanityResearchPage {
   modalities?: {
     kicker?: string;
     statement?: string;
+    image?: string;
     items?: string[];
     groups?: { title?: string; items?: string[] }[];
     footnote?: string;

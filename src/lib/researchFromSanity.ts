@@ -146,6 +146,7 @@ export function researchFromSanity(
       kind: "modalities",
       kicker: data.modalities.kicker ?? "",
       statement: data.modalities.statement ?? "",
+      image: data.modalities.image ?? data.paradigms?.image,
       items: data.modalities.items.map((label, i) => ({ n: padN(i), label })),
       groups: (data.modalities.groups ?? []).map((g) => ({
         title: g.title ?? "",

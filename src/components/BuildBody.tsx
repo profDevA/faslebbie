@@ -11,6 +11,7 @@ import type { BuildContentData } from "@/lib/buildFromSanity";
 import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, portraitDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import { usePersistedView } from "@/hooks/usePersistedView";
 
 type View = "txt" | "img";
@@ -28,6 +29,7 @@ export default function BuildBody({
   const intro = content.intro;
   const buildProjects = content.projects;
 
+  useScrollTopOnMount();
   const [view, setView] = usePersistedView<View>(
     VIEWS,
     "txt",

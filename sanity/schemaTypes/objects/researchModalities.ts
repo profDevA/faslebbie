@@ -8,6 +8,14 @@ export const researchModalities = defineType({
   type: "object",
   fields: [
     defineField({ name: "kicker", title: "Kicker", type: "string" }),
+    defineField({
+      name: "image",
+      title: "Header image",
+      type: "image",
+      description:
+        "Book / diagram above the copy on mobile and in the left column on desktop (like Paradigms).",
+      options: { hotspot: true },
+    }),
     defineField({ name: "statement", title: "Statement", type: "text", rows: 2 }),
     defineField({
       name: "items",

@@ -1,6 +1,6 @@
 /**
  * Upload Figma Mineral Choreography cover (3550:2781) onto
- * researchPage.paradigms.image and researchPage.principles.image.
+ * researchPage.paradigms.image, .principles.image, and .modalities.image.
  * Does not touch copy or field notes.
  *
  * Run from frontend/:
@@ -33,9 +33,10 @@ async function main() {
   await client.patch("researchPage").set({
     "paradigms.image": image,
     "principles.image": image,
+    "modalities.image": image,
   }).commit();
 
-  console.log("✓ paradigms.image + principles.image updated (Figma 3550:2781 HQ)");
+  console.log("✓ paradigms.image + principles.image + modalities.image updated (Figma 3550:2781 HQ)");
 }
 
 main().catch((err) => {

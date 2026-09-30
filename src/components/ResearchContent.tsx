@@ -255,7 +255,7 @@ export default function ResearchContent({
 
   return (
     <section
-      className={`page-body-prose text-black ${className}`}
+      className={`page-body-prose page-body-prose-listing-mobile text-black ${className}`}
     >
       {areas.map((area, i) => (
         <div key={area.kicker} className="mb-12 lg:mb-16">

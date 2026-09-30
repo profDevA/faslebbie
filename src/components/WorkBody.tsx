@@ -539,7 +539,7 @@ export default function WorkBody({
                 }}
                 className="relative z-10 mt-8 will-change-[opacity,filter,transform] lg:mt-0"
               >
-                <section className="page-body-prose pb-24 text-black">
+                <section className="page-body-prose page-body-prose-listing-mobile pb-24 text-black">
                   {narrative.map((para, i) => (
                     // Figma separates paragraphs by a full blank line (~1 line-height,
                     // ~63px at 42px/1.5) — scale the gap with the responsive font size.

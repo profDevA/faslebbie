@@ -66,6 +66,15 @@ body {
   }
 }
 
+/* Listing pages (Approach / Research / Teaching / Work .txt / Build .txt) — Fas Sep 30:
+   one step smaller than About on phones only; About stays at 22px (Sep 28 QA). */
+@media (max-width: 767px) {
+  .page-body-prose-listing-mobile {
+    font-size: 20px;
+    line-height: 1.48;
+  }
+}
+
 /* About — slightly tighter leading so grey pills feel less scattered (Aug 26 QA). */
 @utility page-body-prose-about {
   line-height: 1.48;
@@ -88,6 +97,13 @@ body {
       .logo-chip
     ) {
     pointer-events: auto;
+  }
+}
+
+/* Research modals — drop embossed shadow on small screens (Fas Sep 30 QA). */
+@media (max-width: 1023px) {
+  [data-research-modal] .text-shadow-token {
+    text-shadow: none;
   }
 }
 

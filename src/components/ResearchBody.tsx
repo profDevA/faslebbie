@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import ResearchContent from "@/components/ResearchContent";
 import ResearchModal from "@/components/ResearchModal";
@@ -23,6 +24,7 @@ export default function ResearchBody({
 }) {
   const { areas, closing, sections } = content;
 
+  useScrollTopOnMount();
   const { r, pin } = useReveal(true);
   const [openId, setOpenId] = useState<ResearchSectionId | null>(null);
 

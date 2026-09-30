@@ -3,9 +3,8 @@
 import { useEffect, useRef } from "react";
 import type { ExhibitionTile, TilePos } from "@/lib/teaching";
 
-// Live faslebbie.com/sfk-beijeing-exhibition/: the band creeps upward on its
-// own, the wheel (or a touch drag) adds to that speed and it decays back,
-// hovering a photo pauses it, and reaching the bottom hands scrolling back.
+// Desktop: band creeps on its own; wheel/touch nudge speed (live WP behavior).
+// Mobile (Fas Sep 30): native document scroll only — the rAF conveyor caused jank.
 const BASE_SPEED = 0.5;
 const MAX_SPEED = 15;
 const WHEEL_STEP = 2;
@@ -32,7 +31,7 @@ function tileStyle(pos: TilePos) {
 
 function PhotoBand({ tiles, suffix }: { tiles: ExhibitionTile[]; suffix: string }) {
   return (
-    <div className="relative hidden h-[calc(100dvh-82px)] min-h-[560px] w-full lg:block">
+    <div className="relative h-[calc(100dvh-82px)] min-h-[560px] w-full">
       {tiles.map((tile, i) => (
         <div
           key={`${suffix}-${i}`}
@@ -45,6 +44,8 @@ function PhotoBand({ tiles, suffix }: { tiles: ExhibitionTile[]; suffix: string 
             <img
               src={tile.image}
               alt={tile.label ?? ""}
+              loading="lazy"
+              decoding="async"
               className="h-auto w-full shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
             />
           ) : (
@@ -67,6 +68,8 @@ function MobilePhoto({ tile }: { tile: ExhibitionTile }) {
         <img
           src={tile.image}
           alt={tile.label ?? ""}
+          loading="lazy"
+          decoding="async"
           className="h-auto w-[135px]"
         />
       ) : (
@@ -79,36 +82,26 @@ function MobilePhoto({ tile }: { tile: ExhibitionTile }) {
   );
 }
 
-function MobilePhotoBand({
-  tiles,
-  suffix,
-}: {
-  tiles: ExhibitionTile[];
-  suffix: string;
-}) {
+function MobilePhotoBand({ tiles }: { tiles: ExhibitionTile[] }) {
   const left = tiles.filter((_, i) => i % 2 === 0);
   const right = tiles.filter((_, i) => i % 2 === 1);
   return (
-    <div className="mx-auto grid max-w-[402px] grid-cols-2 px-7 pb-24 pt-[220px] lg:hidden">
+    <div className="mx-auto grid max-w-[402px] grid-cols-2 px-7 pb-24 pt-8">
       <div className="flex flex-col items-start gap-[220px] pt-[71px]">
         {left.map((tile, i) => (
-          <MobilePhoto key={`${suffix}-l-${i}`} tile={tile} />
+          <MobilePhoto key={`l-${i}`} tile={tile} />
         ))}
       </div>
       <div className="flex flex-col items-end gap-[220px]">
         {right.map((tile, i) => (
-          <MobilePhoto key={`${suffix}-r-${i}`} tile={tile} />
+          <MobilePhoto key={`r-${i}`} tile={tile} />
         ))}
       </div>
     </div>
   );
 }
 
-export default function ExhibitionScrollCollage({
-  tiles,
-}: {
-  tiles: ExhibitionTile[];
-}) {
+function DesktopAutoscrollCollage({ tiles }: { tiles: ExhibitionTile[] }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
@@ -201,19 +194,32 @@ export default function ExhibitionScrollCollage({
     };
   }, [tiles.length]);
 
-  if (!tiles.length) return null;
-
   return (
     <div
       ref={viewportRef}
-      className="relative h-[calc(100dvh-82px)] overflow-hidden"
+      className="relative hidden h-[calc(100dvh-82px)] overflow-hidden lg:block"
     >
       <div ref={innerRef} className="will-change-transform">
-        <MobilePhotoBand tiles={tiles} suffix="top" />
-        <MobilePhotoBand tiles={tiles} suffix="bottom" />
         <PhotoBand tiles={tiles} suffix="top" />
         <PhotoBand tiles={tiles} suffix="bottom" />
       </div>
     </div>
+  );
+}
+
+export default function ExhibitionScrollCollage({
+  tiles,
+}: {
+  tiles: ExhibitionTile[];
+}) {
+  if (!tiles.length) return null;
+
+  return (
+    <>
+      <div className="relative z-0 lg:hidden">
+        <MobilePhotoBand tiles={tiles} />
+      </div>
+      <DesktopAutoscrollCollage tiles={tiles} />
+    </>
   );
 }

@@ -157,7 +157,7 @@ export default function TeachingContent({
 
   return (
     <section
-      className={`page-body-prose text-black ${className}`}
+      className={`page-body-prose page-body-prose-listing-mobile text-black ${className}`}
     >
       {intro.map((para, i) => (
         <p key={`intro-${i}`} className="mb-10">

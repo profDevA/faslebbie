@@ -217,7 +217,7 @@ export function PopupTrigger({
       data-cursor="hover"
       onClick={onClick}
       onKeyDown={onActivateKey(onClick)}
-      className={`${POPUP_LINK} ${className}`}
+      className={`box-decoration-clone ${POPUP_LINK} ${className}`}
       {...rest}
     >
       {children}

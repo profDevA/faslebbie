@@ -15,6 +15,7 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { EXTRA_STUDENT_IDS } from "@/lib/studentWorksLayout";
@@ -45,6 +46,7 @@ export default function TeachingBody({
 }) {
   const { intro, sections, students } = content;
 
+  useScrollTopOnMount();
   const router = useRouter();
   const pathname = usePathname();
   const [view, setViewState] = useState<View>(() => {
@@ -217,6 +219,7 @@ export default function TeachingBody({
       <StudentModal
         projects={students}
         openId={openId}
+        onNavigate={openStudent}
         onClose={closeStudent}
       />
     </div>

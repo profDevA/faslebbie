@@ -238,7 +238,7 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   "closing": closing[]${researchProseProj},
   paradigms{ label, intro, "image": image${img}, items[]{ title, body } },
   principles{ label, intro, "image": image${img}, items[]{ title, body }, conclusionKicker, conclusionBody },
-  modalities{ kicker, statement, items, groups[]{ title, items }, footnote },
+  modalities{ kicker, statement, "image": image${img}, items, groups[]{ title, items }, footnote },
   manifesto,
   fieldNotes[]{ place, quote, methodology, themes, insight, "image": image${img} },
   ${seoProj}

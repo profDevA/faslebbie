@@ -36,7 +36,7 @@ export default function BuildContent({
 }) {
   return (
     <section
-      className={`page-body-prose text-black ${className}`}
+      className={`page-body-prose page-body-prose-listing-mobile text-black ${className}`}
     >
       {intro.map((para, i) => (
         <p key={i} className="mb-8 last:mb-0">

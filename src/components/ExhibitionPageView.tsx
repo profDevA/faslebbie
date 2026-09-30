@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import ExhibitionScrollCollage from "@/components/ExhibitionScrollCollage";
 import ExhibitionWatermark from "@/components/ExhibitionWatermark";
 import { POPUP_LINK } from "@/components/InlineToken";
+import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import type { ExhibitionTile } from "@/lib/teaching";
 
 function ExhibitionIntro({
@@ -73,6 +74,8 @@ export default function ExhibitionPageView({
   intro: string;
   cta: string;
 }) {
+  useScrollTopOnMount();
+
   return (
     <>
       <Nav dark />
@@ -94,17 +97,18 @@ export default function ExhibitionPageView({
           </p>
 
           <div className="relative">
-            <ExhibitionScrollCollage tiles={tiles} />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[82px] z-20 flex items-center justify-center px-[35px] lg:px-6">
+            {/* Mobile: intro in flow above staggered photos (no overlay on moving layer). */}
+            <div className="relative z-20 px-[35px] pt-24 pb-8 lg:hidden">
               <ExhibitionIntro
-                className="lg:hidden"
                 size="mobile"
                 heading={heading}
                 intro={intro}
                 cta={cta}
               />
+            </div>
+            <ExhibitionScrollCollage tiles={tiles} />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[82px] z-20 hidden items-center justify-center px-6 lg:flex">
               <ExhibitionIntro
-                className="hidden lg:flex"
                 heading={heading}
                 intro={intro}
                 cta={cta}

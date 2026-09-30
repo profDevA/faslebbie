@@ -117,7 +117,7 @@ export default function LeadershipContent({
 
   return (
     <section
-      className={`page-body-prose text-black ${className}`}
+      className={`page-body-prose page-body-prose-listing-mobile text-black ${className}`}
     >
       {sections.map((section, si) => (
         <div key={section.title} className="mb-12 lg:mb-16">

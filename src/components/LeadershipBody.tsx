@@ -12,6 +12,7 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
+import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 
 /** Approach page (/approach) — section prose from Sanity only. */
 export default function LeadershipBody({
@@ -19,6 +20,7 @@ export default function LeadershipBody({
 }: {
   content: LeadershipContentData;
 }) {
+  useScrollTopOnMount();
   const { r, pin } = useReveal(true);
 
   const opacity = revealOpacity(r);

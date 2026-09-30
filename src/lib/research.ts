@@ -18,7 +18,7 @@ export const researchSectionOrder: ResearchSectionId[] = [
   "field-notes",
 ];
 
-/** All five research popups share Previous / dots / Next. */
+/** Paradigms → Manifesto share Previous / dots / Next. Field Notes is separate. */
 export const researchPagerIds: ResearchSectionId[] = [
   "paradigms",
   "principles",
@@ -231,6 +231,7 @@ export type ModalitiesContent = {
   kind: "modalities";
   kicker: string;
   statement: string;
+  image?: string;
   items: { n: string; label: string }[];
   groups: { title: string; items: string[] }[];
   footnote: string;
