@@ -66,8 +66,8 @@ body {
   }
 }
 
-/* Listing pages (Approach / Research / Teaching / Work .txt / Build .txt) — Fas Sep 30:
-   one step smaller than About on phones only; About stays at 22px (Sep 28 QA). */
+/* Listing + About mobile body — Fas Sep 30 / Oct 2026: match Approach (20px phones);
+   was wrongly 22px-only on About with a centered 240px column (reverted). */
 @media (max-width: 767px) {
   .page-body-prose-listing-mobile {
     font-size: 20px;

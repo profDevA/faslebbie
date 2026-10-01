@@ -782,7 +782,7 @@ export default function AboutContent({
   return (
     <section
       id="about"
-      className={`page-body-prose page-body-prose-about text-black ${className}`}
+      className={`page-body-prose page-body-prose-about page-body-prose-listing-mobile text-black ${className}`}
     >
       {(headline || intro.length > 0) && (
         <div className="mb-7">
