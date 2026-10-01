@@ -199,6 +199,7 @@ function TypingTag({ words }: { words: readonly string[] }) {
     <span
       role="button"
       tabIndex={0}
+      data-about-cycle
       data-cursor="hover"
       onClick={() => setIdx(i => (i + 1) % words.length)}
       onKeyDown={e => {
@@ -207,8 +208,9 @@ function TypingTag({ words }: { words: readonly string[] }) {
           setIdx(i => (i + 1) % words.length)
         }
       }}
-      className={CYCLE_CHIP}
-      aria-label={`${shown}. Click to cycle.`}
+      className={`relative z-10 ${CYCLE_CHIP}`}
+      aria-label={`${words[idx] ?? shown}. Click to cycle.`}
+      suppressHydrationWarning
     >
       <span className="mr-[0.3em]">{'>/~'}</span>
       {shown}

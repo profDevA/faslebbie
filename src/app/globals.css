@@ -83,17 +83,22 @@ body {
   }
 }
 
-/* About mobile: narrow column — long <p> line boxes can stack over keyword
-   hits (Fas QA). Disable hits on the prose shell; re-enable on pills/links. */
+/* About mobile/tablet: long <p> line boxes can stack over keyword hits (Fas QA).
+   Disable hits on the prose shell; re-enable every interactive (see list below).
+   When adding new About inline controls, extend the :is(...) list or taps break. */
 @media (max-width: 1023px) {
   .page-body-prose-about {
     pointer-events: none;
+    text-align: left;
   }
   .page-body-prose-about :is(
       [data-about-key],
       [data-about-expansion],
+      [data-about-panel],
+      [data-about-cycle],
       a,
       button,
+      [role="button"],
       .logo-chip
     ) {
     pointer-events: auto;
