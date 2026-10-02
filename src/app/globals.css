@@ -71,13 +71,22 @@ body {
 @media (max-width: 767px) {
   .page-body-prose-listing-mobile {
     font-size: 20px;
-    line-height: 1.48;
+    /* Vertical leading: gap between a pill on one line and a pill on the next (Fas Oct 2026). */
+    line-height: 1.62;
   }
 }
 
-/* About — slightly tighter leading so grey pills feel less scattered (Aug 26 QA). */
+/* About — tighter leading on md+ only; phones use listing-mobile line-height above. */
 @utility page-body-prose-about {
-  line-height: 1.48;
+  @media (width < 768px) {
+    line-height: 1.62;
+  }
+  @media (width >= 768px) {
+    line-height: 1.48;
+  }
+  @media (width >= 768px) and (max-width: 1023px) {
+    line-height: 1.5;
+  }
   @media (width >= 1024px) {
     line-height: 1.5;
   }
@@ -245,6 +254,8 @@ body {
 @media (max-width: 767px) {
   .logo-chip {
     height: 1.125rem;
+    margin-inline: 0.2em;
+    margin-block: 0.12em;
   }
 }
 

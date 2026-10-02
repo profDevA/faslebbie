@@ -24,9 +24,12 @@ import { useId, type KeyboardEvent, type ReactNode } from "react";
  * same reason: a button is an atomic inline box and can't break across lines.
  */
 
-/** Navigate to an internal page — red on a grey pill, inverts to black. */
+/** Tiny horizontal nudge so same-line words don’t collide; line gap is prose line-height. */
+const PILL_M = "mx-[0.05em]";
+const CHIP_M = "mx-[0.06em]";
+
 export const NAV_PILL =
-  "mx-[0.05em] box-decoration-clone cursor-pointer rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent transition-colors duration-200 hover:bg-black hover:text-white";
+  `${PILL_M} box-decoration-clone cursor-pointer rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent transition-colors duration-200 hover:bg-black hover:text-white`;
 
 /** Opens a popup / overlay / drawer without leaving the page. */
 export const POPUP_LINK =
@@ -45,11 +48,11 @@ export const EXTERNAL_LINK =
 
 /** Non-interactive grey pill (static keyword highlight). */
 export const STATIC_PILL =
-  "mx-[0.05em] box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black";
+  `${PILL_M} box-decoration-clone rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-black`;
 
 /** Reveals narrative inline — grey pill, black text, inverts while open. */
 export function expandPillClass(open: boolean) {
-  return `mx-[0.05em] box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
+  return `${PILL_M} box-decoration-clone cursor-pointer rounded-full px-[0.3em] py-[0.095em] leading-none transition-colors duration-200 ${
     open
       ? "bg-black text-white"
       : "bg-pill text-black hover:bg-black hover:text-white"
@@ -58,7 +61,7 @@ export function expandPillClass(open: boolean) {
 
 /** Cycles its word list on click — the black `>/~` chip. */
 export const CYCLE_CHIP =
-  "mx-[0.06em] box-decoration-clone cursor-pointer bg-[#141414] px-[0.24em] py-[0.02em] text-[0.82em] leading-[1.1] text-bg";
+  `${CHIP_M} box-decoration-clone cursor-pointer bg-[#141414] px-[0.24em] py-[0.02em] text-[0.82em] leading-[1.1] text-bg`;
 
 /** Press-to-activate for spans standing in for buttons. */
 export function onActivateKey(run: () => void) {
