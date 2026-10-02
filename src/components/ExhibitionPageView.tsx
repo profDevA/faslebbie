@@ -82,7 +82,7 @@ export default function ExhibitionPageView({
       <div className="relative min-h-dvh">
         <ExhibitionWatermark />
         <main className="relative z-10 bg-page/80">
-          <p className="pointer-events-none absolute left-0 right-0 top-[82px] z-30 px-[13px] pt-6 font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.38px] text-black lg:px-12 lg:pt-10">
+          <p className="pointer-events-none absolute left-0 right-0 top-14 z-30 px-[13px] pt-6 font-grotesk text-[18px] font-light leading-[1.6] tracking-[0.38px] text-black lg:top-[82px] lg:px-12 lg:pt-10">
             <Link
               href="/teaching"
               data-cursor="hover"

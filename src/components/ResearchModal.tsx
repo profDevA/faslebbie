@@ -396,10 +396,12 @@ function FieldNotesView({
         </div>
       </div>
 
-      {/* Mobile (Fas Sep 30): image first, copy below — scroll inside popup body. */}
-      <div className="flex flex-col lg:hidden">
-        <div className="w-full shrink-0">{imageEl(false)}</div>
-        <div className="shrink-0 bg-[#1a1a1a] px-6 py-8 text-center text-[#e0e0d7]">
+      {/* Mobile (Figma Field Notes): inset PopupShell card; image + text fill body height 50/50. */}
+      <div className="flex min-h-0 flex-1 flex-col lg:hidden">
+        <div className="relative min-h-0 flex-1 basis-0 overflow-hidden">
+          {imageEl(true)}
+        </div>
+        <div className="flex min-h-0 flex-1 basis-0 flex-col items-center justify-center overflow-y-auto bg-[#1a1a1a] px-6 py-5 text-center text-[#e0e0d7]">
           {noteCopy}
         </div>
       </div>
@@ -452,7 +454,9 @@ export default function ResearchModal({
   const noteCount =
     fieldNotes?.kind === "field-notes" ? fieldNotes.notes.length : 0;
   const isFieldNotesOpen = openId === "field-notes";
-  const pagingFieldNotes = isFieldNotesOpen && noteCount > 1;
+  /** Footer always on Field Notes; section carousel never (Fas Oct 2026 / Sep 30 R6). */
+  const showFieldNotesFooter = isFieldNotesOpen && noteCount > 0;
+  const canPageNotes = noteCount > 1; // keyboard + meaningful Next
   const sectionPagerIndex =
     openId && !isFieldNotesOpen ? sectionPagerIds.indexOf(openId) : -1;
   const inSectionPager = sectionPagerIndex >= 0;
@@ -463,7 +467,7 @@ export default function ResearchModal({
   }, [openId, noteIndex]);
 
   useEffect(() => {
-    if (pagingFieldNotes) {
+    if (showFieldNotesFooter && canPageNotes) {
       const onKey = (e: KeyboardEvent) => {
         if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
         const d = e.key === "ArrowRight" ? 1 : -1;
@@ -489,7 +493,8 @@ export default function ResearchModal({
     inSectionPager,
     noteCount,
     onNavigate,
-    pagingFieldNotes,
+    showFieldNotesFooter,
+    canPageNotes,
     sectionPagerIds,
     sectionPagerIndex,
   ]);
@@ -520,11 +525,13 @@ export default function ResearchModal({
     onNext: () => void,
     onSelect: (i: number) => void,
     labelFor: (i: number) => string,
+    disableStep?: boolean,
   ) => (
     <div className="flex w-full max-w-[620px] items-center justify-between gap-2">
       <PopupPagerButton
         className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
         onClick={onPrev}
+        disabled={disableStep}
       >
         {"< Previous"}
       </PopupPagerButton>
@@ -538,13 +545,14 @@ export default function ResearchModal({
       <PopupPagerButton
         className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
         onClick={onNext}
+        disabled={disableStep}
       >
         {"Next >"}
       </PopupPagerButton>
     </div>
   );
 
-  const sectionFooter = pagingFieldNotes
+  const sectionFooter = showFieldNotesFooter
     ? pagerRow(
         notes.length,
         noteIndex,
@@ -569,6 +577,7 @@ export default function ResearchModal({
       onClose={onClose}
       bodyRef={bodyRef}
       label={researchSectionLabel[openId]}
+      cardClassName="bg-white"
       overlayProps={{ "data-research-modal": "" }}
       crumbs={[
         { label: "Research", href: "/research", hideOnMobile: true },
@@ -577,7 +586,7 @@ export default function ResearchModal({
       ]}
       bodyClassName={
         isFieldNotes
-          ? "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto max-lg:!px-0 lg:grid-cols-2 lg:overflow-hidden"
+          ? "flex min-h-0 flex-1 flex-col overflow-hidden max-lg:!px-0 lg:grid lg:grid-cols-2 lg:overflow-hidden"
           : "min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
       }
       footer={sectionFooter}

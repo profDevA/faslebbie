@@ -11,8 +11,8 @@ import { createPortal } from "react-dom";
  * popup: a centred card over a light scrim, a white breadcrumb header with the
  * ✕, an internally scrolling body, and an optional white footer pager.
  *
- * Mobile + desktop (Fas Aug 24–25): near-full viewport — thin ~10–12px scrim
- * margin on all sides (screenshot red-box QA). Inset ~16px mobile / ~20px desktop.
+ * Mobile: near-full viewport card (`max-sm:inset-0`, cream overlay) — Sep 28 QA W4.
+ * sm+: inset card (`inset-4` / `md:inset-5`) with scrim in the gap (Aug Figma 1:37279).
  */
 
 export type PopupCrumb = {

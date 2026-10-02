@@ -155,6 +155,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | **All case studies — password protect** | `patch-case-studies-password-protect-all.ts` (uses Site Settings → Access password) |
 | cardCredits → cardCreditNames list | `patch-credits.ts` |
 | Approach copy | `patch-approach-final-copy.ts` |
+| Research Field Notes — append dummy 2nd note for pager QA | `patch-research-field-notes-dummy-second.ts` (append only; skips if ≥2) |
 | Research copy | `patch-research-final-copy.ts` |
 | Research Paradigms/Principles covers | `patch-research-section-covers.ts` |
 | Research artifacts inline book (Figma 3393:3429) | `patch-research-artifacts-chip.ts` |

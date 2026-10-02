@@ -6,7 +6,7 @@ import { useSite } from "@/components/SiteProvider";
 import ContactForm from "./ContactForm";
 
 // Contact drawer (Figma 2218:75548) — right-side slide-in on a warm light
-// panel, white "Contact" + ✕ bar (same 82px height as page nav).
+// panel, white "Contact" + ✕ bar (h-14 mobile / 82px lg — same as site nav).
 export default function ContactDrawer({
   open,
   onClose,
