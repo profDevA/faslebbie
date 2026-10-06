@@ -34,12 +34,15 @@ import {
   CS_TILE,
 } from '@/components/caseStudyView/constants'
 import {
-  CS_TEXT_ALIGN,
   CS_WIDE_BAND_GUTTER,
+  type CsTextAlign,
   csBandGutter,
+  csBandTextAlign,
   csPagerShell,
   csProseInner,
   csShell,
+  csTitleTextAlign,
+  CS_MOBILE_LEFT_DESKTOP_CENTER,
   pageBandMinHeightClass,
   pageScreenBandClass,
   pageScreenBandInnerClass,
@@ -99,6 +102,7 @@ import {
   DESKTOP_MOTION_SHOWCASE_DEFAULTS,
   SHOWCASE_ARTIFACT_DEFAULTS,
   STATS_BAND_DEFAULTS,
+  MOBILE_DENSE_GRID_CAP,
 } from '@/lib/caseStudyDefaults'
 import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
 import {
@@ -281,11 +285,14 @@ export default function CaseStudyView({
         </div>
       </div>
 
-      <div ref={setScrollNode} className="cs-page-bands">
+      <div
+        ref={setScrollNode}
+        className="cs-page-bands max-lg:pb-[calc(3rem+env(safe-area-inset-bottom,0px))]"
+      >
         {bands}
       </div>
 
-      <div className="sticky bottom-0 z-50 flex h-12 shrink-0 items-center border-t border-black/10 bg-white lg:static">
+      <div className="sticky bottom-0 z-50 flex min-h-12 shrink-0 items-center border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom,0px)] lg:static lg:pb-0">
         <div className={`w-full ${csShell()}`}>{pager}</div>
       </div>
     </div>
@@ -486,7 +493,7 @@ function ProseGroupBlock({
 }) {
   const first = sections[0]
   const light = isLight(first.appearance)
-  const align = first.appearance?.contentAlignment ?? 'center'
+  const align = (first.appearance?.contentAlignment ?? 'center') as CsTextAlign
   const width = first.appearance?.maxWidth ?? 'default'
   const body = csBodyText()
   const allProse = sections.every(s => s._type === 'proseSection')
@@ -501,7 +508,7 @@ function ProseGroupBlock({
   const gapLevel = pageProse ? 'md' : 'lg'
   return (
     <section
-      className={`${CS_TEXT_ALIGN[align]} ${pageScreenBandClass(pageProse)}`}
+      className={`${csBandTextAlign(align)} ${pageScreenBandClass(pageProse)}`}
       style={{ ...bandStyle(first.appearance), ...padStyle }}
     >
       <div className={`${csShell()} ${pageScreenBandInnerClass()}`}>
@@ -517,7 +524,7 @@ function ProseGroupBlock({
             <div key={s._key}>
               {s.sectionTitle && (
                 <h2
-                  className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+                  className={`mb-5 font-bold ${csSectionTitle()} ${light ? 'text-white' : ''} ${csTitleTextAlign(align)}`}
                 >
                   {s.sectionTitle}
                 </h2>
@@ -541,6 +548,12 @@ function ProseGroupBlock({
   )
 }
 
+/** Mobile hero focal point — QA Oct 2026 (Acme crop too low, etc.). */
+const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
+  'acme-lending': 'object-[center_22%]',
+  'forever-a-surfer': 'object-top',
+}
+
 function HeroBlock({
   section: s,
   project: p,
@@ -550,6 +563,8 @@ function HeroBlock({
 }) {
   if (!s.image && !s.imageMobile) return null
   const title = s.headingOverride ?? p.name
+  const mobileObjectPos =
+    MOBILE_HERO_OBJECT_POSITION[p.slug] ?? 'object-top'
   const capSize = csHeroCap()
   const caption = (
     <>
@@ -583,7 +598,7 @@ function HeroBlock({
         <img
           src={mobileArt}
           alt=""
-          className="block w-full h-auto"
+          className={`block max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`}
         />
         <div
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(23,23,23,0)_45%,rgba(23,23,23,0.85)_100%)]"
@@ -599,20 +614,20 @@ function HeroBlock({
             </p>
           ) : null}
           {(p.from || p.to) && (
-            <p className="mt-2 flex flex-wrap items-baseline gap-x-8 text-[14px] leading-[1.6]">
+            <div className="mt-3 space-y-1.5 text-[14px] leading-[1.45]">
               {p.from ? (
-                <span>
-                  <span className="font-medium">From:</span>{' '}
+                <p>
+                  <span className="font-semibold">From:</span>{' '}
                   <span className="font-normal">{p.from}</span>
-                </span>
+                </p>
               ) : null}
               {p.to ? (
-                <span>
-                  <span className="font-medium">To:</span>{' '}
+                <p>
+                  <span className="font-semibold">To:</span>{' '}
                   <span className="font-normal">{p.to}</span>
-                </span>
+                </p>
               ) : null}
-            </p>
+            </div>
           )}
         </div>
       </div>
@@ -629,6 +644,74 @@ function HeroBlock({
         </div>
       </div>
     </section>
+  )
+}
+
+/** Case-study native video — autoplay + mute toggle; tap-to-play when autoplay blocked. */
+function CsOverviewVideo({
+  src,
+  className,
+  style,
+  showFrame = true,
+  poster,
+}: {
+  src: string
+  className?: string
+  style?: CSSProperties
+  showFrame?: boolean
+  poster?: string
+}) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [muted, setMuted] = useState(true)
+  const [needsPlayTap, setNeedsPlayTap] = useState(false)
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return
+    v.muted = muted
+    void v.play().catch(() => setNeedsPlayTap(true))
+  }, [src, muted])
+  const play = () => {
+    const v = ref.current
+    if (!v) return
+    void v.play().then(() => setNeedsPlayTap(false))
+  }
+  return (
+    <div
+      className={`relative ${showFrame ? 'ring-1 ring-black/15' : ''}`}
+      style={style}
+    >
+      <video
+        ref={ref}
+        src={src}
+        poster={poster}
+        autoPlay
+        loop
+        muted={muted}
+        playsInline
+        preload="auto"
+        className={className}
+      />
+      {needsPlayTap ? (
+        <button
+          type="button"
+          aria-label="Play video"
+          data-cursor="hover"
+          onClick={play}
+          className="absolute inset-0 flex items-center justify-center bg-black/35 font-grotesk text-[13px] font-normal uppercase tracking-wide text-white"
+        >
+          Play
+        </button>
+      ) : null}
+      <button
+        type="button"
+        aria-label={muted ? 'Unmute video' : 'Mute video'}
+        data-cursor="hover"
+        onClick={() => setMuted(m => !m)}
+        className="absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-3 py-1.5 font-grotesk text-[12px] font-normal uppercase tracking-wide text-white backdrop-blur-sm transition-opacity hover:opacity-80"
+      >
+        {muted ? 'Unmute' : 'Mute'}
+      </button>
+    </div>
   )
 }
 
@@ -656,14 +739,7 @@ function OverviewStackedSideMedia({
   return (
     <div className={gridClass}>
       <div className={topSlotClass}>
-        <video
-          src={videoSrc}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className={mediaClass}
-        />
+        <CsOverviewVideo src={videoSrc} className={mediaClass} />
       </div>
       <div className={bottomSlotClass}>
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -713,8 +789,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
           ...(sideTextCss ? { color: sideTextCss } : undefined),
         }}
       >
-        <div className={'max-w-[min(580px,100%)]'}>
-          <h2 className={`${csSectionTitle()} ${textClass}`}>
+        <div className={'max-w-[min(680px,100%)] max-lg:max-w-none'}>
+          <h2 className={`font-bold ${csSectionTitle()} ${textClass}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
           <CaseStudyProse value={s.body} className={`mt-[1em] ${body}`} />
@@ -731,12 +807,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             </a>
           )}
         </div>
-        <div className={`flex flex-col gap-5 ${'max-w-[min(580px,100%)]'}`}>
+        <div className={`flex flex-col gap-5 ${'max-w-[min(680px,100%)] max-lg:max-w-none'}`}>
           {(s.serviceCategoryLabel || s.serviceList) && (
             <div className="max-w-85">
               {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
               <h3
-                className={`text-[20px] font-normal capitalize leading-tight ${textClass} ${''}`}
+                className={`text-[20px] font-bold capitalize leading-tight ${textClass} ${''}`}
               >
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
@@ -780,14 +856,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             fillColumn={false}
           />
         ) : hasVideo ? (
-          <video
-            src={s.sideVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={mobileMediaSizeClass}
-          />
+          <CsOverviewVideo src={s.sideVideo!} className={mobileMediaSizeClass} />
         ) : (
           s.sideImage && (
             // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -818,12 +887,8 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               fillColumn
             />
           ) : hasVideo ? (
-            <video
-              src={s.sideVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
+            <CsOverviewVideo
+              src={s.sideVideo!}
               className={desktopMediaSizeClass}
             />
           ) : (
@@ -880,7 +945,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
-            <h2 className={`mb-5 text-center ${csSectionTitle('text-[22px] lg:text-[24px]')}`}>
+            <h2 className={`mb-5 max-lg:text-left lg:text-center ${csSectionTitle('text-[22px] lg:text-[24px]')}`}>
               {s.sectionTitle}
             </h2>
           )}
@@ -913,11 +978,11 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
 
 function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
   const light = isLight(s.appearance)
-  const align = s.appearance?.contentAlignment ?? 'center'
+  const align = (s.appearance?.contentAlignment ?? 'center') as CsTextAlign
   const width = s.appearance?.maxWidth ?? 'default'
   return (
     <section
-      className={CS_TEXT_ALIGN[align]}
+      className={csBandTextAlign(align)}
       style={{
         ...bandStyle(s.appearance),
         ...sectionPadStyle(s.appearance, padDefaults('md', true), true),
@@ -927,7 +992,7 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
         <div className={csProseInner( align, width)}>
           {s.sectionTitle && (
             <h2
-              className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`}
+              className={`mb-5 font-bold ${csSectionTitle()} ${light ? 'text-white' : ''} ${csTitleTextAlign(align)}`}
             >
               {s.sectionTitle}
             </h2>
@@ -942,14 +1007,14 @@ function ProseBlock({ section: s }: { section: Of<'proseSection'> }) {
 /** Figma 03 — Problem Context / What I Brought (600:12516): one centred band. */
 function ProblemContextBlock({ section: s }: { section: Of<'problemContextSection'> }) {
   const light = isLight(s.appearance)
-  const align = s.appearance?.contentAlignment ?? 'center'
+  const align = (s.appearance?.contentAlignment ?? 'center') as CsTextAlign
   const width = s.appearance?.maxWidth ?? 'default'
   const body = csBodyText()
-  const titleClass = `${csSectionTitle()} ${light ? 'text-white' : ''} ${align === 'center' ? 'text-center' : ''}`
+  const titleClass = `font-bold ${csSectionTitle()} ${light ? 'text-white' : ''} ${csTitleTextAlign(align)}`
   const padStyle = sectionPadStyle(s.appearance, PAGE_PROSE_PAD, true)
   return (
     <section
-      className={`${CS_TEXT_ALIGN[align]} ${pageBandMinHeightClass()}`}
+      className={`${csBandTextAlign(align)} ${pageBandMinHeightClass()}`}
       {...cursorInvertAttrs(light)}
       style={{ ...bandStyle(s.appearance), ...padStyle }}
     >
@@ -987,10 +1052,10 @@ function ReflectionBlock({
   section: Of<'reflectionSection'>
   fullCaseStudy?: { url: string; label: string; intro?: string }
 }) {
-  const align = s.appearance?.contentAlignment ?? 'center'
+  const align = (s.appearance?.contentAlignment ?? 'center') as CsTextAlign
   const width = s.appearance?.maxWidth ?? 'default'
   const body = csReflectionBody()
-  const titleClass = `${csReflectionTitle()} text-white ${align === 'center' ? 'text-center' : ''}`
+  const titleClass = `font-bold ${csReflectionTitle()} text-white ${csTitleTextAlign(align)}`
   const steps = s.nextStepsItems ?? []
   const hasReflection = !!s.reflectionBody?.length
   if (!hasReflection && !steps.length && !fullCaseStudy?.url) return null
@@ -1005,7 +1070,7 @@ function ReflectionBlock({
   const column = csProseInner(align, width)
   return (
     <section
-      className={`${CS_TEXT_ALIGN[align]} text-white`}
+      className={`${csBandTextAlign(align)} text-white`}
       data-cursor-invert
       style={{
         ...bandStyle(s.appearance, REFLECTION_DEFAULTS.backgroundColor, true),
@@ -1014,7 +1079,7 @@ function ReflectionBlock({
     >
       <div className={csShell()}>
         <div
-          className={`flex flex-col ${SECTION_GAP_CLASS} ${column}`}
+          className={`flex flex-col ${SECTION_GAP_CLASS} ${column} max-lg:max-w-none`}
           style={sectionGapStyle(
             s.appearance,
             REFLECTION_DEFAULTS.contentGap,
@@ -1173,7 +1238,7 @@ function CoreExperienceScreenCard({
     const desktopBand = desktop
     const mobileGridTile = bandMobileGrid
     const figureClass = mobileGridTile
-      ? 'block shrink-0'
+      ? 'min-w-0 w-full'
       : stackTile
         ? 'mx-auto w-full max-w-[323px]'
         : desktopBand
@@ -1215,17 +1280,14 @@ function CoreExperienceScreenCard({
         : coreExperienceImageBoxStyle(screen, layout)),
     }
     const captionMargin = mobileGridTile
-      ? { marginTop: CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.captionGap }
+      ? {
+          marginTop:
+            CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.mobileViewport.captionGap,
+        }
       : desktopBandTile && !bandStack
         ? { marginTop: CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS.captionGap }
         : undefined
-    const mobileTileWidth = CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS.tileMaxWidth
-    const figureStyle: CSSProperties | undefined = mobileGridTile
-      ? {
-          width: mobileTileWidth,
-          maxWidth: '100%',
-        }
-      : undefined
+    const figureStyle: CSSProperties | undefined = undefined
     const captionStyle: CSSProperties | undefined = captionMargin
     return (
       <figure
@@ -1249,7 +1311,10 @@ function CoreExperienceScreenCard({
           />
         </div>
         {(screen.label || screen.description) && (
-          <figcaption className={bandCaptionClass} style={captionStyle}>
+          <figcaption
+            className={`${bandCaptionClass} ${mobileGridTile ? 'break-words' : ''}`}
+            style={captionStyle}
+          >
             {screen.label && <span className="font-medium">{screen.label} </span>}
             {screen.description && (
               <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
@@ -1423,6 +1488,7 @@ function CoreExperienceBandPreview({
   }
 
   const mobileGrid = CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS
+  const mobileTight = mobileGrid.mobileViewport
   const mobileGridRows = chunkScreens(screens, mobileGrid.columns)
 
   return (
@@ -1433,16 +1499,19 @@ function CoreExperienceBandPreview({
         ...(containerMax ? { maxWidth: containerMax, marginInline: 'auto' } : undefined),
       }}
     >
-      {/* Mobile — 2-col row stack (Figma 3928:15359). */}
+      {/* Mobile — 2-col @330px artboard; balanced gutter (Oct 2026 375px QA). */}
       <div
-        className="mx-auto flex w-full flex-col overflow-x-hidden lg:hidden"
-        style={{ maxWidth: mobileGrid.maxWidth, gap: mobileGrid.rowGap }}
+        className="mx-auto flex w-full min-w-0 max-w-full flex-col overflow-x-hidden lg:hidden"
+        style={{
+          maxWidth: mobileGrid.maxWidth,
+          gap: mobileTight.rowGap,
+        }}
       >
         {mobileGridRows.map((row, rowIdx) => (
           <div
             key={rowIdx}
-            className="flex items-start"
-            style={{ gap: mobileGrid.columnGap }}
+            className="grid w-full min-w-0 grid-cols-2 items-start gap-y-0"
+            style={{ columnGap: mobileTight.columnGap }}
           >
             {row.map(sc => (
               <CoreExperienceScreenCard
@@ -1492,11 +1561,11 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
       style={flexSectionStyle(s.appearance, true, 'md')}
     >
       {(s.sectionTitle || s.body) && (
-        <div className={`${csShell()} text-center`}>
+        <div className={`${csShell()} ${CS_MOBILE_LEFT_DESKTOP_CENTER} flex flex-col`}>
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <CaseStudyProse
             value={s.body}
-            className={`mx-auto mt-3 max-w-[70ch] ${csBodyText()}`}
+            className={`mx-auto mt-3 max-w-[70ch] max-lg:mx-0 max-lg:max-w-none ${csBodyText()}`}
           />
         </div>
       )}
@@ -1529,8 +1598,8 @@ function DeviceTabsViewMorePopupBody({
   popupHeadline,
   popupBody,
   popupTabs,
-  popupInitial = 6,
-  popupLoadMore = 'Load More',
+  popupInitial = 4,
+  popupLoadMore = 'See more',
   popupLoadLess = 'Show Less',
 }: {
   popupApp?: Appearance
@@ -1617,7 +1686,7 @@ function DeviceTabsViewMorePopupBody({
       >
         {(popupKicker || popupHeadline || popupBody?.length) ? (
           <div
-            className={`flex w-full flex-col ${CS_TEXT_ALIGN[popupAlign]} items-start`}
+            className={`flex w-full flex-col ${csBandTextAlign(popupAlign as CsTextAlign)} items-start`}
             style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
           >
             {popupKicker ? (
@@ -1629,7 +1698,7 @@ function DeviceTabsViewMorePopupBody({
             ) : null}
             {popupHeadline ? (
               <h2
-                className={`${csSectionTitle()} w-full ${CS_TEXT_ALIGN[popupAlign]}`}
+                className={`${csSectionTitle()} w-full ${csBandTextAlign(popupAlign as CsTextAlign)}`}
               >
                 {popupHeadline}
               </h2>
@@ -1637,7 +1706,7 @@ function DeviceTabsViewMorePopupBody({
             {popupBody?.length ? (
               <CaseStudyProse
                 value={popupBody}
-                className={`w-full ${csBodyText()} ${CS_TEXT_ALIGN[popupAlign]}`}
+                className={`w-full ${csBodyText()} ${csBandTextAlign(popupAlign as CsTextAlign)}`}
               />
             ) : null}
           </div>
@@ -1677,8 +1746,8 @@ function CoreExperienceBlock({
   const popupShellLabel = popupHeadline ?? title
   const popupKicker = s.popupKicker?.trim()
   const viewMore = s.viewMoreLabel?.trim() || 'View More'
-  const popupInitial = s.popupItemsBeforeViewMore ?? 6
-  const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'Load More'
+  const popupInitial = s.popupItemsBeforeViewMore ?? 4
+  const popupLoadMore = s.popupLoadMoreLabel?.trim() || 'See more'
   const popupLoadLess = s.popupLoadLessLabel?.trim() || 'Show Less'
   const popupApp = s.popupAppearance
 
@@ -1710,12 +1779,19 @@ function CoreExperienceBlock({
     <>
       <section
         data-cs-stretch
+        data-ce-layout={layout === 'mobileRow' ? 'mobileRow' : undefined}
         className="flex flex-col items-center overflow-x-hidden"
         style={bandSectionStyle}
       >
         <div
-          className={`${csShell()} flex w-full flex-col items-center text-center ${
-            desktopGridGaps ? '' : SECTION_GAP_CLASS
+          className={`${csShell('', {
+            mobileSingleInset: layout === 'mobileRow',
+          })} flex w-full min-w-0 flex-col ${CS_MOBILE_LEFT_DESKTOP_CENTER} ${
+            desktopGridGaps
+              ? ''
+              : layout === 'mobileRow'
+                ? 'gap-4 lg:gap-6 lg:gap-[var(--section-gap-desktop)]'
+                : SECTION_GAP_CLASS
           }`}
           style={
             desktopGridGaps
@@ -2033,7 +2109,7 @@ function DesktopMotionStaggeredPair({
       style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
     >
       {title ? (
-        <h2 className={`text-center ${csSectionTitle()} ${copyClass}`}>
+        <h2 className={`max-lg:text-left lg:text-center ${csSectionTitle()} ${copyClass}`}>
           {title}
         </h2>
       ) : null}
@@ -2131,14 +2207,10 @@ function DesktopMotionShowcaseBlock({
                     />
                   </div>
                 ) : (
-                  <video
-                    className="block h-auto w-full"
-                    src={s.videoFile}
+                  <CsOverviewVideo
+                    src={s.videoFile!}
                     poster={s.posterImage}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
+                    className="block h-auto w-full"
                   />
                 )
               ) : (
@@ -2274,7 +2346,7 @@ function InterventionCarouselBlock({
         {(canPage || showCaption) && (
           <div className="shrink-0 lg:mt-[25px]">
             {canPage && (
-              <div className="mb-4 hidden shrink-0 items-center justify-end gap-7 text-[#171717] lg:mb-[15px] lg:flex">
+              <div className="mb-4 flex shrink-0 items-center justify-end gap-7 text-[#171717] lg:mb-[15px]">
                 <button
                   type="button"
                   aria-label="Previous slide"
@@ -2361,11 +2433,11 @@ function InterventionGridBlock({
   const initial =
     typeof s.initialVisibleCount === 'number' && s.initialVisibleCount >= 1
       ? s.initialVisibleCount
-      : 6
+      : 4
   const [expanded, setExpanded] = useState(false)
   const visible = expanded ? items : items.slice(0, initial)
   const hasMore = items.length > initial
-  const readMore = s.readMoreLabel?.trim() || 'Load More'
+  const readMore = s.readMoreLabel?.trim() || 'See more'
   const loadMoreBtnClass =
     'relative pb-1 uppercase leading-[19.2px] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current text-[14px] font-normal tracking-wide text-[#171717] transition-opacity hover:opacity-70'
 
@@ -2419,6 +2491,18 @@ function InterventionGridBlock({
               className={loadMoreBtnClass}
             >
               {readMore}
+            </button>
+          </div>
+        )}
+        {hasMore && expanded && (
+          <div className="mt-[56px] flex justify-center lg:mt-14">
+            <button
+              type="button"
+              data-cursor="hover"
+              onClick={() => setExpanded(false)}
+              className={loadMoreBtnClass}
+            >
+              Show Less
             </button>
           </div>
         )}
@@ -2492,14 +2576,9 @@ function MediaUnit({ item }: { item: MediaItem }) {
     }
     if (item.videoFile) {
       return (
-        <video
-          className="block h-auto w-full"
+        <CsOverviewVideo
           src={item.videoFile}
-          poster={item.posterImage}
-          autoPlay
-          loop
-          muted
-          playsInline
+          className="block h-auto w-full"
         />
       )
     }
@@ -2519,7 +2598,7 @@ function MediaUnit({ item }: { item: MediaItem }) {
 
 function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
   const light = isLight(s.appearance)
-  const initial = s.itemsBeforeViewMore ?? 6
+  const initial = s.itemsBeforeViewMore ?? MOBILE_DENSE_GRID_CAP
   const tan = colorToCss(s.appearance?.backgroundColor)
   const tile = !!s.useDeviceTabs // device-tab flows use the framed tile style
   return (
@@ -2596,7 +2675,7 @@ function ShowcaseBlock({
             >
               {s.sectionTitle && (
                 <h2
-                  className={`text-center font-normal uppercase leading-tight lg:text-left lg:normal-case lg:capitalize text-[16px] lg:text-[26px] ${light ? 'text-white' : ''}`}
+                  className={`max-lg:text-left font-normal uppercase leading-tight lg:text-left lg:normal-case lg:capitalize text-[16px] lg:text-[26px] ${light ? 'text-white' : ''}`}
                 >
                   {s.sectionTitle}
                 </h2>
@@ -2672,7 +2751,7 @@ function ViewMoreDeviceTabsModal({
   fallbackLabel,
   pages,
   popupAppearance: popupApp,
-  popupItemsBeforeViewMore = 6,
+  popupItemsBeforeViewMore = 4,
   popupLoadMoreLabel = 'Load More',
   popupLoadLessLabel = 'Show Less',
 }: {
@@ -2832,7 +2911,7 @@ function MotionShowcasePhoneRowBand({
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle()} ${textClass}`}
+          className={`max-lg:text-left lg:text-center ${csSectionTitle()} ${textClass}`}
           style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
@@ -2940,15 +3019,12 @@ function PhoneRowMedia({
   if (videoSrc) {
     return (
       <div className={frameClass}>
-        <video
-          className={mediaClass}
-          style={mediaStyle}
+        <CsOverviewVideo
           src={videoSrc}
           poster={videoPoster}
-          autoPlay
-          loop
-          muted
-          playsInline
+          showFrame={false}
+          className={mediaClass}
+          style={mediaStyle}
         />
       </div>
     )
@@ -3019,7 +3095,7 @@ function MotionShowcaseCrossFunctionalBand({
       >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle()} ${csBandGutter()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${textClass}`}
+          className={`max-lg:text-left lg:text-center ${csSectionTitle()} ${csBandGutter()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${textClass}`}
           style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
@@ -3194,15 +3270,12 @@ function CrossFunctionalDeviceMedia({
         className={`${frameClass} ${shadowClass}`}
         style={frameStyle}
       >
-        <video
-          className={mediaClass}
-          style={mediaStyle}
+        <CsOverviewVideo
           src={videoSrc}
           poster={videoPoster}
-          autoPlay
-          loop
-          muted
-          playsInline
+          showFrame={false}
+          className={mediaClass}
+          style={mediaStyle}
         />
       </div>
     )
@@ -3266,7 +3339,7 @@ function MotionShowcaseFeaturedBand({
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle()} text-black`}
+          className={`max-lg:text-left lg:text-center ${csSectionTitle()} text-black`}
           style={{ marginBottom: titleMb }}
         >
           {s.sectionTitle}
@@ -3373,15 +3446,12 @@ function FeaturedDeviceMedia({
         : undefined
   if (videoSrc) {
     return (
-      <video
-        className={`block h-auto w-full ${frame.className}`}
-        style={frame.style}
+      <CsOverviewVideo
         src={videoSrc}
         poster={videoPoster}
-        autoPlay
-        loop
-        muted
-        playsInline
+        showFrame={false}
+        className={`block h-auto w-full ${frame.className}`}
+        style={frame.style}
       />
     )
   }
@@ -3437,7 +3507,7 @@ function MotionShowcaseStackedBand({
     >
       {s.sectionTitle && (
         <h2
-          className={`text-center ${csSectionTitle()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${light ? onDark : ''}`}
+          className={`max-lg:text-left lg:text-center ${csSectionTitle()} max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2] ${light ? onDark : ''}`}
           style={{ marginBottom: titleMargin }}
         >
           {s.sectionTitle}
@@ -3445,7 +3515,7 @@ function MotionShowcaseStackedBand({
       )}
       {s.intro && (
         <div
-          className={`mx-auto max-w-[min(720px,100%)] text-center ${csShell('!px-0')} ${onDark}`}
+          className={`mx-auto max-w-[min(720px,100%)] max-lg:mx-0 max-lg:max-w-none max-lg:text-left lg:text-center ${csShell('!px-0')} ${onDark}`}
           style={{ marginBottom: introMb }}
         >
           <CaseStudyProse value={s.intro} className={csBodySm()} />
@@ -3623,14 +3693,11 @@ function DeviceMedia({
         : undefined
   if (videoSrc) {
     return (
-      <video
-        className="block h-auto w-full"
+      <CsOverviewVideo
         src={videoSrc}
         poster={videoPoster}
-        autoPlay
-        loop
-        muted
-        playsInline
+        showFrame={false}
+        className="block h-auto w-full"
       />
     )
   }
@@ -3706,7 +3773,7 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       style={sectionStyle(s.appearance, true, 'lg')}
     >
       {s.sectionTitle && (
-        <h2 className={`mb-12 text-center lg:mb-16 ${csSectionTitle()}`}>
+        <h2 className={`mb-12 max-lg:text-left lg:mb-16 lg:text-center ${csSectionTitle()}`}>
           {s.sectionTitle}
         </h2>
       )}
@@ -3723,21 +3790,39 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
           mattePadding={singlePad}
         />
       ) : (
-        <div
-          className="mx-auto grid w-full grid-cols-2 grid-flow-col grid-rows-3 lg:grid-cols-3 lg:grid-flow-row lg:grid-rows-2 xl:gap-[1vw]"
-          style={{ gap: gridGap }}
-        >
-          {cells.map((c, i) => (
-            <HighlightCellView
-              key={c._key ?? `highlight-${i}`}
-              cell={c}
-              delay={i * 900}
-              matteColor={gridMatte}
-              insetVertical={insetV}
-              insetHorizontal={insetH}
-            />
-          ))}
-        </div>
+        <>
+          {/* Mobile 2×n — full grid (Figma 2×3); no dense-grid See more (CE/artifacts only). */}
+          <div
+            className="mx-auto grid w-full grid-cols-2 lg:hidden"
+            style={{ gap: gridGap }}
+          >
+            {cells.map((c, i) => (
+              <HighlightCellView
+                key={c._key ?? `highlight-m-${i}`}
+                cell={c}
+                delay={i * 900}
+                matteColor={gridMatte}
+                insetVertical={insetV}
+                insetHorizontal={insetH}
+              />
+            ))}
+          </div>
+          <div
+            className="mx-auto hidden w-full grid-cols-3 grid-flow-row grid-rows-2 lg:grid xl:gap-[1vw]"
+            style={{ gap: gridGap }}
+          >
+            {cells.map((c, i) => (
+              <HighlightCellView
+                key={c._key ?? `highlight-${i}`}
+                cell={c}
+                delay={i * 900}
+                matteColor={gridMatte}
+                insetVertical={insetV}
+                insetHorizontal={insetH}
+              />
+            ))}
+          </div>
+        </>
       )}
     </section>
   )
@@ -3787,26 +3872,65 @@ function HighlightCardView({
   matteColor: string
   mattePadding: number
 }) {
-  const i = useFrameCycle(frames.length, 0)
-  if (!frames.length) return null
+  const autoIndex = useFrameCycle(frames.length, 0)
+  const [manualIndex, setManualIndex] = useState(0)
+  const [mobileManual, setMobileManual] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)')
+    const sync = () => setMobileManual(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const i = mobileManual ? manualIndex : autoIndex
+  const n = frames.length
+  const canPage = n > 1
+  if (!n) return null
+  const go = (d: 1 | -1) =>
+    setManualIndex(v => (v + d + n) % n)
   return (
-    <div
-      className="mx-auto w-full max-w-222 rounded-lg shadow-[0_12px_30px_rgba(0,0,0,0.22)]"
-      style={{ backgroundColor: matteColor, padding: mattePadding }}
-    >
-      <div className="relative aspect-887/503 overflow-hidden rounded-[5px]">
-        {frames.map((src, idx) => (
-          // eslint-disable-next-line @next/next/no-img-element -- highlight art
-          <img
-            key={idx}
-            src={src}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
-            style={{ opacity: idx === i ? 1 : 0 }}
-          />
-        ))}
+    <div className="mx-auto w-full max-w-222">
+      <div
+        className="w-full rounded-lg shadow-[0_12px_30px_rgba(0,0,0,0.22)]"
+        style={{ backgroundColor: matteColor, padding: mattePadding }}
+      >
+        <div className="relative aspect-887/503 overflow-hidden rounded-[5px]">
+          {frames.map((src, idx) => (
+            // eslint-disable-next-line @next/next/no-img-element -- highlight art
+            <img
+              key={idx}
+              src={src}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
+              style={{ opacity: idx === i ? 1 : 0 }}
+            />
+          ))}
+        </div>
       </div>
+      {canPage && (
+        <div className="mt-4 flex items-center justify-between gap-4 lg:hidden">
+          <button
+            type="button"
+            data-cursor="hover"
+            onClick={() => go(-1)}
+            className="font-grotesk text-[15px] font-bold text-accent"
+          >
+            {'< Previous'}
+          </button>
+          <span className="font-grotesk text-[13px] text-black/55">
+            {i + 1} / {n}
+          </span>
+          <button
+            type="button"
+            data-cursor="hover"
+            onClick={() => go(1)}
+            className="font-grotesk text-[15px] font-bold text-accent"
+          >
+            {'Next >'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -3848,7 +3972,7 @@ function HighlightCellView({
   const i = useFrameCycle(frames.length, delay)
   if (!videoSrc && !frames.length) return null
 
-  const captionClass = `mt-2.5 max-w-64 text-center font-normal leading-[1.245] ${csBodyText()}`
+  const captionClass = `mt-2.5 max-w-none max-lg:text-left lg:max-w-64 lg:text-center font-normal leading-[1.245] ${csBodyText()}`
 
   return (
     <div className="flex flex-col items-center">
@@ -3875,14 +3999,11 @@ function HighlightCellView({
                 allowFullScreen
               />
             ) : (
-              <video
-                className="h-full w-full object-cover"
+              <CsOverviewVideo
                 src={videoSrc}
                 poster={cell.posterImage}
-                autoPlay
-                loop
-                muted
-                playsInline
+                showFrame={false}
+                className="h-full w-full object-cover"
               />
             )
           ) : (
@@ -3949,7 +4070,7 @@ function StatsBlock({
       : STATS_BAND_DEFAULTS.bodyMarginBottom
   return (
     <section
-      className={`${csBandGutter()} text-center`}
+      className={`${csBandGutter()} max-lg:text-left lg:text-center`}
       style={sectionStyle(s.appearance, true, 'lg')}
     >
       {s.sectionTitle && (
@@ -3958,7 +4079,10 @@ function StatsBlock({
         </h2>
       )}
       {s.body?.length ? (
-        <div className="mx-auto max-w-[min(720px,100%)]" style={{ marginBottom: bodyMb }}>
+        <div
+          className="mx-auto max-w-[min(720px,100%)] max-lg:mx-0 max-lg:max-w-none"
+          style={{ marginBottom: bodyMb }}
+        >
           <CaseStudyProse value={s.body} className={csBodyText()} />
         </div>
       ) : null}
@@ -4034,7 +4158,7 @@ function Label({
 }) {
   return (
     <h2
-      className={`mb-5 ${csSectionTitle()} ${light ? 'text-white' : ''} ${center ? 'text-center' : ''}`}
+      className={`mb-5 font-bold ${csSectionTitle()} ${light ? 'text-white' : ''} ${center ? 'max-lg:text-left lg:text-center' : ''}`}
     >
       {children}
     </h2>
@@ -4065,7 +4189,11 @@ function Accordion({
           <div key={it._key ?? `acc-${i}`} className="border-b-[0.4px] border-current">
             <button
               type="button"
-              onClick={() => setOpen(isOpen ? -1 : i)}
+              onClick={() => {
+                const scrollY = window.scrollY
+                setOpen(isOpen ? -1 : i)
+                requestAnimationFrame(() => window.scrollTo(0, scrollY))
+              }}
               data-cursor="hover"
               className={`flex w-full items-center justify-between gap-6 text-left font-normal ${'py-5'} ${headSize}`}
             >
@@ -4111,12 +4239,19 @@ function ArtifactSlider({
   scrollContainer,
   gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
   gutter = true,
+  mobileInitial = MOBILE_DENSE_GRID_CAP,
+  loadMore = 'See more',
+  loadLess = 'Show Less',
 }: {
   images: string[]
   scrollContainer?: HTMLDivElement | null
   gap?: number
   /** Outer inset. False when the parent already provides the same gutter. */
   gutter?: boolean
+  /** Mobile stack cap before expand (Oct 2026 QA). */
+  mobileInitial?: number
+  loadMore?: string
+  loadLess?: string
 }) {
   const n = images.length
   const [visible, setVisible] = useState(3)
@@ -4178,12 +4313,18 @@ function ArtifactSlider({
   const translateX = -index * step
   const fallbackW = `calc((100% - ${(visible - 1) * GAP}px) / ${visible})`
   const canPage = n > visible
+  const cap = Math.max(1, mobileInitial)
+  const [mobileExpanded, setMobileExpanded] = useState(false)
+  const mobileStack = mobileExpanded ? images : images.slice(0, cap)
+  const mobileToggleClass =
+    'mx-auto mt-2 border-b border-white pb-0.5 text-[14px] font-normal uppercase text-white transition-opacity hover:opacity-70'
+  const canExpandMobile = images.length > cap
 
   return (
     <div className={`relative w-full ${gutter ? 'px-6 sm:px-10 xl:px-[3.5vw]' : ''}`}>
       {/* Mobile — Figma 344:19555: stacked list, no carousel. */}
-      <div className="flex flex-col items-center gap-9 lg:hidden">
-        {images.map((src, i) => (
+      <div className="flex flex-col items-stretch gap-9 lg:hidden">
+        {mobileStack.map((src, i) => (
           <button
             key={`artifact-stack-${i}`}
             type="button"
@@ -4192,16 +4333,36 @@ function ArtifactSlider({
             data-cursor="hover"
             className="w-full overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
           >
-            <div className="aspect-1800/1098 w-full overflow-hidden">
+            <div className="flex min-h-[140px] w-full items-center justify-center overflow-hidden bg-white/5 p-2">
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
               <img
                 src={src}
                 alt=""
-                className="h-full w-full object-cover object-top"
+                className="h-auto max-h-[min(52vh,420px)] w-full object-contain"
               />
             </div>
           </button>
         ))}
+        {canExpandMobile && !mobileExpanded ? (
+          <button
+            type="button"
+            data-cursor="hover"
+            onClick={() => setMobileExpanded(true)}
+            className={mobileToggleClass}
+          >
+            {loadMore}
+          </button>
+        ) : null}
+        {canExpandMobile && mobileExpanded ? (
+          <button
+            type="button"
+            data-cursor="hover"
+            onClick={() => setMobileExpanded(false)}
+            className={mobileToggleClass}
+          >
+            {loadLess}
+          </button>
+        ) : null}
       </div>
 
       <div className="hidden lg:block">
@@ -4617,10 +4778,13 @@ function ArtifactLightbox({
         />
         <button
           type="button"
-          onClick={onClose}
+          onClick={e => {
+            e.stopPropagation()
+            onClose()
+          }}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute right-5 top-5 z-20 shrink-0 text-[24px] leading-none text-black transition-opacity hover:opacity-60"
+          className="absolute -right-1 -top-12 z-30 shrink-0 rounded-full bg-white/90 px-2.5 py-1 text-[28px] leading-none text-black shadow-md transition-opacity hover:opacity-80 max-lg:fixed max-lg:right-4 max-lg:top-[calc(env(safe-area-inset-top,0px)+4.25rem)] max-lg:z-[130]"
         >
           ×
         </button>
@@ -4655,16 +4819,22 @@ function DeviceGallery({
   const tab = tabs[active]
   const showTabBar = tabs.length > 1
   const popupMode = gridSize === 'popup'
+
+  const popupTabShortLabel = (label: string, i: number) => {
+    const m = label.match(/use\s*case\s*(\d+)/i)
+    if (m) return `Use case ${m[1]}`
+    return label.length > 28 ? `Use case ${i + 1}` : label
+  }
+
   return (
     <div className={popupMode ? 'w-full' : 'mt-8'}>
       {showTabBar ? (
         <div
           className={
             popupMode
-              ? 'mx-auto flex w-full max-w-full flex-nowrap justify-start overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center'
-              : 'mx-auto flex w-full flex-nowrap justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]'
+              ? 'mx-auto flex w-full max-w-full flex-col gap-3 pb-1 lg:flex-row lg:flex-nowrap lg:justify-center lg:overflow-x-auto lg:overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+              : 'mx-auto flex w-full max-lg:flex-col max-lg:items-stretch max-lg:gap-3 lg:flex-nowrap lg:justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]'
           }
-          style={popupMode ? { gap: CORE_EXPERIENCE_POPUP_DEFAULTS.tabGap } : undefined}
         >
           {tabs.map((v, i) => (
             <button
@@ -4672,16 +4842,20 @@ function DeviceGallery({
               type="button"
               onClick={() => setActive(i)}
               data-cursor="hover"
-              className={`shrink-0 uppercase leading-[1.03] ${
-                popupMode ? `text-[14px] ${CS_KICKER}` : `${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
+              className={`shrink-0 text-left uppercase leading-[1.03] ${
+                popupMode
+                  ? `w-full text-[14px] lg:w-auto lg:whitespace-nowrap ${CS_KICKER}`
+                  : `${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
               }`}
             >
               <span
-                className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
+                className={`relative inline-block pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
+                  popupMode ? 'whitespace-normal lg:whitespace-nowrap' : 'whitespace-nowrap'
+                } ${
                   active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
                 }`}
               >
-                {v.label}
+                {popupMode ? popupTabShortLabel(v.label, i) : v.label}
               </span>
             </button>
           ))}
@@ -4707,8 +4881,8 @@ function DeviceGallery({
 function ImageGrid({
   images,
   captions,
-  initial = 6,
-  loadMore = 'Load More',
+  initial = 4,
+  loadMore = 'See more',
   loadLess = 'Show Less',
   tile,
   tileBg,
@@ -4929,7 +5103,10 @@ function Stat({
     }
   }, [stat.value, scrollContainer])
   return (
-    <div ref={ref} className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center sm:max-w-none sm:px-3">
+    <div
+      ref={ref}
+      className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center max-lg:items-start max-lg:text-left sm:max-w-none sm:px-3 lg:items-center lg:text-center"
+    >
       {/* Impact stat — live WP #user_impact .impact_count (8.5vw). */}
       <p
         className="font-normal leading-none"

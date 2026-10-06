@@ -610,7 +610,7 @@ function MeasuredParagraph({
 }
 
 /** Figma 2562:36424 / 807:19218 — red ↗ row on #e3e3db pills. */
-const ABOUT_FOOTER_PILL = `inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-4 sm:px-5 ${EXTERNAL_LINK}`
+const ABOUT_FOOTER_PILL = `inline-flex h-[55px] shrink-0 items-center bg-[#e3e3db] px-2.5 max-lg:px-2.5 sm:px-4 lg:px-5 ${EXTERNAL_LINK}`
 
 function AboutFooterPillLabel({ children }: { children: ReactNode }) {
   return (
@@ -847,7 +847,7 @@ export default function AboutContent({
       {/* Footer row: CV / Resume / LinkedIn (Fas 08/31 — Email removed). */}
       {/* Figma 2562:36424 — CV / Resume / LinkedIn on #e3e3db pills. */}
       <div className="@container/about-links mt-8">
-        <div className="flex flex-wrap items-center gap-2 text-inherit sm:gap-3 sm:text-[min(3.7cqw,32px)]">
+        <div className="flex flex-nowrap items-center gap-1 text-inherit max-lg:gap-1 sm:gap-3 sm:text-[min(3.7cqw,32px)]">
           {links.map(link =>
             link.passwordProtected ? (
               <AboutFooterButton

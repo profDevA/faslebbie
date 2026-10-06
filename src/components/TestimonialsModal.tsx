@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import PopupShell, {
-  PopupDots,
-  PopupPagerButton,
-} from "@/components/PopupShell";
+import PopupShell, { PopupPagerButton } from "@/components/PopupShell";
 import type { Testimonial } from "@/lib/content";
 
 /**
- * Testimonials — desktop 2729:19758 (side by side). Mobile 2729:19837 is a
- * 684px window over a 1075px column: grey photo, then scroll to the quote.
+ * Mobile: grey profile (fixed block) + dark quote panel **fills to footer**
+ * (no cream gap on short quotes). Long quotes scroll **inside** the dark panel.
+ * Desktop: 2729:19758 two-column split.
  */
 export default function TestimonialsModal({
   testimonials,
@@ -22,8 +20,13 @@ export default function TestimonialsModal({
   section?: string;
 }) {
   const [i, setI] = useState(0);
+  const quoteScrollRef = useRef<HTMLDivElement>(null);
   const max = testimonials.length - 1;
   const go = (d: number) => setI((c) => Math.min(max, Math.max(0, c + d)));
+
+  useEffect(() => {
+    quoteScrollRef.current?.scrollTo(0, 0);
+  }, [i]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -47,10 +50,10 @@ export default function TestimonialsModal({
         { label: section, href: "/about" },
         { label: "Testimonials" },
       ]}
-      bodyClassName="reckless-prose min-h-0 flex-1 overflow-y-auto lg:grid lg:grid-cols-2 lg:overflow-hidden"
+      bodyClassName="reckless-prose flex min-h-0 flex-1 flex-col overflow-hidden lg:grid lg:min-h-0 lg:grid-cols-2"
       footerClassName="reckless-prose"
       footer={
-        <div className="flex w-full max-w-[620px] items-center justify-between gap-2">
+        <div className="flex w-full max-w-[620px] items-center justify-between gap-4">
           <PopupPagerButton
             className="shrink-0 whitespace-nowrap font-normal text-[16px] lg:text-[21px]"
             onClick={() => go(-1)}
@@ -58,15 +61,9 @@ export default function TestimonialsModal({
           >
             {"< Previous"}
           </PopupPagerButton>
-          <PopupDots
-            className="flex min-w-0 flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            count={testimonials.length}
-            active={i}
-            onSelect={setI}
-            labelFor={(idx) =>
-              `Show testimonial ${idx + 1}: ${testimonials[idx].name}`
-            }
-          />
+          <span className="min-w-0 text-center font-grotesk text-[13px] font-light text-black/55 lg:text-[15px]">
+            {i + 1} / {testimonials.length}
+          </span>
           <PopupPagerButton
             className="shrink-0 whitespace-nowrap font-normal text-[16px] lg:text-[21px]"
             onClick={() => go(1)}
@@ -77,9 +74,9 @@ export default function TestimonialsModal({
         </div>
       }
     >
-      <div className="flex max-h-[42vh] min-h-[220px] shrink-0 items-center justify-center bg-[#c2c2c2] px-4 sm:max-h-none sm:h-[538px] lg:h-auto lg:min-h-0 lg:flex-1">
+      <div className="flex shrink-0 items-center justify-center bg-[#c2c2c2] px-4 py-8 max-lg:max-h-[min(40vh,320px)] lg:min-h-0 lg:flex-1 lg:max-h-none lg:py-10">
         <div className="flex w-full max-w-[330px] flex-col items-center gap-3 lg:gap-[18px]">
-          <div className="size-[68px] overflow-hidden bg-white lg:size-24">
+          <div className="size-[68px] shrink-0 overflow-hidden bg-white lg:size-24">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={t.avatar}
@@ -97,10 +94,15 @@ export default function TestimonialsModal({
           </div>
         </div>
       </div>
-      <div className="flex min-h-[200px] shrink-0 items-center justify-center bg-[#1a1a1a] px-6 py-8 sm:h-[538px] sm:py-0 lg:h-auto lg:min-h-0 lg:flex-1 lg:px-14">
-        <p className="w-full text-center text-[14px] font-normal leading-4 text-[#e0e0d7] lg:max-w-[540px] lg:text-[16px] lg:leading-[1.55]">
-          “{t.quote}”
-        </p>
+      <div className="flex min-h-0 flex-1 flex-col bg-[#1a1a1a] lg:min-h-0">
+        <div
+          ref={quoteScrollRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-8 [-webkit-overflow-scrolling:touch] lg:flex lg:flex-col lg:justify-center lg:px-14 lg:py-10"
+        >
+          <p className="w-full text-left text-[16px] font-normal leading-[1.6] text-[#e0e0d7] lg:mx-auto lg:max-w-[540px] lg:text-center lg:leading-[1.55]">
+            “{t.quote}”
+          </p>
+        </div>
       </div>
     </PopupShell>
   );

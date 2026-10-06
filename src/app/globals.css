@@ -322,14 +322,24 @@ body {
   container-type: size;
 }
 
-.cs-fullheight > section:not(:first-of-type) {
-  min-height: 100cqh;
+@media (min-width: 1024px) {
+  .cs-fullheight > section:not(:first-of-type) {
+    min-height: 100cqh;
+  }
+
+  .cs-fullheight > section:not(:first-of-type):not([data-cs-stretch]) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
-.cs-fullheight > section:not(:first-of-type):not([data-cs-stretch]) {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* CE mobileRow (Coral / Experian band) — tighter vertical pad on phone (Oct 2026). */
+@media (max-width: 1023px) {
+  section[data-ce-layout="mobileRow"] {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
 }
 
 /* Live `#case_footer` — full viewport height. In the modal popup, fill the
@@ -448,6 +458,19 @@ body {
 .cs-page-bands > section:first-of-type > * {
   opacity: 1;
   transition: none;
+}
+
+@media (max-width: 1023px) {
+  .cs-page-bands > section[data-cs-hero] {
+    margin-top: 0;
+  }
+  /* Memory Tubes / Forever — bands are content-height on phone (no 100vh bands). */
+  .cs-fullheight > section:not(:first-of-type) {
+    min-height: 0;
+  }
+  .cs-next-up {
+    min-height: auto;
+  }
 }
 
 /* Hero + Overview Option C — band height follows art (no one-screen crop).

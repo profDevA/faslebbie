@@ -13,6 +13,25 @@ export const CS_TEXT_ALIGN = {
   right: 'text-right',
 } as const
 
+export type CsTextAlign = keyof typeof CS_TEXT_ALIGN
+
+/** Oct 2026 mobile QA — desktop alignment from Sanity; phone stays left-aligned. */
+export function csBandTextAlign(align: CsTextAlign) {
+  if (align === 'center') return 'max-lg:text-left lg:text-center'
+  if (align === 'right') return 'max-lg:text-left lg:text-right'
+  return CS_TEXT_ALIGN[align]
+}
+
+export function csTitleTextAlign(align: CsTextAlign) {
+  if (align === 'center') return 'max-lg:text-left lg:text-center'
+  if (align === 'right') return 'max-lg:text-left lg:text-right'
+  return 'text-left'
+}
+
+/** Band titles/copy centered on desktop, left on phone (Oct 2026 QA). */
+export const CS_MOBILE_LEFT_DESKTOP_CENTER =
+  'max-lg:text-left max-lg:items-start lg:text-center lg:items-center'
+
 /** Full-page desktop: one band = scrollport + bleed (see `--cs-band-bleed` in globals). */
 export function pageScreenBandClass(enabled = true) {
   return enabled
@@ -30,8 +49,16 @@ export function pageScreenBandInnerClass() {
 }
 
 /** Full-page shell (Fas Aug 2026). */
-export function csShell(extra = '') {
-  return `mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12 ${extra}`
+export function csShell(
+  extra = '',
+  opts?: { /** CE mobileRow: one inset on phone — no calc(100%-2.5rem) plus px-5. */ mobileSingleInset?: boolean },
+) {
+  const base =
+    'mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12'
+  const mobileInset = opts?.mobileSingleInset
+    ? 'max-lg:max-w-full max-lg:!px-[22px]'
+    : ''
+  return `${base} ${mobileInset} ${extra}`.replace(/\s+/g, ' ').trim()
 }
 
 export function csProseInner(
@@ -40,8 +67,9 @@ export function csProseInner(
 ) {
   if (widthKey === 'wide') return 'mx-auto w-full max-w-[min(1280px,100%)]'
   if (widthKey === 'full') return 'mx-auto w-full max-w-none'
-  if (align === 'center') return 'mx-auto w-full max-w-[min(1000px,100%)]'
-  return 'mx-auto w-full max-w-[min(1000px,100%)]'
+  if (align === 'center')
+    return 'mx-auto w-full max-w-[min(1000px,100%)] max-lg:max-w-none'
+  return 'mx-auto w-full max-w-[min(1000px,100%)] max-lg:max-w-none'
 }
 
 export function csBandGutter(extra = '') {

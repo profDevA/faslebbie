@@ -30,13 +30,13 @@ const WP = "https://fasandsabrina.com/wp-content/uploads/2024/12";
 const POPUP_BG = "#cce0f0";
 const TILE_BG = "#202a33";
 
-/** Live site shows 6 tiles before Load More (WP grid_view_block JS). */
-const ITEMS_BEFORE_LOAD_MORE = 6;
+/** Mobile QA Oct 2026 — cap dense popup grids (match site-wide 4 + See more). */
+const ITEMS_BEFORE_LOAD_MORE = 4;
 
 /** Figma 3928:22978 / 3928:22982 — popup intro + tab labels. */
 const POPUP_TITLE = "Design Interventions";
 const POPUP_BODY =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  "Three borrower scenarios shaped the build: single-account verification, multiple-account verification, and error recovery. High-fidelity flows for each use case were tested against Acme Lending's brand and compliance requirements.";
 
 /** Grid order matches live WP mobile-view / ipad-view / desktop-view blocks. */
 const USE_CASE_TABS = [

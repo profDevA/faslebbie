@@ -224,6 +224,9 @@ export const WORK_PAGE_APPEARANCE_DEFAULTS = {
 /** Vertical stack gap on mobile bands — not page-template contentGap (96px desktop). */
 export const BAND_STACK_GAP_MOBILE = 24;
 
+/** Oct 2026 mobile QA — CE, artifacts, highlights, intervention grids (Fas: ~4 + expand). */
+export const MOBILE_DENSE_GRID_CAP = 4;
+
 /** §03 Problem Context → What I Brought (Figma 3719:64934 desktop, 4001:79393 mobile). */
 export const PROBLEM_CONTEXT_SUBSECTION_GAP = {
   mobile: 32,
@@ -289,6 +292,16 @@ export const CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS = {
   /** Figma 3928:15359 — ~22px between row groups (not 50). */
   rowGap: 22,
   captionGap: 27,
+  /** 375px QA — one horizontal inset + tighter rhythm (not Figma 37px gutter at full shell width). */
+  mobileViewport: {
+    /** ~22.5px each side @375 → 330px artboard. */
+    shellPaddingX: 22,
+    columnGap: 24,
+    rowGap: 16,
+    captionGap: 20,
+    shellStackGap: 16,
+    bandPaddingY: 40,
+  },
   /** Figma column ~139.12px. */
   tileMaxWidth: 139,
   tileBorderRadius: 10,

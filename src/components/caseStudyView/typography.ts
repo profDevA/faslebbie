@@ -1,6 +1,6 @@
 /** Case-study type — 19/22 mobile, 20/26 laptop. No vw scale (too big on wide screens). */
 export function csBodyText(extra = '') {
-  return `text-[19px] font-normal leading-[1.65] lg:text-[20px] ${extra}`
+  return `text-[19px] font-normal leading-[1.65] lg:text-[22px] ${extra}`
 }
 
 export function csBodySm(extra = '') {
@@ -42,5 +42,5 @@ export function csReflectionTitle() {
 }
 
 export function csReflectionBody() {
-  return 'font-grotesk text-[19px] font-light leading-[1.6] lg:text-[20px]'
+  return 'font-grotesk text-[19px] font-light leading-[1.6] lg:text-[22px]'
 }
