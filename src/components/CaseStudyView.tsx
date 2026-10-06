@@ -95,6 +95,8 @@ import {
   MOTION_FEATURED_MOBILE_DEFAULTS,
   MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS,
   MOTION_ROW_DEFAULTS,
+  MOTION_STACKED_MOBILE,
+  MOTION_MOBILE_FLOW_STACK,
   MOTION_RADIUS_SCALE,
   MOTION_PHONE_ROW_DEFAULTS,
   MOTION_CROSS_FUNCTIONAL_DEFAULTS,
@@ -647,19 +649,22 @@ function HeroBlock({
   )
 }
 
-/** Case-study native video — autoplay + mute toggle; tap-to-play when autoplay blocked. */
+/** Case-study native video — autoplay muted; optional mute chip (overview only). */
 function CsOverviewVideo({
   src,
   className,
   style,
   showFrame = true,
   poster,
+  /** Off for KPE/motion/highlight loops — one Unmute per phone mockup looked broken. */
+  showMuteControl = true,
 }: {
   src: string
   className?: string
   style?: CSSProperties
   showFrame?: boolean
   poster?: string
+  showMuteControl?: boolean
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [muted, setMuted] = useState(true)
@@ -702,15 +707,17 @@ function CsOverviewVideo({
           Play
         </button>
       ) : null}
-      <button
-        type="button"
-        aria-label={muted ? 'Unmute video' : 'Mute video'}
-        data-cursor="hover"
-        onClick={() => setMuted(m => !m)}
-        className="absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-3 py-1.5 font-grotesk text-[12px] font-normal uppercase tracking-wide text-white backdrop-blur-sm transition-opacity hover:opacity-80"
-      >
-        {muted ? 'Unmute' : 'Mute'}
-      </button>
+      {showMuteControl ? (
+        <button
+          type="button"
+          aria-label={muted ? 'Unmute video' : 'Mute video'}
+          data-cursor="hover"
+          onClick={() => setMuted(m => !m)}
+          className="absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-3 py-1.5 font-grotesk text-[12px] font-normal uppercase tracking-wide text-white backdrop-blur-sm transition-opacity hover:opacity-80"
+        >
+          {muted ? 'Unmute' : 'Mute'}
+        </button>
+      ) : null}
     </div>
   )
 }
@@ -2210,6 +2217,7 @@ function DesktopMotionShowcaseBlock({
                   <CsOverviewVideo
                     src={s.videoFile!}
                     poster={s.posterImage}
+                    showMuteControl={false}
                     className="block h-auto w-full"
                   />
                 )
@@ -2578,6 +2586,7 @@ function MediaUnit({ item }: { item: MediaItem }) {
       return (
         <CsOverviewVideo
           src={item.videoFile}
+          showMuteControl={false}
           className="block h-auto w-full"
         />
       )
@@ -2847,7 +2856,12 @@ function MotionShowcaseBlock({
   projectSlug?: string
   projectName?: string
 }) {
-  const layout = s.layoutVariant ?? 'stacked'
+  const layoutRaw = s.layoutVariant ?? 'stacked'
+  /** Until Studio sets `mobileFlowStack`, Coral KPE still defaults to stacked in Sanity. */
+  const layout =
+    layoutRaw === 'stacked' && projectSlug === 'coral-health'
+      ? 'mobileFlowStack'
+      : layoutRaw
   if (layout === 'phoneRow') {
     return <MotionShowcasePhoneRowBand section={s} />
   }
@@ -2863,6 +2877,9 @@ function MotionShowcaseBlock({
         projectName={projectName ?? 'Case Study'}
       />
     )
+  }
+  if (layout === 'mobileFlowStack') {
+    return <MotionShowcaseMobileFlowStackBand section={s} />
   }
   return <MotionShowcaseStackedBand section={s} />
 }
@@ -3023,6 +3040,7 @@ function PhoneRowMedia({
           src={videoSrc}
           poster={videoPoster}
           showFrame={false}
+          showMuteControl={false}
           className={mediaClass}
           style={mediaStyle}
         />
@@ -3274,6 +3292,7 @@ function CrossFunctionalDeviceMedia({
           src={videoSrc}
           poster={videoPoster}
           showFrame={false}
+          showMuteControl={false}
           className={mediaClass}
           style={mediaStyle}
         />
@@ -3450,6 +3469,7 @@ function FeaturedDeviceMedia({
         src={videoSrc}
         poster={videoPoster}
         showFrame={false}
+        showMuteControl={false}
         className={`block h-auto w-full ${frame.className}`}
         style={frame.style}
       />
@@ -3467,6 +3487,154 @@ function FeaturedDeviceMedia({
     )
   }
   return null
+}
+
+/** Coral KPE Figma 3928:39758 — mobile = vertical device stacks; desktop = stacked rows. */
+function MotionShowcaseMobileFlowStackBand({
+  section: s,
+}: {
+  section: Of<'motionShowcase'>
+}) {
+  const rows = s.rows ?? []
+  const light = isLight(s.appearance)
+  const onDark = light ? 'text-[#e3e3db]' : ''
+  const textClass = light ? onDark : 'text-black'
+  const titleMb =
+    typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
+      ? s.titleMarginBottom
+      : MOTION_MOBILE_FLOW_STACK.titleMarginBottomMobile
+  const titleMbLg =
+    typeof s.titleMarginBottomDesktop === 'number' &&
+    s.titleMarginBottomDesktop >= 0
+      ? s.titleMarginBottomDesktop
+      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottomDesktop
+  const introMb =
+    typeof s.introMarginBottom === 'number' && s.introMarginBottom >= 0
+      ? s.introMarginBottom
+      : MOTION_SHOWCASE_BAND_DEFAULTS.introMarginBottom
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const titleMargin = lg ? titleMbLg : titleMb
+  if (!rows.length) return null
+
+  return (
+    <section
+      className={csBandGutter()}
+      style={sectionStyle(s.appearance, true, 'lg', MOTION_BG)}
+    >
+      {s.sectionTitle && (
+        <h2
+          className={`${csSectionTitle()} ${light ? onDark : ''} max-lg:text-center max-lg:capitalize max-lg:!text-[22px] max-lg:!normal-case max-lg:!leading-tight lg:text-center`}
+          style={{ marginBottom: titleMargin }}
+        >
+          {s.sectionTitle}
+        </h2>
+      )}
+      {s.intro && (
+        <div
+          className={`mx-auto max-w-[min(720px,100%)] max-lg:mx-0 max-lg:max-w-none max-lg:text-left lg:text-center ${csShell('!px-0')} ${onDark}`}
+          style={{ marginBottom: introMb }}
+        >
+          <CaseStudyProse value={s.intro} className={csBodySm()} />
+        </div>
+      )}
+
+      <div
+        className="flex w-full flex-col lg:hidden"
+        style={{ gap: MOTION_MOBILE_FLOW_STACK.betweenRowsGapPx }}
+      >
+        {rows.map((row, i) => (
+          <MotionRowMobileItemStack
+            key={row._key ?? `motion-flow-m-${i}`}
+            row={row}
+            textClass={textClass}
+            appearance={s.appearance}
+          />
+        ))}
+      </div>
+
+      <div
+        className={`mx-auto hidden max-w-[min(1280px,100%)] flex-col lg:flex ${SECTION_GAP_CLASS} ${csShell('!px-0')}`}
+        style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
+      >
+        {rows.map((row, i) => (
+          <MotionRowView
+            key={row._key ?? `motion-flow-d-${i}`}
+            row={row}
+            alignRight={rows.length === 1 ? false : i % 2 === 1}
+            centerRow={rows.length === 1}
+            light={light}
+            inheritTextColor={!!s.appearance?.textColor?.hex}
+            appearance={s.appearance}
+            stackedMobile={false}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/** One motion row on phone — all devices in the row, stacked (shared with mobileFlowStack). */
+function MotionRowMobileItemStack({
+  row,
+  textClass,
+  appearance,
+}: {
+  row: MotionRow
+  textClass: string
+  appearance?: Appearance
+}) {
+  const items = row.items ?? []
+  const device = row.device ?? 'mobile'
+  const d = MOTION_MOBILE_FLOW_STACK
+  return (
+    <div className="w-full">
+      <div
+        className="flex w-full flex-col items-center"
+        style={{ gap: d.withinRowGapPx }}
+      >
+        {items.map((it, itemIndex) => (
+          <div
+            key={it._key ?? `motion-flow-item-${itemIndex}`}
+            className="w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]"
+            style={{ maxWidth: d.itemMaxWidthPx }}
+          >
+            <DeviceMedia item={it} poster={row.posterImage} device={device} />
+          </div>
+        ))}
+      </div>
+      {(row.label || row.caption) && (
+        <div
+          className={`mx-auto w-full text-center ${textClass}`}
+          style={{
+            marginTop: d.captionMarginTopPx,
+            maxWidth: d.captionMaxWidthPx,
+          }}
+        >
+          {row.label && (
+            <p className="text-[13px] font-normal uppercase leading-[1.2]">
+              {row.label}
+            </p>
+          )}
+          {row.caption && (
+            <p
+              className={`text-[14px] font-normal leading-[1.35] ${
+                row.label ? 'mt-2' : ''
+              }`}
+            >
+              {row.caption}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function MotionShowcaseStackedBand({
@@ -3523,7 +3691,10 @@ function MotionShowcaseStackedBand({
       )}
       <div
         className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${SECTION_GAP_CLASS} ${csShell('!px-0')}`}
-        style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
+        style={{
+          ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
+          ...(!lg ? { gap: MOTION_STACKED_MOBILE.betweenRowsGapPx } : undefined),
+        }}
       >
         {rows.map((row, i) => (
           <MotionRowView
@@ -3534,6 +3705,7 @@ function MotionShowcaseStackedBand({
             light={light}
             inheritTextColor={!!s.appearance?.textColor?.hex}
             appearance={s.appearance}
+            stackedMobile
           />
         ))}
       </div>
@@ -3592,6 +3764,7 @@ function MotionRowView({
   light,
   inheritTextColor,
   appearance,
+  stackedMobile = false,
 }: {
   row: MotionRow
   alignRight: boolean
@@ -3599,9 +3772,18 @@ function MotionRowView({
   light: boolean
   inheritTextColor: boolean
   appearance?: Appearance
+  stackedMobile?: boolean
 }) {
   const items = row.items ?? []
   const device = row.device ?? 'mobile'
+  const [lg, setLg] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setLg(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
   const frameRadius = motionRadiusFrame(
     motionRadiusPair(appearance, MOTION_RADIUS_SCALE.stacked),
   )
@@ -3619,25 +3801,28 @@ function MotionRowView({
     typeof row.captionMarginTop === 'number' && row.captionMarginTop >= 0
       ? row.captionMarginTop
       : MOTION_ROW_DEFAULTS.captionMarginTop
+  const captionMtMobile = stackedMobile
+    ? MOTION_STACKED_MOBILE.captionMarginTopPx
+    : captionMt
   const tileBg = motionStackedFrameFill(row.tileBackgroundColor)
   const frameMatte = Boolean(tileBg)
+  const rowWidthCss = lg ? `${rowWidth}%` : '100%'
+  const deviceGapStyle = lg
+    ? { gap: `${itemGap}%` }
+    : stackedMobile
+      ? { gap: MOTION_STACKED_MOBILE.deviceGapPx }
+      : { gap: `${itemGap}%` }
   return (
     <div
-      className={`flex max-lg:justify-center ${centerRow ? 'justify-center' : alignRight ? 'lg:justify-end' : 'lg:justify-start'}`}
+      className={`flex w-full ${centerRow ? 'justify-center' : alignRight ? 'lg:justify-end' : 'lg:justify-start'}`}
     >
       <div
         className="w-full lg:max-w-[var(--cs-motion-row)]"
-        style={{ ['--cs-motion-row' as string]: `${rowWidth}%` }}
+        style={{ ['--cs-motion-row' as string]: rowWidthCss }}
       >
         <div
-          className={`flex drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] lg:drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)] max-lg:!gap-2.5 ${
-            device === 'mobile'
-              ? 'max-lg:mx-auto max-lg:w-[68%]'
-              : device === 'tablet'
-                ? 'max-lg:mx-auto max-lg:w-[76%]'
-                : ''
-          }`}
-          style={{ gap: `${itemGap}%` }}
+          className={`flex w-full drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)] lg:drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]`}
+          style={deviceGapStyle}
         >
           {items.map((it, itemIndex) => (
             <div
@@ -3650,14 +3835,18 @@ function MotionRowView({
                 ...frameRadius.style,
               }}
             >
-              <DeviceMedia item={it} poster={row.posterImage} device={device} />
+              <DeviceMedia
+                item={it}
+                poster={row.posterImage}
+                device={device}
+              />
             </div>
           ))}
         </div>
         {(row.label || row.caption) && (
           <div
-            className={`w-full text-left lg:max-w-[min(325px,100%)] ${captionColor}`}
-            style={{ marginTop: captionMt }}
+            className={`w-full max-w-none text-left lg:max-w-[min(325px,100%)] ${captionColor}`}
+            style={{ marginTop: lg ? captionMt : captionMtMobile }}
           >
             {row.label && (
               <p className="text-[20px] font-normal capitalize leading-[1.6] max-lg:!text-[13px] max-lg:!uppercase max-lg:!leading-[1.2]">
@@ -3665,7 +3854,11 @@ function MotionRowView({
               </p>
             )}
             {row.caption && (
-              <p className="mt-2.5 text-[16px] font-normal leading-[1.6] max-lg:!mt-1.5 max-lg:!text-[14px] max-lg:!leading-[1.3]">
+              <p
+                className={`text-[16px] font-normal leading-[1.6] max-lg:!text-[14px] max-lg:!leading-[1.3] ${
+                  row.label ? 'mt-2.5 max-lg:!mt-1.5' : 'mt-0'
+                }`}
+              >
                 {row.caption}
               </p>
             )}
@@ -3697,6 +3890,7 @@ function DeviceMedia({
         src={videoSrc}
         poster={videoPoster}
         showFrame={false}
+        showMuteControl={false}
         className="block h-auto w-full"
       />
     )
@@ -4003,6 +4197,7 @@ function HighlightCellView({
                 src={videoSrc}
                 poster={cell.posterImage}
                 showFrame={false}
+                showMuteControl={false}
                 className="h-full w-full object-cover"
               />
             )

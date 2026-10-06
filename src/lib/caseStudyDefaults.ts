@@ -104,6 +104,28 @@ export const MOTION_SHOWCASE_BAND_DEFAULTS = {
   introMarginBottom: 40,
 } as const;
 
+/**
+ * §07 Stacked motion — non-Coral phones/tablets in a simple row (Experian etc.).
+ */
+export const MOTION_STACKED_MOBILE = {
+  deviceGapPx: 11,
+  betweenRowsGapPx: 48,
+  captionMarginTopPx: 20,
+} as const;
+
+/**
+ * §07 `mobileFlowStack` — Coral mobile KPE (Figma `3928:39758`).
+ * Each row: devices stacked vertically (no white tile mattes); caption under the group.
+ */
+export const MOTION_MOBILE_FLOW_STACK = {
+  betweenRowsGapPx: 56,
+  withinRowGapPx: 32,
+  itemMaxWidthPx: 320,
+  captionMarginTopPx: 28,
+  captionMaxWidthPx: 335,
+  titleMarginBottomMobile: 40,
+} as const;
+
 /** §07 Motion row — device strip + caption. */
 export const MOTION_ROW_DEFAULTS = {
   /** Work popup desktop row — Figma Census 2229:30437 (~728px in 1099 modal). */

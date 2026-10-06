@@ -45,6 +45,11 @@ export const motionShowcase = defineType({
               "Cross-functional (AR Handbook — diagonal 3-device desktop, stacked mobile)",
             value: "crossFunctional",
           },
+          {
+            title:
+              "Mobile flow stack (Coral KPE — Figma 3928:39758; desktop = stacked rows)",
+            value: "mobileFlowStack",
+          },
         ],
         layout: "radio",
       },

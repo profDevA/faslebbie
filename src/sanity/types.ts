@@ -285,7 +285,12 @@ export type Section =
       _type: "motionShowcase";
       sectionTitle?: string;
       intro?: PortableTextBlock[];
-      layoutVariant?: "stacked" | "featured" | "phoneRow" | "crossFunctional";
+      layoutVariant?:
+        | "stacked"
+        | "featured"
+        | "phoneRow"
+        | "crossFunctional"
+        | "mobileFlowStack";
       titleMarginBottom?: number;
       titleMarginBottomDesktop?: number;
       introMarginBottom?: number;
