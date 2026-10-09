@@ -21,6 +21,7 @@ export default function BlogModal({
   const [shareUrl, setShareUrl] = useState("");
   useEffect(() => setMounted(true), []);
   const shellScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
 
   const open = index !== null;
   const post = open ? posts[index!] : null;
@@ -28,6 +29,7 @@ export default function BlogModal({
   useEffect(() => {
     if (!open) return;
     shellScrollRef.current?.scrollTo(0, 0);
+    rightScrollRef.current?.scrollTo(0, 0);
   }, [index, open]);
 
   useEffect(() => {
@@ -50,13 +52,13 @@ export default function BlogModal({
         { label: post.title },
       ]}
       bodyRef={shellScrollRef}
-      bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
+      bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
     >
       <BlogArticleLayout
         post={post}
         shareUrl={shareUrl}
         defaultAuthorAvatar={defaultAuthorAvatar}
-        className="contents lg:contents"
+        rightScrollRef={rightScrollRef}
       />
     </PopupShell>
   );

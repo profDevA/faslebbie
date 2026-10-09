@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import { ExternalTextLink } from "@/components/InlineToken";
 import BlogArticleBody, { isPortableTextBody } from "@/components/BlogArticleBody";
 import BlogArticleFooter from "@/components/BlogArticleFooter";
@@ -210,18 +210,21 @@ export default function BlogArticleLayout({
   shareUrl,
   defaultAuthorAvatar = "/portrait-master.png",
   className = "grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden",
+  rightScrollRef,
 }: {
   post: BlogPost;
   shareUrl: string;
   defaultAuthorAvatar?: string;
   className?: string;
+  /** Modal: reset scroll on the right column when paging posts. */
+  rightScrollRef?: RefObject<HTMLDivElement | null>;
 }) {
   const hasBody = Boolean(post.body?.length);
 
   return (
     <div className={className}>
       <div
-        className="relative order-2 min-h-[240px] sm:min-h-[280px] lg:order-1 lg:h-full lg:min-h-0 lg:overflow-hidden"
+        className="relative order-2 min-h-[240px] sm:min-h-[280px] lg:order-1 lg:h-full lg:min-h-0 lg:self-stretch lg:overflow-hidden"
         style={{ backgroundColor: post.coverBg }}
       >
         {post.cover && (
@@ -235,7 +238,10 @@ export default function BlogArticleLayout({
         )}
       </div>
 
-      <div className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close">
+      <div
+        ref={rightScrollRef}
+        className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close"
+      >
         <div
           className="order-1 flex flex-col items-center justify-center gap-5 px-7 py-12 text-center lg:order-none lg:min-h-full lg:px-14 lg:py-14"
           style={{ backgroundColor: post.panelBg, color: post.panelText }}
