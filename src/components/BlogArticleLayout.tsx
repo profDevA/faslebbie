@@ -243,7 +243,7 @@ export default function BlogArticleLayout({
         className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:bg-close"
       >
         <div
-          className="order-1 flex flex-col items-center justify-center gap-5 px-7 py-12 text-center lg:order-none lg:min-h-full lg:px-14 lg:py-14"
+          className="order-1 flex shrink-0 flex-col items-center justify-center gap-5 px-7 py-12 text-center max-lg:min-h-[min(62svh,calc(100dvh-var(--blog-mobile-chrome,0rem)-var(--blog-cover-peek,24svh)))] lg:order-none lg:min-h-full lg:px-14 lg:py-14"
           style={{ backgroundColor: post.panelBg, color: post.panelText }}
         >
           <p className="reckless-prose text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[14px]">

@@ -52,7 +52,7 @@ export default async function BlogPostPage({
   return (
     <>
       <Nav dark />
-      <main className="flex min-h-0 flex-1 flex-col bg-close lg:max-h-[calc(100dvh-82px)] lg:overflow-hidden">
+      <main className="flex min-h-0 flex-1 flex-col bg-close max-lg:overflow-visible max-lg:[--blog-cover-peek:24svh] max-lg:[--blog-mobile-chrome:7rem] lg:max-h-[calc(100dvh-82px)] lg:overflow-hidden">
         <div className="flex h-14 shrink-0 items-center border-b border-black/15 bg-white px-6 sm:h-16 sm:px-8">
           <Link
             href="/blogs?view=blogs"
@@ -65,7 +65,7 @@ export default async function BlogPostPage({
           post={post}
           shareUrl={sharePath}
           defaultAuthorAvatar={defaultAuthorAvatar}
-          className="grid min-h-0 w-full flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden"
+          className="grid w-full flex-1 grid-cols-1 max-lg:overflow-visible lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden"
         />
       </main>
     </>
