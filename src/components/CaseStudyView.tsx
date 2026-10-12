@@ -3927,6 +3927,22 @@ function highlightFrameUrls(cell: HighlightCell): string[] {
   return []
 }
 
+function isHighlightGifUrl(src: string) {
+  return /\.gif($|[?#])/i.test(src)
+}
+
+function highlightCellGifSrc(cell: HighlightCell): string | undefined {
+  if (cell.videoFile && isHighlightGifUrl(cell.videoFile)) return cell.videoFile
+  if (cell.videoUrl && isHighlightGifUrl(cell.videoUrl)) return cell.videoUrl
+  return undefined
+}
+
+function highlightCellVideoSrc(cell: HighlightCell): string | undefined {
+  if (cell.videoFile && !isHighlightGifUrl(cell.videoFile)) return cell.videoFile
+  if (cell.videoUrl && !isHighlightGifUrl(cell.videoUrl)) return cell.videoUrl
+  return undefined
+}
+
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
   const layout = s.layout ?? 'grid'
   const cells = s.cells ?? []
@@ -4162,9 +4178,10 @@ function HighlightCellView({
   insetHorizontal: number
 }) {
   const frames = cell.frames ?? []
-  const videoSrc = cell.videoFile || cell.videoUrl
+  const gifSrc = highlightCellGifSrc(cell)
+  const videoSrc = highlightCellVideoSrc(cell)
   const i = useFrameCycle(frames.length, delay)
-  if (!videoSrc && !frames.length) return null
+  if (!gifSrc && !videoSrc && !frames.length) return null
 
   const captionClass = `mt-2.5 max-w-none max-lg:text-left lg:max-w-64 lg:text-center font-normal leading-[1.245] ${csBodyText()}`
 
@@ -4183,7 +4200,15 @@ function HighlightCellView({
             right: `${insetHorizontal}%`,
           }}
         >
-          {videoSrc ? (
+          {gifSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element -- animated GIF asset
+            <img
+              src={gifSrc}
+              alt={cell.caption || ''}
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          ) : videoSrc ? (
             cell.videoUrl && !cell.videoFile ? (
               <iframe
                 src={cell.videoUrl}

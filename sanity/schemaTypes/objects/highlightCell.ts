@@ -10,14 +10,14 @@ export const highlightCell = defineType({
       name: "videoFile",
       title: "Highlight Reel / Animation Asset",
       type: "file",
-      options: { accept: "video/*" },
-      description: "Looping animation or video for this highlight.",
+      options: { accept: "video/*,image/gif,.gif" },
+      description: "Looping MP4 or GIF for this highlight.",
     }),
     defineField({
       name: "videoUrl",
       title: "Animation URL (optional)",
       type: "url",
-      description: "External mp4 or hosted animation URL.",
+      description: "External MP4, GIF, or hosted animation URL.",
       validation: (r) => r.uri({ scheme: ["http", "https"] }),
     }),
     defineField({
@@ -47,10 +47,10 @@ export const highlightCell = defineType({
         videoUrl?: string;
         frames?: unknown[];
       };
-      const hasVideo = !!v?.videoFile || !!v?.videoUrl;
+      const hasMotion = !!v?.videoFile || !!v?.videoUrl;
       const hasFrames = (v?.frames?.length ?? 0) > 0;
-      if (!hasVideo && !hasFrames) {
-        return "Add an animation asset or at least one thumbnail image.";
+      if (!hasMotion && !hasFrames) {
+        return "Add a GIF, MP4, URL, or at least one thumbnail image.";
       }
       return true;
     }),
@@ -60,11 +60,16 @@ export const highlightCell = defineType({
       frames: "frames",
       poster: "posterImage",
       video: "videoFile",
+      videoMime: "videoFile.asset.mimeType",
     },
-    prepare: ({ caption, frames, poster, video }) => ({
+    prepare: ({ caption, frames, poster, video, videoMime }) => ({
       title: caption || "Highlight item",
       subtitle: [
-        video ? "video" : null,
+        video
+          ? String(videoMime ?? "").includes("gif")
+            ? "gif"
+            : "mp4"
+          : null,
         frames?.length ? `${frames.length} frame(s)` : null,
       ]
         .filter(Boolean)
