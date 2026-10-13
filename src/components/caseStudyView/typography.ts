@@ -1,32 +1,64 @@
-/** Case-study type — 19/22 mobile, 20/26 laptop. No vw scale (too big on wide screens). */
+/**
+ * Mobile case-study type system (Fas Oct 13, Figma 4507:23593) — exactly two
+ * tiers below lg, applied with `!` so Sanity marks, per-component sizes and
+ * legacy captions can't drift:
+ *   title — 17px / 1.25 / regular (section titles, subheads, accordion rows, CTAs)
+ *   body  — 19px / 1.25 / regular (paragraphs, meta, captions, links, notes)
+ * Only inline labels (Duration:, Team:, caption labels) step up to bold.
+ * Desktop (lg+) keeps its own sizes.
+ */
+export const CS_M_TITLE =
+  'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-normal max-lg:!tracking-normal'
+export const CS_M_BODY =
+  'max-lg:!text-[19px] max-lg:!leading-[1.25] max-lg:!font-normal max-lg:!tracking-normal max-lg:!normal-case'
+
 export function csBodyText(extra = '') {
-  return `text-[19px] font-normal leading-[1.65] lg:text-[22px] ${extra}`
+  return `text-[19px] font-normal leading-[1.25] lg:text-[22px] lg:leading-[1.65] ${CS_M_BODY} ${extra}`
 }
 
 export function csBodySm(extra = '') {
-  return `text-[17px] lg:text-[18px] font-normal leading-[1.6] ${extra}`
+  return `text-[17px] lg:text-[18px] font-normal leading-[1.6] ${CS_M_BODY} ${extra}`
 }
 
-export function csSectionTitle(sizeExtra = '') {
-  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
-  return `font-normal capitalize leading-tight ${size}`
+/** Section titles — mobile tier is fixed; `desktopSize` only tunes lg+. */
+export function csSectionTitle(desktopSize = 'lg:text-[26px]') {
+  return `text-[17px] font-normal capitalize leading-tight ${CS_M_TITLE} ${desktopSize}`
 }
 
-export function csImpactTitle(sizeExtra = '') {
-  const size = sizeExtra || 'text-[22px] lg:text-[26px]'
-  return `font-medium capitalize leading-tight ${size}`
+export function csImpactTitle(desktopSize = 'lg:text-[26px]') {
+  return `text-[17px] font-medium capitalize leading-tight ${CS_M_TITLE} ${desktopSize}`
 }
+
+/** Expand / collapse CTAs: "View All" / "Show Less" on every case study;
+ *  stored View More / See more / Load More variants collapse to them. */
+export function csExpandLabel(label?: string) {
+  const t = label?.trim()
+  if (!t || /^(view|see|load|show)\s+(more|all)$/i.test(t)) return 'View All'
+  return t
+}
+
+export function csCollapseLabel(label?: string) {
+  const t = label?.trim()
+  if (!t || /^(show|see|view)\s+less$/i.test(t)) return 'Show Less'
+  return t
+}
+
+/** One underlined CTA style for every expand / collapse button on mobile. */
+export const CS_M_EXPAND_BTN = `max-lg:after:!hidden max-lg:!border-0 max-lg:!pb-0 max-lg:!underline max-lg:!decoration-1 max-lg:!underline-offset-4 max-lg:!normal-case ${CS_M_TITLE}`
+
+/** Subheadings (accordion rows, service label) — title tier on mobile. */
+export const CS_SUBHEAD_MOBILE = CS_M_TITLE
 
 export function csUiText(extra = '') {
   return `text-[17px] lg:text-[18px] ${extra}`
 }
 
 export function csMetaSm(extra = '') {
-  return `text-[16px] font-normal leading-[1.6] ${extra}`
+  return `text-[16px] font-normal leading-[1.6] ${CS_M_BODY} ${extra}`
 }
 
 export function csMetaXs(extra = '') {
-  return `text-[14px] font-normal italic leading-4.25 ${extra}`
+  return `text-[14px] font-normal italic leading-4.25 ${CS_M_BODY} ${extra}`
 }
 
 export function csHeroCap(extra = '') {
@@ -34,13 +66,13 @@ export function csHeroCap(extra = '') {
 }
 
 export const CS_KICKER = 'text-[13px] sm:text-[14px]'
-export const CS_CAPTION_LG = 'text-[15px] sm:text-[16px]'
-export const CS_CAPTION_SM = 'text-[13px] sm:text-[14px]'
+export const CS_CAPTION_LG = `text-[15px] sm:text-[16px] ${CS_M_BODY}`
+export const CS_CAPTION_SM = `text-[13px] sm:text-[14px] ${CS_M_BODY}`
 
 export function csReflectionTitle() {
-  return 'font-grotesk text-[22px] font-normal capitalize leading-tight lg:text-[26px]'
+  return `font-grotesk text-[17px] font-normal capitalize leading-tight ${CS_M_TITLE} lg:text-[26px]`
 }
 
 export function csReflectionBody() {
-  return 'font-grotesk text-[19px] font-light leading-[1.6] lg:text-[22px]'
+  return `font-grotesk text-[19px] font-light leading-[1.6] lg:text-[22px] ${CS_M_BODY}`
 }

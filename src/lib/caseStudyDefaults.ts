@@ -81,10 +81,14 @@ export const CORE_EXPERIENCE_SCREEN_APPEARANCE = {
 } as const;
 
 /** §09 Impact — metric grid gaps (Figma 2110:40267). */
+/** Mobile title → media/grid/stats gap on every case-study band (Fas Oct 13). */
+export const CS_M_MEDIA_GAP = 50;
+
 export const STATS_BAND_DEFAULTS = {
-  metricGridGap: 48,
+  /** Mobile — Figma 4507:24479 (65 between stats, 43 under title). */
+  metricGridGap: 65,
   metricGridGapDesktop: 56,
-  titleMarginBottom: 48,
+  titleMarginBottom: 43,
   titleMarginBottomDesktop: 64,
   bodyMarginBottom: 48,
   /** Live WP #user_impact .impact_count — 8.5vw desktop, 60px mobile. */
@@ -99,7 +103,8 @@ export const SHOWCASE_ARTIFACT_DEFAULTS = {
 
 /** §07 Motion showcase band. */
 export const MOTION_SHOWCASE_BAND_DEFAULTS = {
-  titleMarginBottom: 40,
+  /** Mobile — Figma 4507:23964 (50 under the title). */
+  titleMarginBottom: 50,
   titleMarginBottomDesktop: 56,
   introMarginBottom: 40,
 } as const;
@@ -114,15 +119,16 @@ export const MOTION_STACKED_MOBILE = {
 } as const;
 
 /**
- * §07 `mobileFlowStack` — Coral mobile KPE (Figma `3928:39758`).
- * Each row: devices stacked vertically (no white tile mattes); caption under the group.
+ * §07 `mobileFlowStack` — Coral mobile KPE (Figma `4551:31510`).
+ * Each row shows its first device only; caption under it.
  */
 export const MOTION_MOBILE_FLOW_STACK = {
-  betweenRowsGapPx: 56,
-  withinRowGapPx: 32,
-  itemMaxWidthPx: 320,
-  captionMarginTopPx: 28,
-  captionMaxWidthPx: 335,
+  betweenRowsGapPx: 105,
+  /** Coral phone videos carry a white plate (phone ≈46% of its width); full width ≈ Figma's 167px bare phone. */
+  phoneMaxWidthPx: 353,
+  tabletMaxWidthPx: 292,
+  captionMarginTopPx: 50,
+  captionMaxWidthPx: 301,
   titleMarginBottomMobile: 40,
 } as const;
 
@@ -318,9 +324,10 @@ export const CORE_EXPERIENCE_BAND_MOBILE_GRID_DEFAULTS = {
   mobileViewport: {
     /** ~22.5px each side @375 → 330px artboard. */
     shellPaddingX: 22,
-    columnGap: 24,
-    rowGap: 16,
-    captionGap: 20,
+    /** Coral mobile template 4507:23693 — 37 / 105 / 27. */
+    columnGap: 37,
+    rowGap: 105,
+    captionGap: 27,
     shellStackGap: 16,
     bandPaddingY: 40,
   },
@@ -343,8 +350,8 @@ export const CORE_EXPERIENCE_POPUP_DEFAULTS = {
   introMaxWidth: 960,
   gridColumnGap: 16,
   gridRowGap: 24,
-  /** Mobile single-column stack (Figma 3928:22975) — not Sanity contentGapInner. */
-  gridRowGapMobile: 40,
+  /** Mobile single-column stack (Figma 4556:39220) — not Sanity contentGapInner. */
+  gridRowGapMobile: 42,
   /** Popup device tab bar — Figma 3928:22982. */
   tabGap: 46,
 } as const;

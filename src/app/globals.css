@@ -464,6 +464,30 @@ body {
   .cs-page-bands > section[data-cs-hero] {
     margin-top: 0;
   }
+  /* Mobile band padding per band type (Figma 4551:31127) — beats Studio
+     paddings and per-block values. Hero + flush grids (Overview) opt out and
+     pad their own copy column with the same token. */
+  .cs-page-bands {
+    --cs-m-band-py: 68px;
+  }
+  .cs-page-bands > section[data-cs-m='overview'] { --cs-m-band-py: 52px; }
+  .cs-page-bands > section[data-cs-m='text'] { --cs-m-band-py: 42px; }
+  .cs-page-bands > section[data-cs-m='reflection'] { --cs-m-band-py: 45px; }
+  .cs-page-bands > section[data-cs-m='ce'] { --cs-m-band-py: 50px; }
+  .cs-page-bands > section[data-cs-m='impact'] { --cs-m-band-py: 60px; }
+  .cs-page-bands > section[data-cs-m='marketing'] { --cs-m-band-py: 88px; }
+  .cs-page-bands > section[data-cs-m='highlights'] {
+    --cs-m-band-pt: 59px;
+    --cs-m-band-pb: 69px;
+  }
+  .cs-page-bands > section:not([data-cs-hero]):not([data-cs-flush]) {
+    padding-top: var(--cs-m-band-pt, var(--cs-m-band-py)) !important;
+    padding-bottom: var(--cs-m-band-pb, var(--cs-m-band-py)) !important;
+  }
+  .cs-page-bands [data-cs-flush-copy] {
+    padding-top: var(--cs-m-band-py) !important;
+    padding-bottom: var(--cs-m-band-py) !important;
+  }
   /* Memory Tubes / Forever — bands are content-height on phone (no 100vh bands). */
   .cs-fullheight > section:not(:first-of-type) {
     min-height: 0;

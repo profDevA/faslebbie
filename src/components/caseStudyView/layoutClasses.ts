@@ -54,7 +54,7 @@ export function csShell(
   opts?: { /** CE mobileRow: one inset on phone — no calc(100%-2.5rem) plus px-5. */ mobileSingleInset?: boolean },
 ) {
   const base =
-    'mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] px-5 sm:px-8 lg:px-12'
+    'mx-auto w-full max-w-[min(1400px,calc(100%-2.5rem))] max-lg:max-w-full px-5 sm:px-8 lg:px-12'
   const mobileInset = opts?.mobileSingleInset
     ? 'max-lg:max-w-full max-lg:!px-[22px]'
     : ''
