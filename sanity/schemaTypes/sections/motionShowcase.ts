@@ -47,7 +47,7 @@ export const motionShowcase = defineType({
           },
           {
             title:
-              "Mobile flow stack (Coral KPE — Figma 3928:39758; desktop = stacked rows)",
+              "One device per row (Coral KPE — phone + tablet, Figma 4551:31510 / 4556:37938)",
             value: "mobileFlowStack",
           },
         ],

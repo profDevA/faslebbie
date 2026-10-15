@@ -15,6 +15,7 @@ import { workFromSanity } from "@/lib/workFromSanity";
 import { PopupTrigger } from "@/components/InlineToken";
 import TestimonialsFooterLink from "@/components/TestimonialsFooterLink";
 import type { Study, WorkPageConfig } from "@/sanity/types";
+import { isGifUrl } from "@/sanity/image";
 import { LISTING_GRID, LISTING_SHELL, STICKY_UNDER_NAV } from "@/lib/navLayout";
 import {
   contentDrift,
@@ -89,8 +90,14 @@ function cardImage(url: string | undefined) {
   const w = m ? Number(m[1]) : undefined;
   const h = m ? Number(m[2]) : undefined;
 
-  if (!url.includes("cdn.sanity.io")) {
-    return { src: url, w, h, srcSet: undefined };
+  // Sanity transforms flatten GIFs to their first frame — serve motion thumbs as-is.
+  if (!url.includes("cdn.sanity.io") || isGifUrl(url) || isGifUrl(pathForDims)) {
+    return {
+      src: isGifUrl(pathForDims) ? pathForDims : url,
+      w,
+      h,
+      srcSet: undefined,
+    };
   }
 
   const maxDeliver = w ? Math.min(CARD_IMAGE_MAX, w) : CARD_IMAGE_MAX;
@@ -800,6 +807,22 @@ function WallColumn({
   );
 }
 
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|mov)(?:\?|$|#)/i.test(url);
+}
+
+function isGifMotion(url?: string, mime?: string, filename?: string) {
+  if (mime && /gif/i.test(mime)) return true;
+  if (filename && /\.gif$/i.test(filename)) return true;
+  return !!url && isGifUrl(url);
+}
+
+function isVideoMotion(url?: string, mime?: string, filename?: string) {
+  if (mime && /^video\//i.test(mime)) return true;
+  if (filename && /\.(mp4|webm|mov)$/i.test(filename)) return true;
+  return !!url && isVideoUrl(url);
+}
+
 function ProjectCard({
   project,
   onOpen,
@@ -822,7 +845,33 @@ function ProjectCard({
   const accent = project.accent?.hex ?? "#999999";
   // The wall (reveal=false) is the first paint when `.img` opens, so load its
   // art eagerly; the mobile masonry (reveal=true) can lazy-load below the fold.
-  const { src, w, h, srcSet } = cardImage(project.image);
+  const still = cardImage(project.image);
+  const motionUrl = project.imageMotion;
+  const motionGif = isGifMotion(
+    motionUrl,
+    project.imageMotionMime,
+    project.imageMotionFilename,
+  );
+  const motionVideo = isVideoMotion(
+    motionUrl,
+    project.imageMotionMime,
+    project.imageMotionFilename,
+  );
+  const gifSrc = motionGif
+    ? motionUrl
+    : still.src && isGifUrl(still.src)
+      ? still.src
+      : undefined;
+  const videoSrc = motionVideo
+    ? motionUrl
+    : still.src && isVideoUrl(still.src)
+      ? still.src
+      : undefined;
+  const src = gifSrc ?? (!videoSrc ? still.src : undefined);
+  const srcSet = gifSrc || videoSrc ? undefined : still.srcSet;
+  const w = still.w;
+  const h = still.h;
+  const blurSrc = still.src ?? gifSrc;
   return (
     <button
       type="button"
@@ -836,31 +885,45 @@ function ProjectCard({
       // faslebbie.com/works.
       style={reveal ? { transitionDelay: `${(index % 6) * 70}ms` } : undefined}
     >
-      {src ? (
+      {src || videoSrc ? (
         <div
           className="work-card-media"
-          style={
-            w && h
-              ? { aspectRatio: `${w} / ${h}` }
-              : undefined
-          }
+          style={{ aspectRatio: w && h ? `${w} / ${h}` : "4 / 5" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static design asset */}
-          <img
-            src={src}
-            srcSet={srcSet}
-            sizes={CARD_IMAGE_SIZES}
-            width={w}
-            height={h}
-            alt={project.name}
-            loading={reveal ? "lazy" : "eager"}
-            fetchPriority={reveal ? "auto" : "high"}
-            decoding="async"
-            className={dimmed ? "opacity-0" : "opacity-100"}
-          />
+          {videoSrc ? (
+            <video
+              src={videoSrc}
+              poster={still.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload={reveal ? "metadata" : "auto"}
+              className={dimmed ? "opacity-0" : "opacity-100"}
+              aria-label={project.name}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- design asset; GIFs must skip next/image
+            <img
+              src={src}
+              srcSet={srcSet}
+              sizes={CARD_IMAGE_SIZES}
+              width={w}
+              height={h}
+              alt={project.name}
+              loading={reveal ? "lazy" : "eager"}
+              fetchPriority={reveal ? "auto" : "high"}
+              decoding="async"
+              className={dimmed ? "opacity-0" : "opacity-100"}
+            />
+          )}
           <div
             className={`work-card-media-blur ${dimmed ? "opacity-100" : "opacity-0"}`}
-            style={{ backgroundImage: `url(${src})` }}
+            style={
+              blurSrc && !isVideoUrl(blurSrc)
+                ? { backgroundImage: `url(${blurSrc})` }
+                : undefined
+            }
             aria-hidden
           />
         </div>

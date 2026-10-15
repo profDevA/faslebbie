@@ -11,7 +11,8 @@ export const highlightCell = defineType({
       title: "Highlight Reel / Animation Asset",
       type: "file",
       options: { accept: "video/*,image/gif,.gif" },
-      description: "Looping MP4 or GIF for this highlight.",
+      description:
+        "Looping GIF (preferred) or MP4. Renders inside the mint plate with padding — not full-bleed.",
     }),
     defineField({
       name: "videoUrl",
@@ -32,7 +33,8 @@ export const highlightCell = defineType({
       title: "Optional Image / Thumbnail Grid",
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
-      description: "Static images or cross-fade loop when no video is set.",
+      description:
+        "Still only. Do not use this as a rotator — put the GIF/MP4 in Animation Asset.",
     }),
     defineField({
       name: "caption",

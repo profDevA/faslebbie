@@ -123,9 +123,21 @@ export const caseStudy = defineType({
       title: "Card thumbnail",
       type: "image",
       group: "card",
-      options: { hotspot: true },
+      options: {
+        hotspot: true,
+        accept: "image/gif,image/jpeg,image/png,image/webp,.gif",
+      },
       description:
-        "Work `.img` grid cover. Upload ≥1200px wide — smaller assets look soft on retina.",
+        "Work `.img` grid cover. Still (PNG/JPG/WebP, ≥1200px) or an animated GIF — GIFs play on the wall. Do not crop or set a hotspot on GIFs; that flattens them to the first frame.",
+    }),
+    defineField({
+      name: "cardThumbnailMotion",
+      title: "Card motion (GIF or MP4)",
+      type: "file",
+      group: "card",
+      options: { accept: "image/gif,.gif,video/mp4,video/webm,video/quicktime" },
+      description:
+        "Optional looping GIF or MP4. When set, this plays on the Work `.img` card instead of the still. Use this for Jitter MP4 exports — the image field cannot hold video.",
     }),
     defineField({
       name: "cardCreditNames",

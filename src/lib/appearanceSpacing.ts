@@ -6,6 +6,7 @@ import {
   OVERVIEW_MEDIA_COLUMN_PAD,
   OVERVIEW_MEDIA_COLUMN_PAD_PAGE,
   OVERVIEW_MEDIA_MOBILE_INSET,
+  OVERVIEW_MEDIA_MOBILE_PHONE,
 } from "@/lib/caseStudyDefaults";
 
 /** Legacy enum values still stored on older Sanity documents. */
@@ -244,6 +245,28 @@ export function overviewMediaPadStyle(
     );
   }
   return style;
+}
+
+/** Overview phone on mobile — Studio fields, Figma 4551:31160 when empty. */
+export function overviewMediaMobilePhoneStyle(section: {
+  mediaPaddingTopMobile?: number;
+  mediaPaddingBottomMobile?: number;
+  mediaWidthMobile?: number;
+}) {
+  return {
+    paddingTop: resolveColumnPx(
+      section.mediaPaddingTopMobile,
+      OVERVIEW_MEDIA_MOBILE_PHONE.paddingTop,
+    ),
+    paddingBottom: resolveColumnPx(
+      section.mediaPaddingBottomMobile,
+      OVERVIEW_MEDIA_MOBILE_PHONE.paddingBottom,
+    ),
+    widthPx: resolveColumnPx(
+      section.mediaWidthMobile,
+      OVERVIEW_MEDIA_MOBILE_PHONE.widthPx,
+    ),
+  };
 }
 
 export function padDefaults(

@@ -45,6 +45,16 @@ export const OVERVIEW_MEDIA_COLUMN_PAD_PAGE = {
 /** Overlay mobile media inset when left/right Studio fields are empty. */
 export const OVERVIEW_MEDIA_MOBILE_INSET = 0;
 
+/**
+ * Overview mobile device (Figma `4551:31160`) — 167×362 phone, 82px above/below.
+ * Studio mediaPadding is desktop-only; do not reuse those numbers here.
+ */
+export const OVERVIEW_MEDIA_MOBILE_PHONE = {
+  widthPx: 167,
+  paddingTop: 82,
+  paddingBottom: 82,
+} as const;
+
 export const OVERVIEW_COLUMN_GAP = 40;
 
 /** Accordion split panel (Design Process column). */
@@ -56,11 +66,13 @@ export const ACME_ACCORDION_PANEL_BACKGROUND = "#4c79c8";
 /** Case studies authored for the full-page template first (also render in Work overlay). */
 export const PAGE_TEMPLATE_SLUGS = ["acme-lending"] as const;
 
-/** §10 Highlight reel — grid cell matte (Figma Coral 3×2). */
+/** §10 Highlight reel — mint plate + inset GIF/MP4 (Figma `4551:32037` / `4556:38244`). */
 export const HIGHLIGHT_REEL_GRID_DEFAULTS = {
   cellMatteColor: "#d4e9d7",
+  /** Inner motion `1171276929` is 15.4/110.7 of the plate. */
   cellInsetVerticalPercent: 14,
-  cellInsetHorizontalPercent: 10.5,
+  /** Inner motion is 20.2/165.3 of the plate. */
+  cellInsetHorizontalPercent: 12,
   gridGap: 14,
 } as const;
 
@@ -85,13 +97,15 @@ export const CORE_EXPERIENCE_SCREEN_APPEARANCE = {
 export const CS_M_MEDIA_GAP = 50;
 
 export const STATS_BAND_DEFAULTS = {
-  /** Mobile — Figma 4507:24479 (65 between stats, 43 under title). */
+  /** Mobile — Figma `4551:32024` (65 between stats, 43 under title). */
   metricGridGap: 65,
+  /** Desktop — Figma `4556:38231`. */
   metricGridGapDesktop: 56,
   titleMarginBottom: 43,
   titleMarginBottomDesktop: 64,
   bodyMarginBottom: 48,
-  /** Live WP #user_impact .impact_count — 8.5vw desktop, 60px mobile. */
+  /** Mobile number box `4551:32024` is 54px. Desktop keeps WP 8.5vw. */
+  valueFontSizeMobile: 54,
   valueFontSize: "clamp(60px, 8.5vw, 160px)",
   gridMaxWidth: 1280,
 } as const;
@@ -119,17 +133,24 @@ export const MOTION_STACKED_MOBILE = {
 } as const;
 
 /**
- * §07 `mobileFlowStack` — Coral mobile KPE (Figma `4551:31510`).
- * Each row shows its first device only; caption under it.
+ * §07 `mobileFlowStack` — Coral KPE.
+ * One phone + one tablet (first item of each row).
+ * Mobile Figma `4551:31510` — phone 167×362, tablet 292×396.
+ * Desktop Figma `4556:37938` — phone 286×620, tablet 438×593.
  */
 export const MOTION_MOBILE_FLOW_STACK = {
   betweenRowsGapPx: 105,
-  /** Coral phone videos carry a white plate (phone ≈46% of its width); full width ≈ Figma's 167px bare phone. */
-  phoneMaxWidthPx: 353,
+  phoneMaxWidthPx: 167,
   tabletMaxWidthPx: 292,
   captionMarginTopPx: 50,
   captionMaxWidthPx: 301,
   titleMarginBottomMobile: 40,
+  phoneMaxWidthDesktopPx: 286,
+  tabletMaxWidthDesktopPx: 438,
+  captionMaxWidthDesktopPhonePx: 488,
+  captionMaxWidthDesktopTabletPx: 515,
+  captionMarginTopDesktopPx: 29,
+  betweenRowsGapDesktopPx: 80,
 } as const;
 
 /** §07 Motion row — device strip + caption. */
@@ -267,6 +288,12 @@ export const DESKTOP_MOTION_SHOWCASE_DEFAULTS = {
   mockupMaxWidth: 762,
   /** Acme Figma 3795:152730 — art includes frame, shadow, and radius */
   mockupMaxWidthWide: 873,
+  /**
+   * Coral Marketing Website laptop on a 1440 artboard (Figma 2110:40096 /
+   * Israel “third desktop section”). 762 looked small vs KPE + Figma.
+   * Studio `appearance.containerMaxWidth` overrides.
+   */
+  mockupMaxWidthMarketing: 1176,
   /** Staggered-pair sliders — Figma 4004:116820 mockups 578/1444; scale with the band, no px cap. */
   /** Poster carousel slide (AR Handbook KPE sliders) */
   slideTransitionMs: 780,

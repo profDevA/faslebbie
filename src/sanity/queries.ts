@@ -28,6 +28,7 @@ const sectionsProj = `sections[]{
     mediaPosition,
     copyPaddingTop, copyPaddingBottom, copyPaddingLeft, copyPaddingRight,
     mediaPaddingTop, mediaPaddingBottom, mediaPaddingLeft, mediaPaddingRight,
+    mediaPaddingTopMobile, mediaPaddingBottomMobile, mediaWidthMobile,
     columnGap
   },
   _type == "accordionSection" => {
@@ -131,6 +132,8 @@ const sectionsProj = `sections[]{
     cells[]{
       _key, caption,
       "videoFile": videoFile.asset->url,
+      "videoMime": videoFile.asset->mimeType,
+      "videoFilename": videoFile.asset->originalFilename,
       videoUrl,
       "posterImage": posterImage${img},
       "frames": frames[]${img}
@@ -151,6 +154,9 @@ const cardProj = `
   "categories": coalesce(categories[]->title, []),
   "image": cardThumbnail${img},
   "imageLqip": cardThumbnail.asset->metadata.lqip,
+  "imageMotion": cardThumbnailMotion.asset->url,
+  "imageMotionMime": cardThumbnailMotion.asset->mimeType,
+  "imageMotionFilename": cardThumbnailMotion.asset->originalFilename,
   "heroImage": sections[_type == "heroSection"][0].image${img},
   "creditNames": cardCreditNames,
   "tags": cardTags,

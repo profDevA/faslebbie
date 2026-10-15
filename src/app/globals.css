@@ -585,6 +585,7 @@ body {
 }
 
 .work-card-media img,
+.work-card-media video,
 .work-card-media-blur {
   display: block;
   width: 100%;
@@ -594,7 +595,8 @@ body {
   background-repeat: no-repeat;
 }
 
-.work-card-media img {
+.work-card-media img,
+.work-card-media video {
   object-fit: cover;
   transition: opacity 0.4s ease-in-out;
 }
@@ -639,6 +641,7 @@ body {
   }
 
   .work-card-media img,
+  .work-card-media video,
   .work-card-media-blur {
     transition: none;
   }

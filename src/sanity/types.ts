@@ -86,6 +86,8 @@ export interface MediaItem {
 export interface HighlightCell {
   _key: string;
   videoFile?: string;
+  videoMime?: string;
+  videoFilename?: string;
   videoUrl?: string;
   posterImage?: string;
   frames?: string[];
@@ -157,6 +159,9 @@ export type Section =
       copyPaddingRight?: number;
       mediaPaddingTop?: number;
       mediaPaddingBottom?: number;
+      mediaPaddingTopMobile?: number;
+      mediaPaddingBottomMobile?: number;
+      mediaWidthMobile?: number;
       mediaPaddingLeft?: number;
       mediaPaddingRight?: number;
       columnGap?: number;
@@ -344,6 +349,10 @@ export interface StudyCard {
   categories: string[];
   image?: string;
   imageLqip?: string;
+  /** Optional GIF/MP4 on the Work `.img` card — plays instead of the still. */
+  imageMotion?: string;
+  imageMotionMime?: string;
+  imageMotionFilename?: string;
   heroImage?: string;
   creditNames?: string[];
   tags?: string[];

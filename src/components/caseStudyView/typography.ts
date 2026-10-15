@@ -2,18 +2,18 @@
  * Mobile case-study type system (Fas Oct 13, Figma 4507:23593) — exactly two
  * tiers below lg, applied with `!` so Sanity marks, per-component sizes and
  * legacy captions can't drift:
- *   title — 17px / 1.25 / regular (section titles, subheads, accordion rows, CTAs)
- *   body  — 19px / 1.25 / regular (paragraphs, meta, captions, links, notes)
- * Only inline labels (Duration:, Team:, caption labels) step up to bold.
+ *   title — 17px / 1.25 / bold (section titles, subheads, accordion rows)
+ *   body  — 19px / 1.4 / regular (paragraphs, meta, captions, links, notes)
+ * Duration:/Team: stay bold labels on body text.
  * Desktop (lg+) keeps its own sizes.
  */
 export const CS_M_TITLE =
-  'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-normal max-lg:!tracking-normal'
+  'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-bold max-lg:!tracking-normal'
 export const CS_M_BODY =
-  'max-lg:!text-[19px] max-lg:!leading-[1.25] max-lg:!font-normal max-lg:!tracking-normal max-lg:!normal-case'
+  'max-lg:!text-[19px] max-lg:!leading-[1.4] max-lg:!font-normal max-lg:!tracking-normal max-lg:!normal-case'
 
 export function csBodyText(extra = '') {
-  return `text-[19px] font-normal leading-[1.25] lg:text-[22px] lg:leading-[1.65] ${CS_M_BODY} ${extra}`
+  return `text-[19px] font-normal leading-[1.4] lg:text-[22px] lg:leading-[1.65] ${CS_M_BODY} ${extra}`
 }
 
 export function csBodySm(extra = '') {
@@ -44,7 +44,7 @@ export function csCollapseLabel(label?: string) {
 }
 
 /** One underlined CTA style for every expand / collapse button on mobile. */
-export const CS_M_EXPAND_BTN = `max-lg:after:!hidden max-lg:!border-0 max-lg:!pb-0 max-lg:!underline max-lg:!decoration-1 max-lg:!underline-offset-4 max-lg:!normal-case ${CS_M_TITLE}`
+export const CS_M_EXPAND_BTN = `max-lg:after:!hidden max-lg:!border-0 max-lg:!pb-0 max-lg:!underline max-lg:!decoration-1 max-lg:!underline-offset-4 max-lg:!normal-case max-lg:!font-normal ${CS_M_TITLE}`
 
 /** Subheadings (accordion rows, service label) — title tier on mobile. */
 export const CS_SUBHEAD_MOBILE = CS_M_TITLE

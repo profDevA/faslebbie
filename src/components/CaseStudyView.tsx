@@ -126,6 +126,7 @@ import {
   sectionPadStyle,
   overviewCopyPadStyle,
   overviewMediaPadStyle,
+  overviewMediaMobilePhoneStyle,
   resolveSpacingPx,
 } from '@/lib/appearanceSpacing'
 
@@ -660,8 +661,8 @@ function CsOverviewVideo({
   style,
   showFrame = true,
   poster,
-  /** Off for KPE/motion/highlight loops — one Unmute per phone mockup looked broken. */
-  showMuteControl = true,
+  /** Off unless a caller opts in. Figma has no Unmute chip; it sat on the phone. */
+  showMuteControl = false,
 }: {
   src: string
   className?: string
@@ -672,26 +673,46 @@ function CsOverviewVideo({
 }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [muted, setMuted] = useState(true)
+  const [inView, setInView] = useState(false)
+  const [armed, setArmed] = useState(false)
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return
+    const io = new IntersectionObserver(
+      ([e]) => setInView(!!e?.isIntersecting && (e.intersectionRatio ?? 0) > 0.05),
+      { threshold: [0, 0.05, 0.2] },
+    )
+    io.observe(v)
+    return () => io.disconnect()
+  }, [src])
+  useEffect(() => {
+    if (inView) {
+      setArmed(true)
+      return
+    }
+    const t = window.setTimeout(() => setArmed(false), 800)
+    return () => clearTimeout(t)
+  }, [inView])
   useEffect(() => {
     const v = ref.current
     if (!v) return
     v.muted = muted
-    void v.play().catch(() => {})
-  }, [src, muted])
+    if (inView && armed) void v.play().catch(() => {})
+    else v.pause()
+  }, [src, muted, inView, armed])
   return (
     <div
-      className={`relative ${showFrame ? 'ring-1 ring-black/15' : ''}`}
+      className={`relative h-full w-full ${showFrame ? 'ring-1 ring-black/15' : ''}`}
       style={style}
     >
       <video
         ref={ref}
-        src={src}
+        src={armed ? src : undefined}
         poster={poster}
-        autoPlay
         loop
         muted={muted}
         playsInline
-        preload="auto"
+        preload="none"
         className={className}
       />
       {showMuteControl ? (
@@ -760,7 +781,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
   const copyPad = overviewCopyPadStyle(s, true)
   const mediaPad = overviewMediaPadStyle(s, true)
-  const mediaPadMobile = overviewMediaPadStyle(s, true, true)
+  const mediaPadMobilePhone = overviewMediaMobilePhoneStyle(s)
   /** Desktop: row height follows the taller column (usually copy). Side art uses
    *  contain inside that column — full file visible, no inner scroll (Option C
    *  natural height only on Hero; Overview is contain-in-row). */
@@ -768,6 +789,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     'relative hidden min-h-0 w-full overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
   const desktopMediaSizeClass =
     'block max-h-full w-full object-contain object-center'
+  const mobilePhone = hasVideo && !stackedSideMedia
   const mobileMediaSizeClass = 'block h-auto w-full'
   return (
     <section
@@ -798,7 +820,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="hover"
-              className={`mt-6 inline-block text-[20px] font-normal capitalize underline underline-offset-4 transition-colors hover:text-accent max-lg:!text-[19px] max-lg:!leading-[1.25] ${textClass}`}
+              className={`mt-6 inline-block text-[20px] font-normal capitalize underline underline-offset-4 transition-colors hover:text-accent max-lg:!text-[19px] max-lg:!leading-[1.4] ${textClass}`}
             >
               {cta}
             </a>
@@ -844,7 +866,15 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       {/* One media slot, or stacked video + still when both are authored. */}
       <div
         className={`relative w-full lg:hidden ${mediaOrder}`}
-        style={{ backgroundColor: sideBg, ...mediaPadMobile }}
+        style={{
+          backgroundColor: sideBg,
+          ...(mobilePhone
+            ? {
+                paddingTop: mediaPadMobilePhone.paddingTop,
+                paddingBottom: mediaPadMobilePhone.paddingBottom,
+              }
+            : undefined),
+        }}
       >
         {stackedSideMedia ? (
           <OverviewStackedSideMedia
@@ -853,7 +883,16 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             fillColumn={false}
           />
         ) : hasVideo ? (
-          <CsOverviewVideo src={s.sideVideo!} className={mobileMediaSizeClass} />
+          <CsOverviewVideo
+            src={s.sideVideo!}
+            className={mobileMediaSizeClass}
+            showFrame={false}
+            style={{
+              width: mediaPadMobilePhone.widthPx,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          />
         ) : (
           s.sideImage && (
             // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -1687,7 +1726,7 @@ function DeviceTabsViewMorePopupBody({
       >
         {(popupKicker || popupHeadline || popupBody?.length) ? (
           <div
-            className={`flex w-full flex-col ${csBandTextAlign(popupAlign as CsTextAlign)} items-start`}
+            className={`hidden w-full flex-col lg:flex ${csBandTextAlign(popupAlign as CsTextAlign)} items-start`}
             style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
           >
             {popupKicker ? (
@@ -2167,15 +2206,26 @@ function DesktopMotionShowcaseBlock({
   const lightText = bandUsesLightText(s.appearance)
   const copyClass = lightText ? 'text-white' : 'text-black'
   // `full` grows with the window (Circle Early prototyping). `wide` stays 873px.
+  // Marketing Website (Coral template) uses the larger 1440-artboard laptop.
   const fluidMockup = s.appearance?.maxWidth === 'full'
   const wideMockup = fluidMockup || s.appearance?.maxWidth === 'wide'
+  const marketingMockup = /marketing website/i.test(copyTitle ?? '')
+  const storedMockupMax =
+    typeof s.appearance?.containerMaxWidth === 'number' &&
+    s.appearance.containerMaxWidth >= 320
+      ? s.appearance.containerMaxWidth
+      : undefined
   const mockupMax = fluidMockup
     ? undefined
-    : wideMockup
-      ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
-      : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth
-  const fluidWrap =
-    'mx-auto w-full lg:max-w-[min(100%,max(873px,60vw))]'
+    : storedMockupMax ??
+      (marketingMockup
+        ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthMarketing
+        : wideMockup
+          ? DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidthWide
+          : DESKTOP_MOTION_SHOWCASE_DEFAULTS.mockupMaxWidth)
+  const fluidWrap = marketingMockup
+    ? 'mx-auto w-full lg:max-w-[min(100%,max(1176px,82vw))]'
+    : 'mx-auto w-full lg:max-w-[min(100%,max(873px,60vw))]'
   const mockupFrame = desktopMotionMockupFrame(s.appearance, wideMockup)
   return (
     <section
@@ -3169,7 +3219,7 @@ function MotionShowcaseCrossFunctionalBand({
                     }}
                   >
                     {row.label && (
-                      <p className={`text-[16px] font-normal leading-[1.05] ${CS_M_TITLE}`}>
+                      <p className={`text-[16px] font-normal leading-[1.05] ${CS_M_TITLE} max-lg:!font-normal`}>
                         {row.label}
                       </p>
                     )}
@@ -3237,7 +3287,7 @@ function CrossFunctionalRowStack({
           style={{ marginTop: captionGapPx }}
         >
           {row.label && (
-            <p className={`text-[14px] font-normal leading-[1.2] ${CS_M_TITLE}`}>{row.label}</p>
+            <p className={`text-[14px] font-normal leading-[1.2] ${CS_M_TITLE} max-lg:!font-normal`}>{row.label}</p>
           )}
           {row.caption && (
             <p className={`mt-1 text-[14px] font-normal leading-[1.2] ${CS_M_BODY} max-lg:!mt-2.5`}>
@@ -3390,7 +3440,7 @@ function MotionShowcaseFeaturedBand({
         {(row.label || row.caption) && (
           <div className="w-full text-black">
             {row.label && (
-              <p className={`text-[14px] font-normal uppercase leading-[1.03] ${CS_M_TITLE} max-lg:!normal-case`}>
+              <p className={`text-[14px] font-normal uppercase leading-[1.03] ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`}>
                 {row.label}
               </p>
             )}
@@ -3489,7 +3539,7 @@ function FeaturedDeviceMedia({
   return null
 }
 
-/** Coral KPE Figma 3928:39758 — mobile = vertical device stacks; desktop = stacked rows. */
+/** Coral KPE — one phone + one tablet. Mobile `4551:31510`; desktop `4556:37938`. */
 function MotionShowcaseMobileFlowStackBand({
   section: s,
 }: {
@@ -3560,19 +3610,17 @@ function MotionShowcaseMobileFlowStackBand({
       </div>
 
       <div
-        className={`mx-auto hidden max-w-[min(1280px,100%)] flex-col lg:flex ${SECTION_GAP_CLASS} ${csShell('!px-0')}`}
-        style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
+        className={`mx-auto hidden w-full max-w-[min(1280px,100%)] flex-col lg:flex ${csShell('!px-0')}`}
+        style={{ gap: MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx }}
       >
         {rows.map((row, i) => (
-          <MotionRowView
+          <MotionRowMobileItemStack
             key={row._key ?? `motion-flow-d-${i}`}
             row={row}
-            alignRight={rows.length === 1 ? false : i % 2 === 1}
-            centerRow={rows.length === 1}
-            light={light}
-            inheritTextColor={!!s.appearance?.textColor?.hex}
+            textClass={textClass}
             appearance={s.appearance}
-            stackedMobile={false}
+            desktop
+            align={rows.length === 1 ? 'center' : i % 2 === 1 ? 'end' : 'start'}
           />
         ))}
       </div>
@@ -3580,26 +3628,49 @@ function MotionShowcaseMobileFlowStackBand({
   )
 }
 
-/** One motion row on phone — first device of the row, caption under it (mobileFlowStack). */
+/** One motion row — first device only, caption under it (mobileFlowStack). */
 function MotionRowMobileItemStack({
   row,
   textClass,
   appearance,
+  desktop = false,
+  align = 'center',
 }: {
   row: MotionRow
   textClass: string
   appearance?: Appearance
+  desktop?: boolean
+  align?: 'center' | 'start' | 'end'
 }) {
   const first = row.items?.[0]
   const device = row.device ?? 'mobile'
   const d = MOTION_MOBILE_FLOW_STACK
+  const mediaMax = desktop
+    ? device === 'mobile'
+      ? d.phoneMaxWidthDesktopPx
+      : d.tabletMaxWidthDesktopPx
+    : device === 'mobile'
+      ? d.phoneMaxWidthPx
+      : d.tabletMaxWidthPx
+  const captionMax = desktop
+    ? device === 'mobile'
+      ? d.captionMaxWidthDesktopPhonePx
+      : d.captionMaxWidthDesktopTabletPx
+    : d.captionMaxWidthPx
+  const rowAlign =
+    align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
+  const mediaAlign = desktop && align === 'end' ? 'ml-auto' : 'mx-auto'
   return (
     <div className="w-full">
+      <div
+        className={rowAlign}
+        style={{ maxWidth: Math.max(mediaMax, captionMax) }}
+      >
       {first && (
         <div
-          className="mx-auto w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]"
+          className={`${mediaAlign} w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]`}
           style={{
-            maxWidth: device === 'mobile' ? d.phoneMaxWidthPx : d.tabletMaxWidthPx,
+            maxWidth: mediaMax,
           }}
         >
           <DeviceMedia item={first} poster={row.posterImage} device={device} />
@@ -3607,14 +3678,16 @@ function MotionRowMobileItemStack({
       )}
       {(row.label || row.caption) && (
         <div
-          className={`mx-auto w-full text-center ${textClass}`}
+          className={`w-full text-left ${textClass}`}
           style={{
-            marginTop: d.captionMarginTopPx,
-            maxWidth: d.captionMaxWidthPx,
+            marginTop: desktop
+              ? d.captionMarginTopDesktopPx
+              : d.captionMarginTopPx,
+            maxWidth: captionMax,
           }}
         >
           {row.label && (
-            <p className={`text-[13px] font-normal uppercase leading-[1.2] ${CS_M_TITLE} max-lg:!normal-case`}>
+            <p className={`text-[13px] font-normal uppercase leading-[1.2] ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`}>
               {row.label}
             </p>
           )}
@@ -3629,6 +3702,7 @@ function MotionRowMobileItemStack({
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }
@@ -3845,7 +3919,7 @@ function MotionRowView({
             style={{ marginTop: lg ? captionMt : captionMtMobile }}
           >
             {row.label && (
-              <p className={`text-[20px] font-normal capitalize leading-[1.6] ${CS_M_TITLE}`}>
+              <p className={`text-[20px] font-normal capitalize leading-[1.6] ${CS_M_TITLE} max-lg:!font-normal`}>
                 {row.label}
               </p>
             )}
@@ -3927,16 +4001,14 @@ function isHighlightGifUrl(src: string) {
   return /\.gif($|[?#])/i.test(src)
 }
 
-function highlightCellGifSrc(cell: HighlightCell): string | undefined {
-  if (cell.videoFile && isHighlightGifUrl(cell.videoFile)) return cell.videoFile
-  if (cell.videoUrl && isHighlightGifUrl(cell.videoUrl)) return cell.videoUrl
-  return undefined
+function highlightCellIsGif(cell: HighlightCell, src?: string) {
+  if (cell.videoMime && /gif/i.test(cell.videoMime)) return true
+  if (cell.videoFilename && /\.gif$/i.test(cell.videoFilename)) return true
+  return !!src && isHighlightGifUrl(src)
 }
 
-function highlightCellVideoSrc(cell: HighlightCell): string | undefined {
-  if (cell.videoFile && !isHighlightGifUrl(cell.videoFile)) return cell.videoFile
-  if (cell.videoUrl && !isHighlightGifUrl(cell.videoUrl)) return cell.videoUrl
-  return undefined
+function highlightCellMotionSrc(cell: HighlightCell): string | undefined {
+  return cell.videoFile || cell.videoUrl || undefined
 }
 
 function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
@@ -3955,12 +4027,17 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       : HIGHLIGHT_REEL_GRID_DEFAULTS.gridGap
   const gridMatte =
     colorToCss(s.gridCellMatteColor) ?? HIGHLIGHT_REEL_GRID_DEFAULTS.cellMatteColor
+  const mintPlate =
+    gridMatte.replace('#', '').toLowerCase() ===
+    HIGHLIGHT_REEL_GRID_DEFAULTS.cellMatteColor.replace('#', '').toLowerCase()
   const insetV =
-    typeof s.gridCellInsetVerticalPercent === 'number'
+    typeof s.gridCellInsetVerticalPercent === 'number' &&
+    (s.gridCellInsetVerticalPercent > 0 || !mintPlate)
       ? s.gridCellInsetVerticalPercent
       : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetVerticalPercent
   const insetH =
-    typeof s.gridCellInsetHorizontalPercent === 'number'
+    typeof s.gridCellInsetHorizontalPercent === 'number' &&
+    (s.gridCellInsetHorizontalPercent > 0 || !mintPlate)
       ? s.gridCellInsetHorizontalPercent
       : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetHorizontalPercent
   const singleMatte =
@@ -4007,7 +4084,6 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
               <HighlightCellView
                 key={c._key ?? `highlight-m-${i}`}
                 cell={c}
-                delay={i * 900}
                 matteColor={gridMatte}
                 insetVertical={insetV}
                 insetHorizontal={insetH}
@@ -4022,7 +4098,6 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
               <HighlightCellView
                 key={c._key ?? `highlight-${i}`}
                 cell={c}
-                delay={i * 900}
                 matteColor={gridMatte}
                 insetVertical={insetV}
                 insetHorizontal={insetH}
@@ -4163,24 +4238,24 @@ function useFrameCycle(count: number, delay: number) {
 
 function HighlightCellView({
   cell,
-  delay,
   matteColor,
   insetVertical,
   insetHorizontal,
 }: {
   cell: HighlightCell
-  delay: number
   matteColor: string
   insetVertical: number
   insetHorizontal: number
 }) {
   const frames = cell.frames ?? []
-  const gifSrc = highlightCellGifSrc(cell)
-  const videoSrc = highlightCellVideoSrc(cell)
-  const i = useFrameCycle(frames.length, delay)
-  if (!gifSrc && !videoSrc && !frames.length) return null
+  const motionSrc = highlightCellMotionSrc(cell)
+  const gifSrc =
+    motionSrc && highlightCellIsGif(cell, motionSrc) ? motionSrc : undefined
+  const stillSrc = !motionSrc ? frames[0] : undefined
+  if (!gifSrc && !motionSrc && !stillSrc) return null
 
   const captionClass = `mt-2.5 max-w-none max-lg:text-left lg:max-w-64 lg:text-center font-normal leading-[1.245] ${csBodyText()}`
+  const mediaClass = 'h-full w-full object-contain'
 
   return (
     <div className="flex flex-col items-center">
@@ -4203,9 +4278,9 @@ function HighlightCellView({
               src={gifSrc}
               alt={cell.caption || ''}
               loading="lazy"
-              className="h-full w-full object-cover"
+              className={mediaClass}
             />
-          ) : videoSrc ? (
+          ) : motionSrc ? (
             cell.videoUrl && !cell.videoFile ? (
               <iframe
                 src={cell.videoUrl}
@@ -4216,25 +4291,21 @@ function HighlightCellView({
               />
             ) : (
               <CsOverviewVideo
-                src={videoSrc}
-                poster={cell.posterImage}
+                src={motionSrc}
+                poster={cell.posterImage || stillSrc}
                 showFrame={false}
                 showMuteControl={false}
-                className="h-full w-full object-cover"
+                className={mediaClass}
               />
             )
           ) : (
-            frames.map((src, idx) => (
-              // eslint-disable-next-line @next/next/no-img-element -- highlight art
-              <img
-                key={idx}
-                src={src}
-                alt={cell.caption || ''}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition-opacity duration-900 ease-in-out"
-                style={{ opacity: idx === i ? 1 : 0 }}
-              />
-            ))
+            // eslint-disable-next-line @next/next/no-img-element -- highlight still
+            <img
+              src={stillSrc}
+              alt={cell.caption || ''}
+              loading="lazy"
+              className={mediaClass}
+            />
           )}
         </div>
       </div>
@@ -4307,10 +4378,10 @@ function StatsBlock({
       <div
         className={`mx-auto grid w-full grid-cols-1 ${
           metricCols === 1
-            ? 'sm:grid-cols-1'
+            ? 'lg:grid-cols-1'
             : metricCols === 2
-              ? 'sm:grid-cols-2'
-              : 'sm:grid-cols-3'
+              ? 'lg:grid-cols-2'
+              : 'lg:grid-cols-3'
         }`}
         style={{
           gap: metricGap,
@@ -5067,7 +5138,7 @@ function DeviceGallery({
               data-cursor="hover"
               className={`shrink-0 text-left uppercase leading-[1.03] ${
                 popupMode
-                  ? `w-auto whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!normal-case`
+                  ? `w-auto whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`
                   : `${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
               }`}
             >
@@ -5330,9 +5401,9 @@ function Stat({
       ref={ref}
       className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center max-lg:max-w-none max-lg:items-start max-lg:px-0 max-lg:text-left sm:max-w-none sm:px-3 lg:items-center lg:text-center"
     >
-      {/* Impact stat — live WP #user_impact .impact_count (8.5vw); mobile Thin 4507:24479. */}
+      {/* Impact number — mobile 54px Thin `4551:32024`; desktop WP 8.5vw. */}
       <p
-        className="font-normal leading-none max-lg:font-thin"
+        className="font-normal leading-none max-lg:!text-[54px] max-lg:!leading-none max-lg:font-thin"
         style={{ fontSize: STATS_BAND_DEFAULTS.valueFontSize }}
       >
         {stat.prefix}

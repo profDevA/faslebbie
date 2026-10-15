@@ -6,6 +6,7 @@ import {
   OVERVIEW_COLUMN_GAP,
   OVERVIEW_MEDIA_COLUMN_PAD,
   OVERVIEW_MEDIA_COLUMN_PAD_PAGE,
+  OVERVIEW_MEDIA_MOBILE_PHONE,
   OVERVIEW_SIDE_TEAL,
 } from "../../../src/lib/caseStudyDefaults";
 import { sanityColor } from "../../../src/lib/sanityAppearanceDefaults";
@@ -140,16 +141,42 @@ export const overviewSection = defineType({
     }),
     defineField({
       name: "mediaPaddingTop",
-      title: "Media column padding top (px)",
+      title: "Media column padding top — desktop (px)",
       type: "number",
       initialValue: OVERVIEW_MEDIA_COLUMN_PAD.paddingTop,
+      description: "lg+ only. Phone uses the mobile fields below.",
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
       name: "mediaPaddingBottom",
-      title: "Media column padding bottom (px)",
+      title: "Media column padding bottom — desktop (px)",
       type: "number",
       initialValue: OVERVIEW_MEDIA_COLUMN_PAD.paddingBottom,
+      description: "lg+ only. Phone uses the mobile fields below.",
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingTopMobile",
+      title: "Media column padding top — mobile (px)",
+      type: "number",
+      initialValue: OVERVIEW_MEDIA_MOBILE_PHONE.paddingTop,
+      description: `Empty = Figma ${OVERVIEW_MEDIA_MOBILE_PHONE.paddingTop} (4551:31160). Does not use the desktop fields.`,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaPaddingBottomMobile",
+      title: "Media column padding bottom — mobile (px)",
+      type: "number",
+      initialValue: OVERVIEW_MEDIA_MOBILE_PHONE.paddingBottom,
+      description: `Empty = Figma ${OVERVIEW_MEDIA_MOBILE_PHONE.paddingBottom}.`,
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
+      name: "mediaWidthMobile",
+      title: "Media width — mobile (px)",
+      type: "number",
+      initialValue: OVERVIEW_MEDIA_MOBILE_PHONE.widthPx,
+      description: `Phone video width. Empty = Figma ${OVERVIEW_MEDIA_MOBILE_PHONE.widthPx}.`,
       validation: (r) => r.min(0).integer(),
     }),
     defineField({

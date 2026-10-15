@@ -21,7 +21,7 @@ export function urlFor(source: SanityImageSource) {
 }
 
 /** GROQ fragment — fetch crop/hotspot + asset, not a flat URL. */
-export const SANITY_IMAGE_PROJ = `{ crop, hotspot, asset->{ _id, url, metadata { dimensions } } }`;
+export const SANITY_IMAGE_PROJ = `{ crop, hotspot, asset->{ _id, url, mimeType, originalFilename, extension, metadata { dimensions } } }`;
 
 function isSanityImageObject(value: unknown): value is SanityImageSource {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -68,6 +68,50 @@ function resolveWidth(source: SanityImageSource, maxWidth: number): number {
   return targetSanityWidth(assetNaturalWidth(source), maxWidth);
 }
 
+/** Sanity's image pipeline returns only the first frame of a GIF once any transform is applied. */
+export function isGifUrl(url: string): boolean {
+  return /\.gif(?:\?|$|#)/i.test(url);
+}
+
+type SanityAssetMeta = {
+  url?: unknown;
+  _ref?: unknown;
+  _id?: unknown;
+  mimeType?: unknown;
+  originalFilename?: unknown;
+  extension?: unknown;
+};
+
+function assetLooksLikeGif(asset: SanityAssetMeta): boolean {
+  if (typeof asset.mimeType === "string" && /gif/i.test(asset.mimeType)) return true;
+  if (typeof asset.extension === "string" && /^gif$/i.test(asset.extension)) return true;
+  if (typeof asset.originalFilename === "string" && /\.gif$/i.test(asset.originalFilename)) {
+    return true;
+  }
+  if (typeof asset.url === "string" && isGifUrl(asset.url)) return true;
+  const ref =
+    typeof asset._ref === "string"
+      ? asset._ref
+      : typeof asset._id === "string"
+        ? asset._id
+        : "";
+  // Sanity ids: `image-{hash}-{w}x{h}-gif`
+  return /-gif$/i.test(ref);
+}
+
+function rawGifAssetUrl(source: SanityImageSource): string | undefined {
+  const asset = (source as { asset?: SanityAssetMeta }).asset;
+  if (!asset || typeof asset !== "object" || !assetLooksLikeGif(asset)) return undefined;
+  if (typeof asset.url === "string" && asset.url) {
+    return asset.url.split("?")[0] ?? asset.url;
+  }
+  try {
+    return urlFor(source).url().split("?")[0];
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Studio crop + hotspot applied; use instead of `asset->url` for content images.
  * Request width follows asset size — small logos stay ~100px, heroes up to 2400.
@@ -81,6 +125,8 @@ export function sanityImageUrl(
     return hiResUrl(source, maxWidth);
   }
   try {
+    const gif = rawGifAssetUrl(source);
+    if (gif) return gif;
     const w = resolveWidth(source, maxWidth);
     return urlFor(source).width(w).auto("format").quality(90).url();
   } catch {
@@ -116,7 +162,7 @@ export function hiResUrl(
   maxWidth = SANITY_IMAGE_MAX_W,
 ): string | undefined {
   if (!url) return undefined;
-  if (!url.includes("cdn.sanity.io")) return url;
+  if (!url.includes("cdn.sanity.io") || isGifUrl(url)) return url;
   try {
     const parsed = new URL(url);
     if (parsed.searchParams.has("w")) return url;
