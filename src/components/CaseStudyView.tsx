@@ -4233,7 +4233,7 @@ function HighlightCellView({
   if (!gifSrc && !motionSrc && !stillSrc) return null
 
   const captionClass = `mt-2.5 max-w-none max-lg:text-left lg:max-w-64 lg:text-center font-normal leading-[1.245] ${csBodyText()}`
-  const mediaClass = 'h-full w-full object-contain'
+  const mediaClass = 'h-full w-full object-cover'
 
   return (
     <div className="flex flex-col items-center">
