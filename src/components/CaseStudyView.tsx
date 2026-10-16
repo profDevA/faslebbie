@@ -50,10 +50,12 @@ import {
 import {
   CS_CAPTION_LG,
   CS_CAPTION_SM,
+  CS_CE_CAPTION,
   CS_KICKER,
   CS_SUBHEAD_MOBILE,
   csExpandLabel,
   csCollapseLabel,
+  csLoadMoreLabel,
   CS_M_BODY,
   CS_M_TITLE,
   CS_M_EXPAND_BTN,
@@ -638,7 +640,12 @@ function HeroBlock({
           alt={p.name}
           className="block h-auto w-full"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
+        {/* Figma 4556:37569 — same 178.5deg → #171717 wash as mobile, taller on
+            desktop so the caption sits in the dark half of the 876px hero. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-[linear-gradient(178.5deg,rgba(23,23,23,0)_17.94%,#171717_63.75%)]"
+          aria-hidden
+        />
         <div className="cs-hero-caption absolute left-7.5 p-2.5 text-white">
           {caption}
         </div>
@@ -770,7 +777,6 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const sideTextCss = colorToCss(s.appearance?.textColor)
   const cta = s.ctaLabel ?? 'Visit Site'
   const body = csBodyText(textClass)
-  const metaSm = csMetaSm()
   const metaXs = csMetaXs()
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? CS_TEAL
   const hasVideo = !!s.sideVideo
@@ -801,7 +807,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     >
       <div
         data-cs-flush-copy
-        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start max-lg:!gap-[68px] max-lg:!px-5 lg:min-h-full lg:justify-between ${textClass}`}
+        className={`flex min-h-0 flex-col ${SECTION_GAP_CLASS} ${copyOrder} justify-start max-lg:!gap-[68px] max-lg:!px-5 lg:min-h-full lg:justify-start lg:gap-16 ${textClass}`}
         style={{
           ...copyPad,
           ...sectionGapStyle(s.appearance, gapDefault('md', true), true),
@@ -809,6 +815,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
         }}
       >
         <div className={'max-w-[min(680px,100%)] max-lg:max-w-none'}>
+          {/* Desktop 20 / 22 — same title-under-body step as mobile 17 / 19. */}
           <h2 className={`font-bold ${csSectionTitle()} ${textClass}`}>
             {s.sectionTitle ?? 'Overview'}
           </h2>
@@ -826,24 +833,20 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             </a>
           )}
         </div>
-        <div className={`flex flex-col gap-[42px] lg:gap-5 ${'max-w-[min(680px,100%)] max-lg:max-w-none'}`}>
+        <div className={`flex flex-col gap-[42px] lg:gap-8 ${'max-w-[min(680px,100%)] max-lg:max-w-none'}`}>
           {(s.serviceCategoryLabel || s.serviceList) && (
             <div className="max-w-85 max-lg:max-w-none">
-              {/* Figma 600:12513 — Neue Haas 45 Light 18px, capitalize. */}
-              <h3
-                className={`${CS_SUBHEAD_MOBILE} font-bold capitalize leading-tight lg:text-[20px] ${textClass}`}
-              >
+              <h3 className={`font-bold ${csSectionTitle()} ${textClass}`}>
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
               {s.serviceList && (
-                <p className={`mt-4 lg:mt-2 ${metaSm} ${textClass}`}>
+                <p className={`mt-4 lg:mt-[1em] ${body}`}>
                   {s.serviceList}
                 </p>
               )}
             </div>
           )}
-          {/* Figma 600:12514 — 45 Light 14px, labels 55 Roman. */}
-          <div className={`max-w-85 space-y-1 max-lg:max-w-none max-lg:space-y-0 ${metaSm} ${textClass}`}>
+          <div className={`max-w-85 space-y-1 max-lg:max-w-none max-lg:space-y-0 ${body}`}>
             {s.duration && (
               <p>
                 <span className="font-bold">Duration</span>: {s.duration}
@@ -965,9 +968,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           style={sideTextCss ? { color: sideTextCss } : undefined}
         >
           <div className="w-full">
-            <h2
-              className={`mb-4 ${csSectionTitle('lg:text-[22px]')}`}
-            >
+            <h2 className={`mb-4 ${csSectionTitle()}`}>
               {s.sideTitle ?? 'My Approach'}
             </h2>
             <CaseStudyProse value={s.sideBody} className={`lg:mt-3 ${csBodyText()}`} />
@@ -982,7 +983,7 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
         >
           {/* Figma "Design Process": Neue Haas 20px / 500 / lh 14.64px / capitalize / centered */}
           {s.sectionTitle && (
-            <h2 className={`mb-5 text-center max-lg:mb-0 ${csSectionTitle('lg:text-[24px]')}`}>
+            <h2 className={`mb-5 text-center max-lg:mb-0 ${csSectionTitle()}`}>
               {s.sectionTitle}
             </h2>
           )}
@@ -1267,12 +1268,12 @@ function CoreExperienceScreenCard({
     bandPreview && desktop
   const stackTile = desktopBandTile && bandStack
   const bandCaptionClass = bandMobileGrid
-    ? `text-left leading-[1.5] ${CS_CAPTION_SM} ${caption}`
+    ? `text-left ${CS_CE_CAPTION} ${caption}`
     : desktop
-      ? `text-left leading-[1.35] ${CS_CAPTION_LG} ${caption} ${
+      ? `text-left ${CS_CE_CAPTION} ${caption} ${
           bandStack ? 'mt-5' : ''
         }`
-      : `mt-3 text-left leading-[1.5] ${CS_CAPTION_SM} lg:mt-4 ${caption}`
+      : `mt-3 text-left ${CS_CE_CAPTION} lg:mt-4 ${caption}`
 
   if (bandPreview) {
     const desktopBand = desktop
@@ -1639,8 +1640,8 @@ function DeviceTabsViewMorePopupBody({
   popupBody,
   popupTabs,
   popupInitial = 4,
-  popupLoadMore = 'View All',
-  popupLoadLess = 'Show Less',
+  popupLoadMore = 'Load More',
+  popupLoadLess = 'Load Less',
 }: {
   popupApp?: Appearance
   popupKicker?: string
@@ -1787,7 +1788,7 @@ function CoreExperienceBlock({
   const popupKicker = s.popupKicker?.trim()
   const viewMore = csExpandLabel(s.viewMoreLabel)
   const popupInitial = s.popupItemsBeforeViewMore ?? 4
-  const popupLoadMore = csExpandLabel(s.popupLoadMoreLabel)
+  const popupLoadMore = csLoadMoreLabel(s.popupLoadMoreLabel)
   const popupLoadLess = csCollapseLabel(s.popupLoadLessLabel)
   const popupApp = s.popupAppearance
 
@@ -1841,7 +1842,7 @@ function CoreExperienceBlock({
           }
         >
           <h2
-            className={`w-full text-center ${csSectionTitle('lg:text-[22px] xl:text-[26px]')} ${onDark}`}
+            className={`w-full text-center ${csSectionTitle()} ${onDark}`}
           >
             {title}
           </h2>
@@ -1895,9 +1896,8 @@ function CoreExperienceBlock({
         onClose={() => setPopupOpen(false)}
         label={popupShellLabel}
         crumbs={[
-          { label: 'Case Studies', href: '/casestudies', hideOnMobile: true },
-          { label: projectName, hideOnMobile: true },
-          { label: popupShellLabel },
+          { label: 'Case Studies', href: '/casestudies' },
+          { label: projectName },
         ]}
         cardClassName="bg-white"
         bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
@@ -2495,7 +2495,7 @@ function InterventionGridBlock({
   const [expanded, setExpanded] = useState(false)
   const visible = expanded ? items : items.slice(0, initial)
   const hasMore = items.length > initial
-  const readMore = csExpandLabel(s.readMoreLabel)
+  const readMore = csLoadMoreLabel(s.readMoreLabel)
   const loadMoreBtnClass =
     `relative pb-1 normal-case leading-[19.2px] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current text-[14px] font-normal tracking-wide text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
 
@@ -2560,7 +2560,7 @@ function InterventionGridBlock({
               onClick={() => setExpanded(false)}
               className={loadMoreBtnClass}
             >
-              Show Less
+              {csCollapseLabel()}
             </button>
           </div>
         )}
@@ -2678,14 +2678,14 @@ function GalleryBlock({ section: s }: { section: Of<'gallerySection'> }) {
         <DeviceGallery
           tabs={s.tabs}
           initial={initial}
-          loadMore={csExpandLabel(s.loadMoreLabel)}
+          loadMore={csLoadMoreLabel(s.loadMoreLabel)}
         />
       ) : (
         <ImageGrid
           images={imgUrls(s.items)}
           captions={s.showCaptions ? capList(s.items) : undefined}
           initial={initial}
-          loadMore={csExpandLabel(s.loadMoreLabel)}
+          loadMore={csLoadMoreLabel(s.loadMoreLabel)}
           tile={tile}
           light={light || !!tan}
         />
@@ -2742,7 +2742,7 @@ function ShowcaseBlock({
               {s.introBody?.length ? (
                 <CaseStudyProse
                   value={s.introBody}
-                  className={`mt-4 max-lg:text-[19px] max-lg:leading-[1.4] ${csBodySm()}`}
+                  className={`mt-4 ${csBodyText()} ${light ? 'text-white' : ''}`}
                 />
               ) : null}
             </div>
@@ -2775,12 +2775,12 @@ function ShowcaseBlock({
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <CaseStudyProse
             value={s.introBody}
-            className={`mt-3 ${csBodySm()}`}
+            className={`mt-3 ${csBodyText()} ${light ? 'text-white' : ''}`}
           />
         </div>
       )}
       {images.length > 0 && (
-        <CenterSlider
+          <CenterSlider
           images={images}
           lightboxImages={lightboxImages.length ? lightboxImages : images}
           scrollContainer={scrollContainer}
@@ -2811,8 +2811,8 @@ function ViewMoreDeviceTabsModal({
   pages,
   popupAppearance: popupApp,
   popupItemsBeforeViewMore = 4,
-  popupLoadMoreLabel = 'View All',
-  popupLoadLessLabel = 'Show Less',
+  popupLoadMoreLabel = 'Load More',
+  popupLoadLessLabel = 'Load Less',
 }: {
   open: boolean
   onClose: () => void
@@ -2857,9 +2857,8 @@ function ViewMoreDeviceTabsModal({
       onClose={onClose}
       label={popupShellLabel}
       crumbs={[
-        { label: 'Case Studies', href: '/casestudies', hideOnMobile: true },
-        { label: projectName, hideOnMobile: true },
-        { label: popupShellLabel },
+        { label: 'Case Studies', href: '/casestudies' },
+        { label: projectName },
       ]}
       cardClassName="bg-white"
       bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
@@ -3259,7 +3258,7 @@ function MotionShowcaseCrossFunctionalBand({
           pages={popupPages}
           popupAppearance={s.popupAppearance}
           popupItemsBeforeViewMore={s.popupItemsBeforeViewMore}
-          popupLoadMoreLabel={csExpandLabel(s.popupLoadMoreLabel)}
+          popupLoadMoreLabel={csLoadMoreLabel(s.popupLoadMoreLabel)}
           popupLoadLessLabel={csCollapseLabel(s.popupLoadLessLabel)}
         />
       ) : null}
@@ -3653,26 +3652,15 @@ function MotionRowMobileItemStack({
       ? d.phoneMaxWidthPx
       : d.tabletMaxWidthPx
   const captionMax = desktop
-    ? device === 'mobile'
-      ? d.captionMaxWidthDesktopPhonePx
-      : d.captionMaxWidthDesktopTabletPx
+    ? mediaMax
     : d.captionMaxWidthPx
   const rowAlign =
     align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
-  const mediaAlign = desktop && align === 'end' ? 'ml-auto' : 'mx-auto'
   return (
     <div className="w-full">
-      <div
-        className={rowAlign}
-        style={{ maxWidth: Math.max(mediaMax, captionMax) }}
-      >
+      <div className={`w-full ${rowAlign}`} style={{ maxWidth: mediaMax }}>
       {first && (
-        <div
-          className={`${mediaAlign} w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]`}
-          style={{
-            maxWidth: mediaMax,
-          }}
-        >
+        <div className="w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]">
           <DeviceMedia item={first} poster={row.posterImage} device={device} />
         </div>
       )}
@@ -4027,19 +4015,9 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
       : HIGHLIGHT_REEL_GRID_DEFAULTS.gridGap
   const gridMatte =
     colorToCss(s.gridCellMatteColor) ?? HIGHLIGHT_REEL_GRID_DEFAULTS.cellMatteColor
-  const mintPlate =
-    gridMatte.replace('#', '').toLowerCase() ===
-    HIGHLIGHT_REEL_GRID_DEFAULTS.cellMatteColor.replace('#', '').toLowerCase()
-  const insetV =
-    typeof s.gridCellInsetVerticalPercent === 'number' &&
-    (s.gridCellInsetVerticalPercent > 0 || !mintPlate)
-      ? s.gridCellInsetVerticalPercent
-      : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetVerticalPercent
-  const insetH =
-    typeof s.gridCellInsetHorizontalPercent === 'number' &&
-    (s.gridCellInsetHorizontalPercent > 0 || !mintPlate)
-      ? s.gridCellInsetHorizontalPercent
-      : HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetHorizontalPercent
+  // Flush to the plate — Figma `4556:38244`. Ignore stored 14/12 from the old mint inset.
+  const insetV = HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetVerticalPercent
+  const insetH = HIGHLIGHT_REEL_GRID_DEFAULTS.cellInsetHorizontalPercent
   const singleMatte =
     colorToCss(s.singleCardMatteColor) ?? HIGHLIGHT_REEL_SINGLE_DEFAULTS.cardMatteColor
   const singlePad =
@@ -4468,9 +4446,10 @@ function Accordion({
   const [open, setOpen] = useState(initial === -1 ? 0 : initial)
   const headSize =
     variant === 'brought'
-      ? `${CS_SUBHEAD_MOBILE} lg:text-[21px]`
-      : `${CS_SUBHEAD_MOBILE} lg:text-[20px]`
-  const bodySize = `text-[18px] lg:text-[19px] ${CS_M_BODY}`
+      ? 'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-normal lg:text-[21px]'
+      : 'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-normal lg:text-[20px]'
+  const bodySize =
+    'text-[18px] font-light leading-normal lg:text-[19px] max-lg:!text-[19px] max-lg:!leading-[1.4] max-lg:!font-light'
   return (
     <div>
       {items.map((it, i) => {
@@ -4511,7 +4490,7 @@ function Accordion({
             {isOpen && it.body && (
               <CaseStudyProse
                 value={it.body}
-                className={`pb-5 pt-1.5 font-normal leading-normal lg:pb-6 lg:pt-0 ${bodySize}`}
+                className={`pb-5 pt-1.5 leading-normal lg:pb-6 lg:pt-0 ${bodySize}`}
               />
             )}
           </div>
@@ -4530,8 +4509,8 @@ function ArtifactSlider({
   gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
   gutter = true,
   mobileInitial = 3,
-  loadMore = 'View All',
-  loadLess = 'Show Less',
+  loadMore = 'Load More',
+  loadLess = 'Load Less',
 }: {
   images: string[]
   scrollContainer?: HTMLDivElement | null
@@ -4926,7 +4905,7 @@ function CenterSlider({
 
 type ViewportRect = { top: number; left: number; width: number; height: number }
 
-/** Desktop: clip lightbox to `.cs-page-bands` (internal scroll). Mobile: window scrolls — use full viewport. */
+/** Clip the artifact overlay to `.cs-page-bands` so the case-study header + footer stay. */
 function measureScrollViewport(
   el: HTMLElement | null | undefined,
   useInternalScroll: boolean,
@@ -4936,8 +4915,7 @@ function measureScrollViewport(
   return { top: r.top, left: r.left, width: r.width, height: r.height }
 }
 
-/** Research-artifact sub-modal (Figma 4152:125289): black backdrop, max-size image, ✕ close.
- *  Letterboxes on black when aspect ratio ≠ viewport. Breadcrumb + pager stay visible. */
+/** Figma 4576:26789 — inner white plate over the case-study band only. Just ✕. */
 function ArtifactLightbox({
   images,
   index,
@@ -4960,6 +4938,15 @@ function ArtifactLightbox({
   const [pageInternal, setPageInternal] = useState(false)
   const [frame, setFrame] = useState<ViewportRect | null>(null)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    setNatural(null)
+    const el = imgRef.current
+    if (el?.complete && el.naturalWidth && el.naturalHeight) {
+      setNatural({ w: el.naturalWidth, h: el.naturalHeight })
+    }
+  }, [index, images])
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -5026,39 +5013,46 @@ function ArtifactLightbox({
 
   const boxW = frame?.width ?? (typeof window !== 'undefined' ? window.innerWidth : 0)
   const boxH = frame?.height ?? (typeof window !== 'undefined' ? window.innerHeight : 0)
+  /** Figma 4576:26789 — dark gutter on all sides; plate keeps its own aspect. */
+  const insetX = pageInternal ? 48 : 20
+  const insetY = pageInternal ? 48 : 20
+  const availW = Math.max(0, boxW - insetX * 2)
+  const availH = Math.max(0, boxH - insetY * 2)
   const scale =
-    natural && boxW > 0 && boxH > 0
-      ? Math.min(boxW / natural.w, boxH / natural.h)
+    natural && availW > 0 && availH > 0
+      ? Math.min(availW / natural.w, availH / natural.h)
       : null
-  const imgStyle: CSSProperties =
-    scale != null && natural
-      ? { width: natural.w * scale, height: natural.h * scale }
-      : {
-          maxHeight: boxH || '100%',
-          maxWidth: boxW || '100%',
-        }
 
   return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Research artifact"
-      data-cursor-invert
-      style={overlayStyle}
+      style={{
+        ...overlayStyle,
+        paddingTop: insetY,
+        paddingBottom: insetY,
+        paddingLeft: insetX,
+        paddingRight: insetX,
+      }}
       onClick={onClose}
-      className="relative flex h-full w-full items-center justify-center bg-black animate-[panel-in_0.2s_ease-out]"
+      className="box-border flex items-center justify-center bg-[#1a1a1a] animate-[panel-in_0.2s_ease-out]"
     >
       <div
-        data-cursor-normal
-        className="relative inline-flex leading-none"
+        className="relative bg-white leading-none"
         onClick={e => e.stopPropagation()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- artifact art */}
         <img
+          ref={imgRef}
           src={images[index]}
           alt=""
           className="block"
-          style={imgStyle}
+          style={
+            scale != null && natural
+              ? { width: natural.w * scale, height: natural.h * scale }
+              : { maxWidth: availW || '100%', maxHeight: availH || '100%' }
+          }
           onLoad={e => {
             const el = e.currentTarget
             if (el.naturalWidth && el.naturalHeight) {
@@ -5068,13 +5062,10 @@ function ArtifactLightbox({
         />
         <button
           type="button"
-          onClick={e => {
-            e.stopPropagation()
-            onClose()
-          }}
+          onClick={onClose}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute -right-1 -top-12 z-30 shrink-0 rounded-full bg-white/90 px-2.5 py-1 text-[28px] leading-none text-black shadow-md transition-opacity hover:opacity-80 max-lg:fixed max-lg:right-4 max-lg:top-[calc(env(safe-area-inset-top,0px)+4.25rem)] max-lg:z-[130]"
+          className="absolute right-5 top-5 z-10 text-[22px] leading-none text-black transition-opacity hover:opacity-60 sm:right-8 sm:top-6 sm:text-[24px]"
         >
           ×
         </button>
@@ -5126,7 +5117,7 @@ function DeviceGallery({
         <div
           className={
             popupMode
-              ? 'mx-auto flex w-full max-w-full flex-row flex-wrap justify-center gap-x-4 gap-y-2 pb-1 lg:flex-nowrap lg:gap-3 lg:overflow-x-auto lg:overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+              ? 'mx-auto flex w-full max-w-[240px] flex-nowrap items-end justify-between pb-1 lg:max-w-[300px]'
               : 'mx-auto flex w-full max-lg:flex-col max-lg:items-stretch max-lg:gap-3 lg:flex-nowrap lg:justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]'
           }
         >
@@ -5136,16 +5127,14 @@ function DeviceGallery({
               type="button"
               onClick={() => setActive(i)}
               data-cursor="hover"
-              className={`shrink-0 text-left uppercase leading-[1.03] ${
+              className={`shrink-0 uppercase leading-[1.03] ${
                 popupMode
-                  ? `w-auto whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`
-                  : `${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
+                  ? `text-center whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`
+                  : `text-left ${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
               }`}
             >
               <span
-                className={`relative inline-block pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
-                  'whitespace-nowrap'
-                } ${
+                className={`relative inline-block whitespace-nowrap pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
                   active === i ? 'after:w-full' : 'after:w-0 hover:after:w-full'
                 }`}
               >
@@ -5176,8 +5165,8 @@ function ImageGrid({
   images,
   captions,
   initial = 4,
-  loadMore = 'View All',
-  loadLess = 'Show Less',
+  loadMore = 'Load More',
+  loadLess = 'Load Less',
   tile,
   tileBg,
   light,

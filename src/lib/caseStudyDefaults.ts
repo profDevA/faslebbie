@@ -66,13 +66,11 @@ export const ACME_ACCORDION_PANEL_BACKGROUND = "#4c79c8";
 /** Case studies authored for the full-page template first (also render in Work overlay). */
 export const PAGE_TEMPLATE_SLUGS = ["acme-lending"] as const;
 
-/** §10 Highlight reel — mint plate + inset GIF/MP4 (Figma `4551:32037` / `4556:38244`). */
+/** §10 Highlight reel — tiles fill the cell (Figma `4556:38244`). */
 export const HIGHLIGHT_REEL_GRID_DEFAULTS = {
   cellMatteColor: "#d4e9d7",
-  /** Inner motion `1171276929` is 15.4/110.7 of the plate. */
-  cellInsetVerticalPercent: 14,
-  /** Inner motion is 20.2/165.3 of the plate. */
-  cellInsetHorizontalPercent: 12,
+  cellInsetVerticalPercent: 0,
+  cellInsetHorizontalPercent: 0,
   gridGap: 14,
 } as const;
 
@@ -147,8 +145,8 @@ export const MOTION_MOBILE_FLOW_STACK = {
   titleMarginBottomMobile: 40,
   phoneMaxWidthDesktopPx: 286,
   tabletMaxWidthDesktopPx: 438,
-  captionMaxWidthDesktopPhonePx: 488,
-  captionMaxWidthDesktopTabletPx: 515,
+  captionMaxWidthDesktopPhonePx: 286,
+  captionMaxWidthDesktopTabletPx: 438,
   captionMarginTopDesktopPx: 29,
   betweenRowsGapDesktopPx: 80,
 } as const;

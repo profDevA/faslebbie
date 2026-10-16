@@ -3,43 +3,50 @@
  * tiers below lg, applied with `!` so Sanity marks, per-component sizes and
  * legacy captions can't drift:
  *   title — 17px / 1.25 / bold (section titles, subheads, accordion rows)
- *   body  — 19px / 1.4 / regular (paragraphs, meta, captions, links, notes)
+ *   body  — 19px / 1.4 / light (paragraphs, meta, captions, links, notes)
  * Duration:/Team: stay bold labels on body text.
  * Desktop (lg+) keeps its own sizes.
  */
 export const CS_M_TITLE =
   'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-bold max-lg:!tracking-normal'
 export const CS_M_BODY =
-  'max-lg:!text-[19px] max-lg:!leading-[1.4] max-lg:!font-normal max-lg:!tracking-normal max-lg:!normal-case'
+  'max-lg:!text-[19px] max-lg:!leading-[1.4] max-lg:!font-light max-lg:!tracking-normal max-lg:!normal-case'
 
 export function csBodyText(extra = '') {
-  return `text-[19px] font-normal leading-[1.4] lg:text-[22px] lg:leading-[1.65] ${CS_M_BODY} ${extra}`
+  return `text-[19px] font-light leading-[1.4] lg:text-[22px] lg:leading-[1.65] lg:!font-light ${CS_M_BODY} ${extra}`
 }
 
 export function csBodySm(extra = '') {
   return `text-[17px] lg:text-[18px] font-normal leading-[1.6] ${CS_M_BODY} ${extra}`
 }
 
-/** Section titles — mobile tier is fixed; `desktopSize` only tunes lg+. */
-export function csSectionTitle(desktopSize = 'lg:text-[26px]') {
-  return `text-[17px] font-normal capitalize leading-tight ${CS_M_TITLE} ${desktopSize}`
+/** Section titles — mobile 17 / desktop 20, bold, a step under body (19 / 22). */
+export function csSectionTitle(desktopSize = 'lg:text-[20px]') {
+  return `text-[17px] font-bold capitalize leading-tight lg:!font-bold ${CS_M_TITLE} ${desktopSize}`
 }
 
 export function csImpactTitle(desktopSize = 'lg:text-[26px]') {
-  return `text-[17px] font-medium capitalize leading-tight ${CS_M_TITLE} ${desktopSize}`
+  return `text-[17px] font-bold capitalize leading-tight lg:!font-bold ${CS_M_TITLE} ${desktopSize}`
 }
 
-/** Expand / collapse CTAs: "View All" / "Show Less" on every case study;
- *  stored View More / See more / Load More variants collapse to them. */
+/** Band CTA that opens a popup. Stored View More / See more → View All. */
 export function csExpandLabel(label?: string) {
   const t = label?.trim()
-  if (!t || /^(view|see|load|show)\s+(more|all)$/i.test(t)) return 'View All'
+  if (!t || /^(view|see)\s+(more|all)$/i.test(t)) return 'View All'
   return t
 }
 
+/** In-place / in-popup pagination. Stored View More / Load More → Load More. */
+export function csLoadMoreLabel(label?: string) {
+  const t = label?.trim()
+  if (!t || /^(view|see|load|show)\s+(more|all)$/i.test(t)) return 'Load More'
+  return t
+}
+
+/** Collapse after Load More. Stored Show Less / View Less → Load Less. */
 export function csCollapseLabel(label?: string) {
   const t = label?.trim()
-  if (!t || /^(show|see|view)\s+less$/i.test(t)) return 'Show Less'
+  if (!t || /^(show|see|view|load)\s+less$/i.test(t)) return 'Load Less'
   return t
 }
 
@@ -68,11 +75,14 @@ export function csHeroCap(extra = '') {
 export const CS_KICKER = 'text-[13px] sm:text-[14px]'
 export const CS_CAPTION_LG = `text-[15px] sm:text-[16px] ${CS_M_BODY}`
 export const CS_CAPTION_SM = `text-[13px] sm:text-[14px] ${CS_M_BODY}`
+/** CE band tile captions — 13px (Fas Oct 16). Beats CS_M_BODY so they stay small on mobile. */
+export const CS_CE_CAPTION =
+  'text-[13px] font-normal leading-[1.4] max-lg:!text-[13px] max-lg:!leading-[1.4] max-lg:!font-normal'
 
 export function csReflectionTitle() {
-  return `font-grotesk text-[17px] font-normal capitalize leading-tight ${CS_M_TITLE} lg:text-[26px]`
+  return csSectionTitle()
 }
 
 export function csReflectionBody() {
-  return `font-grotesk text-[19px] font-light leading-[1.6] lg:text-[22px] ${CS_M_BODY}`
+  return csBodyText()
 }

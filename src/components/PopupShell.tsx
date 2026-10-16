@@ -32,12 +32,12 @@ function Breadcrumbs({
 }) {
   const router = useRouter();
   return (
-    <span className="flex min-w-0 items-center gap-1.5 font-grotesk text-[12px] font-light text-black sm:text-[16px]">
+    <span className="flex min-w-0 items-center gap-2 reckless-prose text-[17px] font-normal leading-tight text-black sm:text-[18px]">
       {crumbs.map((crumb, i) => {
         const last = i === crumbs.length - 1;
         const crumbClass = last
-          ? "truncate underline underline-offset-2"
-          : "truncate transition-opacity hover:opacity-60";
+          ? "truncate underline underline-offset-4"
+          : "truncate text-black/55 transition-colors hover:text-black";
         return (
           // The separator belongs to the crumb it follows, so hiding a crumb on
           // mobile hides its slash too.

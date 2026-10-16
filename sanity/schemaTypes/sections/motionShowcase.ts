@@ -131,9 +131,9 @@ export const motionShowcase = defineType({
     }),
     defineField({
       name: "popupLoadLessLabel",
-      title: "Popup — Show Less label",
+      title: "Popup — Load Less label",
       type: "string",
-      initialValue: "Show Less",
+      initialValue: "Load Less",
     }),
   ],
   preview: {
