@@ -1,4 +1,4 @@
-// Homepage content — verbatim from the Figma prototype (docs/homepage-spec.md).
+// Homepage content — verbatim from the Figma prototype (docs/archive/homepage-spec.md).
 
 import { generatedCaseStudies } from './case-studies.generated'
 

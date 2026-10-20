@@ -1,7 +1,8 @@
 # Sanity scripts
 
-**Case study status:** `docs/case-studies-tracker.md` (**11 shipped**, Sep 22, 2026).
-Sep 21–22 batch summary: `docs/meetings/2026-09-22-actions.md`.
+**Case study status:** `docs/case-studies-tracker.md` (18 published, 14 shipped
+on the Coral template — updated Oct 19, 2026). Per-study patch notes:
+`docs/case-studies/<slug>.md`.
 
 Run from `frontend/`:
 
@@ -9,11 +10,18 @@ Run from `frontend/`:
 npx sanity exec scripts/<name>.ts --with-user-token
 ```
 
+> **Every script writes to the production dataset** (no staging) with your
+> Sanity login. `--dry` exists on many scripts but is opt-in — pass it first.
+> Most patches address `sections[idx]` by position, so re-check the document
+> right before running. Image patches re-upload assets: **don't re-run one after
+> manual Studio uploads**. See **Destructive — do not re-run** below.
+
 Patch-only copy and seed data live in `scripts/data/` (not imported by page components).
 
 ## Fonts
 
 Body prose = **Reckless Neue Regular (400)** — same weight as expanded grey-pill copy.
+(Case-study body text is **light** since Oct 16 — `docs/case-study-system.md`.)
 Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 `wp-content/themes/twentynineteen/fonts-new/` if you have the WordPress export.
 
@@ -21,12 +29,12 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 
 | When | Script |
 |------|--------|
-| Case study media wiped by bad patch | `restore-case-study-sections-from-history.ts` then `patch-problem-context-sections.ts` |
+| Case study media wiped by bad patch | ⚠️ `restore-case-study-sections-from-history.ts` restores **every** published study to its 2026-08-26 sections (no `--slug`, no `--dry`) — it would undo all work since. Use only for a site-wide disaster; per-study restore scripts exist only for Coral, Census and Design Assist (`patch-<study>-restore-from-history.ts`). Then `patch-problem-context-sections.ts` |
 | Coral overview / Problem Context / Reflection / Next Steps wiped | `patch-coral-restore-from-history.ts` |
 | Coral Studio validation (missing image, variant, ctaUrl, draft sync) | `patch-coral-fix-studio-validation.ts` |
 | All case studies — Studio validation / appearance strings | `patch-case-study-studio-validation.ts`, `patch-appearance-legacy-strings.ts` |
 | Draft out of sync after template migration | `sync-case-study-drafts-from-published.ts` |
-| Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`) |
+| Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`). ⚠️ Always pass `--slug=<slug>` — without it, it rewrites every study and gives every section a new key |
 | Coral media audit (read-only) | `check-coral-media.ts` |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
@@ -174,17 +182,23 @@ Copy data modules (imported by patches, not run directly): `approach-final-copy-
 
 Shared helper: `lib/lexorank-order.ts` — use LexoRank for `orderRank`, never `"00001"`-style strings.
 
-## Do not re-run for routine edits
+## Destructive — do not re-run for routine edits
 
 | Script | Why |
 |--------|-----|
-| **`migrate-pages.ts`** | Wipes Build covers, 14 student carousels, 12 exhibition photos |
+| **`migrate-pages.ts`** | `createOrReplace` of Teaching / Build / Approach — wipes Build covers + output visuals, the 14 student carousels, 12 exhibition photos, the extra 8 students, and empties Approach `sections` |
 | **`migrate-research.ts`** | Re-uploads field-note images |
+| **`restore-case-study-sections-from-history.ts`** | Rolls **every** published study back to 2026-08-26 |
+| **`patch-home-final-copy.ts`**, **`patch-about-final-copy.ts`**, **`patch-approach-final-copy.ts`** | Named "patch" but do a whole-document `createOrReplace` — anything edited in Studio since (incl. SEO) is lost |
+| **`migrate-case-studies-coral-template.ts`** without `--slug` | Rewrites every study |
+| **`patch-blogs-publications.ts`** | Replaces the whole Words arrays (projects / books / journals) from seed data — Studio edits and covers are lost |
+| **`patch-seo-share.ts`** | Sets OG image to `public/og-share.png`; the agreed OG is the master portrait |
 | **`patch-about-plain-tokens.ts`** | Legacy evening QA — strips `teach` / `monthly` marks; opposite of current About spec (`free monthly` red popup) |
 
 Use **`patch-*`** for single-field or copy updates. Use **`migrate-case-studies-coral-template.ts`** (with `--dry` / `--slug=`) for remaining red case-study template migrations — not the old bulk `migrate-*-redesign.ts` scripts (removed Aug 2026).
 
-See `CLAUDE.md` for page-specific source-of-truth files.
+Page-specific source-of-truth files: `docs/pages-notes.md`; per case study:
+`docs/case-studies/<slug>.md`; rules: root `CLAUDE.md`.
 
 **Do not add `_tmp-*` or `_audit-*` scripts** — throwaway audits belong in agent sessions, not the repo. (Removed Sep 2026: `audit-*-sanity-history`, `inspect-circle-sanity-copy`, `_audit-about-page`, `_audit-approach-page`.)
 
@@ -193,4 +207,4 @@ See `CLAUDE.md` for page-specific source-of-truth files.
 - **~200 `patch-*` scripts are normal** — one (or a few) per shipped case-study section. Do not bulk-delete; use this README + `docs/case-studies-tracker.md` to see what is still active.
 - **Deleted when obsolete:** deprecated AR Handbook §04 CE patches; superseded overview-padding patch; one-off Sanity audit scripts (recover from git if ever needed).
 - **`public/work/`** — Figma @4× exports for patches you re-run; commit PNGs for case studies you own in git. **Safe to delete locally** (not in git): WP download caches e.g. `public/work/**/core-flow/popup-tabs/`, interim files under `public/work/the-ar-handbook/core-flow/` after Sanity has the assets. Only two shared SVGs are tracked under `public/work/` today; most art lives in Sanity CDN after patch.
-- **Never delete:** `migrate-pages.ts` / `migrate-research.ts` stay in repo but are listed under **Do not re-run** below.
+- **Never delete:** `migrate-pages.ts` / `migrate-research.ts` stay in repo but are listed under **Destructive — do not re-run** above.

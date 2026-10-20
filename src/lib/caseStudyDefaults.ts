@@ -133,8 +133,11 @@ export const MOTION_STACKED_MOBILE = {
 /**
  * §07 `mobileFlowStack` — Coral KPE.
  * One phone + one tablet (first item of each row).
- * Mobile Figma `4551:31510` — phone 167×362, tablet 292×396.
- * Desktop Figma `4556:37938` — phone 286×620, tablet 438×593.
+ * Mobile Figma `4551:31510` — phone 167×362, tablet 292×396; both captions span
+ * the full 301px column (not the device width).
+ * Desktop Figma `4556:37938` — phone 286×620 in a 488px item, tablet 438×593 in
+ * a 515px item; captions span the item. The tablet item starts 72px above the
+ * end of the phone item (side-by-side stagger). Israel #2530, Oct 19.
  */
 export const MOTION_MOBILE_FLOW_STACK = {
   betweenRowsGapPx: 105,
@@ -143,12 +146,15 @@ export const MOTION_MOBILE_FLOW_STACK = {
   captionMarginTopPx: 50,
   captionMaxWidthPx: 301,
   titleMarginBottomMobile: 40,
+  titleMarginBottomDesktop: 105,
   phoneMaxWidthDesktopPx: 286,
   tabletMaxWidthDesktopPx: 438,
-  captionMaxWidthDesktopPhonePx: 286,
-  captionMaxWidthDesktopTabletPx: 438,
+  captionMaxWidthDesktopPhonePx: 488,
+  captionMaxWidthDesktopTabletPx: 515,
   captionMarginTopDesktopPx: 29,
-  betweenRowsGapDesktopPx: 80,
+  captionMarginTopDesktopTabletPx: 44,
+  /** Negative = the next row starts before the previous one ends. */
+  betweenRowsGapDesktopPx: -72,
 } as const;
 
 /** §07 Motion row — device strip + caption. */

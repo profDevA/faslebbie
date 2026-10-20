@@ -165,12 +165,6 @@ const cardProj = `
   passwordProtected
 `;
 
-const studyPdfProj = `
-  "fullCaseStudyPdfUrl": fullCaseStudyPdf.asset->url,
-  fullCaseStudyLabel,
-  fullCaseStudyIntro
-`;
-
 const seoProj = `seo{
   title, description, ogImageAlt,
   "ogImage": ogImage${img},
@@ -182,7 +176,6 @@ const seoProj = `seo{
 // in-page popup (which needs each study's full body ready without a round-trip).
 export const ALL_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**"))] | order(orderRank asc){
   ${cardProj},
-  ${studyPdfProj},
   ${seoProj},
   ${sectionsProj}
 }`);

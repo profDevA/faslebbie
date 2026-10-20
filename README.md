@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# faslebbie.com — Fas Lebbie portfolio
 
-## Getting Started
+Next.js 16 (App Router, TypeScript, Tailwind v4, Turbopack) with Sanity v6.
+The Sanity Studio is embedded in the app at `/studio`.
 
-First, run the development server:
+Project knowledge (rules, per-case-study notes, meeting notes) lives one level
+up in `../CLAUDE.md` and `../docs/` — those are **not** in this git repo.
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # dev server (Turbopack) — http://localhost:3000
+npm run build    # production build (~2.5 min)
+npm run start    # serve the production build
+npx tsc --noEmit
+npx eslint src sanity
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local` (dev) / `.env.production` (server). Names only — get the
+values from the team:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Used for |
+|---|---|
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` | Sanity project (public) |
+| `SANITY_API_READ_TOKEN` | Server-side reads — the dataset is private |
+| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` | Contact form (`/api/contact`) |
+| `NEXT_PUBLIC_SITE_URL` (optional) | Canonical / OG base URL; defaults to `https://faslebbie.com` |
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
+| Path | What |
+|---|---|
+| `src/app/` | Routes: `/`, `/about`, `/approach`, `/research`, `/teaching`, `/blogs`, `/build`, `/casestudies`, `/studio`, `/api/*` |
+| `src/components/CaseStudyView.tsx` + `caseStudyView/` | Case-study renderer (all section types) |
+| `src/sanity/` | Client, GROQ queries (`queries.ts`), types, image helpers |
+| `src/lib/*FromSanity.ts` | Map Sanity documents to page props |
+| `sanity/schemaTypes/` | Studio schema (documents, objects, sections) |
+| `scripts/` | One-off Sanity migrate / patch scripts — **read `scripts/README.md` first; they write to production** |
+| `public/work/` | Source media for the patch scripts (Figma / WP exports) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Sanity
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Studio: `/studio` on any running instance. Schema changes ship with the app
+  — there is no separate `sanity schema deploy`.
+- Section projections in `src/sanity/queries.ts` list fields explicitly: add a
+  new schema field to the query or it won't reach the site.
+- Patch scripts: `npx sanity exec scripts/<name>.ts --with-user-token`.
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Preview:** `faslebbieportfolio.vercel.app`, auto-deploys from `main`.
+- **Production (`faslebbie.com`):** EC2 (Ubuntu, nginx + pm2 `fasportfolio`),
+  deployed by hand:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  ```bash
+  cd ~/faslebbie
+  git pull
+  rm -rf .next
+  npm run build
+  pm2 restart 0 --update-env
+  ```
+
+Sanity content changes reach both hosts without a redeploy (60s revalidate).

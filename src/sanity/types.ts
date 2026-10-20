@@ -374,10 +374,6 @@ export interface SanityPageSeo {
 export interface Study extends StudyCard {
   seo?: SanityPageSeo;
   sections: Section[];
-  /** Sanity PDF asset URL for the bottom inline “Full Case Study” link. */
-  fullCaseStudyPdfUrl?: string;
-  fullCaseStudyLabel?: string;
-  fullCaseStudyIntro?: string;
 }
 
 export interface ToolStackItem {

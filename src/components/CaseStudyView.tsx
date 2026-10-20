@@ -71,7 +71,6 @@ import {
   csUiText,
 } from '@/components/caseStudyView/typography'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
-import { ExternalArrow } from '@/components/InlineToken'
 import type {
   AccordionEntry,
   Appearance,
@@ -252,15 +251,6 @@ export default function CaseStudyView({
           />
         ),
       )}
-
-      {p.fullCaseStudyPdfUrl &&
-      !(p.sections ?? []).some(s => s._type === 'reflectionSection') ? (
-        <FullCaseStudyPdfLink
-          url={p.fullCaseStudyPdfUrl}
-          label={p.fullCaseStudyLabel?.trim() || 'Full Case Study'}
-          intro={p.fullCaseStudyIntro?.trim()}
-        />
-      ) : null}
     </>
   )
 
@@ -312,80 +302,6 @@ export default function CaseStudyView({
 }
 
 // ── per-section dispatch ──────────────────────────────────────────────────────
-/** Figma 2110:41725 — Thin Italic lead; 41728 Roman Italic red link inside [ ↗ ]. */
-const FULL_CASE_STUDY_INTRO_DEFAULT =
-  'This case study is intentionally condensed for a quick overview. Explore the complete research, process and outcomes in the'
-
-function FullCaseStudyPdfFooter({
-  url,
-  label,
-  intro,
-}: {
-  url: string
-  label: string
-  intro?: string
-}) {
-  const lead = intro || FULL_CASE_STUDY_INTRO_DEFAULT
-  const size = csBodyText()
-  return (
-    <p
-      className={`mx-auto text-center font-grotesk font-light italic leading-[1.6] text-white ${size} ${'max-w-none'}`}
-    >
-      {lead}{' '}
-      <span className="whitespace-nowrap">
-        {'['}
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-cursor="hover"
-          className="group mx-[0.15em] inline-flex items-baseline font-normal italic text-accent transition-opacity hover:opacity-80"
-        >
-          {label}
-          <ExternalArrow shadow={false} className="ml-[0.15em] h-[11px] w-[11px] shrink-0" />
-        </a>
-        {']'}
-      </span>
-      .
-    </p>
-  )
-}
-
-/** Standalone band when a study has a PDF but no reflectionSection. */
-function FullCaseStudyPdfLink({
-  url,
-  label,
-  intro,
-}: {
-  url: string
-  label: string
-  intro?: string
-}) {
-  return (
-    <section
-      className="text-white"
-      data-cursor-invert
-      style={{
-        ...bandStyle(undefined, REFLECTION_DEFAULTS.backgroundColor, true),
-        ...sectionPadStyle(
-          undefined,
-          {
-            paddingTop: REFLECTION_DEFAULTS.paddingTop,
-            paddingBottom: REFLECTION_DEFAULTS.paddingBottom,
-          },
-          true,
-        ),
-      }}
-    >
-      <div className={csShell()}>
-        <div className="mx-auto flex min-h-[132px] max-w-[923px] items-center justify-center border-t border-[#323232] pt-8">
-          <FullCaseStudyPdfFooter url={url} label={label} intro={intro} />
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function SectionBlock({
   section,
   project,
@@ -407,20 +323,7 @@ function SectionBlock({
     case 'problemContextSection':
       return <ProblemContextBlock section={section} />
     case 'reflectionSection':
-      return (
-        <ReflectionBlock
-          section={section}
-          fullCaseStudy={
-            project.fullCaseStudyPdfUrl
-              ? {
-                  url: project.fullCaseStudyPdfUrl,
-                  label: project.fullCaseStudyLabel?.trim() || 'Full Case Study',
-                  intro: project.fullCaseStudyIntro?.trim(),
-                }
-              : undefined
-          }
-        />
-      )
+      return <ReflectionBlock section={section} />
     case 'coreExperience':
       return (
         <CoreExperienceBlock section={section} projectName={project.name} />
@@ -1084,13 +987,11 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   )
 }
 
-/** Figma 2110:41713 — Reflection + Next Steps + PDF CTA on one #171717 band. */
+/** Figma 2110:41713 — Reflection + Next Steps on one #171717 band. */
 function ReflectionBlock({
   section: s,
-  fullCaseStudy,
 }: {
   section: Of<'reflectionSection'>
-  fullCaseStudy?: { url: string; label: string; intro?: string }
 }) {
   const align = (s.appearance?.contentAlignment ?? 'center') as CsTextAlign
   const width = s.appearance?.maxWidth ?? 'default'
@@ -1098,7 +999,7 @@ function ReflectionBlock({
   const titleClass = `font-bold ${csReflectionTitle()} text-white ${csTitleTextAlign(align)}`
   const steps = s.nextStepsItems ?? []
   const hasReflection = !!s.reflectionBody?.length
-  if (!hasReflection && !steps.length && !fullCaseStudy?.url) return null
+  if (!hasReflection && !steps.length) return null
   const padStyle = sectionPadStyle(
     s.appearance,
     {
@@ -1164,17 +1065,6 @@ function ReflectionBlock({
               </div>
             </div>
           )}
-          {fullCaseStudy?.url ? (
-            <div
-              className={`flex w-full items-center justify-center border-t border-[#323232] pt-8 min-h-[132px] ${''}`}
-            >
-              <FullCaseStudyPdfFooter
-                url={fullCaseStudy.url}
-                label={fullCaseStudy.label}
-                intro={fullCaseStudy.intro}
-              />
-            </div>
-          ) : null}
         </div>
       </div>
     </section>
@@ -1785,7 +1675,6 @@ function CoreExperienceBlock({
   const popupHeadline =
     popupTitleExplicit || (s.popupBody?.length ? title : undefined)
   const popupShellLabel = popupHeadline ?? title
-  const popupKicker = s.popupKicker?.trim()
   const viewMore = csExpandLabel(s.viewMoreLabel)
   const popupInitial = s.popupItemsBeforeViewMore ?? 4
   const popupLoadMore = csLoadMoreLabel(s.popupLoadMoreLabel)
@@ -1798,10 +1687,10 @@ function CoreExperienceBlock({
   }
 
   const onDark = light ? 'text-white' : ''
-  // View More only when Studio has popup tabs/body. Experian stays hidden
-  // until Israel supplies the modal; Coral already has tabs so it still shows.
-  const hasPopup =
-    popupTabs.some(t => (t.items?.length ?? 0) > 0) || Boolean(s.popupBody?.length)
+  // View All only when Studio has popup tabs with images. The popup shows no
+  // kicker / title / body on any breakpoint (Figma 4556:39220; Israel #2530,
+  // Oct 19) — Studio popupTitle only feeds the dialog's accessible label.
+  const hasPopup = popupTabs.some(t => (t.items?.length ?? 0) > 0)
   const desktopGridBand = layout === 'desktopGrid'
   const desktopGridGaps = desktopGridBand
     ? CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS
@@ -1904,9 +1793,6 @@ function CoreExperienceBlock({
       >
         <DeviceTabsViewMorePopupBody
           popupApp={popupApp}
-          popupKicker={popupKicker}
-          popupHeadline={popupHeadline}
-          popupBody={s.popupBody}
           popupTabs={popupTabs}
           popupInitial={popupInitial}
           popupLoadMore={popupLoadMore}
@@ -3556,7 +3442,7 @@ function MotionShowcaseMobileFlowStackBand({
     typeof s.titleMarginBottomDesktop === 'number' &&
     s.titleMarginBottomDesktop >= 0
       ? s.titleMarginBottomDesktop
-      : MOTION_SHOWCASE_BAND_DEFAULTS.titleMarginBottomDesktop
+      : MOTION_MOBILE_FLOW_STACK.titleMarginBottomDesktop
   const introMb =
     typeof s.introMarginBottom === 'number' && s.introMarginBottom >= 0
       ? s.introMarginBottom
@@ -3610,17 +3496,23 @@ function MotionShowcaseMobileFlowStackBand({
 
       <div
         className={`mx-auto hidden w-full max-w-[min(1280px,100%)] flex-col lg:flex ${csShell('!px-0')}`}
-        style={{ gap: MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx }}
       >
         {rows.map((row, i) => (
-          <MotionRowMobileItemStack
+          <div
             key={row._key ?? `motion-flow-d-${i}`}
-            row={row}
-            textClass={textClass}
-            appearance={s.appearance}
-            desktop
-            align={rows.length === 1 ? 'center' : i % 2 === 1 ? 'end' : 'start'}
-          />
+            style={{
+              marginTop:
+                i === 0 ? 0 : MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx,
+            }}
+          >
+            <MotionRowMobileItemStack
+              row={row}
+              textClass={textClass}
+              appearance={s.appearance}
+              desktop
+              align={rows.length === 1 ? 'center' : i % 2 === 1 ? 'end' : 'start'}
+            />
+          </div>
         ))}
       </div>
     </section>
@@ -3651,16 +3543,24 @@ function MotionRowMobileItemStack({
     : device === 'mobile'
       ? d.phoneMaxWidthPx
       : d.tabletMaxWidthPx
+  // Captions span the item column, not the device: mobile 301 (device
+  // centered above), desktop 488 / 515 (device left-aligned in the item).
   const captionMax = desktop
-    ? mediaMax
+    ? device === 'mobile'
+      ? d.captionMaxWidthDesktopPhonePx
+      : d.captionMaxWidthDesktopTabletPx
     : d.captionMaxWidthPx
+  const itemMax = Math.max(mediaMax, captionMax)
   const rowAlign =
     align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
   return (
     <div className="w-full">
-      <div className={`w-full ${rowAlign}`} style={{ maxWidth: mediaMax }}>
+      <div className={`w-full ${rowAlign}`} style={{ maxWidth: itemMax }}>
       {first && (
-        <div className="w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)]">
+        <div
+          className={`w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)] ${desktop ? '' : 'mx-auto'}`}
+          style={{ maxWidth: mediaMax }}
+        >
           <DeviceMedia item={first} poster={row.posterImage} device={device} />
         </div>
       )}
@@ -3669,9 +3569,10 @@ function MotionRowMobileItemStack({
           className={`w-full text-left ${textClass}`}
           style={{
             marginTop: desktop
-              ? d.captionMarginTopDesktopPx
+              ? device === 'mobile'
+                ? d.captionMarginTopDesktopPx
+                : d.captionMarginTopDesktopTabletPx
               : d.captionMarginTopPx,
-            maxWidth: captionMax,
           }}
         >
           {row.label && (
@@ -3680,11 +3581,9 @@ function MotionRowMobileItemStack({
             </p>
           )}
           {row.caption && (
-            <p
-              className={`text-[14px] font-normal leading-[1.35] ${CS_M_BODY} ${
-                row.label ? 'mt-2' : ''
-              }`}
-            >
+            // Body tier on every breakpoint (19 mobile / 22 desktop, light) —
+            // Israel #2530: KPE captions "the same size as" body text.
+            <p className={`${csBodyText()} ${row.label ? 'mt-2' : ''}`}>
               {row.caption}
             </p>
           )}
@@ -5127,10 +5026,11 @@ function DeviceGallery({
               type="button"
               onClick={() => setActive(i)}
               data-cursor="hover"
-              className={`shrink-0 uppercase leading-[1.03] ${
+              className={`shrink-0 leading-[1.03] ${
                 popupMode
-                  ? `text-center whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`
-                  : `text-left ${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
+                  ? // Popup tabs: title case on every breakpoint (Israel #2530, Oct 19).
+                    `normal-case text-center whitespace-nowrap text-[14px] ${CS_KICKER} ${CS_M_TITLE} max-lg:!font-normal`
+                  : `uppercase text-left ${CS_KICKER} sm:text-[18px] xl:text-[1.1vw]`
               }`}
             >
               <span

@@ -42,32 +42,6 @@ export const caseStudy = defineType({
         "When on, visitors must enter the Site Settings → Access password before opening this case study.",
     }),
     defineField({
-      name: "fullCaseStudyPdf",
-      title: "Full case study PDF",
-      type: "file",
-      group: "content",
-      options: { accept: "application/pdf" },
-      description:
-        "Optional PDF for the inline “Full Case Study ↗” link at the bottom.",
-    }),
-    defineField({
-      name: "fullCaseStudyLabel",
-      title: "Full case study link label",
-      type: "string",
-      group: "content",
-      initialValue: "Full Case Study",
-      description: "Inline link text. Leave blank for default.",
-    }),
-    defineField({
-      name: "fullCaseStudyIntro",
-      title: "Full case study intro",
-      type: "text",
-      group: "content",
-      rows: 3,
-      description:
-        "Lead-in copy before the inline PDF link. Leave blank for the default condensed-overview sentence.",
-    }),
-    defineField({
       name: "sections",
       title: "Sections",
       type: "array",
