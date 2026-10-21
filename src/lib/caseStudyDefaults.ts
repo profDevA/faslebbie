@@ -55,6 +55,12 @@ export const OVERVIEW_MEDIA_MOBILE_PHONE = {
   paddingBottom: 82,
 } as const;
 
+/**
+ * Overview desktop side video (Figma `4556:37605`) — 286px phone in the 1440
+ * frame, as vw so it scales with the window. Studio media padding still applies.
+ */
+export const OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW = (286 / 1440) * 100;
+
 export const OVERVIEW_COLUMN_GAP = 40;
 
 /** Accordion split panel (Design Process column). */
@@ -323,11 +329,12 @@ export const CORE_EXPERIENCE_BAND_DESKTOP_DEFAULTS = {
 } as const;
 
 /** desktopGrid band shell rhythm — Figma 3999:59093 / 2271:58148 (Acme shares layout; row gap via Sanity). */
+/**
+ * CE desktop grid tiles. Band padding and title / View All gaps come from
+ * Studio like every CE band (Coral 60 / 40) — the old 120 / 64 / 96 overrides
+ * were dropped Oct 21.
+ */
 export const CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS = {
-  paddingTop: 120,
-  paddingBottom: 120,
-  titleToPreview: 64,
-  previewToViewMore: 96,
   /** Tile bottom → caption (Figma ~38px). */
   captionGap: 38,
 } as const;

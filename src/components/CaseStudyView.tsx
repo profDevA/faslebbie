@@ -59,7 +59,6 @@ import {
   CS_M_BODY,
   CS_M_TITLE,
   CS_M_EXPAND_BTN,
-  csBodySm,
   csBodyText,
   csHeroCap,
   csImpactTitle,
@@ -113,6 +112,7 @@ import {
   STATS_BAND_DEFAULTS,
   CS_M_MEDIA_GAP,
   MOBILE_DENSE_GRID_CAP,
+  OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW,
 } from '@/lib/caseStudyDefaults'
 import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
 import {
@@ -829,9 +829,16 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               fillColumn
             />
           ) : hasVideo ? (
+            // Figma phone width, not column width (Fas Oct 20: "reduce this scale").
+            // Stays at the top padding, where it sat before.
             <CsOverviewVideo
               src={s.sideVideo!}
               className={desktopMediaSizeClass}
+              style={{
+                width: `min(100%, ${OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW}vw)`,
+                height: 'auto',
+                alignSelf: 'flex-start',
+              }}
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element -- case-study art
@@ -909,7 +916,8 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
             </Label>
           )}
           <div className="mt-6">
-            <Accordion items={items} variant="brought" />
+            {/* Same row size as the split Design Process (Coral). */}
+            <Accordion items={items} variant="process" />
           </div>
         </div>
       </div>
@@ -1691,19 +1699,9 @@ function CoreExperienceBlock({
   // kicker / title / body on any breakpoint (Figma 4556:39220; Israel #2530,
   // Oct 19) — Studio popupTitle only feeds the dialog's accessible label.
   const hasPopup = popupTabs.some(t => (t.items?.length ?? 0) > 0)
-  const desktopGridBand = layout === 'desktopGrid'
-  const desktopGridGaps = desktopGridBand
-    ? CORE_EXPERIENCE_DESKTOP_GRID_BAND_GAPS
-    : null
-  const bandSectionStyle: CSSProperties = {
-    ...sectionStyle(s.appearance, true, 'md'),
-    ...(desktopGridGaps
-      ? {
-          paddingTop: desktopGridGaps.paddingTop,
-          paddingBottom: desktopGridGaps.paddingBottom,
-        }
-      : undefined),
-  }
+  // Every layout (mobileRow, desktopGrid) uses the Studio band padding / gap,
+  // i.e. Coral's 60 / 40 (Fas Oct 20: apply Coral spacing to all).
+  const bandSectionStyle: CSSProperties = sectionStyle(s.appearance, true, 'md')
 
   return (
     <>
@@ -1718,17 +1716,11 @@ function CoreExperienceBlock({
           className={`${csShell('', {
             mobileSingleInset: layout === 'mobileRow',
           })} flex w-full min-w-0 flex-col ${CS_MOBILE_LEFT_DESKTOP_CENTER} ${
-            desktopGridGaps
-              ? ''
-              : layout === 'mobileRow'
-                ? 'gap-4 lg:gap-6 lg:gap-[var(--section-gap-desktop)]'
-                : SECTION_GAP_CLASS
-          } ${desktopGridGaps ? '' : 'max-lg:!gap-[50px]'}`}
-          style={
-            desktopGridGaps
-              ? undefined
-              : sectionGapStyle(s.appearance, gapDefault('md', true), true)
-          }
+            layout === 'mobileRow'
+              ? 'gap-4 lg:gap-6 lg:gap-[var(--section-gap-desktop)]'
+              : SECTION_GAP_CLASS
+          } max-lg:!gap-[50px]`}
+          style={sectionGapStyle(s.appearance, gapDefault('md', false), true)}
         >
           <h2
             className={`w-full text-center ${csSectionTitle()} ${onDark}`}
@@ -1741,14 +1733,7 @@ function CoreExperienceBlock({
               className={`mx-auto max-w-[70ch] ${csBodyText(onDark)}`}
             />
           ) : null}
-          <div
-            className="w-full"
-            style={
-              desktopGridGaps
-                ? { marginTop: desktopGridGaps.titleToPreview }
-                : undefined
-            }
-          >
+          <div className="w-full">
             <CoreExperienceBandPreview
               screens={preview}
               layout={layout}
@@ -1759,14 +1744,7 @@ function CoreExperienceBlock({
             />
           </div>
           {hasPopup && (
-            <div
-              className="flex w-full max-lg:justify-center lg:justify-center"
-              style={
-                desktopGridGaps
-                  ? { marginTop: desktopGridGaps.previewToViewMore }
-                  : undefined
-              }
-            >
+            <div className="flex w-full max-lg:justify-center lg:justify-center">
               <button
                 type="button"
                 data-cursor="hover"
@@ -2036,11 +2014,13 @@ function DesktopMotionStaggeredPair({
   const pairs = s.carousels ?? []
   return (
     <section
-      className={`relative flex flex-col ${SECTION_GAP_CLASS} px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
-      style={flexSectionStyle(s.appearance, true, 'md', undefined, lightText)}
+      className={`relative flex flex-col px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
+      style={sectionStyle(s.appearance, true, 'md', undefined, lightText)}
     >
       {title ? (
-        <h2 className={`text-center ${csSectionTitle()} ${copyClass}`}>
+        // Used as the KPE band (OC Links, Circle) — Coral KPE title gap:
+        // CS_M_MEDIA_GAP (50) mobile, MOTION_MOBILE_FLOW_STACK.titleMarginBottomDesktop (105) desktop.
+        <h2 className={`mb-[50px] text-center lg:mb-[105px] ${csSectionTitle()} ${copyClass}`}>
           {title}
         </h2>
       ) : null}
@@ -2257,7 +2237,10 @@ function InterventionCarouselBlock({
     <section
       data-cs-stretch
       className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] ${csBandGutter()}`}
-      style={flexSectionStyle(s.appearance, true, 'md', '#e9eef7', false)}
+      style={{
+        ...flexSectionStyle(s.appearance, true, 'md', '#e9eef7', false),
+        ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
+      }}
     >
       <div className="mx-auto flex w-full max-w-[344px] flex-col gap-[57px] lg:max-w-[1032px] lg:gap-0 lg:pb-12">
         {slides.length > 0 && (
@@ -2382,14 +2365,18 @@ function InterventionGridBlock({
   const visible = expanded ? items : items.slice(0, initial)
   const hasMore = items.length > initial
   const readMore = csLoadMoreLabel(s.readMoreLabel)
+  // Same size as the Coral band CTAs (CE View All, popup Load More).
   const loadMoreBtnClass =
-    `relative pb-1 normal-case leading-[19.2px] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current text-[14px] font-normal tracking-wide text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
+    `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] font-normal text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
 
   return (
     <section
       data-cs-stretch
       className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] ${csBandGutter()}`}
-      style={flexSectionStyle(s.appearance, true, 'md', '#d5cfdd', false)}
+      style={{
+        ...flexSectionStyle(s.appearance, true, 'md', '#d5cfdd', false),
+        ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
+      }}
     >
       <div className="mx-auto flex w-full max-w-[344px] flex-col lg:max-w-[min(1400px,calc(100%-2.5rem))] lg:px-12">
         {(s.sectionTitle || s.introBody?.length) && (
@@ -2606,12 +2593,12 @@ function ShowcaseBlock({
         {...cursorInvertAttrs(light)}
         style={{
           ...sectionStyle(s.appearance, true, 'md', '#000000', true),
-          ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
+          ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
         }}
       >
         <div
           className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-4 max-lg:!gap-[45px] sm:px-16 ${CS_WIDE_BAND_GUTTER}`}
-          style={sectionGapStyle(s.appearance, gapDefault('lg', true), true)}
+          style={sectionGapStyle(s.appearance, gapDefault('lg', false), true)}
         >
           {(s.sectionTitle || s.introBody) && (
             <div
@@ -2654,7 +2641,10 @@ function ShowcaseBlock({
       data-cs-stretch
       className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       {...cursorInvertAttrs(light)}
-      style={flexSectionStyle(s.appearance, true, 'md', '#000000', true)}
+      style={{
+        ...flexSectionStyle(s.appearance, true, 'md', '#000000', true),
+        ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
+      }}
     >
       {(s.sectionTitle || s.introBody) && (
         <div className={csShell()}>
@@ -2919,7 +2909,7 @@ function MotionShowcasePhoneRowBand({
               width: d.introMaxWidth,
             }}
           >
-            <CaseStudyProse value={s.intro} className={csBodySm()} />
+            <CaseStudyProse value={s.intro} className={csBodyText()} />
           </div>
         ) : null}
       </div>
@@ -2932,7 +2922,7 @@ function MotionShowcasePhoneRowBand({
             maxWidth: d.mobileMaxWidth,
           }}
         >
-          <CaseStudyProse value={s.intro} className={csBodySm()} />
+          <CaseStudyProse value={s.intro} className={csBodyText()} />
         </div>
       ) : null}
     </section>
@@ -3109,7 +3099,7 @@ function MotionShowcaseCrossFunctionalBand({
                       </p>
                     )}
                     {row.caption && (
-                      <p className={`mt-1 text-[16px] font-normal leading-[1.05] ${CS_M_BODY} max-lg:!mt-2.5`}>
+                      <p className={`mt-1 ${csBodyText()} max-lg:!mt-2.5`}>
                         {row.caption}
                       </p>
                     )}
@@ -3127,7 +3117,7 @@ function MotionShowcaseCrossFunctionalBand({
               type="button"
               data-cursor="hover"
               onClick={() => setPopupOpen(true)}
-              className={`font-grotesk shrink-0 capitalize leading-[1.6] tracking-[0.5px] underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} text-[20px] ${CS_M_EXPAND_BTN} ${textClass}`}
+              className={`font-grotesk shrink-0 normal-case leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.1vw] ${CS_M_EXPAND_BTN} ${textClass}`}
             >
               {viewMore}
             </button>
@@ -3282,8 +3272,9 @@ function MotionShowcaseFeaturedBand({
       ? featuredCaptionInset('right')
       : featuredCaptionInset('left')
   return (
+    // Mobile: the title's 50px margin is the only gap (Coral KPE = 50), not 50 + gap-6.
     <section
-      className={`relative flex flex-col ${SECTION_GAP_CLASS} ${csBandGutter()} max-lg:px-6`}
+      className={`relative flex flex-col ${SECTION_GAP_CLASS} max-lg:gap-0 ${csBandGutter()} max-lg:px-6`}
       style={flexSectionStyle(
         s.appearance,
         true,
@@ -3362,12 +3353,12 @@ function MotionShowcaseFeaturedBand({
           >
             <div className="text-left" style={captionInset}>
               {row.label && (
-                <p className="text-[20px] font-normal capitalize leading-[1.6]">
+                <p className="text-[20px] font-normal capitalize leading-normal">
                   {row.label}
                 </p>
               )}
               {row.caption && (
-                <p className="mt-2.5 max-w-[353px] text-[16px] font-normal leading-[1.6]">
+                <p className={`mt-2.5 max-w-[353px] ${csBodyText()}`}>
                   {row.caption}
                 </p>
               )}
@@ -3476,7 +3467,7 @@ function MotionShowcaseMobileFlowStackBand({
           className={`mx-auto max-w-[min(720px,100%)] max-lg:mx-0 max-lg:max-w-none max-lg:text-left lg:text-center ${csShell('!px-0')} ${onDark}`}
           style={{ marginBottom: introMb }}
         >
-          <CaseStudyProse value={s.intro} className={csBodySm()} />
+          <CaseStudyProse value={s.intro} className={csBodyText()} />
         </div>
       )}
 
@@ -3643,13 +3634,13 @@ function MotionShowcaseStackedBand({
           className={`mx-auto max-w-[min(720px,100%)] max-lg:mx-0 max-lg:max-w-none max-lg:text-left lg:text-center ${csShell('!px-0')} ${onDark}`}
           style={{ marginBottom: introMb }}
         >
-          <CaseStudyProse value={s.intro} className={csBodySm()} />
+          <CaseStudyProse value={s.intro} className={csBodyText()} />
         </div>
       )}
       <div
         className={`mx-auto flex max-w-[min(1280px,100%)] flex-col max-lg:!max-w-full ${SECTION_GAP_CLASS} ${csShell('!px-0')}`}
         style={{
-          ...sectionGapStyle(s.appearance, gapDefault('lg', true), true),
+          ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
           ...(!lg ? { gap: MOTION_STACKED_MOBILE.betweenRowsGapPx } : undefined),
         }}
       >
@@ -3806,13 +3797,13 @@ function MotionRowView({
             style={{ marginTop: lg ? captionMt : captionMtMobile }}
           >
             {row.label && (
-              <p className={`text-[20px] font-normal capitalize leading-[1.6] ${CS_M_TITLE} max-lg:!font-normal`}>
+              <p className={`text-[20px] font-normal capitalize leading-normal ${CS_M_TITLE} max-lg:!font-normal`}>
                 {row.label}
               </p>
             )}
             {row.caption && (
               <p
-                className={`text-[16px] font-normal leading-[1.6] ${CS_M_BODY} ${
+                className={`${csBodyText()} ${
                   row.label ? 'mt-2.5' : 'mt-0'
                 }`}
               >

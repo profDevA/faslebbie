@@ -26,6 +26,11 @@ export function bandStyle(
   return style
 }
 
+/**
+ * Empty Studio fields fall back to the same values Studio gives a new section
+ * (`sanityAppearanceDefaults.ts`), which is what Coral stores — so bands left
+ * empty by the old migrations match Coral (Fas Oct 20: apply Coral to all).
+ */
 export function sectionStyle(
   a: Appearance | undefined,
   _page: boolean,
@@ -35,7 +40,7 @@ export function sectionStyle(
 ) {
   return {
     ...bandStyle(a, defaultBg, defaultLight),
-    ...sectionPadStyle(a, padDefaults(padLevel, true), true),
+    ...sectionPadStyle(a, padDefaults(padLevel, false), true),
   }
 }
 
@@ -48,7 +53,7 @@ export function flexSectionStyle(
 ) {
   return {
     ...sectionStyle(a, true, padLevel, defaultBg, defaultLight),
-    ...sectionGapStyle(a, gapDefault(padLevel, true), true),
+    ...sectionGapStyle(a, gapDefault(padLevel, false), true),
   }
 }
 
