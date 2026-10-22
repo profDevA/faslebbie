@@ -1533,7 +1533,6 @@ function CoreExperienceLegacyBand({ section: s }: { section: Of<'coreExperience'
 /** Shared §04 Core Experience View More body — device tabs + Load More grid inside PopupShell. */
 function DeviceTabsViewMorePopupBody({
   popupApp,
-  popupKicker,
   popupHeadline,
   popupBody,
   popupTabs,
@@ -1542,7 +1541,6 @@ function DeviceTabsViewMorePopupBody({
   popupLoadLess = 'Load Less',
 }: {
   popupApp?: Appearance
-  popupKicker?: string
   popupHeadline?: string
   popupBody?: PortableTextBlock[]
   popupTabs: DeviceTab[]
@@ -1623,18 +1621,13 @@ function DeviceTabsViewMorePopupBody({
             : undefined),
         }}
       >
-        {(popupKicker || popupHeadline || popupBody?.length) ? (
+        {/* No kicker in any popup (Coral CE popup, Figma 4556:39220; no ALL CAPS,
+            Israel #2530). AR Handbook keeps its per-page title + body (Fas Sep 23). */}
+        {(popupHeadline || popupBody?.length) ? (
           <div
             className={`hidden w-full flex-col lg:flex ${csBandTextAlign(popupAlign as CsTextAlign)} items-start`}
             style={{ ...popupIntroGap, maxWidth: popupIntroMax }}
           >
-            {popupKicker ? (
-              <p
-                className={`font-grotesk mb-1 font-normal uppercase ${CS_KICKER} lg:mb-2`}
-              >
-                {popupKicker}
-              </p>
-            ) : null}
             {popupHeadline ? (
               <h2
                 className={`${csSectionTitle()} w-full ${csBandTextAlign(popupAlign as CsTextAlign)}`}
@@ -2720,7 +2713,6 @@ function ViewMoreDeviceTabsModal({
     popupTitleExplicit ||
     (page.popupBody?.length ? fallbackLabel : undefined)
   const popupShellLabel = popupHeadline ?? fallbackLabel
-  const popupKicker = page.popupKicker?.trim()
 
   const totalPages = activePages.length
   const prev = () =>
@@ -2760,7 +2752,6 @@ function ViewMoreDeviceTabsModal({
     >
       <DeviceTabsViewMorePopupBody
         popupApp={popupApp}
-        popupKicker={popupKicker}
         popupHeadline={popupHeadline}
         popupBody={page.popupBody}
         popupTabs={popupTabs}
@@ -4059,12 +4050,13 @@ function HighlightCardView({
         </div>
       </div>
       {canPage && (
+        // Same size / weight as the case-study page pager (csUiText, regular).
         <div className="mt-4 flex items-center justify-between gap-4 lg:hidden">
           <button
             type="button"
             data-cursor="hover"
             onClick={() => go(-1)}
-            className="font-grotesk text-[15px] font-bold text-accent"
+            className={`font-grotesk font-normal text-accent ${csUiText()}`}
           >
             {'< Previous'}
           </button>
@@ -4075,7 +4067,7 @@ function HighlightCardView({
             type="button"
             data-cursor="hover"
             onClick={() => go(1)}
-            className="font-grotesk text-[15px] font-bold text-accent"
+            className={`font-grotesk font-normal text-accent ${csUiText()}`}
           >
             {'Next >'}
           </button>

@@ -123,7 +123,9 @@ export const SHOWCASE_ARTIFACT_DEFAULTS = {
 export const MOTION_SHOWCASE_BAND_DEFAULTS = {
   /** Mobile — Figma 4507:23964 (50 under the title). */
   titleMarginBottom: 50,
-  titleMarginBottomDesktop: 56,
+  /** Coral KPE (Figma 4556:37938), was 56. The Studio title-margin fields
+   *  aren't in the GROQ projection, so this default is what renders. */
+  titleMarginBottomDesktop: 105,
   introMarginBottom: 40,
 } as const;
 

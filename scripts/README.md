@@ -36,6 +36,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | Draft out of sync after template migration | `sync-case-study-drafts-from-published.ts` |
 | Red case studies → Coral master template | `migrate-case-studies-coral-template.ts` (run `parse-case-study-collab-doc.mjs` first to refresh `data/caseStudyCollabCopy.json`). ⚠️ Always pass `--slug=<slug>` — without it, it rewrites every study and gives every section a new key |
 | Coral media audit (read-only) | `check-coral-media.ts` |
+| Coral rollout (Oct 21) — 10 single fields to Coral's values: KPE desktop title margin 105 (Experian, DVA), Highlights grid gap 14 (Snapback, Surfer, OC Links), CE popup items before Load More 6 (Census, DVA, OC Nav, OC Links, Circle) | `patch-coral-rollout-oct21.ts` — **dry by default**, `-- --apply` to write; addresses sections by `_key`; prints before → after; idempotent ("already") |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Experian Boost §04 Core Experience band (5 phone screens) | `patch-experian-core-experience.ts` (manual upload; PNG/JPG: `public/work/experian-boost/core-flow/01–05-*`) |
