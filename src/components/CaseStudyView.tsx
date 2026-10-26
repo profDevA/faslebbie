@@ -829,15 +829,16 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               fillColumn
             />
           ) : hasVideo ? (
-            // Figma phone width, not column width (Fas Oct 20: "reduce this scale").
-            // Stays at the top padding, where it sat before.
+            // Figma phone width, not column width (Fas Oct 20: "reduce this scale"),
+            // centred in the column. No frame: the exports are a bare phone with
+            // transparent corners, so the square ring showed (Saqib Oct 26).
             <CsOverviewVideo
               src={s.sideVideo!}
               className={desktopMediaSizeClass}
+              showFrame={false}
               style={{
                 width: `min(100%, ${OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW}vw)`,
                 height: 'auto',
-                alignSelf: 'flex-start',
               }}
             />
           ) : (
