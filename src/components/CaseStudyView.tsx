@@ -916,7 +916,8 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
               {s.sectionTitle}
             </Label>
           )}
-          <div className="mt-6">
+          {/* Coral Design Process: title → rows 16 mobile / 20 desktop. */}
+          <div className="mt-4 lg:mt-5">
             {/* Same row size as the split Design Process (Coral). */}
             <Accordion items={items} variant="process" />
           </div>
@@ -2007,25 +2008,36 @@ function DesktopMotionStaggeredPair({
   const title = s.sectionTitle?.trim()
   const pairs = s.carousels ?? []
   return (
+    // Used as the KPE band (OC Links, Circle) — Coral KPE geometry (Saqib
+    // Oct 26): title gap 50 / 105, device sizes, captions, -72 / 105 between
+    // items, band padding lg (96).
     <section
       className={`relative flex flex-col px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
-      style={sectionStyle(s.appearance, true, 'md', undefined, lightText)}
+      style={sectionStyle(s.appearance, true, 'lg', undefined, lightText)}
     >
       {title ? (
-        // Used as the KPE band (OC Links, Circle) — Coral KPE title gap:
-        // CS_M_MEDIA_GAP (50) mobile, MOTION_MOBILE_FLOW_STACK.titleMarginBottomDesktop (105) desktop.
         <h2 className={`mb-[50px] text-center lg:mb-[105px] ${csSectionTitle()} ${copyClass}`}>
           {title}
         </h2>
       ) : null}
-      <div className="flex w-full flex-col gap-12 lg:gap-[8.7rem]">
+      <div className="flex w-full flex-col">
         {pairs.map((carousel, i) => {
           const slides = (carousel.slides ?? []).filter(sl => sl.image)
           const end = i % 2 === 1
           return (
-            <div
+            <KpeDeviceItem
               key={carousel._key ?? i}
-              className={`w-full lg:w-[calc(50%-1.75rem)] ${end ? 'lg:self-end' : 'lg:self-start'}`}
+              portrait={(urlAspectRatio(slides[0]?.image) ?? 1.5) < 1}
+              align={end ? 'end' : 'start'}
+              first={i === 0}
+              caption={
+                carousel.body?.length ? (
+                  <CaseStudyProse
+                    value={carousel.body}
+                    className={`${csBodyText()} ${copyClass}`}
+                  />
+                ) : null
+              }
             >
               <DesktopMotionPosterCarousel
                 slides={slides}
@@ -2034,17 +2046,152 @@ function DesktopMotionStaggeredPair({
                 arrowClass={copyClass}
                 align={end ? 'end' : 'start'}
               />
-              {carousel.body?.length ? (
-                <CaseStudyProse
-                  value={carousel.body}
-                  className={`mt-6 ${csBodyText()} ${copyClass}`}
-                />
-              ) : null}
-            </div>
+            </KpeDeviceItem>
           )
         })}
       </div>
     </section>
+  )
+}
+
+/**
+ * A single desktop-motion mockup used as the KPE band (Acme) — Coral KPE
+ * structure (Saqib Oct 26): centred title (50 / 105), one item at Coral's
+ * device size, body under it. Design Interventions bands keep their layout.
+ */
+function DesktopMotionKpeBand({
+  section: s,
+}: {
+  section: Of<'desktopMotionShowcase'>
+}) {
+  const lightText = bandUsesLightText(s.appearance)
+  const copyClass = lightText ? 'text-white' : 'text-black'
+  const mockupFrame = desktopMotionMockupFrame(s.appearance, true)
+  const title = s.sectionTitle?.trim()
+  const slides = (s.slides ?? []).filter(sl => sl.image)
+  const hasVideo = !!(s.videoFile || s.videoUrl)
+  const art = slides[0]?.image ?? s.posterImage
+  const caption = s.body?.length ? (
+    <CaseStudyProse value={s.body} className={`${csBodyText()} ${copyClass}`} />
+  ) : s.caption ? (
+    <p className={`${csBodyText()} ${copyClass}`}>{s.caption}</p>
+  ) : null
+  return (
+    <section
+      className={`relative flex flex-col px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
+      style={sectionStyle(s.appearance, true, 'lg', undefined, lightText)}
+    >
+      {title ? (
+        <h2 className={`mb-[50px] text-center lg:mb-[105px] ${csSectionTitle()} ${copyClass}`}>
+          {title}
+        </h2>
+      ) : null}
+      <KpeDeviceItem
+        portrait={(urlAspectRatio(art) ?? 1.5) < 1}
+        align="center"
+        first
+        caption={caption}
+      >
+        {slides.length ? (
+          <DesktopMotionPosterCarousel
+            slides={slides}
+            fallbackAlt={title || 'Key Product Experiences'}
+            mockupFrame={mockupFrame}
+            arrowClass={copyClass}
+          />
+        ) : (
+          <div className={`w-full ${mockupFrame.className}`} style={mockupFrame.style}>
+            {hasVideo ? (
+              s.videoUrl ? (
+                <div className="aspect-[762/467] w-full">
+                  <iframe
+                    src={s.videoUrl}
+                    title={title || 'Desktop animation'}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <CsOverviewVideo
+                  src={s.videoFile!}
+                  poster={s.posterImage}
+                  showFrame={false}
+                  showMuteControl={false}
+                  className="block h-auto w-full"
+                />
+              )
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element -- case-study art
+              <img
+                src={s.posterImage}
+                alt={title || 'Key Product Experiences'}
+                className="block h-auto w-full"
+              />
+            )}
+          </div>
+        )}
+      </KpeDeviceItem>
+    </section>
+  )
+}
+
+/** Sanity asset URLs carry `-{w}x{h}.` — width / height, or undefined. */
+function urlAspectRatio(url?: string) {
+  const m = url?.match(/-(\d+)x(\d+)\.\w+(?:\?|$)/)
+  return m ? Number(m[1]) / Number(m[2]) : undefined
+}
+
+/**
+ * One KPE item at Coral's sizes (MOTION_MOBILE_FLOW_STACK) for bands built
+ * from desktop-motion media: laptop / desktop screens = Coral tablet
+ * (438 / 292), portrait two-phone slides (Circle) = 2 × Coral phone.
+ * Caption under the device: Coral tablet item width (515 / 301), gap 44 / 50.
+ */
+function KpeDeviceItem({
+  portrait,
+  align,
+  first,
+  caption,
+  children,
+}: {
+  portrait: boolean
+  align: 'start' | 'end' | 'center'
+  first: boolean
+  caption: React.ReactNode
+  children: React.ReactNode
+}) {
+  const d = MOTION_MOBILE_FLOW_STACK
+  const media = portrait ? d.phonePairMaxWidthDesktopPx : d.tabletMaxWidthDesktopPx
+  const mediaM = portrait ? d.phonePairMaxWidthPx : d.tabletMaxWidthPx
+  const item = Math.max(media, d.captionMaxWidthDesktopTabletPx)
+  const itemM = Math.max(mediaM, d.captionMaxWidthPx)
+  const vars = {
+    '--kpe-item': `${item}px`,
+    '--kpe-item-m': `${itemM}px`,
+    '--kpe-media': `${media}px`,
+    '--kpe-media-m': `${mediaM}px`,
+  } as CSSProperties
+  const rowAlign =
+    align === 'end'
+      ? 'lg:ml-auto lg:mr-0'
+      : align === 'start'
+        ? 'lg:ml-0 lg:mr-auto'
+        : 'lg:mx-auto'
+  return (
+    <div
+      className={`mx-auto w-full max-w-[var(--kpe-item-m)] lg:max-w-[min(var(--kpe-item),calc(50%-1.75rem))] ${rowAlign} ${
+        first ? '' : 'max-lg:mt-[105px] lg:mt-[-72px]'
+      }`}
+      style={vars}
+    >
+      <div className="mx-auto w-full max-w-[var(--kpe-media-m)] lg:mx-0 lg:max-w-[var(--kpe-media)]">
+        {children}
+      </div>
+      {caption ? (
+        <div className="mt-[50px] w-full text-left lg:mt-[44px]">{caption}</div>
+      ) : null}
+    </div>
   )
 }
 
@@ -2055,6 +2202,9 @@ function DesktopMotionShowcaseBlock({
 }) {
   if (s.layoutVariant === 'staggeredPair') {
     return <DesktopMotionStaggeredPair section={s} />
+  }
+  if (/^key product experiences$/i.test(s.sectionTitle?.trim() ?? '')) {
+    return <DesktopMotionKpeBand section={s} />
   }
   const carouselSlides = (s.slides ?? []).filter(sl => sl.image)
   const hasCarousel = carouselSlides.length > 0
@@ -2230,6 +2380,7 @@ function InterventionCarouselBlock({
   return (
     <section
       data-cs-stretch
+      data-cs-m="marketing"
       className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] ${csBandGutter()}`}
       style={{
         ...flexSectionStyle(s.appearance, true, 'md', '#e9eef7', false),
@@ -2323,9 +2474,10 @@ function InterventionCarouselBlock({
                         <h2 className={csSectionTitle()}>{kicker}</h2>
                       )}
                       {body?.length ? (
+                        // Coral Design Interventions copy: title → body 16 mobile / 10 desktop.
                         <CaseStudyProse
                           value={body}
-                          className={`${kicker ? 'mt-2.5' : ''} ${csBodyText()}`}
+                          className={`${kicker ? 'mt-4 lg:mt-2.5' : ''} ${csBodyText()}`}
                         />
                       ) : null}
                     </div>
@@ -2366,6 +2518,7 @@ function InterventionGridBlock({
   return (
     <section
       data-cs-stretch
+      data-cs-m="marketing"
       className={`flex flex-col ${SECTION_GAP_CLASS} max-lg:!px-[25px] ${csBandGutter()}`}
       style={{
         ...flexSectionStyle(s.appearance, true, 'md', '#d5cfdd', false),
@@ -2381,9 +2534,10 @@ function InterventionGridBlock({
               </h2>
             )}
             {s.introBody?.length ? (
+              // Coral Design Interventions copy: title → body 16 mobile / 10 desktop.
               <CaseStudyProse
                 value={s.introBody}
-                className={`${s.sectionTitle ? 'mt-4' : ''} ${csBodyText()} text-left`}
+                className={`${s.sectionTitle ? 'mt-4 lg:mt-2.5' : ''} ${csBodyText()} text-left`}
               />
             ) : null}
           </div>
@@ -2774,11 +2928,13 @@ function MotionShowcaseBlock({
   projectName?: string
 }) {
   const layoutRaw = s.layoutVariant ?? 'stacked'
-  /** Until Studio sets `mobileFlowStack`, Coral KPE still defaults to stacked in Sanity. */
+  // One device per row = Coral's KPE layout (Coral; Experian since Saqib's
+  // Oct 25 videos). Rows with several devices keep the old stacked band.
+  const rows = s.rows ?? []
+  const oneDevicePerRow =
+    rows.length > 0 && rows.every(r => (r.items?.length ?? 0) <= 1)
   const layout =
-    layoutRaw === 'stacked' && projectSlug === 'coral-health'
-      ? 'mobileFlowStack'
-      : layoutRaw
+    layoutRaw === 'stacked' && oneDevicePerRow ? 'mobileFlowStack' : layoutRaw
   if (layout === 'phoneRow') {
     return <MotionShowcasePhoneRowBand section={s} />
   }
@@ -3181,10 +3337,16 @@ function CrossFunctionalDeviceMedia({
   )
   if (!item) return null
   const device = row.device ?? 'mobile'
-  const phoneSlot = mobile && device === 'mobile'
-  const phoneMax = MOTION_CROSS_FUNCTIONAL_DEFAULTS.mobilePhoneMaxWidth
-  const frameClass = phoneSlot ? 'mx-auto w-full' : 'w-full'
-  const frameStyle = phoneSlot ? { maxWidth: phoneMax } : undefined
+  // Mobile: phone / tablet centred at Coral KPE sizes; RealWear / desktop full width.
+  const mobileMax = !mobile
+    ? undefined
+    : device === 'mobile'
+      ? MOTION_CROSS_FUNCTIONAL_DEFAULTS.mobilePhoneMaxWidth
+      : device === 'tablet'
+        ? MOTION_CROSS_FUNCTIONAL_DEFAULTS.mobileTabletMaxWidth
+        : undefined
+  const frameClass = mobileMax ? 'mx-auto w-full' : 'w-full'
+  const frameStyle = mobileMax ? { maxWidth: mobileMax } : undefined
   const shadowClass =
     'drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)] lg:drop-shadow-[0_10px_16px_rgba(0,0,0,0.18)]'
   const videoPoster = item.posterImage || row.posterImage
@@ -3246,11 +3408,6 @@ function MotionShowcaseFeaturedBand({
   if (!row) return null
   const items = row.items ?? []
   const captionAlign = row.captionAlign ?? 'left'
-  const rowWidthDefault = 34
-  const rowWidth =
-    typeof row.rowWidthPercent === 'number' && row.rowWidthPercent > 0
-      ? row.rowWidthPercent
-      : rowWidthDefault
   const titleMb =
     typeof s.titleMarginBottom === 'number' && s.titleMarginBottom >= 0
       ? s.titleMarginBottom
@@ -3326,7 +3483,11 @@ function MotionShowcaseFeaturedBand({
           <div className="flex justify-center pt-2 pb-0">
             <div
               className="drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)]"
-              style={{ width: `${rowWidth}%`, maxWidth: '245px' }}
+              // Coral KPE phone size (MOTION_MOBILE_FLOW_STACK, Saqib Oct 26).
+              style={{
+                width: '100%',
+                maxWidth: MOTION_MOBILE_FLOW_STACK.phoneMaxWidthDesktopPx,
+              }}
             >
               {items.map((it, itemIndex) => (
                 <FeaturedDeviceMedia

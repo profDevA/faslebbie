@@ -163,6 +163,14 @@ export const MOTION_MOBILE_FLOW_STACK = {
   captionMarginTopDesktopTabletPx: 44,
   /** Negative = the next row starts before the previous one ends. */
   betweenRowsGapDesktopPx: -72,
+  /**
+   * KPE bands built from desktop-motion carousels / mockups (OC Links, Circle,
+   * Acme — Saqib Oct 26: match Coral KPE). Laptop / desktop screens use the
+   * Coral tablet size above. Circle's slides are two phones side by side
+   * (each ≈ 0.489 of the image width), so these make each phone ≈ 286 / 167.
+   */
+  phonePairMaxWidthDesktopPx: 585,
+  phonePairMaxWidthPx: 341,
 } as const;
 
 /** §07 Motion row — device strip + caption. */
@@ -190,32 +198,43 @@ export const MOTION_FEATURED_BAND_DEFAULTS = {
 
 /** §07 Cross-functional motion band — AR Handbook (Figma 4152:122925 desktop / 4152:125655 mobile). */
 export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
-  /** Desktop canvas — Figma 1440×2256, full viewport width. */
-  bandAspectRatio: "1440 / 2256",
+  /**
+   * Desktop canvas, full viewport width. Figma 1440×2256 minus the empty
+   * 8.83% above the first device (Oct 26) — so title → first device = 105,
+   * like Coral KPE (was 69 + ~199 = 266). Slot tops re-based to this height.
+   */
+  bandAspectRatio: "1440 / 2057",
   titleMarginBottomMobile: 50,
-  titleMarginBottomDesktop: 69,
+  titleMarginBottomDesktop: 105,
   mobileStackGap: 80,
-  /** Figma 4152:125660 — centred phone in mobile stack; tablet/RealWear stay full column width. */
-  mobilePhoneMaxWidth: 141,
+  /** Centred phone in the mobile stack — Coral KPE 167 (was 141, Figma 4152:125660). */
+  mobilePhoneMaxWidth: 167,
+  /** Centred tablet in the mobile stack — Coral KPE 292 (was full width). RealWear / desktop stay full width. */
+  mobileTabletMaxWidth: 292,
   /** @deprecated stack is full width within band gutter on mobile — kept for Studio overrides if needed. */
   mobileDeviceMaxWidth: 323,
   /** Device → caption gap on mobile stack (Figma 4152:125659–667 @ 323px). */
   mobileCaptionGapPx: [20, 34, 34] as const,
-  /** Slot anchors (% of 1440×2256 canvas — Figma 4152:122925). */
+  /** Slot anchors (% of the 1440×2057 canvas — Figma 4152:122925, re-based Oct 26). */
   slots: [
     {
       left: "7.05%",
-      top: "8.83%",
-      width: "16.33%",
+      /** Was 8.83% of 2256 (empty space above, removed). */
+      top: "0%",
+      /** 286 / 1440 — Coral KPE phone (was 16.33%). */
+      width: "19.86%",
       captionMaxWidth: 270,
       /** 713 − 684.5px @ 1440 — vw so gap scales with full-bleed band width. */
       captionGapVw: 1.976,
       zIndex: 30,
     },
     {
-      left: "52.4%",
-      top: "34.62%",
-      width: "39.74%",
+      /** Right edge kept at 92.14% (was 52.4% + 39.74%). */
+      left: "61.72%",
+      /** (34.62% − 8.83%) × 2256 / 2057 */
+      top: "28.29%",
+      /** 438 / 1440 — Coral KPE tablet (was 39.74%). */
+      width: "30.42%",
       captionMaxWidth: 351,
       /** 1220 − 1187.7px @ 1440 */
       captionGapVw: 2.243,
@@ -223,7 +242,8 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
     },
     {
       left: "6.96%",
-      top: "66.49%",
+      /** (66.49% − 8.83%) × 2256 / 2057 */
+      top: "63.24%",
       width: "49.66%",
       captionMaxWidth: 366,
       /** 2003 − 1976.7px @ 1440 */
@@ -236,7 +256,8 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
 /** §07 Featured motion band — mobile stack (Figma FDX 3928:49325 / 3928:49660). */
 export const MOTION_FEATURED_MOBILE_DEFAULTS = {
   contentMaxWidth: 344,
-  mockupWidth: 148,
+  /** Coral KPE phone (MOTION_MOBILE_FLOW_STACK.phoneMaxWidthPx), was 148. */
+  mockupWidth: 167,
   stackGap: 79,
   sectionPaddingY: 66,
   mockupRadius: 12,
@@ -246,21 +267,24 @@ export const MOTION_FEATURED_MOBILE_DEFAULTS = {
 
 /** §07 Motion showcase — phone row (Figma DVA 4001:76397 / 4001:79990). */
 export const MOTION_PHONE_ROW_DEFAULTS = {
-  /** Desktop strip — Figma 4002:86609 (~802px). */
-  bandMaxWidth: 802,
+  /** Desktop strip — 3 × ~286 phones + 2 gaps (was Figma 4002:86609 ~802px). */
+  bandMaxWidth: 960,
   columnGap: 45,
   /** Mobile 2+1 grid — Figma 4001:79990 content ~345px. */
   mobileMaxWidth: 345,
   mobileColumnGap: 31,
   mobileRowGap: 31,
-  /** Figma 4002:86612 frame height at 1440 — all phones scale to this px height. */
-  phoneHeightDesktop: 512,
+  /**
+   * All phones scale to this px height. 628 makes DVA's frames (~0.455 w/h)
+   * ≈ 286 wide = Coral KPE phone (Saqib Oct 26); was 512 (Figma 4002:86612).
+   */
+  phoneHeightDesktop: 628,
   /** Figma 4002:87856 frame height at 393. */
   phoneHeightMobile: 350,
   /** Desktop intro — Figma 4001:76571 (440×105 at x=957 on 1440). */
   introMaxWidth: 440,
-  /** Offset from the 802px phone strip so copy sits under the right mockup. */
-  introOffsetLeft: 638,
+  /** Copy sits under the right mockup, 73px in from its left edge (as at 802 / 638). */
+  introOffsetLeft: 742,
   introMarginTopDesktop: 56,
   introMarginTopMobile: 32,
 } as const;
@@ -268,7 +292,8 @@ export const MOTION_PHONE_ROW_DEFAULTS = {
 /** §07 Featured motion band — US Census mobile (Figma 3999:55762). */
 export const MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS = {
   contentMaxWidth: 344,
-  mockupWidth: 135,
+  /** Coral KPE phone (MOTION_MOBILE_FLOW_STACK.phoneMaxWidthPx), was 135. */
+  mockupWidth: 167,
   stackGap: 57,
   sectionPaddingY: 66,
   mockupRadius: 15,
