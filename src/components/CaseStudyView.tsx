@@ -770,10 +770,15 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             </a>
           )}
         </div>
-        {/* Research & Design and Duration / Team run to the body's right edge
-            (Israel, Final Cleanup "XIAN" Coral, Nov 2: "wraps naturally within
-            its container… across all case studies"). */}
-        <div className={`flex flex-col gap-[42px] lg:gap-8 ${'max-w-[min(680px,100%)] max-lg:max-w-none'}`}>
+        {/* Research & Design and Duration / Team (Israel, Final Cleanup "XIAN"
+            Coral, Nov 2: "wraps naturally within its container… across all case
+            studies"). Desktop: Figma's 647 @1440 box (Experian 239:20785 "fit two
+            lines", Xiang Nov 3) — may run into the column's right padding; body
+            unchanged. 732 = the 680 body cap × 647 / 601. */}
+        <div
+          className="flex max-w-[min(680px,100%)] flex-col gap-[42px] max-lg:max-w-none lg:mr-[calc(-1*var(--cs-ov-pr,0px))] lg:max-w-[min(44.93vw,732px)] lg:gap-8"
+          style={{ '--cs-ov-pr': `${copyPad.paddingRight ?? 0}px` } as CSSProperties}
+        >
           {(s.serviceCategoryLabel || s.serviceList) && (
             <div>
               <h3 className={`font-bold ${csSectionTitle()} ${textClass}`}>
