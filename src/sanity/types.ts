@@ -151,6 +151,7 @@ export type Section =
       ctaUrl?: string;
       sideImage?: string;
       sideVideo?: string;
+      sideVideoCard?: boolean;
       sideImageFit?: "cover" | "contain";
       sideImageBackgroundColor?: SanityColor;
       mediaPosition?: "left" | "right";

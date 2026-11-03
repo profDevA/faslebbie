@@ -25,6 +25,7 @@ const sectionsProj = `sections[]{
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
+    sideVideoCard,
     sideImageFit, sideImageBackgroundColor,
     mediaPosition,
     copyPaddingTop, copyPaddingBottom, copyPaddingLeft, copyPaddingRight,

@@ -72,6 +72,14 @@ export const overviewSection = defineType({
         "Optional looping video on the media side. When empty, only the side image is shown. When both video and side image are set, they stack (video above image) — use only on Memory Tubes.",
     }),
     defineField({
+      name: "sideVideoCard",
+      title: "Video in a white card",
+      type: "boolean",
+      description:
+        "Landscape footage in a white-bordered, rounded card with a soft shadow, centred on the panel colour (Final Cleanup: Memory Tubes, Forever a Surfer) — 555 px wide at 1440. When on, only the video shows; a side image is kept but hidden.",
+      initialValue: false,
+    }),
+    defineField({
       name: "sideImageFit",
       title: "Side image fit",
       type: "string",

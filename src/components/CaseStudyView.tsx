@@ -667,6 +667,22 @@ function OverviewStackedSideMedia({
   )
 }
 
+/** Landscape footage in a white card (Studio "Video in a white card"; Final
+ *  Cleanup Memory Tubes / Forever a Surfer, Figma 239:108827 / 239:118125):
+ *  555 × 350 @1440, 7px white border outside, radius 14, shadow 0 7 10. Mobile
+ *  239:110056 / 239:118873: 75.5vw wide, 3.75px border, radius 7.5. */
+function OverviewVideoCard({ src }: { src: string }) {
+  return (
+    <div className="relative box-content aspect-[555/350] w-[75.5vw] overflow-hidden rounded-[7.5px] border-[3.75px] border-white shadow-[0_3.75px_5.35px_rgba(0,0,0,0.25)] lg:w-[min(38.54vw,calc(100%-14px))] lg:rounded-[14px] lg:border-[7px] lg:shadow-[0_7px_10px_rgba(0,0,0,0.25)]">
+      <CsOverviewVideo
+        src={src}
+        showFrame={false}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    </div>
+  )
+}
+
 /** Research & Design disciplines separated by middle dots, never commas — same
  *  on every study whatever the Studio text uses (Israel, Nov 2). */
 /** Overview R&D and Duration / Team, desktop: Figma Final Cleanup type 20 / 22
@@ -712,9 +728,13 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const metaXs = csMetaXs()
   const sideBg = colorToCss(s.sideImageBackgroundColor) ?? CS_TEAL
   const hasVideo = !!s.sideVideo
+  /** Studio "Video in a white card" — video only, any side image stays hidden. */
+  const videoCard = hasVideo && !!s.sideVideoCard
   /** Both set → video over still (Memory Tubes overview only in practice). */
-  const stackedSideMedia = hasVideo && !!s.sideImage
-  const videoAspect = useVideoAspect(hasVideo && !stackedSideMedia ? s.sideVideo : undefined)
+  const stackedSideMedia = hasVideo && !!s.sideImage && !videoCard
+  const videoAspect = useVideoAspect(
+    hasVideo && !stackedSideMedia && !videoCard ? s.sideVideo : undefined,
+  )
   const desktopVideoWidthVw =
     (videoAspect ?? 0) > 1
       ? OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW
@@ -732,7 +752,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     'relative hidden min-h-0 w-full overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
   const desktopMediaSizeClass =
     'block max-h-full w-full object-contain object-center'
-  const mobilePhone = hasVideo && !stackedSideMedia
+  const mobilePhone = hasVideo && !stackedSideMedia && !videoCard
   const mobileMediaSizeClass = 'block h-auto w-full'
   return (
     <section
@@ -813,7 +833,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       </div>
       {/* One media slot, or stacked video + still when both are authored. */}
       <div
-        className={`relative w-full lg:hidden ${mediaOrder}`}
+        className={`relative w-full lg:hidden ${mediaOrder} ${videoCard ? 'flex justify-center' : ''}`}
         style={{
           backgroundColor: sideBg,
           ...(mobilePhone
@@ -822,9 +842,13 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
                 paddingBottom: mediaPadMobilePhone.paddingBottom,
               }
             : undefined),
+          // Figma mobile band 393 × 481 with the card centred (147 / 145).
+          ...(videoCard ? { paddingTop: '37.2vw', paddingBottom: '37.2vw' } : undefined),
         }}
       >
-        {stackedSideMedia ? (
+        {videoCard ? (
+          <OverviewVideoCard src={s.sideVideo!} />
+        ) : stackedSideMedia ? (
           <OverviewStackedSideMedia
             videoSrc={s.sideVideo!}
             imageSrc={s.sideImage!}
@@ -864,7 +888,9 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             ...mediaPad,
           }}
         >
-          {stackedSideMedia ? (
+          {videoCard ? (
+            <OverviewVideoCard src={s.sideVideo!} />
+          ) : stackedSideMedia ? (
             <OverviewStackedSideMedia
               videoSrc={s.sideVideo!}
               imageSrc={s.sideImage!}
@@ -2081,7 +2107,7 @@ function DesktopMotionStaggeredPair({
           return (
             <KpeDeviceItem
               key={carousel._key ?? i}
-              portrait={(urlAspectRatio(slides[0]?.image) ?? 1.5) < 1}
+              kind={kpeDeviceKind(slides[0]?.image)}
               align={end ? 'end' : 'start'}
               first={i === 0}
               caption={
@@ -2141,7 +2167,7 @@ function DesktopMotionKpeBand({
         </h2>
       ) : null}
       <KpeDeviceItem
-        portrait={(urlAspectRatio(art) ?? 1.5) < 1}
+        kind={kpeDeviceKind(art)}
         align="center"
         first
         caption={caption}
@@ -2196,29 +2222,52 @@ function urlAspectRatio(url?: string) {
   return m ? Number(m[1]) / Number(m[2]) : undefined
 }
 
+type KpeDeviceKind = 'phone' | 'phonePair' | 'screen'
+
+/** Slide shape → KPE device: one phone (portrait, narrow), Circle's old
+ *  two-phone slides (≈ 0.94), or a laptop / desktop screen (landscape). */
+function kpeDeviceKind(url?: string): KpeDeviceKind {
+  const r = urlAspectRatio(url) ?? 1.5
+  return r >= 1 ? 'screen' : r < 0.7 ? 'phone' : 'phonePair'
+}
+
 /**
  * One KPE item at Coral's sizes (MOTION_MOBILE_FLOW_STACK) for bands built
  * from desktop-motion media: laptop / desktop screens = Coral tablet
- * (438 / 292), portrait two-phone slides (Circle) = 2 × Coral phone.
- * Caption under the device: Coral tablet item width (515 / 301), gap 44 / 50.
+ * (438 / 292), one phone = Coral phone (286 / 167; Circle, Final Cleanup
+ * 239:89425 "reduce the oversized screens"), two-phone slides = 2 × Coral phone.
+ * Caption under the device: Coral item width (phone 488, tablet 515 / 301),
+ * gap 29 phone / 44 tablet / 50 mobile.
  */
 function KpeDeviceItem({
-  portrait,
+  kind,
   align,
   first,
   caption,
   children,
 }: {
-  portrait: boolean
+  kind: KpeDeviceKind
   align: 'start' | 'end' | 'center'
   first: boolean
   caption: React.ReactNode
   children: React.ReactNode
 }) {
   const d = MOTION_MOBILE_FLOW_STACK
-  const media = portrait ? d.phonePairMaxWidthDesktopPx : d.tabletMaxWidthDesktopPx
-  const mediaM = portrait ? d.phonePairMaxWidthPx : d.tabletMaxWidthPx
-  const item = Math.max(media, d.captionMaxWidthDesktopTabletPx)
+  const phone = kind === 'phone'
+  const media = phone
+    ? d.phoneMaxWidthDesktopPx
+    : kind === 'phonePair'
+      ? d.phonePairMaxWidthDesktopPx
+      : d.tabletMaxWidthDesktopPx
+  const mediaM = phone
+    ? d.phoneMaxWidthPx
+    : kind === 'phonePair'
+      ? d.phonePairMaxWidthPx
+      : d.tabletMaxWidthPx
+  const item = Math.max(
+    media,
+    phone ? d.captionMaxWidthDesktopPhonePx : d.captionMaxWidthDesktopTabletPx,
+  )
   const itemM = Math.max(mediaM, d.captionMaxWidthPx)
   const vars = {
     '--kpe-item': `${item}px`,
@@ -2243,7 +2292,11 @@ function KpeDeviceItem({
         {children}
       </div>
       {caption ? (
-        <div className="mt-[50px] w-full text-left lg:mt-[44px]">{caption}</div>
+        <div
+          className={`mt-[50px] w-full text-left ${phone ? 'lg:mt-[29px]' : 'lg:mt-[44px]'}`}
+        >
+          {caption}
+        </div>
       ) : null}
     </div>
   )
