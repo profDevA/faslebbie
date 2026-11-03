@@ -134,6 +134,7 @@ export type Section =
       _type: "heroSection";
       image?: string;
       imageMobile?: string;
+      imageHasGradient?: boolean;
       caption?: string;
       headingOverride?: string;
     })

@@ -27,15 +27,10 @@ export const mediaItem = defineType({
       name: "videoUrl",
       title: "Video URL",
       type: "url",
-      description: "External mp4, YouTube or Vimeo URL.",
+      description:
+        "Optional. External mp4, YouTube or Vimeo URL — use only if the video isn't uploaded below.",
       hidden: ({ parent }) => parent?.mediaType !== "video",
-      validation: (r) =>
-        r.uri({ scheme: ["http", "https"] }).custom((val, ctx) => {
-          const p = ctx.parent as { mediaType?: string; videoFile?: unknown };
-          if (p?.mediaType === "video" && !val && !p?.videoFile)
-            return "Provide a video URL or upload a file.";
-          return true;
-        }),
+      validation: (r) => r.uri({ scheme: ["http", "https"] }),
     }),
     defineField({
       name: "videoFile",
@@ -43,6 +38,14 @@ export const mediaItem = defineType({
       type: "file",
       options: { accept: "video/*" },
       hidden: ({ parent }) => parent?.mediaType !== "video",
+      // Error sits on the upload box (what editors use), not on the URL field.
+      validation: (r) =>
+        r.custom((val, ctx) => {
+          const p = ctx.parent as { mediaType?: string; videoUrl?: string };
+          if (p?.mediaType === "video" && !val && !p?.videoUrl)
+            return "Upload a video file, or paste a video URL above.";
+          return true;
+        }),
     }),
     defineField({
       name: "posterImage",

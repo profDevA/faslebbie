@@ -113,6 +113,7 @@ import {
   CS_M_MEDIA_GAP,
   MOBILE_DENSE_GRID_CAP,
   OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW,
+  OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW,
 } from '@/lib/caseStudyDefaults'
 import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
 import {
@@ -482,28 +483,16 @@ function HeroBlock({
   const mobileObjectPos =
     MOBILE_HERO_OBJECT_POSITION[p.slug] ?? 'object-top'
   const capSize = csHeroCap()
+  // One line only: the From / To line under it is gone on every study
+  // (Israel, Final Cleanup "XIAN" page, Nov 2 — reverses Fas 08/05).
   const caption = (
-    <>
-      <p className={capSize}>
-        <strong className="font-bold">{title}</strong> · {s.caption ?? p.tagline}
-      </p>
-      {/* Fas 08/05: the project's before/after framing belongs here, under the
-         hero title line — not in the Overview metadata column where Israel's
-         annotation panel first placed it. Upright and in the band's own colour,
-         per 2110:39398; the labels carry a single weight step rather than the
-         accent red, which the site reserves for interactive tokens. */}
-      {(p.from || p.to) && (
-        <p className={`mt-0.5 flex flex-wrap gap-x-14 ${capSize}`}>
-          <span>
-            <span className="font-medium">From:</span> {p.from}
-          </span>
-          <span>
-            <span className="font-medium">To:</span> {p.to}
-          </span>
-        </p>
-      )}
-    </>
+    <p className={capSize}>
+      <strong className="font-bold">{title}</strong> · {s.caption ?? p.tagline}
+    </p>
   )
+  // Israel's Nov 2 hero exports carry their own gradient; the site wash on top
+  // reads as "too much" (Studio: "Images already include the dark gradient").
+  const siteWash = !s.imageHasGradient
   const mobileArt = s.imageMobile?.trim() || s.image
   const mobileTagline = s.caption ?? p.tagline
   // Full-page mobile hero — Figma 3928:28893 / 4173:68708 (MV_Hero collage + overlay copy).
@@ -521,10 +510,12 @@ function HeroBlock({
               : `block max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`
           }
         />
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[162px] bg-[linear-gradient(178.5deg,rgba(23,23,23,0)_17.94%,#171717_63.75%)]"
-          aria-hidden
-        />
+        {siteWash && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[162px] bg-[linear-gradient(178.5deg,rgba(23,23,23,0)_17.94%,#171717_63.75%)]"
+            aria-hidden
+          />
+        )}
         <div className="absolute inset-x-0 bottom-0 flex flex-col gap-4 pb-[38px] pl-[21px] pr-5 text-white">
           <p className="text-[16px] font-bold leading-[1.2] tracking-normal">
             {title}
@@ -545,10 +536,12 @@ function HeroBlock({
         />
         {/* Figma 4556:37569 — same 178.5deg → #171717 wash as mobile, taller on
             desktop so the caption sits in the dark half of the 876px hero. */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-[linear-gradient(178.5deg,rgba(23,23,23,0)_17.94%,#171717_63.75%)]"
-          aria-hidden
-        />
+        {siteWash && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-[linear-gradient(178.5deg,rgba(23,23,23,0)_17.94%,#171717_63.75%)]"
+            aria-hidden
+          />
+        )}
         <div className="cs-hero-caption absolute left-7.5 p-2.5 text-white">
           {caption}
         </div>
@@ -674,6 +667,37 @@ function OverviewStackedSideMedia({
   )
 }
 
+/** Research & Design disciplines separated by middle dots, never commas — same
+ *  on every study whatever the Studio text uses (Israel, Nov 2). */
+function disciplineList(text: string) {
+  return text
+    .split(/\s*[,·]\s*/)
+    .filter(Boolean)
+    .join(' · ')
+}
+
+/** width / height of a video, read from its metadata only (no playback). */
+function useVideoAspect(src?: string) {
+  const [aspect, setAspect] = useState<number>()
+  useEffect(() => {
+    if (!src) return
+    const v = document.createElement('video')
+    const read = () => {
+      if (v.videoWidth && v.videoHeight) setAspect(v.videoWidth / v.videoHeight)
+    }
+    v.preload = 'metadata'
+    v.muted = true
+    v.addEventListener('loadedmetadata', read)
+    v.src = src
+    return () => {
+      v.removeEventListener('loadedmetadata', read)
+      v.removeAttribute('src')
+      v.load()
+    }
+  }, [src])
+  return aspect
+}
+
 function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const light = bandUsesLightText(s.appearance)
   const textClass = light ? 'text-white' : 'text-black'
@@ -685,6 +709,11 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const hasVideo = !!s.sideVideo
   /** Both set → video over still (Memory Tubes overview only in practice). */
   const stackedSideMedia = hasVideo && !!s.sideImage
+  const videoAspect = useVideoAspect(hasVideo && !stackedSideMedia ? s.sideVideo : undefined)
+  const desktopVideoWidthVw =
+    (videoAspect ?? 0) > 1
+      ? OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW
+      : OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW
   const mediaFirst = s.mediaPosition === 'left'
   const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
@@ -736,20 +765,23 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             </a>
           )}
         </div>
+        {/* Research & Design and Duration / Team run to the body's right edge
+            (Israel, Final Cleanup "XIAN" Coral, Nov 2: "wraps naturally within
+            its container… across all case studies"). */}
         <div className={`flex flex-col gap-[42px] lg:gap-8 ${'max-w-[min(680px,100%)] max-lg:max-w-none'}`}>
           {(s.serviceCategoryLabel || s.serviceList) && (
-            <div className="max-w-85 max-lg:max-w-none">
+            <div>
               <h3 className={`font-bold ${csSectionTitle()} ${textClass}`}>
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
               {s.serviceList && (
                 <p className={`mt-4 lg:mt-[1em] ${body}`}>
-                  {s.serviceList}
+                  {disciplineList(s.serviceList)}
                 </p>
               )}
             </div>
           )}
-          <div className={`max-w-85 space-y-1 max-lg:max-w-none max-lg:space-y-0 ${body}`}>
+          <div className={`space-y-1 max-lg:space-y-0 ${body}`}>
             {s.duration && (
               <p>
                 <span className="font-bold">Duration</span>: {s.duration}
@@ -830,14 +862,15 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             />
           ) : hasVideo ? (
             // Figma phone width, not column width (Fas Oct 20: "reduce this scale"),
-            // centred in the column. No frame: the exports are a bare phone with
+            // centred in the column; landscape screens get the Figma desktop
+            // width (Saqib Nov 1). No frame: the exports are a bare phone with
             // transparent corners, so the square ring showed (Saqib Oct 26).
             <CsOverviewVideo
               src={s.sideVideo!}
               className={desktopMediaSizeClass}
               showFrame={false}
               style={{
-                width: `min(100%, ${OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW}vw)`,
+                width: `min(100%, ${desktopVideoWidthVw}vw)`,
                 height: 'auto',
               }}
             />
@@ -878,7 +911,9 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
           className={`order-2 flex flex-col justify-end lg:order-1 ${light ? 'text-white' : 'text-black'}`}
           style={sideTextCss ? { color: sideTextCss } : undefined}
         >
-          <div className="w-full">
+          {/* Desktop text 616 @1440 (Figma Final Cleanup Coral 245:50864) — wraps
+              earlier, clear gap before the Design Process panel (Israel, Nov 2). */}
+          <div className="w-full lg:max-w-[42.78vw]">
             <h2 className={`mb-4 ${csSectionTitle()}`}>
               {s.sideTitle ?? 'My Approach'}
             </h2>
@@ -1184,7 +1219,11 @@ function CoreExperienceScreenCard({
         ? 'mx-auto w-full max-w-[323px]'
         : desktopBand
           ? 'min-w-0 flex-1'
-          : 'shrink-0 w-[140px] sm:w-[160px] lg:w-[210px]'
+          : // Desktop: the phones share the band width (≈235 @1440, was 210)
+            // and grow with the window, so they don't sit small in the middle
+            // (Israel, Final Cleanup Coral, Nov 2: "Enlarge the five mobile screens").
+            // Cap keeps a shorter row (fewer than 5 screens) from getting huge.
+            'shrink-0 w-[140px] sm:w-[160px] lg:w-auto lg:min-w-0 lg:max-w-[20vw] lg:flex-1'
     const hasImageDims = Boolean(screen.imageWidth && screen.imageHeight)
     /** Full-frame uploads — no shared aspect box or object-cover crop. */
     const preserveFullFrame = mobileGridTile || stackTile || hasImageDims
@@ -1708,9 +1747,14 @@ function CoreExperienceBlock({
         style={bandSectionStyle}
       >
         <div
-          className={`${csShell('', {
-            mobileSingleInset: layout === 'mobileRow',
-          })} flex w-full min-w-0 flex-col ${CS_MOBILE_LEFT_DESKTOP_CENTER} ${
+          className={`${csShell(
+            // mobileRow: the shell grows with the window past 1440 like the
+            // phones do (1400 @1440 = 97.2vw).
+            layout === 'mobileRow'
+              ? 'lg:max-w-[max(min(1400px,calc(100%-2.5rem)),97.2vw)]'
+              : '',
+            { mobileSingleInset: layout === 'mobileRow' },
+          )} flex w-full min-w-0 flex-col ${CS_MOBILE_LEFT_DESKTOP_CENTER} ${
             layout === 'mobileRow'
               ? 'gap-4 lg:gap-6 lg:gap-[var(--section-gap-desktop)]'
               : SECTION_GAP_CLASS

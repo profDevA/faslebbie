@@ -61,6 +61,13 @@ export const OVERVIEW_MEDIA_MOBILE_PHONE = {
  */
 export const OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW = (286 / 1440) * 100;
 
+/**
+ * Same, for a landscape (desktop / tablet screen) video — OC Links Overview
+ * desktop screen (Figma `4004:113285`), 499px in the 1440 frame. The phone cap
+ * made Acme / OC Links unreadable (Saqib, Nov 1).
+ */
+export const OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW = (499 / 1440) * 100;
+
 export const OVERVIEW_COLUMN_GAP = 40;
 
 /** Accordion split panel (Design Process column). */

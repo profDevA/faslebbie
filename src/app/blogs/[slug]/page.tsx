@@ -10,9 +10,24 @@ import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 
 export const revalidate = 60;
 
+/** The URL segment can arrive percent-encoded (e.g. a slug with ’), so compare
+ *  the decoded value too — otherwise those posts 404. */
+function findPost<T extends { slug: string }>(posts: T[], raw: string) {
+  let decoded = raw;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {}
+  return posts.find((p) => p.slug === decoded || p.slug === raw);
+}
+
 export async function generateStaticParams() {
   const { posts } = blogsFromSanity(await getBlogsPage());
-  return posts.map((post) => ({ slug: post.slug }));
+  // Prerender URL-safe slugs only: a Studio slug typed as a title ("Extractive
+  // 2.0: The…") breaks the build on Windows (":" in the output path). Those
+  // posts still render on request (dynamicParams defaults to true).
+  return posts
+    .filter((post) => /^[\w-]+$/.test(post.slug))
+    .map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -22,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { posts } = blogsFromSanity(await getBlogsPage());
-  const post = posts.find((p) => p.slug === slug);
+  const post = findPost(posts, slug);
   if (!post) return { title: "Blog — Fas Lebbie, Ph.D." };
 
   return pageMetadataFromSanity(undefined, {
@@ -42,7 +57,7 @@ export default async function BlogPostPage({
     getSiteSettings(),
   ]);
   const { posts } = blogsFromSanity(blogsPage);
-  const post = posts.find((p) => p.slug === slug);
+  const post = findPost(posts, slug);
   if (!post) notFound();
 
   const defaultAuthorAvatar =

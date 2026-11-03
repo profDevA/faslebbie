@@ -16,6 +16,7 @@ const sectionsProj = `sections[]{
   _type == "heroSection" => {
     "image": image${img},
     "imageMobile": imageMobile${img},
+    imageHasGradient,
     caption,
     headingOverride
   },

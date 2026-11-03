@@ -20,6 +20,14 @@ export const heroSection = defineType({
       type: "image",
       options: { hotspot: true },
     }),
+    defineField({
+      name: "imageHasGradient",
+      title: "Images already include the dark gradient",
+      type: "boolean",
+      description:
+        "Turn on when the desktop and mobile hero exports carry their own bottom gradient (Israel's Figma exports, Nov 2026). The site then skips its own dark wash under the caption.",
+      initialValue: false,
+    }),
     defineField({ name: "caption", title: "Caption", type: "string" }),
     defineField({
       name: "headingOverride",

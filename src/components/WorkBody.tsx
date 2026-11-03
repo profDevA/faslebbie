@@ -837,7 +837,7 @@ function ProjectCard({
   // When false (auto-scroll wall) the card is always visible — the column's
   // continuous drift is the animation, so no scroll-reveal is applied.
   reveal?: boolean;
-  /** Mobile .img (Figma 1:17564) is image-only; desktop wall keeps title/From/To. */
+  /** Mobile .img (Figma 1:17564) is image-only; desktop wall keeps the title. */
   showMeta?: boolean;
   /** Non-matching filter preview / applied state — blur like faslebbie.com/works. */
   dimmed?: boolean;
@@ -944,20 +944,12 @@ function ProjectCard({
       )}
       {showMeta && (
         <div className="work-card-meta reckless-prose">
-          {/* Card meta (Figma 2080:31219) — desktop wall only. */}
+          {/* Card meta (Figma 2080:31219) — desktop wall only. Title only: the
+              From / To line is gone (Israel, Final Cleanup Figma, Nov 2 — deleted
+              it from the Acme Work card in recording #2681; matches the hero). */}
           <p className="mt-2 w-fit text-[16px] font-normal leading-[1.35] text-black underline decoration-from-font [text-decoration-skip-ink:none] transition-colors group-hover:text-accent @[18rem]/card:text-[18px]">
             {project.name}
           </p>
-          {(project.from || project.to) && (
-            <p className="mt-2 grid grid-cols-1 text-[16px] font-normal italic leading-[1.35] text-black @[18rem]/card:grid-cols-[57%_1fr] @[18rem]/card:text-[18px]">
-              <span>
-                <span className="font-normal">From</span>: {project.from}
-              </span>
-              <span>
-                <span className="font-normal">To</span>: {project.to}
-              </span>
-            </p>
-          )}
         </div>
       )}
     </button>
