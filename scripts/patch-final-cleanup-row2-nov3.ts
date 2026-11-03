@@ -28,6 +28,7 @@
  * Run from frontend/:
  *   npx sanity exec scripts/patch-final-cleanup-row2-nov3.ts --with-user-token
  *   npx sanity exec scripts/patch-final-cleanup-row2-nov3.ts --with-user-token -- --apply
+ *   (after 164cfd9 is live) … -- --apply --circle-kpe-only
  */
 import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -36,6 +37,11 @@ import { getCliClient } from "sanity/cli";
 
 const client = getCliClient({ apiVersion: "2025-01-01" });
 const APPLY = process.argv.includes("--apply");
+/** Circle's single-phone KPE needs `164cfd9` live (older code sizes a single
+ *  phone as a two-phone slide, 585). Default run skips it; run it alone with
+ *  --circle-kpe-only once that code is deployed. */
+const CIRCLE_KPE_ONLY = process.argv.includes("--circle-kpe-only");
+const CIRCLE_KPE_KEY = "a8c6c2bc5f1b";
 const EXPORTS = join(process.cwd(), "..", "exports", "figma-2026-11-03");
 const BACKUPS = join(process.cwd(), "..", "exports", "sanity-backups");
 
@@ -64,7 +70,7 @@ const hero = (slug: string, sectionKey: string, file: string, gradient: boolean,
 
 const tiles = (dir: string, n: number) => Array.from({ length: n }, (_, i) => `${dir}/0${i + 1}.png`);
 
-const CHANGES: Change[] = [
+const ALL_CHANGES: Change[] = [
   // Heroes
   hero("oc-digital-resource-navigator", "89f1516b2f6d", "nav", false, "hero (Figma 239:51235 / 239:51320) — wash kept (mobile tablet UI)"),
   hero("oc-links", "3d21e03895fa", "links", true, "hero (Figma 239:55503 / 239:57258)"),
@@ -132,6 +138,8 @@ const CHANGES: Change[] = [
   ] },
 ];
 
+const CHANGES = ALL_CHANGES.filter((c) => (c.sectionKey === CIRCLE_KPE_KEY) === CIRCLE_KPE_ONLY);
+
 type Section = { _key: string; _type: string } & Record<string, unknown>;
 type Doc = { _id: string; _rev: string; sections?: Section[] };
 
@@ -168,7 +176,7 @@ async function assetRef(file: string) {
 const imageValue = async (file: string) => ({ _type: "image", asset: { _type: "reference", _ref: await assetRef(file) } });
 
 async function main() {
-  console.log(`patch-final-cleanup-row2-nov3 (${APPLY ? "APPLY" : "dry"})`);
+  console.log(`patch-final-cleanup-row2-nov3 (${APPLY ? "APPLY" : "dry"}${CIRCLE_KPE_ONLY ? ", Circle KPE only" : ", without Circle KPE"})`);
   for (const c of CHANGES) for (const op of c.ops) {
     for (const f of op.kind === "image" ? [op.file] : op.kind === "cells" ? op.files : []) {
       if (!existsSync(join(EXPORTS, f))) throw new Error(`missing export: ${f}`);
@@ -205,7 +213,7 @@ async function main() {
 
   if (APPLY) {
     mkdirSync(BACKUPS, { recursive: true });
-    const file = join(BACKUPS, `final-cleanup-row2-nov3-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
+    const file = join(BACKUPS, `final-cleanup-row2-nov3${CIRCLE_KPE_ONLY ? "-circle-kpe" : ""}-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
     writeFileSync(file, JSON.stringify(docs, null, 1));
     console.log(`backup → ${file}`);
   }
