@@ -42,6 +42,7 @@ Re-download from WP: `pwsh scripts/download-wp-fonts.ps1`. Or copy from local
 | KPE layouts (Nov 2) — DVA phoneRow → stacked; Census featured phone + laptop bands → one stacked band | `patch-kpe-layouts-nov2.ts` — dry by default; replaces `sections` (revision-guarded); backup on `--apply`; idempotent ("already done") |
 | Highlights grid (Nov 2) — Experian + Census composite → 2×3 grid with Israel's tiles | `patch-highlights-grid-nov2.ts` — dry by default; uploads 12 tiles on `--apply`; backup |
 | FDE restructure (Nov 2) — Figma section order, new Mint Core Experience, new Highlights, removes the two "Design Interventions" bands | `patch-fde-restructure-nov2.ts` — dry by default; **run only when Saqib isn't editing FDE** (refuses if a draft exists); replaces `sections`, backup on `--apply`. **Not idempotent** — run once |
+| FDE intro bands (Nov 3) — the two teal featured bands' caption → "Below device" (Final Cleanup layout: bold heading + text under the phone) | `patch-fde-intro-caption-nov3.ts` — dry by default; 2 fields by `_key`, revision-guarded, backup on `--apply`; refuses if an FDE draft exists. Applied Nov 3 |
 | Case study Problem Context + What I Brought (one Sanity section) | `patch-problem-context-sections.ts` |
 | Coral §04 Core Experience band tiles | `patch-coral-core-experience-screens.ts` (PNG source: `public/work/coral-health/core-flow/`) |
 | Experian Boost §04 Core Experience band (5 phone screens) | `patch-experian-core-experience.ts` (manual upload; PNG/JPG: `public/work/experian-boost/core-flow/01–05-*`) |

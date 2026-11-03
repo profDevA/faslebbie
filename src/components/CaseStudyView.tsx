@@ -669,6 +669,11 @@ function OverviewStackedSideMedia({
 
 /** Research & Design disciplines separated by middle dots, never commas — same
  *  on every study whatever the Studio text uses (Israel, Nov 2). */
+/** Overview R&D and Duration / Team, desktop: Figma Final Cleanup type 20 / 22
+ *  (Coral 245:50646, FDE 245:44063 "fit two lines"; Xiang chose Figma, Nov 3).
+ *  Mobile keeps the body tier. */
+const OVERVIEW_META_DESKTOP = 'lg:!text-[20px] lg:!leading-[22px]'
+
 function disciplineList(text: string) {
   return text
     .split(/\s*[,·]\s*/)
@@ -775,13 +780,13 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
                 {s.serviceCategoryLabel ?? 'Research & Design'}
               </h3>
               {s.serviceList && (
-                <p className={`mt-4 lg:mt-[1em] ${body}`}>
+                <p className={`mt-4 lg:mt-[1em] ${body} ${OVERVIEW_META_DESKTOP}`}>
                   {disciplineList(s.serviceList)}
                 </p>
               )}
             </div>
           )}
-          <div className={`space-y-1 max-lg:space-y-0 ${body}`}>
+          <div className={`space-y-0 ${body} ${OVERVIEW_META_DESKTOP}`}>
             {s.duration && (
               <p>
                 <span className="font-bold">Duration</span>: {s.duration}
@@ -3460,10 +3465,12 @@ function MotionShowcaseFeaturedBand({
     projectSlug === '2020-us-census-benefit-calculator'
       ? MOTION_FEATURED_MOBILE_CENSUS_DEFAULTS
       : MOTION_FEATURED_MOBILE_DEFAULTS
-  const captionInset =
-    captionAlign === 'right'
-      ? featuredCaptionInset('right')
-      : featuredCaptionInset('left')
+  // "Below device" = the Final Cleanup intro band (FDE): bold heading, body
+  // runs the full 616 column instead of the old 353 cap.
+  const captionBelow = captionAlign === 'below'
+  const captionInset = featuredCaptionInset(
+    captionAlign === 'right' ? 'right' : captionBelow ? 'below' : 'left',
+  )
   return (
     // Mobile: the title's 50px margin is the only gap (Coral KPE = 50), not 50 + gap-6.
     <section
@@ -3546,16 +3553,16 @@ function MotionShowcaseFeaturedBand({
         )}
         {(row.label || row.caption) && (
           <div
-            className={`w-full pb-[min(51px,8%)] pt-8 text-black ${csShell('!px-0')}`}
+            className={`w-full pb-[min(51px,8%)] pt-8 text-black ${captionBelow ? '' : csShell('!px-0')}`}
           >
             <div className="text-left" style={captionInset}>
               {row.label && (
-                <p className="text-[20px] font-normal capitalize leading-normal">
+                <p className={`text-[20px] ${captionBelow ? 'font-bold' : 'font-normal'} capitalize leading-normal`}>
                   {row.label}
                 </p>
               )}
               {row.caption && (
-                <p className={`mt-2.5 max-w-[353px] ${csBodyText()}`}>
+                <p className={`mt-2.5 ${captionBelow ? '' : 'max-w-[353px]'} ${csBodyText()}`}>
                   {row.caption}
                 </p>
               )}

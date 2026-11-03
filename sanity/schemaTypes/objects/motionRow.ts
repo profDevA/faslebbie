@@ -85,7 +85,7 @@ export const motionRow = defineType({
       initialValue: "below",
       options: {
         list: [
-          { title: "Below device (Coral stacked rows)", value: "below" },
+          { title: "Below device (Coral stacked rows; featured band: under the phone, right of centre)", value: "below" },
           { title: "Bottom-left (featured mobile band)", value: "left" },
           { title: "Bottom-right (featured desktop band)", value: "right" },
         ],

@@ -62,8 +62,13 @@ export function cursorInvertAttrs(light?: boolean) {
   return light ? ({ 'data-cursor-invert': '' as const }) : {}
 }
 
-/** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434. */
-export function featuredCaptionInset(side: 'left' | 'right') {
+/** Figma featured-band caption inset — Census mobile 2229:30254, desktop 2229:30434.
+ *  `below`: Final Cleanup FDE intro bands (Figma 245:44090 / 245:44401) — text
+ *  under the phone, starting 50 right of its centre, 616 wide @1440. */
+export function featuredCaptionInset(side: 'left' | 'right' | 'below') {
+  if (side === 'below') {
+    return { marginLeft: 'calc(50% + 3.47vw)' as const, maxWidth: '42.78vw' }
+  }
   return side === 'right'
     ? { marginLeft: 'auto' as const, maxWidth: 'min(445px, 42%)' }
     : {
