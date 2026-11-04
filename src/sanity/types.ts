@@ -232,7 +232,7 @@ export type Section =
   | (Base & {
       _type: "desktopMotionShowcase";
       sectionTitle?: string;
-      layoutVariant?: "single" | "staggeredPair";
+      layoutVariant?: "single" | "staggeredPair" | "captionBelow";
       body?: PortableTextBlock[];
       videoUrl?: string;
       videoFile?: string;

@@ -20,11 +20,12 @@ export const desktopMotionShowcase = defineType({
       title: "Band layout",
       type: "string",
       description:
-        "Unset / single = one centred mockup or slides[] carousel. Staggered pair = two or three independent sliders (OC Links uses two; Circle Key Product Experiences uses three).",
+        "Unset / single = one centred mockup or slides[] carousel. Staggered pair = two or three independent sliders (OC Links uses two; Circle Key Product Experiences uses three). Large device, caption below = the Final Cleanup layout (Acme Key Product Experiences): the mockup at full wide size, title + text under it, right of centre.",
       options: {
         list: [
           { title: "Single mockup or carousel", value: "single" },
           { title: "Staggered pair (two or three sliders)", value: "staggeredPair" },
+          { title: "Large device, caption below", value: "captionBelow" },
         ],
         layout: "radio",
       },

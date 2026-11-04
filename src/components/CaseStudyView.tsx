@@ -2310,7 +2310,11 @@ function DesktopMotionShowcaseBlock({
   if (s.layoutVariant === 'staggeredPair') {
     return <DesktopMotionStaggeredPair section={s} />
   }
-  if (/^key product experiences$/i.test(s.sectionTitle?.trim() ?? '')) {
+  /** Studio "Large device, caption below" (Acme KPE, Final Cleanup 239:27598):
+   *  the wide mockup centred, title + body under it from 50% + 3.47vw, 616
+   *  @1440 — FDE's intro-band caption. Desktop only; mobile is unchanged. */
+  const captionBelow = s.layoutVariant === 'captionBelow'
+  if (!captionBelow && /^key product experiences$/i.test(s.sectionTitle?.trim() ?? '')) {
     return <DesktopMotionKpeBand section={s} />
   }
   const carouselSlides = (s.slides ?? []).filter(sl => sl.image)
@@ -2352,7 +2356,7 @@ function DesktopMotionShowcaseBlock({
     >
       {hasMedia && (
         <div
-          className={`flex justify-center pt-12 max-lg:pt-0 lg:pt-14 ${
+          className={`flex justify-center pt-12 max-lg:pt-0 ${captionBelow ? 'lg:pt-[108px]' : 'lg:pt-14'} ${
             fluidMockup ? fluidWrap : csShell('!px-0 max-lg:!px-0')
           }`}
         >
@@ -2402,14 +2406,16 @@ function DesktopMotionShowcaseBlock({
       )}
       {hasCopy && (
           <div
-            className={`w-full pb-[min(103px,12%)] pt-0 max-lg:pb-0 lg:pt-6 ${copyClass} ${
-              fluidMockup ? fluidWrap : csShell('!px-0')
+            className={`w-full pt-0 max-lg:pb-0 ${captionBelow ? 'lg:pb-[63px] lg:pt-[51px]' : 'pb-[min(103px,12%)] lg:pt-6'} ${copyClass} ${
+              captionBelow ? '' : fluidMockup ? fluidWrap : csShell('!px-0')
             }`}
           >
             <div
-              className={`text-left max-lg:!max-w-none lg:ml-auto lg:max-w-[min(445px,42%)] ${
-                fluidMockup ? 'lg:translate-x-[clamp(72px,8vw,160px)]' : ''
-              }`}
+              className={`text-left max-lg:!max-w-none ${
+                captionBelow
+                  ? 'lg:ml-[calc(50%+3.47vw)] lg:max-w-[42.78vw]'
+                  : 'lg:ml-auto lg:max-w-[min(445px,42%)]'
+              } ${fluidMockup && !captionBelow ? 'lg:translate-x-[clamp(72px,8vw,160px)]' : ''}`}
             >
               {copyTitle && (
                 <h2 className={csSectionTitle()}>
