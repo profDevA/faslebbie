@@ -4225,9 +4225,16 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
               />
             ))}
           </div>
+          {/* Four tiles (Acme / DVA until Israel's last two exist): 2 × 2 at the
+              2 × 3 cell size, centred — no empty cells. */}
           <div
-            className="mx-auto hidden w-full grid-cols-3 grid-flow-row grid-rows-2 lg:grid xl:gap-[1vw]"
-            style={{ gap: gridGap }}
+            className={`mx-auto hidden w-full ${cells.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} grid-flow-row grid-rows-2 lg:grid xl:gap-[1vw]`}
+            style={{
+              gap: gridGap,
+              ...(cells.length === 4
+                ? { maxWidth: `calc((100% - ${2 * gridGap}px) * 2 / 3 + ${gridGap}px)` }
+                : undefined),
+            }}
           >
             {cells.map((c, i) => (
               <HighlightCellView
