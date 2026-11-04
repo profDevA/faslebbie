@@ -562,7 +562,9 @@ function CsOverviewVideo({
   src,
   className,
   style,
-  showFrame = true,
+  /** Thin square ring — off everywhere (it outlined rounded / transparent
+   *  device exports as a rectangle; Xian Nov 4: "remove it everywhere"). */
+  showFrame = false,
   poster,
   /** Off unless a caller opts in. Figma has no Unmute chip; it sat on the phone. */
   showMuteControl = false,
@@ -2388,9 +2390,6 @@ function DesktopMotionShowcaseBlock({
                   <CsOverviewVideo
                     src={s.videoFile!}
                     poster={s.posterImage}
-                    // Acme's export is a tablet with rounded corners — the
-                    // square ring showed around it (Xian, Nov 4).
-                    showFrame={!captionBelow}
                     showMuteControl={false}
                     className="block h-auto w-full"
                   />
@@ -4024,7 +4023,6 @@ function MotionRowView({
     ? MOTION_STACKED_MOBILE.captionMarginTopPx
     : captionMt
   const tileBg = motionStackedFrameFill(row.tileBackgroundColor)
-  const frameMatte = Boolean(tileBg)
   const rowWidthCss = lg ? `${rowWidth}%` : '100%'
   const deviceGapStyle = lg
     ? { gap: `${itemGap}%` }
@@ -4046,9 +4044,7 @@ function MotionRowView({
           {items.map((it, itemIndex) => (
             <div
               key={it._key ?? `motion-${itemIndex}`}
-              className={`min-w-0 flex-1 ${frameRadius.className}${
-                frameMatte ? ' border border-black/5' : ''
-              }`}
+              className={`min-w-0 flex-1 ${frameRadius.className}`}
               style={{
                 backgroundColor: tileBg ?? 'transparent',
                 ...frameRadius.style,
