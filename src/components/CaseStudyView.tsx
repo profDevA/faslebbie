@@ -2388,6 +2388,9 @@ function DesktopMotionShowcaseBlock({
                   <CsOverviewVideo
                     src={s.videoFile!}
                     poster={s.posterImage}
+                    // Acme's export is a tablet with rounded corners — the
+                    // square ring showed around it (Xian, Nov 4).
+                    showFrame={!captionBelow}
                     showMuteControl={false}
                     className="block h-auto w-full"
                   />
