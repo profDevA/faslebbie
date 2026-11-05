@@ -2855,7 +2855,8 @@ function ShowcaseBlock({
         className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
         {...cursorInvertAttrs(light)}
         style={{
-          ...sectionStyle(s.appearance, true, 'md', '#000000', true),
+          // Israel #2721: dark bands are #171717, never pure black.
+          ...sectionStyle(s.appearance, true, 'md', '#171717', true),
           ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
         }}
       >
@@ -2905,7 +2906,7 @@ function ShowcaseBlock({
       className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       {...cursorInvertAttrs(light)}
       style={{
-        ...flexSectionStyle(s.appearance, true, 'md', '#000000', true),
+        ...flexSectionStyle(s.appearance, true, 'md', '#171717', true),
         ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
       }}
     >

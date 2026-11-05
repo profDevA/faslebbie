@@ -160,9 +160,9 @@ export const ACCORDION_APPEARANCE_DEFAULTS = {
   maxWidth: "default" as const,
 };
 
-/** §06 Research Artifacts — black band */
+/** §06 Research Artifacts — dark band #171717 (Israel #2721: not pure black) */
 export const SHOWCASE_GALLERY_APPEARANCE_DEFAULTS = {
-  backgroundColor: sanityColor("#000000"),
+  backgroundColor: sanityColor("#171717"),
   textColor: sanityColor("#ffffff"),
   paddingTop: mdOverlay.paddingTop,
   paddingBottom: mdOverlay.paddingBottom,
