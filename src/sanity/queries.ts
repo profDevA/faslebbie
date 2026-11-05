@@ -80,7 +80,7 @@ const sectionsProj = `sections[]{
     "posterImage": posterImage${img},
     slides[]{ _key, alt, "image": image${img} },
     carousels[]{
-      _key, body,
+      _key, title, body,
       slides[]{ _key, alt, "image": image${img} }
     }
   },

@@ -2336,6 +2336,99 @@ function KpeDeviceItem({
   )
 }
 
+/** Figma 559:37741 — the Old → New arrow (53.5 line, stroke 2, arrow-line head). */
+function OldVsNewArrow({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 55 15"
+      fill="none"
+      aria-hidden
+      className={`block h-auto ${className}`}
+    >
+      <path
+        d="M0 7.36328V8.36328H53.5V7.36328V6.36328H0V7.36328ZM54.2071 8.07039C54.5976 7.67986 54.5976 7.0467 54.2071 6.65617L47.8431 0.292213C47.4526 -0.0983109 46.8195 -0.0983109 46.4289 0.292213C46.0384 0.682738 46.0384 1.3159 46.4289 1.70643L52.0858 7.36328L46.4289 13.0201C46.0384 13.4107 46.0384 14.0438 46.4289 14.4343C46.8195 14.8249 47.4526 14.8249 47.8431 14.4343L54.2071 8.07039Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+/**
+ * Studio "Old vs New" (OC Links, Figma 559:37739, Israel #2721): one row per
+ * `carousels[]` entry — slide 1 old screen → arrow → slide 2 new screen, row
+ * title + caption on the right. Desktop columns from the 1440 artboard (the
+ * screen PNGs include their drop shadow): 72.97 / 430 old, 54.5 arrow, 450 new,
+ * text 1066 / 314, row pitch 364. Mobile (no Figma): each row stacks old,
+ * ↓, new, text at the Coral KPE mobile sizes (tablet 292, caption 50, rows 105).
+ */
+function DesktopMotionOldVsNew({
+  section: s,
+}: {
+  section: Of<'desktopMotionShowcase'>
+}) {
+  const lightText = bandUsesLightText(s.appearance)
+  const copyClass = lightText ? 'text-white' : 'text-black'
+  const title = s.sectionTitle?.trim()
+  const d = MOTION_MOBILE_FLOW_STACK
+  const rows = (s.carousels ?? []).filter(r =>
+    (r.slides ?? []).some(sl => sl.image),
+  )
+  return (
+    <section
+      className={`relative flex flex-col px-5 sm:px-8 lg:px-0 ${copyClass}`}
+      style={sectionStyle(s.appearance, true, 'lg', undefined, lightText)}
+    >
+      {title ? (
+        <h2 className={`mb-[50px] text-center lg:mb-[8.04vw] ${csSectionTitle()}`}>
+          {title}
+        </h2>
+      ) : null}
+      <div className="flex w-full flex-col gap-[105px] lg:gap-[3.88vw] lg:pl-[5.07vw]">
+        {rows.map((row, i) => {
+          const [oldSlide, newSlide] = row.slides ?? []
+          const rowTitle = row.title?.trim()
+          const screen = (sl: typeof oldSlide | undefined, which: string) =>
+            sl?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element -- case-study art
+              <img
+                src={motionSlideSrc(sl.image)}
+                alt={sl.alt || `${which} — ${rowTitle || title || 'Old vs New'}`}
+                className="mx-auto block h-auto w-full max-lg:max-w-[var(--ovn-m)]"
+              />
+            ) : null
+          return (
+            <div
+              key={row._key ?? i}
+              className="flex flex-col items-center lg:grid lg:grid-cols-[29.87vw_4.92vw_31.28vw_24.7vw] lg:items-center"
+              style={{ '--ovn-m': `${d.tabletMaxWidthPx}px` } as CSSProperties}
+            >
+              {screen(oldSlide, 'Old screen')}
+              <div className="flex items-center justify-center max-lg:my-5 max-lg:h-[54.5px]">
+                <OldVsNewArrow className="w-[54.5px] shrink-0 max-lg:rotate-90 lg:w-[3.78vw]" />
+              </div>
+              {screen(newSlide, 'New screen')}
+              {rowTitle || row.body?.length ? (
+                <div
+                  className="w-full text-left max-lg:mt-[50px] max-lg:max-w-[var(--ovn-cap-m)] lg:pl-[2.89vw]"
+                  style={{ '--ovn-cap-m': `${d.captionMaxWidthPx}px` } as CSSProperties}
+                >
+                  {rowTitle ? <h3 className={csSectionTitle()}>{rowTitle}</h3> : null}
+                  {row.body?.length ? (
+                    <CaseStudyProse
+                      value={row.body}
+                      className={`${rowTitle ? 'mt-4 lg:mt-3' : ''} ${csBodyText()}`}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 function DesktopMotionShowcaseBlock({
   section: s,
 }: {
@@ -2343,6 +2436,9 @@ function DesktopMotionShowcaseBlock({
 }) {
   if (s.layoutVariant === 'staggeredPair') {
     return <DesktopMotionStaggeredPair section={s} />
+  }
+  if (s.layoutVariant === 'oldVsNew') {
+    return <DesktopMotionOldVsNew section={s} />
   }
   /** Studio "Large device, caption below" (Acme KPE, Final Cleanup 239:27598):
    *  the wide mockup centred, title + body under it from 50% + 3.47vw, 616

@@ -232,7 +232,7 @@ export type Section =
   | (Base & {
       _type: "desktopMotionShowcase";
       sectionTitle?: string;
-      layoutVariant?: "single" | "staggeredPair" | "captionBelow";
+      layoutVariant?: "single" | "staggeredPair" | "captionBelow" | "oldVsNew";
       body?: PortableTextBlock[];
       videoUrl?: string;
       videoFile?: string;
@@ -244,6 +244,8 @@ export type Section =
       }[];
       carousels?: {
         _key?: string;
+        /** Old vs New rows only — the label above the caption. */
+        title?: string;
         body?: PortableTextBlock[];
         slides?: {
           _key?: string;
