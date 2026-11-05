@@ -2561,45 +2561,33 @@ function InterventionCarouselBlock({
         {(canPage || showCaption) && (
           <div className="shrink-0 lg:mt-[25px]">
             {canPage && (
-              <div className="mb-4 flex shrink-0 items-center justify-end gap-7 text-[#171717] lg:mb-[15px]">
+              // Same text chevrons as the Research Artifacts / KPE sliders
+              // (Israel #2721: "this arrow has changed, let's make it consistent").
+              <div className="mb-4 flex shrink-0 items-center justify-end gap-7.25 text-[23px] font-medium leading-none text-[#171717] lg:mb-[15px] xl:text-[1.45vw]">
                 <button
                   type="button"
                   aria-label="Previous slide"
                   data-cursor="hover"
                   onClick={() => go(-1)}
-                  className="bg-transparent p-0.5 transition-opacity hover:opacity-70"
+                  className="bg-transparent transition-opacity hover:opacity-70"
                 >
-                  <svg width="14" height="24" viewBox="0 0 14 24" fill="none" aria-hidden>
-                    <path
-                      d="M12 2 2 12l10 10"
-                      stroke="currentColor"
-                      strokeWidth="2.75"
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
-                    />
-                  </svg>
+                  &lt;
                 </button>
                 <button
                   type="button"
                   aria-label="Next slide"
                   data-cursor="hover"
                   onClick={() => go(1)}
-                  className="bg-transparent p-0.5 transition-opacity hover:opacity-70"
+                  className="bg-transparent transition-opacity hover:opacity-70"
                 >
-                  <svg width="14" height="24" viewBox="0 0 14 24" fill="none" aria-hidden>
-                    <path
-                      d="M2 2l10 10L2 22"
-                      stroke="currentColor"
-                      strokeWidth="2.75"
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
-                    />
-                  </svg>
+                  &gt;
                 </button>
               </div>
             )}
             {showCaption && (
-              <div className="grid w-full text-left lg:ml-auto lg:max-w-[min(445px,42%)]">
+              // Desktop: Figma 559:59203 — text from the band centre + 236, 440
+              // wide @1440 (runs past the poster's right edge, under the arrows).
+              <div className="grid w-full text-left lg:ml-[calc(50%+16.39vw)] lg:w-[30.56vw] lg:max-w-none">
                 {slides.map((sl, i) => {
                   const body = sl.body?.length ? sl.body : s.introBody
                   if (!kicker && !body?.length) return null
