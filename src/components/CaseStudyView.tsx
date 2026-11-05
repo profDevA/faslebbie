@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import {
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -692,11 +693,20 @@ function OverviewVideoCard({ src }: { src: string }) {
  *  Mobile keeps the body tier. */
 const OVERVIEW_META_DESKTOP = 'lg:!text-[20px] lg:!leading-[22px]'
 
+/** Desktop: a discipline never breaks across lines — lines break only after a
+ *  dot (Israel #2721, OC Navigator "Privacy / Compliance"). Mobile wraps freely:
+ *  the longest item is wider than a 375 screen. */
 function disciplineList(text: string) {
-  return text
-    .split(/\s*[,·]\s*/)
-    .filter(Boolean)
-    .join(' · ')
+  const items = text.split(/\s*[,·]\s*/).filter(Boolean)
+  return items.map((item, i) => (
+    <Fragment key={i}>
+      <span className="lg:whitespace-nowrap">
+        {item}
+        {i < items.length - 1 ? ' ·' : ''}
+      </span>
+      {i < items.length - 1 ? ' ' : null}
+    </Fragment>
+  ))
 }
 
 /** width / height of a video, read from its metadata only (no playback). */
