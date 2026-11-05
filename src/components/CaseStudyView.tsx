@@ -337,7 +337,7 @@ function SectionBlock({
     case 'interventionCarousel':
       return <InterventionCarouselBlock section={section} />
     case 'interventionGrid':
-      return <InterventionGridBlock section={section} />
+      return <InterventionGridBlock section={section} projectName={project.name} />
     case 'gallerySection':
       return <GalleryBlock section={section} />
     case 'showcaseGallery':
@@ -2630,18 +2630,28 @@ const INTERVENTION_GRID_CARD_SHADOW_CLASS =
 
 function InterventionGridBlock({
   section: s,
+  projectName,
 }: {
   section: Of<'interventionGrid'>
+  projectName: string
 }) {
   const items = s.items ?? []
   const initial =
     typeof s.initialVisibleCount === 'number' && s.initialVisibleCount >= 1
       ? s.initialVisibleCount
-      : 4
-  const [expanded, setExpanded] = useState(false)
-  const visible = expanded ? items : items.slice(0, initial)
+      : 6
+  // Israel #2721: the page shows the first cards; "View All" opens the same
+  // popup as Core Experience with every card (was an in-place Load More).
+  const [popupOpen, setPopupOpen] = useState(false)
+  const visible = items.slice(0, initial)
   const hasMore = items.length > initial
-  const readMore = csLoadMoreLabel(s.readMoreLabel)
+  const stored = s.readMoreLabel?.trim()
+  const viewAll = csExpandLabel(
+    stored && /^(load|show)\s+(more|all)$/i.test(stored) ? undefined : stored,
+  )
+  const popupTabs: DeviceTab[] = [
+    { _key: 'all', label: s.sectionTitle || 'Design Interventions', items },
+  ]
   // Same size as the Coral band CTAs (CE View All, popup Load More).
   const loadMoreBtnClass =
     `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] font-normal text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
@@ -2692,31 +2702,34 @@ function InterventionGridBlock({
             )}
           </div>
         )}
-        {hasMore && !expanded && (
+        {hasMore && (
           <div className="mt-[56px] flex justify-center lg:mt-14">
             <button
               type="button"
               data-cursor="hover"
-              onClick={() => setExpanded(true)}
+              onClick={() => setPopupOpen(true)}
               className={loadMoreBtnClass}
             >
-              {readMore}
-            </button>
-          </div>
-        )}
-        {hasMore && expanded && (
-          <div className="mt-[56px] flex justify-center lg:mt-14">
-            <button
-              type="button"
-              data-cursor="hover"
-              onClick={() => setExpanded(false)}
-              className={loadMoreBtnClass}
-            >
-              {csCollapseLabel()}
+              {viewAll}
             </button>
           </div>
         )}
       </div>
+      {hasMore && (
+        <PopupShell
+          open={popupOpen}
+          onClose={() => setPopupOpen(false)}
+          label={s.sectionTitle || 'Design Interventions'}
+          crumbs={[
+            { label: 'Case Studies', href: '/casestudies' },
+            { label: projectName },
+          ]}
+          cardClassName="bg-white"
+          bodyClassName="min-h-0 flex-1 overflow-y-auto overscroll-contain reckless-prose"
+        >
+          <DeviceTabsViewMorePopupBody popupTabs={popupTabs} popupInitial={initial} />
+        </PopupShell>
+      )}
     </section>
   )
 }

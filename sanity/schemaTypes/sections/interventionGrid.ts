@@ -31,16 +31,18 @@ export const interventionGrid = defineType({
     }),
     defineField({
       name: "initialVisibleCount",
-      title: "Cards before Load More",
+      title: "Cards on the page",
+      description: "The rest open in the View All popup (with every card), like Core Experience.",
       type: "number",
       initialValue: 6,
       validation: (r) => r.min(1).integer(),
     }),
     defineField({
       name: "readMoreLabel",
-      title: "Load More label",
+      title: "View All label",
+      description: "Button that opens the popup. Empty, “Load More” or “View More” show as “View All”.",
       type: "string",
-      initialValue: "Load More",
+      initialValue: "View All",
     }),
     defineField({
       name: "appearance",
