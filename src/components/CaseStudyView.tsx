@@ -1266,7 +1266,9 @@ function CoreExperienceScreenCard({
       : stackTile
         ? 'mx-auto w-full max-w-[323px]'
         : desktopBand
-          ? 'min-w-0 flex-1'
+          ? // Two subgrid rows (screen / caption) so captions in a row line up
+            // when the screens differ in height (Israel #2721, OC Navigator).
+            'grid min-w-0 grid-rows-subgrid row-span-2'
           : // Desktop: the phones share the band width (≈235 @1440, was 210)
             // and grow with the window, so they don't sit small in the middle
             // (Israel, Final Cleanup Coral, Nov 2: "Enlarge the five mobile screens").
@@ -1323,7 +1325,7 @@ function CoreExperienceScreenCard({
         style={figureStyle}
       >
         <div
-          className={`${clipCorners || !preserveFullFrame ? 'overflow-hidden' : ''} ${tileShadowClass}`}
+          className={`${clipCorners || !preserveFullFrame ? 'overflow-hidden' : ''} ${tileShadowClass} ${desktopBandTile && !stackTile ? 'self-start' : ''}`}
           style={tileBoxStyle}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
@@ -1490,9 +1492,10 @@ function CoreExperienceBandPreview({
             return (
               <div
                 key={rowIdx}
-                className="flex min-w-0 max-w-full"
+                className="grid min-w-0 max-w-full grid-rows-[auto_auto]"
                 style={{
-                  gap: colGap,
+                  columnGap: colGap,
+                  gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
                   width: rowWidth,
                   marginLeft: topRow ? 0 : stagger,
                 }}
@@ -1806,18 +1809,27 @@ function CoreExperienceBlock({
             layout === 'mobileRow'
               ? 'gap-4 lg:gap-6 lg:gap-[var(--section-gap-desktop)]'
               : SECTION_GAP_CLASS
-          } max-lg:!gap-[50px]`}
+          } max-lg:!gap-[50px] lg:!gap-0`}
           style={sectionGapStyle(s.appearance, gapDefault('md', false), true)}
         >
+          {/* Desktop title → screens and screens → View All: Figma Final
+              Cleanup (Israel #2721 "give it a bit more space… and the View All
+              also… apply it across"): screen grid 133 / 111 (OC Links
+              559:36828), phone row 50 / 114 (Coral 245:50715) @1440; scales
+              down, never below the old 40. Mobile keeps 50. */}
           <h2
-            className={`w-full text-center ${csSectionTitle()} ${onDark}`}
+            className={`w-full text-center ${csSectionTitle()} ${onDark} ${
+              layout === 'desktopGrid'
+                ? 'lg:mb-[clamp(40px,9.24vw,133px)]'
+                : 'lg:mb-[clamp(40px,3.47vw,50px)]'
+            }`}
           >
             {title}
           </h2>
           {s.body?.length ? (
             <CaseStudyProse
               value={s.body}
-              className={`mx-auto max-w-[70ch] ${csBodyText(onDark)}`}
+              className={`mx-auto max-w-[70ch] lg:mb-10 ${csBodyText(onDark)}`}
             />
           ) : null}
           <div className="w-full">
@@ -1831,7 +1843,13 @@ function CoreExperienceBlock({
             />
           </div>
           {hasPopup && (
-            <div className="flex w-full max-lg:justify-center lg:justify-center">
+            <div
+              className={`flex w-full max-lg:justify-center lg:justify-center ${
+                layout === 'desktopGrid'
+                  ? 'lg:mt-[clamp(40px,7.71vw,111px)]'
+                  : 'lg:mt-[clamp(40px,7.92vw,114px)]'
+              }`}
+            >
               <button
                 type="button"
                 data-cursor="hover"
