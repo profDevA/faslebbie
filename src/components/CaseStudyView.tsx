@@ -1631,6 +1631,7 @@ function DeviceTabsViewMorePopupBody({
   popupInitial = 4,
   popupLoadMore = 'Load More',
   popupLoadLess = 'Load Less',
+  tileShadow = false,
 }: {
   popupApp?: Appearance
   popupHeadline?: string
@@ -1639,6 +1640,8 @@ function DeviceTabsViewMorePopupBody({
   popupInitial?: number
   popupLoadMore?: string
   popupLoadLess?: string
+  /** Drop shadow on the popup plates (AR Handbook only so far). */
+  tileShadow?: boolean
 }) {
   const popupAlign =
     popupApp?.contentAlignment ?? CORE_EXPERIENCE_POPUP_DEFAULTS.contentAlignment
@@ -1745,6 +1748,7 @@ function DeviceTabsViewMorePopupBody({
           gridSize="popup"
           gridColumnGap={popupGridColumnGap}
           gridRowGap={popupGridRowGap}
+          tileShadow={tileShadow}
         />
       </div>
     </div>
@@ -3058,6 +3062,7 @@ function ViewMoreDeviceTabsModal({
         popupInitial={popupItemsBeforeViewMore}
         popupLoadMore={popupLoadMoreLabel}
         popupLoadLess={popupLoadLessLabel}
+        tileShadow
       />
     </PopupShell>
   )
@@ -5273,6 +5278,7 @@ function DeviceGallery({
   gridSize = 'default',
   gridColumnGap,
   gridRowGap,
+  tileShadow = false,
 }: {
   tabs: DeviceTab[]
   initial: number
@@ -5283,6 +5289,7 @@ function DeviceGallery({
   gridSize?: 'default' | 'popup'
   gridColumnGap?: number
   gridRowGap?: number
+  tileShadow?: boolean
 }) {
   const [active, setActive] = useState(0)
   const tab = tabs[active]
@@ -5345,6 +5352,7 @@ function DeviceGallery({
         size={gridSize}
         gridColumnGap={gridColumnGap}
         gridRowGap={gridRowGap}
+        popupShadow={tileShadow}
       />
     </div>
   )
@@ -5362,6 +5370,7 @@ function ImageGrid({
   size = 'default',
   gridColumnGap,
   gridRowGap,
+  popupShadow = false,
 }: {
   images: string[]
   captions?: (string | undefined)[]
@@ -5374,6 +5383,8 @@ function ImageGrid({
   size?: 'default' | 'popup'
   gridColumnGap?: number
   gridRowGap?: number
+  /** Popup plates get the page tiles' drop shadow (Israel #2721, AR: "they look a bit flat… try it"). */
+  popupShadow?: boolean
 }) {
   const STEP = 4
   const [shown, setShown] = useState(initial)
@@ -5397,7 +5408,7 @@ function ImageGrid({
       <div
         key={key ?? i}
         className={`flex min-w-0 items-center justify-center ${
-          popup || mobileStack
+          (popup && !popupShadow) || mobileStack
             ? ''
             : 'shadow-[0_0.5vw_0.8vw_rgba(0,0,0,0.4)]'
         } ${mobileStack ? 'w-full' : 'min-w-0 flex-1'}`}
