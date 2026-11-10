@@ -321,29 +321,23 @@ function FieldNotesView({
 
   const src = images[Math.min(slide, Math.max(images.length - 1, 0))];
 
-  const imageEl = (fillParent: boolean) => (
-    <div
-      className={`relative overflow-hidden bg-[#d9d5ed] ${
-        fillParent ? "h-full min-h-0" : "h-full w-full"
-      }`}
-    >
+  // Israel's field-note images are his Figma image panel exported whole (549×797
+  // at 2× = 1099×1594, holistic "Field notes" page), credit included. Desktop
+  // gives the panel that ratio so nothing is cropped; mobile shows the whole
+  // image on the dark panel (no mobile Figma yet).
+  const imageEl = (fit: "cover" | "contain") => (
+    <div className="relative h-full min-h-0 w-full overflow-hidden bg-[#1a1a1a]">
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element -- static design asset
         <img
           src={src}
           alt={note.place}
-          className={`w-full object-cover object-bottom ${
-            fillParent
-              ? "h-full"
-              : "max-h-[min(52vh,440px)] min-h-[200px]"
+          className={`h-full w-full object-center ${
+            fit === "contain" ? "object-contain" : "object-cover"
           }`}
         />
       ) : (
-        <div
-          className={`w-full bg-white ${
-            fillParent ? "h-full min-h-[280px] lg:min-h-0" : "min-h-[200px]"
-          }`}
-        />
+        <div className="h-full min-h-[280px] w-full bg-white lg:min-h-0" />
       )}
       {images.length > 1 && (
         <>
@@ -389,9 +383,13 @@ function FieldNotesView({
 
   return (
     <>
-      <div className="hidden min-h-0 lg:contents">
-        <div className="min-h-0 overflow-hidden">{imageEl(true)}</div>
-        <div className="flex min-h-0 flex-col items-center justify-center bg-[#1a1a1a] px-10 text-center text-[#e0e0d7]">
+      {/* Desktop (Figma 4939:27889): image column = body height × 549/797, the
+          copy panel takes the rest. Nov 9 — Fas: images "not cut properly". */}
+      <div className="hidden h-full min-h-0 lg:flex">
+        <div className="aspect-[549/797] h-full min-h-0 shrink-0 overflow-hidden">
+          {imageEl("cover")}
+        </div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center bg-[#1a1a1a] px-10 text-center text-[#e0e0d7]">
           {noteCopy}
         </div>
       </div>
@@ -399,7 +397,7 @@ function FieldNotesView({
       {/* Mobile (Figma Field Notes): inset PopupShell card; image + text fill body height 50/50. */}
       <div className="flex min-h-0 flex-1 flex-col lg:hidden">
         <div className="relative min-h-0 flex-1 basis-0 overflow-hidden">
-          {imageEl(true)}
+          {imageEl("contain")}
         </div>
         <div className="flex min-h-0 flex-1 basis-0 flex-col items-center justify-center overflow-y-auto bg-[#1a1a1a] px-6 py-5 text-center text-[#e0e0d7]">
           {noteCopy}
@@ -586,7 +584,7 @@ export default function ResearchModal({
       ]}
       bodyClassName={
         isFieldNotes
-          ? "flex min-h-0 flex-1 flex-col overflow-hidden max-lg:!px-0 lg:grid lg:grid-cols-2 lg:overflow-hidden"
+          ? "flex min-h-0 flex-1 flex-col overflow-hidden"
           : "min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10 lg:px-14 lg:py-14"
       }
       footer={sectionFooter}
