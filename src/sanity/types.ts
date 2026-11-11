@@ -210,8 +210,7 @@ export type Section =
       previewAppearance?: Appearance;
       /** @deprecated horizontal-scroll popup */
       popupScreens?: CoreExperienceScreen[];
-      popupKicker?: string;
-      popupTitle?: string;
+      popupKicker?: string;popupTitle?: string;
       popupBody?: PortableTextBlock[];
       popupAppearance?: Appearance;
       popupTabs?: DeviceTab[];
@@ -273,6 +272,8 @@ export type Section =
       sectionTitle?: string;
       introBody?: PortableTextBlock[];
       expandable?: boolean;
+      /** Non-expandable slider: "coverflow" (default, Galderma) or "cards" (Life of a Miner). */
+      sliderStyle?: "coverflow" | "cards";
       sliderGap?: number;
       items?: GalleryImage[];
     })

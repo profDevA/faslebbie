@@ -90,7 +90,7 @@ const sectionsProj = `sections[]{
     items[]{ _key, "image": image${img}, caption }
   },
   _type == "showcaseGallery" => {
-    sectionTitle, introBody, expandable,
+    sectionTitle, introBody, expandable, sliderStyle,
     items[]{ _key, "image": image${img}, caption, "expandImage": expandImage${img} }
   },
   _type == "interventionCarousel" => {

@@ -20,6 +20,22 @@ export const showcaseGallery = defineType({
         "When on, clicking the centered slide opens a full-screen lightbox. Otherwise clicking a side slide centers it.",
     }),
     defineField({
+      name: "sliderStyle",
+      title: "Slider style",
+      type: "string",
+      description:
+        "Only when Tap to expand is off. Coverflow = five screens with the centre one enlarged (Galderma). Cards = one centred card with the neighbours peeking and dots under it (Life of a Miner, Figma 618:21805).",
+      options: {
+        list: [
+          { title: "Coverflow (5 screens, centre enlarged)", value: "coverflow" },
+          { title: "Cards (one centred, neighbours peeking, dots)", value: "cards" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "coverflow",
+      hidden: ({ parent }) => !!parent?.expandable,
+    }),
+    defineField({
       name: "sliderGap",
       title: "Slider gap (px)",
       type: "number",
@@ -42,10 +58,16 @@ export const showcaseGallery = defineType({
     }),
   ],
   preview: {
-    select: { title: "sectionTitle", items: "items" },
-    prepare: ({ title, items }) => ({
+    select: { title: "sectionTitle", items: "items", expandable: "expandable", sliderStyle: "sliderStyle" },
+    prepare: ({ title, items, expandable, sliderStyle }) => ({
       title: title || "Showcase Gallery",
-      subtitle: `${items?.length || 0} slide(s)`,
+      subtitle: `${
+        expandable
+          ? "Artifacts slider"
+          : sliderStyle === "cards"
+            ? "Cards slider (Life of a Miner)"
+            : "Coverflow (Galderma)"
+      } · ${items?.length || 0} slide(s)`,
     }),
   },
 });

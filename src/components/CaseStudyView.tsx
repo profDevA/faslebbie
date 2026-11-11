@@ -13,6 +13,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import PopupShell, { PopupDots, PopupPagerButton } from '@/components/PopupShell'
+import { CardSlider } from '@/components/caseStudyView/CardSlider'
 import { CaseStudyProse } from '@/components/caseStudyView/Prose'
 import {
   bandStyle,
@@ -2970,6 +2971,8 @@ function ShowcaseBlock({
   const images = imgUrls(items)
   const lightboxImages = lightboxUrls(items)
   const light = isLight(s.appearance, true)
+  // Cards slider (Life of a Miner): the centred card opens the shared lightbox.
+  const [cardLightbox, setCardLightbox] = useState<number | null>(null)
 
   // Redesigned Research Artifacts (Figma 600:12544): 3-up landscape slider on
   // top, title + body BELOW it (left-aligned). Only the expandable variant.
@@ -3029,6 +3032,8 @@ function ShowcaseBlock({
   }
 
   // Galderma coverflow (unchanged): title above, 5-up center slider below.
+  // Studio "Slider style: Cards" → Life of a Miner card slider (Figma 618:21805).
+  const cards = s.sliderStyle === 'cards'
   return (
     <section
       data-cs-stretch
@@ -3048,13 +3053,27 @@ function ShowcaseBlock({
           />
         </div>
       )}
-      {images.length > 0 && (
+      {images.length > 0 &&
+        (cards ? (
+          <>
+            <CardSlider images={images} light={light} onExpand={setCardLightbox} />
+            {cardLightbox !== null && (
+              <ArtifactLightbox
+                images={lightboxImages.length ? lightboxImages : images}
+                index={cardLightbox}
+                onIndex={setCardLightbox}
+                onClose={() => setCardLightbox(null)}
+                scrollContainer={scrollContainer}
+              />
+            )}
+          </>
+        ) : (
           <CenterSlider
-          images={images}
-          lightboxImages={lightboxImages.length ? lightboxImages : images}
-          scrollContainer={scrollContainer}
-        />
-      )}
+            images={images}
+            lightboxImages={lightboxImages.length ? lightboxImages : images}
+            scrollContainer={scrollContainer}
+          />
+        ))}
     </section>
   )
 }
