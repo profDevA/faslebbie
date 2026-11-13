@@ -11,9 +11,9 @@
  * the images (once per file, shared between bands), writes a full-document
  * backup to ../exports/sanity-backups/ and commits.
  */
-import { createReadStream, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { getCliClient } from "sanity/cli";
 
 import { sanityColor } from "../../src/lib/sanityAppearanceDefaults";
@@ -58,6 +58,38 @@ export function assetRef(id: string): ImageRef {
 const uploads = new Map<string, Promise<ImageRef>>();
 let uploadCount = 0;
 
+const TRANSIENT = /ECONNRESET|ETIMEDOUT|EPIPE|ECONNABORTED|EAI_AGAIN|socket hang up|HTTP 408|Request Timeout/i;
+
+/**
+ * Sanity stores one asset per content hash, so a file that is already in the
+ * dataset (an earlier run, a Studio upload) is reused by its sha1 instead of
+ * being sent again, and retrying a dropped upload is safe. Nov 13: three apply
+ * runs died mid-upload on a flaky link (`write ECONNRESET`, then HTTP 408
+ * Request Timeout) before anything was written — hence the lookup and the
+ * retry with a fresh stream each attempt.
+ */
+async function uploadWithRetry(absPath: string, attempts = 6): Promise<{ _id: string; reused: boolean }> {
+  const sha1 = createHash("sha1").update(readFileSync(absPath)).digest("hex");
+  const existing = await client.fetch<string | null>(
+    `*[_type == "sanity.imageAsset" && sha1hash == $sha1][0]._id`,
+    { sha1 },
+  );
+  if (existing) return { _id: existing, reused: true };
+  for (let i = 1; ; i++) {
+    try {
+      const asset = await client.assets.upload("image", createReadStream(absPath), {
+        filename: basename(absPath),
+      });
+      return { _id: asset._id, reused: false };
+    } catch (err) {
+      const msg = err instanceof Error ? `${(err as NodeJS.ErrnoException).code ?? ""} ${err.message}` : String(err);
+      if (i >= attempts || !TRANSIENT.test(msg)) throw err;
+      console.log(`  ↻ ${basename(absPath)}: ${msg.trim().slice(0, 120)} — retry ${i}/${attempts - 1}`);
+      await new Promise((r) => setTimeout(r, 3000 * i));
+    }
+  }
+}
+
 /** Upload once per file (dry: a fake ref, still checks the file exists). */
 export function image(absPath: string): Promise<ImageRef> {
   if (!existsSync(absPath)) throw new Error(`missing image: ${absPath}`);
@@ -65,11 +97,9 @@ export function image(absPath: string): Promise<ImageRef> {
   if (!p) {
     p = (async () => {
       if (!APPLY) return assetRef(`dry-${basename(absPath)}`);
-      const asset = await client.assets.upload("image", createReadStream(absPath), {
-        filename: basename(absPath),
-      });
-      uploadCount++;
-      console.log(`  ↑ ${basename(absPath)} → ${asset._id}`);
+      const asset = await uploadWithRetry(absPath);
+      if (!asset.reused) uploadCount++;
+      console.log(`  ${asset.reused ? "= " : "↑ "}${basename(absPath)} → ${asset._id}${asset.reused ? " (already in Sanity)" : ""}`);
       return assetRef(asset._id);
     })();
     uploads.set(absPath, p);
