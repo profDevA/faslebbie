@@ -9,11 +9,11 @@ import { useEffect, useRef, useState } from 'react'
 // arrows 36px filled circles with a 14px chevron, 16px from the dots).
 // Fas, Nov 16: "it should be inside, not spread out… they only put three at a
 // time, when it goes next it shows the next thing" — every card is a white
-// plate (Israel's mock) holding up to three screens composed inside it (the
-// HorizonX way: centre screen in front, the two neighbours behind it, peeking
-// either side), not one screenshot stretched edge to edge. The Studio list is
-// grouped three per card, in order; the lightbox still opens on the single
-// screens.
+// plate (Israel's mock) holding up to three screens inside it, the HorizonX
+// way: the same size, side by side in one row, centred (Nov 17, Xian: "match
+// Fas's request" — the Nov 16 version put the middle one larger in front).
+// Not one screenshot stretched edge to edge. The Studio list is grouped three
+// per card, in order; the lightbox still opens on the single screens.
 // Card width / slot gap / control offsets stay on the Figma numbers: one 16:9
 // card centred (912 @1440, 303 @393), neighbours peeking 220 / 30 px (slot gap
 // 12 / 4); ‹ dots › 133 wide, 41 / 31 px under the card. Autoplay pauses while
@@ -36,7 +36,7 @@ const CARD_SLIDER = {
   perCard: 3,
 }
 
-/** Up to three screens laid out inside one card: centre in front, sides behind. */
+/** Up to three screens inside one card, the same size side by side (HorizonX). */
 function ComposedCard({ screens, alt }: { screens: string[]; alt: string }) {
   const n = screens.length
   const screen = (src: string, i: number) => (
@@ -66,19 +66,14 @@ function ComposedCard({ screens, alt }: { screens: string[]; alt: string }) {
       </div>
     )
   }
-  // Three: the first and last sit behind the middle one, each showing its
-  // outer ~60 %; the middle one is the largest and in front.
+  // Three: one row, equal widths, even gaps, centred in the plate.
   return (
-    <div className="relative h-full w-full">
-      <div className="absolute left-[4%] top-1/2 w-[46%] -translate-y-[44%] opacity-90">
-        {screen(screens[0], 0)}
-      </div>
-      <div className="absolute right-[4%] top-1/2 w-[46%] -translate-y-[44%] opacity-90">
-        {screen(screens[2], 2)}
-      </div>
-      <div className="absolute left-1/2 top-1/2 w-[58%] -translate-x-1/2 -translate-y-1/2">
-        {screen(screens[1], 1)}
-      </div>
+    <div className="flex h-full w-full items-center justify-center gap-[2.5%] px-[3.5%]">
+      {screens.map((s, i) => (
+        <div key={`${s}-${i}`} className="min-w-0 flex-1">
+          {screen(s, i)}
+        </div>
+      ))}
     </div>
   )
 }

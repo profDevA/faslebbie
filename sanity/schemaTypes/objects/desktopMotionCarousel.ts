@@ -1,7 +1,7 @@
 import { defineField, defineType } from "sanity";
 
 /** The band this slider sits in (path: sections[_key].carousels[_key].…). */
-function parentBandLayout(document: unknown, path: unknown) {
+export function parentBandLayout(document: unknown, path: unknown) {
   const key = (Array.isArray(path) ? path[1] : undefined) as { _key?: string } | undefined;
   const sections = (document as { sections?: { _key?: string; layoutVariant?: string }[] } | undefined)
     ?.sections;

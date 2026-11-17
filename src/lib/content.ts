@@ -1159,34 +1159,35 @@ export const workNarrative: WorkToken[][] = [
   ],
 ]
 
-// Desktop chrome (Figma 2218:75431 / 08/06): About, Projects▾ (Case Studies +
-// Build/Playground — rendered in Nav.tsx), Approach, Research, Teaching,
-// Words + Media. Logo → Home. Routes: /casestudies /build /approach /blogs.
+// Nav (reference only — Nav.tsx renders Site Settings). Since Nov 17 one flat
+// menu, no Projects▾ dropdown (Fas, Nov 16 evening): Home · About · Work ·
+// Build · Approach · Research · Teaching · Words + Media. Routes: /casestudies
+// /build /approach /blogs.
 export const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Case Studies', href: '/casestudies' },
-  { label: 'Build / Playground', href: '/build' },
+  { label: 'Work', href: '/casestudies' },
+  { label: 'Build', href: '/build' },
   { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
   { label: 'Teaching', href: '/teaching' },
   { label: 'Words + Media', href: '/blogs' },
 ]
 
-// Mobile Sanity list (Nav folds Case Studies + Build into a Projects▾ accordion).
+// Mobile list — same flat order.
 export const mobileNavItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Case Studies', href: '/casestudies' },
-  { label: 'Build / Playground', href: '/build' },
+  { label: 'Work', href: '/casestudies' },
+  { label: 'Build', href: '/build' },
   { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
   { label: 'Teaching', href: '/teaching' },
   { label: 'Words + Media', href: '/blogs' },
 ]
 
-/** Projects dropdown children (Figma 2229 project-dropdown states). */
+/** Former Projects▾ children — no longer rendered (Nov 17). */
 export const projectNavItems = [
-  { label: 'Case Studies', href: '/casestudies' },
-  { label: 'Build / Playground', href: '/build' },
+  { label: 'Work', href: '/casestudies' },
+  { label: 'Build', href: '/build' },
 ] as const

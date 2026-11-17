@@ -26,6 +26,7 @@ import {
 import { useReveal } from "@/lib/useReveal";
 import { usePersistedView } from "@/hooks/usePersistedView";
 import { useAccessGate } from "@/hooks/useAccessGate";
+import { caseStudyHref, rememberWorkView } from "@/lib/caseStudyNav";
 import PasswordGate from "@/components/PasswordGate";
 import ToolStack from "@/components/ToolStack";
 import ViewToggle from "@/components/ViewToggle";
@@ -33,7 +34,9 @@ import WorkWatermark from "@/components/WorkWatermark";
 
 type View = "txt" | "img";
 type Filter = string;
-const WORK_VIEWS = ["txt", "img"] as const;
+// .img first and the default (Fas, Nov 16 evening: "make Work go to the img
+// always… swap: .img here, .txt here… the menu goes straight to .img").
+const WORK_VIEWS = ["img", "txt"] as const;
 
 // Masonry card image heights per span tier (desktop) so the grid varies like
 // Figma 823:65046.
@@ -164,7 +167,7 @@ export default function WorkBody({
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
   const [view, setView] = usePersistedView<View>(
     WORK_VIEWS,
-    textOn ? "txt" : "img",
+    imgOn ? "img" : "txt",
     undefined,
     viewFromUrl,
   );
@@ -253,11 +256,22 @@ export default function WorkBody({
         } else {
           wallOffset.current += diff * 0.15;
         }
-      } else if (!reduce && wallOffset.current < maxOffset()) {
+      } else if (!reduce && !hovered && wallOffset.current < maxOffset()) {
         wallOffset.current += WALL_AUTO_SPEED;
       }
       apply();
       raf = requestAnimationFrame(tick);
+    };
+
+    // The drift stops while a mouse is over the wall and resumes on leave
+    // (Fas, Nov 16 evening: "if you hover it should stop, it should not
+    // continue when you're hovering"). Wheel / touch scrolling still work.
+    let hovered = false;
+    const onPointerEnter = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") hovered = true;
+    };
+    const onPointerLeave = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") hovered = false;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -296,12 +310,18 @@ export default function WorkBody({
     window.addEventListener("wheel", onWheel, { passive: false });
     win.addEventListener("touchstart", onTouchStart, { passive: true });
     win.addEventListener("touchmove", onTouchMove, { passive: false });
+    win.addEventListener("pointerenter", onPointerEnter);
+    win.addEventListener("pointerleave", onPointerLeave);
+    // Already under the mouse when the wall mounts (e.g. after the toggle).
+    hovered = win.matches(":hover");
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("wheel", onWheel);
       win.removeEventListener("touchstart", onTouchStart);
       win.removeEventListener("touchmove", onTouchMove);
+      win.removeEventListener("pointerenter", onPointerEnter);
+      win.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
     };
   }, [view, wide, projects.length]);
@@ -429,16 +449,16 @@ export default function WorkBody({
   }, [view, wallColumns, popsNonce]);
 
   // Soft password gate for NDA studies (Fas 08/09). One unlock lasts the tab.
-  const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate();
+  const { gateOpen, gateScope, requestAccess, closeGate, onGateSuccess } = useAccessGate();
 
   const goToStudy = (slug: string) => {
     const study = projects.find((p) => p.slug === slug);
-    const nav = () =>
-      router.push(
-        `/casestudies/${slug}?view=${encodeURIComponent(view)}`,
-      );
+    const nav = () => {
+      rememberWorkView(view);
+      router.push(caseStudyHref(slug));
+    };
     if (study?.passwordProtected) {
-      requestAccess(nav);
+      requestAccess(nav, { slug, own: Boolean(study.hasOwnPassword) });
       return;
     }
     nav();
@@ -471,7 +491,7 @@ export default function WorkBody({
   // engages right under the nav like About: the content is held in place and only
   // brightens until the watermark has fully receded, then the page scrolls.
   const viewToggle = (
-    <ViewToggle views={["txt", "img"] as const} value={view} onChange={switchView} />
+    <ViewToggle views={WORK_VIEWS} value={view} onChange={switchView} />
   );
 
   return (
@@ -572,7 +592,7 @@ export default function WorkBody({
         <>
           {showToggle && (
             <ViewToggle
-              views={["txt", "img"] as const}
+              views={WORK_VIEWS}
               value={view}
               onChange={switchView}
               className="max-lg:!pt-[43px]"
@@ -758,6 +778,7 @@ export default function WorkBody({
       <PasswordGate
         open={gateOpen}
         message="Please enter your password."
+        scope={gateScope}
         onClose={closeGate}
         onSuccess={onGateSuccess}
       />

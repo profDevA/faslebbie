@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import BlogArticleLayout from "@/components/BlogArticleLayout";
 import Nav from "@/components/Nav";
+import PagerBar from "@/components/PagerBar";
 import { blogsFromSanity } from "@/lib/blogsFromSanity";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
@@ -63,6 +64,13 @@ export default async function BlogPostPage({
   const defaultAuthorAvatar =
     site?.masterPortrait?.trim() || "/portrait-master.png";
   const sharePath = `/blogs/${encodeURIComponent(post.slug)}`;
+  // Previous / Next in the /blogs list order, wrapping like case studies.
+  const i = posts.indexOf(post);
+  const n = posts.length;
+  const postHref = (p: (typeof posts)[number]) =>
+    `/blogs/${encodeURIComponent(p.slug)}`;
+  const prevHref = postHref(posts[(i - 1 + n) % n]);
+  const nextHref = postHref(posts[(i + 1) % n]);
 
   return (
     <>
@@ -82,6 +90,7 @@ export default async function BlogPostPage({
           defaultAuthorAvatar={defaultAuthorAvatar}
           className="grid w-full flex-1 grid-cols-1 max-lg:overflow-visible lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden"
         />
+        {n > 1 ? <PagerBar prevHref={prevHref} nextHref={nextHref} /> : null}
       </main>
     </>
   );

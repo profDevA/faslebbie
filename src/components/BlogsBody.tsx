@@ -14,7 +14,10 @@ import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import type { BlogPost, MediaFeatured, MediaItem, PublicationsData } from "@/lib/blogs";
 
-type Tab = "blogs" | "words" | "media";
+// ".words" is ".publications" since Nov 17 (Fas, Nov 16 evening: "change
+// words to publication"); old ?view=words links still land on it.
+type Tab = "blogs" | "publications" | "media";
+const TABS = ["blogs", "publications", "media"] as const;
 
 export default function BlogsBody({
   posts,
@@ -30,9 +33,9 @@ export default function BlogsBody({
   viewFromUrl?: string | null;
 }) {
   const [tab, setTab] = usePersistedView<Tab>(
-    ["blogs", "words", "media"] as const,
+    TABS,
     "blogs",
-    { blog: "blogs" },
+    { blog: "blogs", words: "publications" },
     viewFromUrl,
   );
   const [openMediaCarousel, setOpenMediaCarousel] = useState<number | null>(
@@ -62,7 +65,7 @@ export default function BlogsBody({
           className="will-change-[opacity,filter]"
         >
           <ViewToggle
-            views={["blogs", "words", "media"] as const}
+            views={TABS}
             value={tab}
             onChange={setTab}
             className="gap-8 sm:gap-12 lg:gap-[84px]"
@@ -100,7 +103,7 @@ export default function BlogsBody({
                   </article>
                 ))}
               </div>
-            ) : tab === "words" ? (
+            ) : tab === "publications" ? (
               /* Figma 2729:2736 — centered 1129px block, numbered rows. */
               <WordsPublications publications={publications} />
             ) : (

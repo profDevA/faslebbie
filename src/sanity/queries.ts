@@ -74,14 +74,14 @@ const sectionsProj = `sections[]{
     }
   },
   _type == "desktopMotionShowcase" => {
-    sectionTitle, body, caption, ctaLabel, ctaUrl, layoutVariant,
+    sectionTitle, body, caption, ctaLabel, ctaUrl, layoutVariant, pairSize,
     videoUrl,
     "videoFile": videoFile.asset->url,
     "posterImage": posterImage${img},
     slides[]{ _key, alt, "image": image${img} },
     carousels[]{
       _key, title, body,
-      slides[]{ _key, alt, "image": image${img} }
+      slides[]{ _key, alt, "image": image${img}, "video": video.asset->url }
     }
   },
   _type == "gallerySection" => {
@@ -164,7 +164,8 @@ const cardProj = `
   "tags": cardTags,
   accent,
   span,
-  passwordProtected
+  passwordProtected,
+  "hasOwnPassword": passwordProtected == true && defined(accessPassword) && accessPassword != ""
 `;
 
 const seoProj = `seo{
@@ -317,6 +318,11 @@ export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
 // Server-only — never project `accessPassword` into client page props.
 export const ACCESS_PASSWORD_QUERY = defineQuery(
   `*[_type == "siteSettings"][0]{ accessPassword }`,
+);
+
+// Server-only (/api/access) — a case study's own password, if it has one.
+export const STUDY_ACCESS_PASSWORD_QUERY = defineQuery(
+  `*[_type == "caseStudy" && slug.current == $slug && !(_id in path("drafts.**"))][0]{ passwordProtected, accessPassword }`,
 );
 
 // "What people are saying" testimonials, ordered — powers the About modal.

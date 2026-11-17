@@ -6,7 +6,7 @@ import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 
 // Blogs & Media (Figma 2627-4448 / 2729-2736 / 308-4566). Three tabs —
-// ".blogs" (writing list), ".words" (books + journals), ".media" (talks grid).
+// ".blogs" (writing list), ".publications" (articles, books, journals; was ".words"), ".media" (talks grid).
 
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getBlogsPage(), getSiteSettings()]);

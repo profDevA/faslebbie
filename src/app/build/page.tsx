@@ -10,7 +10,7 @@ import { getBuildPage, getSiteSettings } from "@/sanity/fetch";
 export async function generateMetadata(): Promise<Metadata> {
   const [page, site] = await Promise.all([getBuildPage(), getSiteSettings()]);
   return pageMetadataFromSanity(page?.seo, {
-    title: "Build / Playground — Fas Lebbie, Ph.D.",
+    title: "Build — Fas Lebbie, Ph.D.",
     description: site?.siteDescription?.trim(),
     ogImage: site?.ogImage,
     ogImageAlt: site?.ogImageAlt,

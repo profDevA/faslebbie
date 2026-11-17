@@ -38,6 +38,22 @@ export const desktopMotionShowcase = defineType({
       },
     }),
     defineField({
+      name: "pairSize",
+      title: "Staggered pair size",
+      type: "string",
+      description:
+        "Coral sizes (default) = OC Links and Circle. Large screens = Galderma Key Product Experiences (Figma 1015:23688): ~555px screens on a light plate, the second slider starts at the centre, well below the first.",
+      options: {
+        list: [
+          { title: "Coral sizes", value: "coral" },
+          { title: "Large screens, wide stagger", value: "large" },
+        ],
+        layout: "radio",
+      },
+      hidden: ({ parent }) =>
+        (parent as { layoutVariant?: string } | undefined)?.layoutVariant !== "staggeredPair",
+    }),
+    defineField({
       name: "body",
       title: "Supporting description",
       type: "portableText",

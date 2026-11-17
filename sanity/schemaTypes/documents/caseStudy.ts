@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
+import { StudyPasswordInput } from "../../components/StudyPasswordInput";
 
 // The one flexible case-study template. Body is an ordered array of optional
 // section blocks (the page builder). Card + SEO + design references live in
@@ -40,6 +41,16 @@ export const caseStudy = defineType({
       initialValue: false,
       description:
         "When on, visitors must enter the Site Settings → Access password before opening this case study.",
+    }),
+    defineField({
+      name: "accessPassword",
+      title: "Own password",
+      type: "string",
+      group: "content",
+      description:
+        "Optional. Empty = the shared password above (Site Settings → Access). Type a different one to give only this case study its own password — the shared password then won't open it.",
+      hidden: ({ document }) => !(document as { passwordProtected?: boolean } | undefined)?.passwordProtected,
+      components: { input: StudyPasswordInput },
     }),
     defineField({
       name: "sections",

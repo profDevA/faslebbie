@@ -232,6 +232,8 @@ export type Section =
       _type: "desktopMotionShowcase";
       sectionTitle?: string;
       layoutVariant?: "single" | "staggeredPair" | "captionBelow" | "oldVsNew";
+      /** Staggered pair only: "large" = Galderma KPE geometry (Figma 1015:23688). */
+      pairSize?: "coral" | "large";
       body?: PortableTextBlock[];
       videoUrl?: string;
       videoFile?: string;
@@ -240,6 +242,8 @@ export type Section =
         _key?: string;
         alt?: string;
         image?: string;
+        /** Carousel slides only — MP4 that plays in place of the image. */
+        video?: string;
       }[];
       carousels?: {
         _key?: string;
@@ -250,6 +254,7 @@ export type Section =
           _key?: string;
           alt?: string;
           image?: string;
+          video?: string;
         }[];
       }[];
       caption?: string;
@@ -365,6 +370,8 @@ export interface StudyCard {
   span?: "sm" | "md" | "lg";
   /** When true, Work opens the access password gate first (Fas 08/09). */
   passwordProtected?: boolean;
+  /** Protected with its own password, not the shared one (the value stays server-side). */
+  hasOwnPassword?: boolean;
 }
 
 export interface SanityPageSeo {

@@ -8,7 +8,7 @@ export const blogsPage = defineType({
   type: "document",
   groups: [
     { name: "blog", title: "Blog", default: true },
-    { name: "words", title: "Words (publications)" },
+    { name: "words", title: "Publications" },
     { name: "media", title: "Media" },
     { name: "seo", title: "SEO" },
   ],
@@ -22,7 +22,8 @@ export const blogsPage = defineType({
     }),
     defineField({
       name: "currentProjects",
-      title: "Current Projects",
+      title: "Articles",
+      description: "Shown as \"Articles\" on .publications (was Current Projects, Nov 17).",
       type: "array",
       of: [{ type: "publicationItem" }],
       group: "words",
@@ -36,7 +37,7 @@ export const blogsPage = defineType({
     }),
     defineField({
       name: "journals",
-      title: "Journals + Articles",
+      title: "Journals",
       type: "array",
       of: [{ type: "publicationItem" }],
       group: "words",

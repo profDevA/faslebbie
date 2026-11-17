@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { verifyAccessPassword } from "@/lib/access";
+import { verifyAccessPassword, type AccessScope } from "@/lib/access";
 
 /**
  * Soft password popup (Fas 08/09 / live faslebbie.com). Shared by protected
@@ -13,7 +13,10 @@ export default function PasswordGate({
   message = "Please enter your password.",
   onClose,
   onSuccess,
+  scope,
 }: {
+  /** A case study with its own password — checked against that one only. */
+  scope?: AccessScope;
   open: boolean;
   message?: string;
   onClose: () => void;
@@ -53,7 +56,7 @@ export default function PasswordGate({
     if (busy) return;
     setBusy(true);
     setError(null);
-    const result = await verifyAccessPassword(password);
+    const result = await verifyAccessPassword(password, scope);
     setBusy(false);
     if (!result.ok) {
       setError(result.error || "Incorrect password.");

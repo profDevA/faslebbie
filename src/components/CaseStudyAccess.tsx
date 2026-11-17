@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import CaseStudyView from "@/components/CaseStudyView";
 import PasswordGate from "@/components/PasswordGate";
 import { readAccessUnlocked } from "@/lib/access";
-import type { WorkListingView } from "@/lib/caseStudyNav";
+import {
+  readRememberedWorkView,
+  workListingHref,
+  type WorkListingView,
+} from "@/lib/caseStudyNav";
 import type { Study } from "@/sanity/types";
 
 /**
@@ -17,7 +21,7 @@ export default function CaseStudyAccess({
   prev,
   next,
   listingView = null,
-  listingHref = "/casestudies",
+  listingHref: serverListingHref = "/casestudies",
 }: {
   project: Study;
   prev: Study;
@@ -26,7 +30,15 @@ export default function CaseStudyAccess({
   listingHref?: string;
 }) {
   const router = useRouter();
+  // No ?view= in the URL (Nov 17): go back to the Work view this tab came from.
+  const [listingHref, setListingHref] = useState(serverListingHref);
+  useEffect(() => {
+    if (listingView) return;
+    const remembered = readRememberedWorkView();
+    if (remembered) setListingHref(workListingHref(remembered));
+  }, [listingView]);
   const needsGate = Boolean(project.passwordProtected);
+  const own = Boolean(project.hasOwnPassword);
   const [allowed, setAllowed] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
 
@@ -36,14 +48,14 @@ export default function CaseStudyAccess({
       setGateOpen(false);
       return;
     }
-    if (readAccessUnlocked()) {
+    if (readAccessUnlocked({ slug: project.slug, own })) {
       setAllowed(true);
       setGateOpen(false);
       return;
     }
     setAllowed(false);
     setGateOpen(true);
-  }, [needsGate, project.slug]);
+  }, [needsGate, own, project.slug]);
 
   const dismiss = () => {
     setGateOpen(false);
@@ -72,6 +84,7 @@ export default function CaseStudyAccess({
       <PasswordGate
         open={needsGate && !allowed && gateOpen}
         message="Please enter your password."
+        scope={{ slug: project.slug, own }}
         onClose={dismiss}
         onSuccess={onSuccess}
       />

@@ -62,116 +62,21 @@ function NavLink({
   );
 }
 
-/** Projects ▾ — Case Studies + Build/Playground (Figma project-dropdown). */
-function ProjectsMenu({ light }: { light?: boolean }) {
-  const pathname = usePathname();
-  const { projectNavItems } = useSite();
-  const [open, setOpen] = useState(false);
-  const active = projectNavItems.some(
-    (i) => pathname === i.href || pathname.startsWith(i.href + "/"),
-  );
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <button
-        type="button"
-        data-cursor="hover"
-        aria-expanded={open}
-        aria-haspopup="true"
-        className={`flex items-center gap-1 whitespace-nowrap font-grotesk capitalize underline-offset-[6px] transition-opacity hover:underline ${
-          light
-            ? active
-              ? "font-medium text-white underline decoration-1"
-              : "font-normal text-white/80 hover:text-white"
-            : active
-              ? "font-medium underline decoration-2"
-              : "font-normal opacity-70 hover:opacity-100"
-        }`}
-        onClick={() => setOpen((v) => !v)}
-      >
-        Projects
-        <svg
-          aria-hidden
-          viewBox="0 0 8 5"
-          className={`h-[5px] w-[8px] fill-current transition-transform ${open ? "rotate-180" : ""}`}
-        >
-          <path d="M0.5 0.5L4 4.5L7.5 0.5" stroke="currentColor" strokeWidth="1" fill="none" />
-        </svg>
-      </button>
-      {open && (
-        // pt-2 (not mt-2): keeps a visual gap without a dead hover zone that
-        // would close the menu before you can click a link.
-        <div className="absolute left-0 top-full z-50 pt-2">
-          <div className="min-w-[11.5rem] rounded-[4px] bg-[#1a1a1a] px-4 py-3 text-white shadow-lg">
-            <ul className="flex flex-col gap-2.5 font-grotesk text-[15px] xl:text-[16px]">
-              {projectNavItems.map((item) => {
-                const on =
-                  pathname === item.href || pathname.startsWith(item.href + "/");
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      data-cursor="hover"
-                      aria-current={on ? "page" : undefined}
-                      className={`block w-fit capitalize transition-opacity ${
-                        on
-                          ? "opacity-100"
-                          : "opacity-70 hover:opacity-100"
-                      }`}
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 const MENU_MS = 300;
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
-  const { navItems, mobileNavItems, projectNavItems, contact } = useSite();
+  const { navItems, mobileNavItems, contact } = useSite();
   const [open, setOpen] = useState(false);
   // Keep panel mounted through the close slide (open alone would unmount instantly).
   const [menuMounted, setMenuMounted] = useState(false);
   const [menuEntered, setMenuEntered] = useState(false);
-  const [projectsOpen, setProjectsOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const isActive = useIsActive();
   const light = dark;
 
-  // Desktop / mobile: Home + About + Projects▾ + rest. Case Studies / Build under Projects.
-  const home =
-    navItems.find((i) => i.href === "/") ?? { label: "Home", href: "/" };
-  const desktopRest = navItems.filter(
-    (i) =>
-      i.href !== "/casestudies" &&
-      i.href !== "/build" &&
-      i.href !== "/",
-  );
-  const about = desktopRest.find((i) => i.href === "/about");
-  const afterProjects = desktopRest.filter((i) => i.href !== "/about");
-
-  const mobileHome =
-    mobileNavItems.find((i) => i.href === "/") ?? home;
-  const mobileAbout = mobileNavItems.find((i) => i.href === "/about");
-  const mobileAfter = mobileNavItems.filter(
-    (i) =>
-      i.href !== "/" &&
-      i.href !== "/about" &&
-      i.href !== "/casestudies" &&
-      i.href !== "/build",
-  );
+  // One flat menu in Site Settings order — no Projects▾ dropdown (Fas, Nov 16
+  // evening: "add another menu here and not do a drop down… Work… Build").
+  // Home · About · Work · Build · Approach · Research · Teaching · Words + Media.
 
   useEffect(() => {
     if (open) {
@@ -230,22 +135,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
             <Logo onClick={menuOpen ? () => setOpen(false) : undefined} />
           </div>
           <nav className="hidden items-center gap-x-5 text-[15px] capitalize lg:flex xl:gap-x-7 xl:text-[18px]">
-            <NavLink
-              label={home.label}
-              href={home.href}
-              active={isActive(home.href)}
-              light={light}
-            />
-            {about && (
-              <NavLink
-                label={about.label}
-                href={about.href}
-                active={isActive(about.href)}
-                light={light}
-              />
-            )}
-            <ProjectsMenu light={light} />
-            {afterProjects.map((item) => (
+            {navItems.map((item) => (
               <NavLink
                 key={item.href}
                 {...item}
@@ -289,10 +179,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  setOpen(true);
-                  setProjectsOpen(false);
-                }}
+                onClick={() => setOpen(true)}
                 aria-label="Open menu"
                 data-cursor="hover"
                 className="flex h-10 w-10 items-center justify-center lg:hidden"
@@ -315,79 +202,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           }`}
         >
           <nav className="flex min-h-full flex-col justify-center gap-6 px-6 pb-16 font-grotesk text-[34px] font-normal leading-none sm:text-[37px]">
-            <Link
-              href={mobileHome.href}
-              onClick={() => setOpen(false)}
-              data-cursor="hover"
-              aria-current={isActive(mobileHome.href) ? "page" : undefined}
-              className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
-                isActive(mobileHome.href) ? "font-medium underline decoration-2" : ""
-              }`}
-            >
-              {mobileHome.label}
-            </Link>
-            {mobileAbout && (
-              <Link
-                href={mobileAbout.href}
-                onClick={() => setOpen(false)}
-                data-cursor="hover"
-                aria-current={isActive(mobileAbout.href) ? "page" : undefined}
-                className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
-                  isActive(mobileAbout.href) ? "font-medium underline decoration-2" : ""
-                }`}
-              >
-                {mobileAbout.label}
-              </Link>
-            )}
-            <div>
-              <button
-                type="button"
-                data-cursor="hover"
-                aria-expanded={projectsOpen}
-                onClick={() => setProjectsOpen((v) => !v)}
-                className="flex w-fit items-center gap-3 capitalize transition-opacity hover:opacity-70"
-              >
-                Projects
-                <svg
-                  aria-hidden
-                  viewBox="0 0 8 5"
-                  className={`h-[10px] w-[16px] transition-transform ${
-                    projectsOpen ? "rotate-180" : ""
-                  }`}
-                >
-                  <path
-                    d="M0.5 0.5L4 4.5L7.5 0.5"
-                    stroke="currentColor"
-                    strokeWidth="1"
-                    fill="none"
-                  />
-                </svg>
-              </button>
-              {projectsOpen && (
-                <ul className="mt-4 flex flex-col gap-4 pl-4 text-[28px] sm:text-[30px]">
-                  {projectNavItems.map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        data-cursor="hover"
-                        aria-current={
-                          isActive(item.href) ? "page" : undefined
-                        }
-                        className={`w-fit capitalize underline-offset-8 transition-opacity hover:opacity-70 ${
-                          isActive(item.href)
-                            ? "font-medium underline decoration-2"
-                            : ""
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            {mobileAfter.map((item) => (
+            {mobileNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

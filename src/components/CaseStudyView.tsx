@@ -12,6 +12,7 @@ import {
   type CSSProperties,
 } from 'react'
 import { createPortal } from 'react-dom'
+import PagerBar from '@/components/PagerBar'
 import PopupShell, { PopupDots, PopupPagerButton } from '@/components/PopupShell'
 import { CardSlider } from '@/components/caseStudyView/CardSlider'
 import { CaseStudyProse } from '@/components/caseStudyView/Prose'
@@ -30,7 +31,6 @@ import {
   sanityColorIsLight,
 } from '@/components/caseStudyView/colors'
 import {
-  CS_RED,
   CS_SAGE,
   CS_TEAL,
   CS_TILE,
@@ -40,7 +40,6 @@ import {
   type CsTextAlign,
   csBandGutter,
   csBandTextAlign,
-  csPagerShell,
   csProseInner,
   csShell,
   csTitleTextAlign,
@@ -148,12 +147,12 @@ export default function CaseStudyView({
   project: p,
   prev,
   next,
-  listingView = null,
   listingHref = '/casestudies',
 }: {
   project: Study
   prev: StudyCard
   next: StudyCard
+  /** Kept for callers; case-study links no longer carry the view (Nov 17). */
   listingView?: WorkListingView | null
   listingHref?: string
 }) {
@@ -215,28 +214,6 @@ export default function CaseStudyView({
     }
   }, [p.slug, scroller])
 
-  const pager = (
-    <div
-      className={`${csPagerShell()} reckless-prose font-normal ${csUiText()}`}
-      style={{ color: CS_RED }}
-    >
-      <Link
-        href={caseStudyHref(prev.slug, listingView)}
-        data-cursor="hover"
-        className="transition-opacity hover:opacity-70"
-      >
-        &lt; Previous
-      </Link>
-      <Link
-        href={caseStudyHref(next.slug, listingView)}
-        data-cursor="hover"
-        className="transition-opacity hover:opacity-70"
-      >
-        Next &gt;
-      </Link>
-    </div>
-  )
-
   const bands = (
     <>
       {groupSections(p.sections ?? []).map(group =>
@@ -297,9 +274,10 @@ export default function CaseStudyView({
         {bands}
       </div>
 
-      <div className="sticky bottom-0 z-50 flex min-h-12 shrink-0 items-center border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom,0px)] lg:static lg:pb-0">
-        <div className={`w-full ${csShell()}`}>{pager}</div>
-      </div>
+      <PagerBar
+        prevHref={caseStudyHref(prev.slug)}
+        nextHref={caseStudyHref(next.slug)}
+      />
     </div>
   )
 }
@@ -1947,6 +1925,7 @@ function DesktopMotionPosterCarousel({
   mockupMax,
   arrowClass,
   align = 'center',
+  viewportClass = '',
 }: {
   slides: NonNullable<Of<'desktopMotionShowcase'>['slides']>
   fallbackAlt: string
@@ -1954,6 +1933,8 @@ function DesktopMotionPosterCarousel({
   mockupMax?: number
   arrowClass: string
   align?: 'center' | 'start' | 'end'
+  /** Extra classes on the clipping viewport (e.g. the inner radius of a plate). */
+  viewportClass?: string
 }) {
   const items = slides.filter(sl => sl.image)
   const n = items.length
@@ -2035,7 +2016,7 @@ function DesktopMotionPosterCarousel({
       >
         <div
           ref={viewportRef}
-          className={`w-full touch-pan-y overflow-hidden select-none ${
+          className={`w-full touch-pan-y overflow-hidden select-none ${viewportClass} ${
             canPage ? 'cursor-grab active:cursor-grabbing' : ''
           }`}
           onPointerDown={e => {
@@ -2071,13 +2052,23 @@ function DesktopMotionPosterCarousel({
                   className="w-full shrink-0"
                   aria-hidden={i !== activeIndex}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-                  <img
-                    src={motionSlideSrc(sl.image)}
-                    alt={sl.alt || fallbackAlt}
-                    draggable={false}
-                    className="block h-auto w-full max-w-full object-center"
-                  />
+                  {sl.video ? (
+                    // Studio "Motion video (MP4)" on a staggered-pair slide —
+                    // the image is the poster (Fas, Nov 16 evening: Galderma KPE).
+                    <CsOverviewVideo
+                      src={sl.video}
+                      poster={motionSlideSrc(sl.image)}
+                      className="block h-auto w-full"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                    <img
+                      src={motionSlideSrc(sl.image)}
+                      alt={sl.alt || fallbackAlt}
+                      draggable={false}
+                      className="block h-auto w-full max-w-full object-center"
+                    />
+                  )}
                 </div>
               ) : null,
             )}
@@ -2117,6 +2108,7 @@ function DesktopMotionStaggeredPair({
 }: {
   section: Of<'desktopMotionShowcase'>
 }) {
+  if (s.pairSize === 'large') return <DesktopMotionLargePair section={s} />
   const lightText = bandUsesLightText(s.appearance)
   const copyClass = lightText ? 'text-white' : 'text-black'
   const mockupFrame = desktopMotionMockupFrame(s.appearance, true)
@@ -2162,6 +2154,98 @@ function DesktopMotionStaggeredPair({
                 align={end ? 'end' : 'start'}
               />
             </KpeDeviceItem>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Staggered pair, "Large screens, wide stagger" (Studio `pairSize: large`) —
+ * Galderma Key Product Experiences, Israel's Figma 1015:23688; Fas, Nov 16
+ * evening: "bigger and spaced… it feels congested", like The AR Handbook.
+ * Desktop @1440: screens 555 / 551 on a #f3f3f3 6px plate (radius 12, soft
+ * shadow) — the plate sits outside the screen box, as in Figma; left column
+ * at x 82, right column from the centre (x 720) with its top 906 below the
+ * left one; title → first screen 156; captions 29 / 44 under the screens,
+ * screen-wide, lead in regular (Figma) instead of bold. Band padding stays
+ * the system `lg`. Mobile = the Coral tablet stack (KpeDeviceItem sizes).
+ */
+const KPE_LARGE = {
+  mediaPx: [555, 551],
+  captionGapPx: [29, 44],
+  titleGapPx: 156,
+} as const
+
+function DesktopMotionLargePair({
+  section: s,
+}: {
+  section: Of<'desktopMotionShowcase'>
+}) {
+  const lightText = bandUsesLightText(s.appearance)
+  const copyClass = lightText ? 'text-white' : 'text-black'
+  const title = s.sectionTitle?.trim()
+  const pairs = s.carousels ?? []
+  const d = MOTION_MOBILE_FLOW_STACK
+  const plate = {
+    className:
+      'rounded-[6px] bg-[#f3f3f3] p-[3px] shadow-[0_2px_6px_rgba(0,0,0,0.2)] lg:rounded-[12px] lg:p-[6px] lg:shadow-[0_2px_12px_rgba(0,0,0,0.25)]',
+  }
+  return (
+    <section
+      className={`relative flex flex-col px-5 sm:px-8 ${CS_WIDE_BAND_GUTTER}`}
+      style={sectionStyle(s.appearance, true, 'lg', undefined, lightText)}
+    >
+      {title ? (
+        <h2
+          className={`mb-[50px] text-center lg:mb-[var(--kpe-title-gap)] ${csSectionTitle()} ${copyClass}`}
+          style={{ '--kpe-title-gap': `${KPE_LARGE.titleGapPx}px` } as CSSProperties}
+        >
+          {title}
+        </h2>
+      ) : null}
+      {/* 2.2vw inside the band gutter (3.5vw) = Figma's x 82 / 720 @1440. */}
+      <div className="flex w-full flex-col lg:grid lg:grid-cols-2 lg:px-[2.2vw]">
+        {pairs.map((carousel, i) => {
+          const slides = (carousel.slides ?? []).filter(sl => sl.image)
+          const right = i % 2 === 1
+          return (
+            <div
+              key={carousel._key ?? i}
+              className={`mx-auto w-full lg:mx-0 lg:max-w-[var(--kpe-media)] ${
+                i === 0 ? '' : 'max-lg:mt-[105px]'
+              } ${right ? 'lg:mt-[min(906px,62.92vw)]' : ''}`}
+              style={
+                {
+                  gridColumn: right ? 2 : 1,
+                  gridRow: Math.floor(i / 2) + 1,
+                  '--kpe-media': `${KPE_LARGE.mediaPx[right ? 1 : 0]}px`,
+                  '--kpe-media-m': `${d.tabletMaxWidthPx}px`,
+                  '--kpe-gap': `${KPE_LARGE.captionGapPx[right ? 1 : 0]}px`,
+                } as CSSProperties
+              }
+            >
+              {/* The plate sits 6px outside the screen box (Figma stroke). */}
+              <div className="mx-auto max-w-[var(--kpe-media-m)] lg:-m-[6px] lg:max-w-none">
+                <DesktopMotionPosterCarousel
+                  slides={slides}
+                  fallbackAlt={title || 'Key Product Experiences'}
+                  mockupFrame={plate}
+                  viewportClass="rounded-[3px] lg:rounded-[6px]"
+                  arrowClass={copyClass}
+                  align="start"
+                />
+              </div>
+              {carousel.body?.length ? (
+                <div className="mx-auto mt-[50px] w-full max-w-[301px] text-left lg:mx-0 lg:mt-[var(--kpe-gap)] lg:max-w-none">
+                  <CaseStudyProse
+                    value={carousel.body}
+                    className={`${csBodyText()} ${copyClass} [&_strong]:font-normal`}
+                  />
+                </div>
+              ) : null}
+            </div>
           )
         })}
       </div>
