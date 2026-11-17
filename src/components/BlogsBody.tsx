@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo } from "react";
 import BlogsWatermark from "@/components/BlogsWatermark";
 import MediaBody from "@/components/MediaBody";
 import MediaPopup from "@/components/MediaPopup";
@@ -9,6 +9,8 @@ import ViewToggle from "@/components/ViewToggle";
 import WordsPublications from "@/components/WordsPublications";
 import { useBlogListScrollFade } from "@/hooks/useBlogListScrollFade";
 import { usePersistedView } from "@/hooks/usePersistedView";
+import { usePopupRoute } from "@/hooks/usePopupRoute";
+import { mediaFeaturedSlug } from "@/lib/blogs";
 import { STICKY_UNDER_NAV } from "@/lib/navLayout";
 import { contentDrift, revealBlur, revealOpacity } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
@@ -25,12 +27,15 @@ export default function BlogsBody({
   media,
   publications,
   viewFromUrl = null,
+  initialMediaId = null,
 }: {
   posts: BlogPost[];
   mediaFeatured: MediaFeatured | null;
   media: MediaItem[];
   publications: PublicationsData;
   viewFromUrl?: string | null;
+  /** /blogs/media/<slug> — opens on .media with that popup up (Nov 17). */
+  initialMediaId?: string | null;
 }) {
   const [tab, setTab] = usePersistedView<Tab>(
     TABS,
@@ -38,16 +43,35 @@ export default function BlogsBody({
     { blog: "blogs", words: "publications" },
     viewFromUrl,
   );
-  const [openMediaCarousel, setOpenMediaCarousel] = useState<number | null>(
-    null,
+  // Each media popup has an address: /blogs/media/<talk slug> (the featured
+  // podcast uses its title slug). Closing returns to /blogs?view=media.
+  const mediaIds = useMemo(
+    () => [
+      ...(mediaFeatured ? [mediaFeaturedSlug(mediaFeatured)] : []),
+      ...media.map((m) => m.slug),
+    ],
+    [mediaFeatured, media],
   );
+  const {
+    openId: openMediaId,
+    open: openMedia,
+    navigate: navigateMedia,
+    close: closeMedia,
+  } = usePopupRoute("/blogs/media", mediaIds, initialMediaId, "/blogs?view=media");
+  const openMediaCarousel = openMediaId ? mediaIds.indexOf(openMediaId) : null;
+  const setOpenMediaCarousel = (i: number) => {
+    const id = mediaIds[i];
+    if (id) openMedia(id);
+  };
+  // The popup's own address has no ?view=, so keep .media behind it.
+  const activeTab: Tab = openMediaId ? "media" : tab;
 
   const { r, pin } = useReveal(true);
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
 
-  useBlogListScrollFade(tab === "blogs");
+  useBlogListScrollFade(activeTab === "blogs");
 
   return (
     <div className="relative">
@@ -66,7 +90,7 @@ export default function BlogsBody({
         >
           <ViewToggle
             views={TABS}
-            value={tab}
+            value={activeTab}
             onChange={setTab}
             className="gap-8 sm:gap-12 lg:gap-[84px]"
           />
@@ -81,7 +105,7 @@ export default function BlogsBody({
             }}
             className="flex w-full flex-col items-center will-change-[opacity,filter,transform]"
           >
-            {tab === "blogs" ? (
+            {activeTab === "blogs" ? (
               /* Mobile 16:2335 — 85px stack. Desktop keeps vh rhythm. */
               <div className="flex w-full max-w-[700px] flex-col gap-[85px] pt-[52px] pb-[28vh] lg:gap-[12vh] lg:pt-[10vh] lg:pb-[32vh]">
                 {posts.map((post) => (
@@ -103,7 +127,7 @@ export default function BlogsBody({
                   </article>
                 ))}
               </div>
-            ) : tab === "publications" ? (
+            ) : activeTab === "publications" ? (
               /* Figma 2729:2736 — centered 1129px block, numbered rows. */
               <WordsPublications publications={publications} />
             ) : (
@@ -129,8 +153,11 @@ export default function BlogsBody({
         index={openMediaCarousel}
         featured={mediaFeatured}
         talks={media}
-        onNavigate={setOpenMediaCarousel}
-        onClose={() => setOpenMediaCarousel(null)}
+        onNavigate={(i) => {
+          const id = mediaIds[i];
+          if (id) navigateMedia(id);
+        }}
+        onClose={closeMedia}
       />
     </div>
   );

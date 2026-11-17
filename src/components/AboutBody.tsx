@@ -33,7 +33,10 @@ export default function AboutBody({
   logoSvgs,
   testimonials,
   content,
+  initialTestimonials = false,
 }: {
+  /** /about/testimonials — open with the testimonials popup up. */
+  initialTestimonials?: boolean;
   logoSvgs: Record<keyof typeof aboutLogos, string>;
   testimonials?: Testimonial[];
   /** Bio / expansions / links from Sanity (see lib/aboutFromSanity). */
@@ -85,6 +88,7 @@ export default function AboutBody({
             paragraphs={content?.paragraphs}
             expansions={content?.expansions}
             links={content?.links}
+            initialTestimonials={initialTestimonials}
           />
         </div>
         </main>

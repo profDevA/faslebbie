@@ -677,6 +677,7 @@ export default function AboutContent({
   paragraphs = [],
   expansions = {},
   links = [],
+  initialTestimonials = false,
 }: {
   className?: string
   logoSvgs: Record<keyof typeof aboutLogos, string>
@@ -687,9 +688,22 @@ export default function AboutContent({
   paragraphs?: AboutToken[][]
   expansions?: Record<string, AboutToken[]>
   links?: AboutLink[]
+  /** /about/testimonials — opens with the testimonials popup up (Nov 17). */
+  initialTestimonials?: boolean
 }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set())
-  const [activePanel, setActivePanel] = useState<string | null>(null)
+  const popups = useMemo(
+    () => popupByKeyword([...intro, ...paragraphs]),
+    [intro, paragraphs],
+  )
+  // The red keyword whose box is the testimonials popup.
+  const testimonialsKey = useMemo(
+    () => [...popups].find(([, kind]) => kind === 'testimonials')?.[0] ?? null,
+    [popups],
+  )
+  const [activePanel, setActivePanel] = useState<string | null>(() =>
+    initialTestimonials ? testimonialsKey : null,
+  )
   const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate()
 
   const openProtectedHref = (href: string) => {
@@ -710,10 +724,29 @@ export default function AboutContent({
   }
 
   const tree = useMemo(() => keywordTree(expansions), [expansions])
-  const popups = useMemo(
-    () => popupByKeyword([...intro, ...paragraphs]),
-    [intro, paragraphs],
-  )
+
+  // Testimonials has an address (Fas, Nov 16 evening: popups need URLs):
+  // open = /about/testimonials, closed = /about; Back closes it.
+  useEffect(() => {
+    const on = activePanel !== null && popups.get(activePanel) === 'testimonials'
+    const path = window.location.pathname
+    if (on && path !== '/about/testimonials') {
+      window.history.pushState(null, '', '/about/testimonials')
+    } else if (!on && path === '/about/testimonials') {
+      window.history.replaceState(null, '', '/about')
+    }
+  }, [activePanel, popups])
+  useEffect(() => {
+    const onPop = () => {
+      if (window.location.pathname === '/about/testimonials') {
+        if (testimonialsKey) setActivePanel(testimonialsKey)
+      } else {
+        setActivePanel(p => (p && popups.get(p) === 'testimonials' ? null : p))
+      }
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [popups, testimonialsKey])
 
   // Accordion: clicking an open keyword collapses it (and its descendants);
   // clicking a closed one opens it and keeps only its ancestor chain, so any

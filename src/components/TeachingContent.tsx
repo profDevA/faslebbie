@@ -64,10 +64,12 @@ function renderTokens(
       // Reveals are an appositive clause spliced into the sentence
       // (", where I teach…,"), so they drop the leading space when they open on
       // punctuation and the trailing comma when the copy after already has one.
+      // Also before a full stop (Nov 17 Teaching copy: "…as a PhD advisor at
+      // InGenius Prep." — the reveal ends the sentence itself).
       const next = tokens[j + 1];
       const dropTrailing =
-        /[,;:]\s*$/.test(tok.expansion) &&
-        Boolean(next && next.t === "text" && /^\s*[,;:]/.test(next.text));
+        /[,.;:]\s*$/.test(tok.expansion) &&
+        Boolean(next && next.t === "text" && /^\s*[,.;:]/.test(next.text));
       return (
         <Fragment key={key}>
           <RevealPill
@@ -83,7 +85,7 @@ function renderTokens(
                 className="animate-[panel-in_0.35s_ease-out] font-normal"
               >
                 {dropTrailing
-                  ? tok.expansion.replace(/\s*[,;:]\s*$/, "")
+                  ? tok.expansion.replace(/\s*[,.;:]\s*$/, "")
                   : tok.expansion}
               </span>
               {dropTrailing ? null : " "}

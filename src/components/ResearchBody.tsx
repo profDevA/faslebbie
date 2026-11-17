@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import ResearchContent from "@/components/ResearchContent";
@@ -13,20 +12,29 @@ import {
   revealOpacity,
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
-import type { ResearchSectionId } from "@/lib/research";
+import { usePopupRoute } from "@/hooks/usePopupRoute";
+import { researchSectionOrder, type ResearchSectionId } from "@/lib/research";
 import type { ResearchContentData } from "@/lib/researchFromSanity";
 
 // Research page shell — content from Sanity only.
 export default function ResearchBody({
   content,
+  initialOpen = null,
 }: {
   content: ResearchContentData;
+  /** /research/<section> — the page opens with that popup up (Nov 17). */
+  initialOpen?: ResearchSectionId | null;
 }) {
   const { areas, closing, sections } = content;
 
   useScrollTopOnMount();
   const { r, pin } = useReveal(true);
-  const [openId, setOpenId] = useState<ResearchSectionId | null>(null);
+  // Each popup has an address: /research/paradigms, /research/field-notes…
+  const { openId, open, navigate, close } = usePopupRoute(
+    "/research",
+    researchSectionOrder,
+    initialOpen,
+  );
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
@@ -57,7 +65,7 @@ export default function ResearchBody({
           >
             <ResearchContent
               className="pb-24"
-              onOpen={setOpenId}
+              onOpen={open}
               areas={areas}
               closing={closing}
             />
@@ -68,8 +76,8 @@ export default function ResearchBody({
 
       <ResearchModal
         openId={openId}
-        onNavigate={setOpenId}
-        onClose={() => setOpenId(null)}
+        onNavigate={navigate}
+        onClose={close}
         sections={sections}
       />
     </div>

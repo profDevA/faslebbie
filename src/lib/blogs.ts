@@ -306,3 +306,16 @@ export const mediaItems: MediaItem[] = [
     themes: ["Systems", "Practice", "Method"],
   },
 ];
+
+/** URL id of the featured media popup (/blogs/media/<id>): its title as a slug
+ *  ("Design Again" → "design-again"); talks use their own slug. */
+export function mediaFeaturedSlug(featured: { title: string }): string {
+  return (
+    featured.title
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "featured"
+  );
+}
