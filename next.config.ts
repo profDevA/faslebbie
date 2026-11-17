@@ -5,9 +5,18 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/casestudies/remote-assistant-object-detection",
-        destination: "/casestudies/the-ar-handbook",
+        destination: "/work/the-ar-handbook",
         permanent: true,
       },
+      {
+        source: "/work/remote-assistant-object-detection",
+        destination: "/work/the-ar-handbook",
+        permanent: true,
+      },
+      // Work lives at /work since Nov 17 (Xian: "for work menu, slug should be
+      // also work"). Old /casestudies links keep working (query kept).
+      { source: "/casestudies", destination: "/work", permanent: true },
+      { source: "/casestudies/:slug*", destination: "/work/:slug*", permanent: true },
     ];
   },
   // Pin the Turbopack workspace root to this app. The repo has a second

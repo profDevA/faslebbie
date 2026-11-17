@@ -162,7 +162,7 @@ export default function WorkBody({
   const narrative = work.narrative;
   const wordmarkTitle = work.sectionTitle?.trim() || "Design Work";
 
-  // Card / narrative clicks go to `/casestudies/[slug]`.
+  // Card / narrative clicks go to `/work/[slug]`.
   const router = useRouter();
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
   const [view, setView] = usePersistedView<View>(

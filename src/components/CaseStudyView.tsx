@@ -147,7 +147,7 @@ export default function CaseStudyView({
   project: p,
   prev,
   next,
-  listingHref = '/casestudies',
+  listingHref = '/work',
 }: {
   project: Study
   prev: StudyCard
@@ -1851,7 +1851,7 @@ function CoreExperienceBlock({
         onClose={() => setPopupOpen(false)}
         label={popupShellLabel}
         crumbs={[
-          { label: 'Case Studies', href: '/casestudies' },
+          { label: 'Case Studies', href: '/work' },
           { label: projectName },
         ]}
         cardClassName="bg-white"
@@ -2906,7 +2906,7 @@ function InterventionGridBlock({
           onClose={() => setPopupOpen(false)}
           label={s.sectionTitle || 'Design Interventions'}
           crumbs={[
-            { label: 'Case Studies', href: '/casestudies' },
+            { label: 'Case Studies', href: '/work' },
             { label: projectName },
           ]}
           cardClassName="bg-white"
@@ -3228,7 +3228,7 @@ function ViewMoreDeviceTabsModal({
       onClose={onClose}
       label={popupShellLabel}
       crumbs={[
-        { label: 'Case Studies', href: '/casestudies' },
+        { label: 'Case Studies', href: '/work' },
         { label: projectName },
       ]}
       cardClassName="bg-white"

@@ -2,7 +2,7 @@
 export type WorkListingView = "txt" | "img";
 
 /**
- * Case-study URLs stay clean (`/casestudies/<slug>`, no `?view=txt` — Fas,
+ * Case-study URLs stay clean (`/work/<slug>`, no `?view=txt` — Fas,
  * Nov 16 evening: "I need to clean up the URL"). The Work view a visitor came
  * from is remembered for this tab instead, so "Case Studies" / × go back to it.
  * Old links with `?view=` still work.
@@ -34,10 +34,10 @@ export function parseWorkListingView(
 }
 
 export function workListingHref(view: WorkListingView | null): string {
-  if (view) return `/casestudies?view=${view}`;
-  return "/casestudies";
+  if (view) return `/work?view=${view}`;
+  return "/work";
 }
 
 export function caseStudyHref(slug: string): string {
-  return `/casestudies/${slug}`;
+  return `/work/${slug}`;
 }

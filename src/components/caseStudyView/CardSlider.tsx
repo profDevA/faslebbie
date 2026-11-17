@@ -7,13 +7,12 @@ import { useEffect, useRef, useState } from 'react'
 // 1440: card 944×531 radius 30, neighbours scale 0.93 at opacity 0.5, slot gap
 // 16, auto-advance every ~4.4 s with a ~600 ms slide, dots 24×8 / 8×8 at 30 %,
 // arrows 36px filled circles with a 14px chevron, 16px from the dots).
-// Fas, Nov 16: "it should be inside, not spread out… they only put three at a
-// time, when it goes next it shows the next thing" — every card is a white
-// plate (Israel's mock) holding up to three screens inside it, the HorizonX
-// way: the same size, side by side in one row, centred (Nov 17, Xian: "match
-// Fas's request" — the Nov 16 version put the middle one larger in front).
-// Not one screenshot stretched edge to edge. The Studio list is grouped three
-// per card, in order; the lightbox still opens on the single screens.
+// Fas, Nov 16: "it should be inside, not spread out" — every card is a white
+// plate (Israel's mock 618:21805) with ONE image inside it, contained with a
+// white margin, never stretched edge to edge. HorizonX's "three at a time" is
+// three phones drawn inside each slide image, not three images per card
+// (Xian, Nov 17: "why 3 images in one item???" — the Nov 16/17 builds grouped
+// three Studio images per card; reverted). One Studio item = one card.
 // Card width / slot gap / control offsets stay on the Figma numbers: one 16:9
 // card centred (912 @1440, 303 @393), neighbours peeking 220 / 30 px (slot gap
 // 12 / 4); ‹ dots › 133 wide, 41 / 31 px under the card. Autoplay pauses while
@@ -32,48 +31,22 @@ const CARD_SLIDER = {
   aspect: '912 / 513',
   transitionMs: 600,
   autoplayMs: 4400,
-  /** Screens per card (Fas: "three at a time"). */
-  perCard: 3,
+  /** Most dots shown at once; longer lists get a window that follows the
+   *  active card (Life of a Miner has 68), with smaller dots at the edges. */
+  maxDots: 9,
 }
 
-/** Up to three screens inside one card, the same size side by side (HorizonX). */
-function ComposedCard({ screens, alt }: { screens: string[]; alt: string }) {
-  const n = screens.length
-  const screen = (src: string, i: number) => (
-    // eslint-disable-next-line @next/next/no-img-element -- case-study art
-    <img
-      key={`${src}-${i}`}
-      src={src}
-      alt={i === 0 ? alt : ''}
-      className="block h-auto w-full rounded-[3%] shadow-[0_6px_22px_rgba(0,0,0,0.28)]"
-    />
-  )
-  if (n === 1) {
-    return (
-      <div className="flex h-full w-full items-center justify-center px-[7%]">
-        <div className="w-full">{screen(screens[0], 0)}</div>
-      </div>
-    )
-  }
-  if (n === 2) {
-    return (
-      <div className="flex h-full w-full items-center justify-center gap-[3%] px-[5%]">
-        {screens.map((s, i) => (
-          <div key={`${s}-${i}`} className="w-1/2">
-            {screen(s, i)}
-          </div>
-        ))}
-      </div>
-    )
-  }
-  // Three: one row, equal widths, even gaps, centred in the plate.
+/** One image inside the card's white plate, contained with a margin. */
+function CardImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="flex h-full w-full items-center justify-center gap-[2.5%] px-[3.5%]">
-      {screens.map((s, i) => (
-        <div key={`${s}-${i}`} className="min-w-0 flex-1">
-          {screen(s, i)}
-        </div>
-      ))}
+    <div className="flex h-full w-full items-center justify-center p-[4%]">
+      {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+      <img
+        src={src}
+        alt={alt}
+        draggable={false}
+        className="block h-auto max-h-full w-auto max-w-full rounded-[4px] object-contain shadow-[0_4px_16px_rgba(0,0,0,0.18)] lg:rounded-[8px]"
+      />
     </div>
   )
 }
@@ -89,11 +62,8 @@ export function CardSlider({
   /** Click on the centred card — the parent opens its lightbox at this index. */
   onExpand?: (index: number) => void
 }) {
-  // Cards = the Studio list grouped three per card, in order.
-  const cards: string[][] = []
-  for (let i = 0; i < images.length; i += CARD_SLIDER.perCard) {
-    cards.push(images.slice(i, i + CARD_SLIDER.perCard))
-  }
+  // One card per Studio image, in order.
+  const cards = images
   const n = cards.length
   const [index, setIndex] = useState(() => Math.max(n, 0))
   const [noAnim, setNoAnim] = useState(false)
@@ -182,6 +152,13 @@ export function CardSlider({
   const cardW = (viewportW * cardVw) / 100
   const slotW = cardW + slotGap
   const realIdx = n > 0 ? ((index % n) + n) % n : 0
+  // Dots: all of them up to maxDots, otherwise a window around the active card.
+  const dotCount = Math.min(n, CARD_SLIDER.maxDots)
+  const dotStart = Math.min(
+    Math.max(realIdx - Math.floor(dotCount / 2), 0),
+    Math.max(n - dotCount, 0),
+  )
+  const dotWindow = Array.from({ length: dotCount }, (_, k) => dotStart + k)
   // Before the first measurement (server render, first paint) the geometry
   // comes from CSS variables set per breakpoint on the root (no jump on load);
   // after it, from the measured pixel width.
@@ -253,15 +230,14 @@ export function CardSlider({
             const isCtr = i === index
             return (
               <button
-                key={`${card[0]}-${i}`}
+                key={`${card}-${i}`}
                 type="button"
                 aria-label={`Slide ${(i % n) + 1}`}
                 aria-current={isCtr ? 'true' : undefined}
                 data-cursor="hover"
                 onClick={() => {
                   if (isCtr) {
-                    // Lightbox index = the first screen of this card.
-                    onExpand?.(realIdx * CARD_SLIDER.perCard)
+                    onExpand?.(realIdx)
                     return
                   }
                   goTo(i % n)
@@ -281,7 +257,7 @@ export function CardSlider({
                       : `transform ${CARD_SLIDER.transitionMs}ms ease-in-out, opacity ${CARD_SLIDER.transitionMs}ms ease-in-out`,
                   }}
                 >
-                  <ComposedCard screens={card} alt={`Slide ${(i % n) + 1}`} />
+                  <CardImage src={card} alt={`Slide ${(i % n) + 1}`} />
                 </div>
               </button>
             )
@@ -296,20 +272,29 @@ export function CardSlider({
             role="tablist"
             aria-label="Slides"
           >
-            {cards.map((card, i) => (
-              <button
-                key={`${card[0]}-dot-${i}`}
-                type="button"
-                role="tab"
-                aria-selected={i === realIdx}
-                aria-label={`Go to slide ${i + 1}`}
-                data-cursor="hover"
-                onClick={() => goTo(i)}
-                className={`h-[8px] rounded-full bg-current transition-all duration-300 ${
-                  i === realIdx ? 'w-[24px] opacity-100' : 'w-[8px] opacity-30'
-                }`}
-              />
-            ))}
+            {dotWindow.map(i => {
+              const edge =
+                (i === dotWindow[0] && i > 0) ||
+                (i === dotWindow[dotWindow.length - 1] && i < n - 1)
+              return (
+                <button
+                  key={`dot-${i}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === realIdx}
+                  aria-label={`Go to slide ${i + 1} of ${n}`}
+                  data-cursor="hover"
+                  onClick={() => goTo(i)}
+                  className={`rounded-full bg-current transition-all duration-300 ${
+                    i === realIdx
+                      ? 'h-[8px] w-[24px] opacity-100'
+                      : edge
+                        ? 'h-[5px] w-[5px] opacity-30'
+                        : 'h-[8px] w-[8px] opacity-30'
+                  }`}
+                />
+              )
+            })}
           </div>
           {arrow(1)}
         </div>

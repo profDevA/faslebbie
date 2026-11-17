@@ -13,7 +13,7 @@ import {
 import type { Study } from "@/sanity/types";
 
 /**
- * Standalone `/casestudies/[slug]` gate. Work overlay opens already go through
+ * Standalone `/work/[slug]` gate. Work overlay opens already go through
  * WorkBody → requestAccess; this page was previously unguarded.
  */
 export default function CaseStudyAccess({
@@ -21,7 +21,7 @@ export default function CaseStudyAccess({
   prev,
   next,
   listingView = null,
-  listingHref: serverListingHref = "/casestudies",
+  listingHref: serverListingHref = "/work",
 }: {
   project: Study;
   prev: Study;

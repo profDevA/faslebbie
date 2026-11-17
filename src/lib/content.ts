@@ -59,7 +59,7 @@ export const panels: Record<SectionId, PanelContent> = {
     body: [
       'Designing products, systems, and experiences across enterprise software, AI, and civic infrastructure. From Meta to industrial field research — design as organizational leverage.',
     ],
-    cta: { label: 'View Design Work', href: '/casestudies' },
+    cta: { label: 'View Design Work', href: '/work' },
     hasToolStack: true,
   },
   research: {
@@ -628,7 +628,7 @@ export const leadershipPanels: Record<
     body: [
       'Open the deeper work portfolio to see the product, systems, and organizational design work behind this leadership page.',
     ],
-    cta: { label: 'Continue to portfolio', href: '/casestudies' },
+    cta: { label: 'Continue to portfolio', href: '/work' },
   },
   'Get in touch': {
     body: [
@@ -1161,12 +1161,12 @@ export const workNarrative: WorkToken[][] = [
 
 // Nav (reference only — Nav.tsx renders Site Settings). Since Nov 17 one flat
 // menu, no Projects▾ dropdown (Fas, Nov 16 evening): Home · About · Work ·
-// Build · Approach · Research · Teaching · Words + Media. Routes: /casestudies
+// Build · Approach · Research · Teaching · Words + Media. Routes: /work
 // /build /approach /blogs.
 export const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Work', href: '/casestudies' },
+  { label: 'Work', href: '/work' },
   { label: 'Build', href: '/build' },
   { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
@@ -1178,7 +1178,7 @@ export const navItems = [
 export const mobileNavItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Work', href: '/casestudies' },
+  { label: 'Work', href: '/work' },
   { label: 'Build', href: '/build' },
   { label: 'Approach', href: '/approach' },
   { label: 'Research', href: '/research' },
@@ -1188,6 +1188,6 @@ export const mobileNavItems = [
 
 /** Former Projects▾ children — no longer rendered (Nov 17). */
 export const projectNavItems = [
-  { label: 'Work', href: '/casestudies' },
+  { label: 'Work', href: '/work' },
   { label: 'Build', href: '/build' },
 ] as const
