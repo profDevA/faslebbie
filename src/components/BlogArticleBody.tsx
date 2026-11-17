@@ -13,21 +13,25 @@ import {
   resolveBlogTextColor,
 } from "@/lib/blogEditorColors";
 
+// Article type — Ade's BLOG Figma (pPaaz2hCLREu8tFaiO9oJ7, 683:7 "1440w
+// default"): body 19 / 26.6 in a 439 column, headings 25. Fas, Nov 17 QA:
+// "increase the size of the text on the right for all the blogs, it's too
+// small". Site font kept (Reckless); mobile steps up too (15 → 17).
 const BODY =
-  "reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]";
+  "reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]";
 
 const blockClass: Record<string, string> = {
   normal: `mt-4 ${BODY}`,
-  lead: "mt-4 reckless-prose text-[17px] leading-[1.65] text-black/90 md:text-[18px]",
-  h2: "mt-10 mb-1 reckless-prose text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]",
-  h3: "mt-7 reckless-prose text-[15px] font-normal italic leading-snug text-black/70",
-  h4: "mt-6 reckless-prose text-[16px] font-bold leading-snug text-black/85",
-  h5: "mt-5 reckless-prose text-[14px] font-bold uppercase tracking-[0.08em] text-black/75",
+  lead: "mt-4 reckless-prose text-[19px] leading-[1.5] text-black/90 md:text-[22px] md:leading-[1.35]",
+  h2: "mt-10 mb-1 reckless-prose text-[22px] font-bold leading-snug text-black first:mt-0 md:text-[25px] md:leading-[1.2]",
+  h3: "mt-7 reckless-prose text-[17px] font-normal italic leading-snug text-black/70 md:text-[19px]",
+  h4: "mt-6 reckless-prose text-[17px] font-bold leading-snug text-black/85 md:text-[19px]",
+  h5: "mt-5 reckless-prose text-[15px] font-bold uppercase tracking-[0.08em] text-black/75 md:text-[16px]",
   blockquote:
-    "mt-6 border-l-2 border-black/20 pl-4 reckless-prose text-[15px] italic leading-[1.7] text-black/70",
+    "mt-6 border-l-2 border-black/20 pl-4 reckless-prose text-[17px] italic leading-[1.6] text-black/70 md:text-[19px] md:leading-[1.45]",
   center: `mt-4 text-center ${BODY}`,
   right: `mt-4 text-right ${BODY}`,
-  small: "mt-3 reckless-prose text-[13px] leading-[1.65] text-black/65",
+  small: "mt-3 reckless-prose text-[14px] leading-[1.6] text-black/65 md:text-[15px]",
 };
 
 function blockTag(style: string | undefined): "p" | "h3" | "blockquote" {
@@ -74,8 +78,8 @@ const CALLOUT_STYLES: Record<
 
 function createComponents(compact = false): PortableTextComponents {
   const listClass = compact
-    ? "mt-2 space-y-1 pl-5 reckless-prose text-[14px] leading-[1.65] text-black/80"
-    : "mt-2 space-y-2 pl-5 reckless-prose text-[15px] leading-[1.7] text-black/80";
+    ? "mt-2 space-y-1 pl-5 reckless-prose text-[15px] leading-[1.6] text-black/80 md:text-[16px]"
+    : "mt-2 space-y-2 pl-5 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]";
 
   return {
     block: {

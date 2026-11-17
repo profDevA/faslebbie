@@ -23,6 +23,11 @@ function CheckIcon({ done }: { done: boolean }) {
   )
 }
 
+// Type sizes — Fas, Nov 17 QA: "in the build section, when you go to each case
+// study, the text is too small. It should match the blog… the pebble subtitle
+// is too small, and the product text ["Product · 5 min read" kicker] is way too
+// small" + "the subtitle and the titles can both be increased". Body = the blog
+// body (Ade's BLOG Figma 19 / 1.4), block titles 22, kicker 18, subtitle 20.
 function ArticleBlock({
   title,
   children,
@@ -33,12 +38,12 @@ function ArticleBlock({
   italic?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-[15px]">
-      <p className="font-grotesk text-[16px] font-bold leading-[1.12] text-black">
+    <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+      <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
         {title}
       </p>
       <p
-        className={`font-grotesk text-[16px] font-light leading-[21px] text-black ${
+        className={`font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4] ${
           italic ? 'italic' : ''
         }`}
       >
@@ -57,7 +62,7 @@ function CaseStudyArticle({
 }) {
   return (
     <div className="flex w-full flex-col gap-[27px] bg-close px-4 py-8 lg:px-0 lg:py-12">
-      <p className="font-grotesk text-[14px] font-normal leading-[21px] text-black">
+      <p className="font-grotesk text-[16px] font-normal leading-[1.4] text-black lg:text-[18px]">
         {detail.statusLabel}
       </p>
       <ArticleBlock title="Trigger">{detail.trigger}</ArticleBlock>
@@ -71,15 +76,15 @@ function CaseStudyArticle({
       <ArticleBlock title="Experiment">{detail.experiment}</ArticleBlock>
       <ArticleBlock title="Status">{detail.statusBody}</ArticleBlock>
 
-      <div className="flex flex-col gap-[15px]">
-        <p className="font-grotesk text-[16px] font-bold leading-[1.12] text-black">
+      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           Checklist
         </p>
         <ul className="flex flex-col gap-3">
           {detail.checklist.map(item => (
             <li key={item.text} className="flex items-start gap-[5px]">
               <CheckIcon done={item.done} />
-              <span className="font-grotesk text-[16px] font-light leading-[21px] text-black">
+              <span className="font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
                 {item.text}
               </span>
             </li>
@@ -89,11 +94,11 @@ function CaseStudyArticle({
 
       <ArticleBlock title="Who it's for">{detail.whoFor}</ArticleBlock>
 
-      <div className="flex flex-col gap-[15px]">
-        <p className="font-grotesk text-[16px] font-bold leading-[1.12] text-black">
+      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           How it works
         </p>
-        <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[16px] font-light leading-[21px] text-black">
+        <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
           {detail.howItWorks.map(step => (
             <li key={step} className="pl-1">
               {step}
@@ -103,7 +108,7 @@ function CaseStudyArticle({
       </div>
 
       <div className="flex flex-col gap-[27px]">
-        <p className="font-grotesk text-[16px] font-bold leading-[1.12] text-black">
+        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           Output visuals
         </p>
         {outputSrc ? (
@@ -118,11 +123,11 @@ function CaseStudyArticle({
         )}
       </div>
 
-      <div className="flex flex-col gap-[15px]">
-        <p className="font-grotesk text-[16px] font-bold leading-[1.12] text-black">
+      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           Insight grid
         </p>
-        <ul className="list-disc space-y-1 pl-6 font-grotesk text-[16px] font-light leading-[21px] text-black">
+        <ul className="list-disc space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
           {detail.insights.map(line => (
             <li key={line} className="pl-1">
               {line}
@@ -185,13 +190,13 @@ function BuildProjectDetailBody({ project }: { project: BuildProject }) {
       {/* Hero then article. Mobile: title slide first (Figma 16:3649). Desktop: hero fills right pane, article scrolls below (2971:219110). */}
       <div className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto">
         <div className="order-1 flex shrink-0 flex-col items-center justify-center gap-[14px] bg-[#1a1a1a] px-[39px] py-12 text-center max-lg:h-[calc(100dvh-11rem)] lg:min-h-full lg:px-20 lg:py-14">
-          <p className="font-grotesk text-[12px] font-light capitalize tracking-[-0.08px] text-[#e0e0d7] lg:text-[14px]">
+          <p className="font-grotesk text-[14px] font-light capitalize tracking-[-0.08px] text-[#e0e0d7] lg:text-[18px]">
             {project.kicker}
           </p>
           <h2 className="max-w-[330px] font-grotesk text-[36px] font-normal leading-[1.1] tracking-[-0.4px] text-[#e0e0d7] lg:text-[50px] lg:leading-[1.09] lg:tracking-[-0.55px]">
             {project.title}
           </h2>
-          <p className="max-w-[282px] font-grotesk text-[14px] font-light leading-4 tracking-[0.72px] text-[#e0e0d7] lg:max-w-[330px] lg:leading-[1.13] lg:tracking-[-0.13px]">
+          <p className="max-w-[300px] font-grotesk text-[16px] font-light leading-[1.35] tracking-[0.2px] text-[#e0e0d7] lg:max-w-[440px] lg:text-[20px] lg:leading-[1.3] lg:tracking-[-0.13px]">
             {project.subtitle}
           </p>
         </div>

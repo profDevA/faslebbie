@@ -98,7 +98,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <h3
               key={i}
-              className="mt-10 mb-1 reckless-prose text-[20px] font-bold leading-snug text-black first:mt-0 md:text-[22px]"
+              className="mt-10 mb-1 reckless-prose text-[22px] font-bold leading-snug text-black first:mt-0 md:text-[25px] md:leading-[1.2]"
             >
               <RichText parts={b.parts} text={b.text} />
             </h3>
@@ -107,7 +107,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-7 reckless-prose text-[15px] font-normal italic leading-snug text-black/70"
+              className="mt-7 reckless-prose text-[17px] font-normal italic leading-snug text-black/70 md:text-[19px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -116,7 +116,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-6 reckless-prose text-[16px] font-bold leading-snug text-black/85"
+              className="mt-6 reckless-prose text-[17px] font-bold leading-snug text-black/85 md:text-[19px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -125,7 +125,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 reckless-prose text-[17px] leading-[1.65] text-black/90 md:text-[18px]"
+              className="mt-4 reckless-prose text-[19px] leading-[1.5] text-black/90 md:text-[22px] md:leading-[1.35]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -134,7 +134,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-center reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+              className="mt-4 text-center reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -143,7 +143,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-right reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+              className="mt-4 text-right reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -194,7 +194,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
         return (
           <p
             key={i}
-            className="mt-4 reckless-prose text-[15px] leading-[1.75] text-black/80 md:text-[16px]"
+            className="mt-4 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
           >
             <RichText parts={b.parts} text={b.text} />
           </p>

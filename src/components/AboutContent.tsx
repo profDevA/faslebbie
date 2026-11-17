@@ -620,7 +620,8 @@ function AboutFooterPillLabel({ children }: { children: ReactNode }) {
   )
 }
 
-function AboutFooterLink({
+/** Also used by Teaching for the teaching statement & materials (Nov 17). */
+export function AboutFooterLink({
   href,
   children,
   showArrow = true,

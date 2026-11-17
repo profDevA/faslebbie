@@ -247,7 +247,7 @@ export default function CaseStudyView({
               data-cursor="hover"
               className="text-black/55 transition-colors hover:text-black"
             >
-              Case Studies
+              Work
             </Link>
             <span aria-hidden className="text-black/35">
               /
@@ -721,10 +721,13 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const hasVideo = !!s.sideVideo
   /** Studio "Video in a white card" — video only, any side image stays hidden. */
   const videoCard = hasVideo && !!s.sideVideoCard
+  /** Studio "Video fills the panel like the side image" — motion of the side
+   *  art (Galderma): same size as the image, which becomes the poster. */
+  const videoFill = hasVideo && !!s.sideVideoFill && !videoCard
   /** Both set → video over still (Memory Tubes overview only in practice). */
-  const stackedSideMedia = hasVideo && !!s.sideImage && !videoCard
+  const stackedSideMedia = hasVideo && !!s.sideImage && !videoCard && !videoFill
   const videoAspect = useVideoAspect(
-    hasVideo && !stackedSideMedia && !videoCard ? s.sideVideo : undefined,
+    hasVideo && !stackedSideMedia && !videoCard && !videoFill ? s.sideVideo : undefined,
   )
   const desktopVideoWidthVw =
     (videoAspect ?? 0) > 1
@@ -743,7 +746,7 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
     'relative hidden min-h-0 w-full overflow-hidden lg:flex lg:h-full lg:max-h-full lg:items-center lg:justify-center'
   const desktopMediaSizeClass =
     'block max-h-full w-full object-contain object-center'
-  const mobilePhone = hasVideo && !stackedSideMedia && !videoCard
+  const mobilePhone = hasVideo && !stackedSideMedia && !videoCard && !videoFill
   const mobileMediaSizeClass = 'block h-auto w-full'
   return (
     <section
@@ -839,6 +842,13 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
       >
         {videoCard ? (
           <OverviewVideoCard src={s.sideVideo!} />
+        ) : videoFill ? (
+          <CsOverviewVideo
+            src={s.sideVideo!}
+            poster={s.sideImage}
+            className={mobileMediaSizeClass}
+            showFrame={false}
+          />
         ) : stackedSideMedia ? (
           <OverviewStackedSideMedia
             videoSrc={s.sideVideo!}
@@ -881,6 +891,14 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
         >
           {videoCard ? (
             <OverviewVideoCard src={s.sideVideo!} />
+          ) : videoFill ? (
+            // Same box as the side image (contain in the column).
+            <CsOverviewVideo
+              src={s.sideVideo!}
+              poster={s.sideImage}
+              className="block h-full max-h-full w-full object-contain object-center"
+              showFrame={false}
+            />
           ) : stackedSideMedia ? (
             <OverviewStackedSideMedia
               videoSrc={s.sideVideo!}
@@ -1851,7 +1869,7 @@ function CoreExperienceBlock({
         onClose={() => setPopupOpen(false)}
         label={popupShellLabel}
         crumbs={[
-          { label: 'Case Studies', href: '/work' },
+          { label: 'Work', href: '/work' },
           { label: projectName },
         ]}
         cardClassName="bg-white"
@@ -2906,7 +2924,7 @@ function InterventionGridBlock({
           onClose={() => setPopupOpen(false)}
           label={s.sectionTitle || 'Design Interventions'}
           crumbs={[
-            { label: 'Case Studies', href: '/work' },
+            { label: 'Work', href: '/work' },
             { label: projectName },
           ]}
           cardClassName="bg-white"
@@ -3228,7 +3246,7 @@ function ViewMoreDeviceTabsModal({
       onClose={onClose}
       label={popupShellLabel}
       crumbs={[
-        { label: 'Case Studies', href: '/work' },
+        { label: 'Work', href: '/work' },
         { label: projectName },
       ]}
       cardClassName="bg-white"

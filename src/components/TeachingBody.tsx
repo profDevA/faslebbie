@@ -194,6 +194,7 @@ export default function TeachingBody({
                   className="pb-24"
                   intro={intro}
                   sections={sections}
+                  materials={content.materials}
                   onSeeAllStudents={seeAllStudents}
                 />
               </div>

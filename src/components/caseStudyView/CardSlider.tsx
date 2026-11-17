@@ -2,53 +2,39 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-// Life of a Miner card slider — Figma 618:21805 (desktop) / 618:27118 (mobile).
-// Fas, Nov 13: "mimic the exact one" = horizonx.so/explore/lumina (measured at
-// 1440: card 944×531 radius 30, neighbours scale 0.93 at opacity 0.5, slot gap
-// 16, auto-advance every ~4.4 s with a ~600 ms slide, dots 24×8 / 8×8 at 30 %,
-// arrows 36px filled circles with a 14px chevron, 16px from the dots).
-// Fas, Nov 16: "it should be inside, not spread out" — every card is a white
-// plate (Israel's mock 618:21805) with ONE image inside it, contained with a
-// white margin, never stretched edge to edge. HorizonX's "three at a time" is
-// three phones drawn inside each slide image, not three images per card
-// (Xian, Nov 17: "why 3 images in one item???" — the Nov 16/17 builds grouped
-// three Studio images per card; reverted). One Studio item = one card.
-// Card width / slot gap / control offsets stay on the Figma numbers: one 16:9
-// card centred (912 @1440, 303 @393), neighbours peeking 220 / 30 px (slot gap
-// 12 / 4); ‹ dots › 133 wide, 41 / 31 px under the card. Autoplay pauses while
-// hovered / touched and restarts after a manual move; off with
-// prefers-reduced-motion.
+// Life of a Miner card slider — the reference is horizonx.so/explore/lumina
+// (Fas, Nov 13: "mimic the exact one"). Re-measured Nov 17 and copied:
+//   1440: every card 944×531 (16:9), radius 30, gap 16; neighbours scale 0.93
+//         at opacity 0.5; controls 20 px under the card.
+//   375:  card 308×173, radius 30, gap 16; controls 20 px under.
+//   controls: ‹ › 36px tinted circles with a 14px chevron, 10 px from a
+//   36-tall tinted pill holding the dots (24-wide hit areas, 8×8 dots at 30 %,
+//   active 24×8 solid). Auto-advance ~4.4 s, 600 ms slide.
+// One Studio image = one card (HorizonX's "three at a time" is three phones
+// drawn inside each slide image — Xian, Nov 17). HorizonX's images are 16:9
+// compositions; ours are 4:3 / 3:2 / 16:9 storyboard pages, so each card shows
+// the whole image centred over a blurred copy of itself — no white bands, no
+// crop (Xian, Nov 17: option 1). The image's own corners are rounded so the
+// black corners baked into some Figma pages never show. Long lists show a
+// window of five dots around the active card (Life of a Miner has 68).
+// Autoplay pauses while hovered / touched and restarts after a manual move;
+// off with prefers-reduced-motion.
 // Studio: Showcase Gallery → Tap to expand off → Slider style "Cards".
 // Lives in its own module: adding it to CaseStudyView.tsx made the Next build's
 // page-data workers die with a V8 "Zone Allocation failed" (Nov 11).
 const CARD_SLIDER = {
-  desktopCardVw: (912 / 1440) * 100,
-  mobileCardVw: (303.4 / 393) * 100,
-  desktopSlotGap: 12,
-  mobileSlotGap: 4,
+  /** Card width as a share of the slider width (HorizonX 944 @1440, 308 @375). */
+  desktopCardW: 944 / 1440,
+  mobileCardW: 308 / 375,
+  aspect: '944 / 531',
+  slotGap: 16,
   sideScale: 0.93,
   sideOpacity: 0.5,
-  aspect: '912 / 513',
   transitionMs: 600,
   autoplayMs: 4400,
-  /** Most dots shown at once; longer lists get a window that follows the
-   *  active card (Life of a Miner has 68), with smaller dots at the edges. */
-  maxDots: 9,
-}
-
-/** One image inside the card's white plate, contained with a margin. */
-function CardImage({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="flex h-full w-full items-center justify-center p-[4%]">
-      {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-      <img
-        src={src}
-        alt={alt}
-        draggable={false}
-        className="block h-auto max-h-full w-auto max-w-full rounded-[4px] object-contain shadow-[0_4px_16px_rgba(0,0,0,0.18)] lg:rounded-[8px]"
-      />
-    </div>
-  )
+  /** Most dots shown at once; longer lists get a window around the active card
+   *  (HorizonX has 3 slides → an 84-wide pill; 5 keeps ours at 132). */
+  maxDots: 5,
 }
 
 export function CardSlider({
@@ -147,10 +133,9 @@ export function CardSlider({
   }
 
   const loop = n > 0 ? [...cards, ...cards, ...cards] : []
-  const cardVw = desktop ? CARD_SLIDER.desktopCardVw : CARD_SLIDER.mobileCardVw
-  const slotGap = desktop ? CARD_SLIDER.desktopSlotGap : CARD_SLIDER.mobileSlotGap
-  const cardW = (viewportW * cardVw) / 100
-  const slotW = cardW + slotGap
+  const cardFrac = desktop ? CARD_SLIDER.desktopCardW : CARD_SLIDER.mobileCardW
+  const cardW = viewportW * cardFrac
+  const slotW = cardW + CARD_SLIDER.slotGap
   const realIdx = n > 0 ? ((index % n) + n) % n : 0
   // Dots: all of them up to maxDots, otherwise a window around the active card.
   const dotCount = Math.min(n, CARD_SLIDER.maxDots)
@@ -163,8 +148,8 @@ export function CardSlider({
   // comes from CSS variables set per breakpoint on the root (no jump on load);
   // after it, from the measured pixel width.
   const measured = viewportW > 0
-  const cssSlot = 'calc(var(--cs-card-vw) * 1vw + var(--cs-slot-gap))'
-  const cardWidth = measured ? `${cardW}px` : 'calc(var(--cs-card-vw) * 1vw)'
+  const cssSlot = 'calc(var(--cs-card-w) * 1vw + 16px)'
+  const cardWidth = measured ? `${cardW}px` : 'calc(var(--cs-card-w) * 1vw)'
   const slotWidth = measured ? `${slotW}px` : cssSlot
   const translate = measured
     ? `translateX(${viewportW / 2 - (index + 0.5) * slotW}px)`
@@ -200,7 +185,7 @@ export function CardSlider({
 
   return (
     <div
-      className={`cs-card-slider relative w-full [--cs-card-vw:77.2] [--cs-slot-gap:4px] lg:[--cs-card-vw:63.33] lg:[--cs-slot-gap:12px] ${
+      className={`cs-card-slider relative w-full [--cs-card-w:82.13] lg:[--cs-card-w:65.56] ${
         light ? 'text-white' : 'text-[#171717]'
       }`}
     >
@@ -246,7 +231,7 @@ export function CardSlider({
                 style={{ width: slotWidth }}
               >
                 <div
-                  className="overflow-hidden rounded-[10px] bg-white shadow-[0_4px_18px_rgba(0,0,0,0.18)] lg:rounded-[30px]"
+                  className="relative overflow-hidden rounded-[30px] bg-[#d9d4cc]"
                   style={{
                     width: cardWidth,
                     aspectRatio: CARD_SLIDER.aspect,
@@ -257,7 +242,24 @@ export function CardSlider({
                       : `transform ${CARD_SLIDER.transitionMs}ms ease-in-out, opacity ${CARD_SLIDER.transitionMs}ms ease-in-out`,
                   }}
                 >
-                  <CardImage src={card} alt={`Slide ${(i % n) + 1}`} />
+                  {/* Blurred copy fills the 16:9 card around a 4:3 / 3:2 page. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                  <img
+                    src={card}
+                    alt=""
+                    aria-hidden
+                    draggable={false}
+                    className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                    <img
+                      src={card}
+                      alt={`Slide ${(i % n) + 1}`}
+                      draggable={false}
+                      className="block h-auto max-h-full w-auto max-w-full rounded-[8px] object-contain lg:rounded-[24px]"
+                    />
+                  </div>
                 </div>
               </button>
             )
@@ -265,10 +267,10 @@ export function CardSlider({
         </div>
       </div>
       {n > 1 && (
-        <div className="mx-auto mt-[31px] flex w-fit items-center gap-4 lg:mt-[41px]">
+        <div className="mx-auto mt-[20px] flex w-fit items-center gap-[10px]">
           {arrow(-1)}
           <div
-            className="flex h-[36px] items-center justify-center gap-2"
+            className="flex h-[36px] items-center rounded-full bg-current/10 px-[6px]"
             role="tablist"
             aria-label="Slides"
           >
@@ -285,14 +287,18 @@ export function CardSlider({
                   aria-label={`Go to slide ${i + 1} of ${n}`}
                   data-cursor="hover"
                   onClick={() => goTo(i)}
-                  className={`rounded-full bg-current transition-all duration-300 ${
-                    i === realIdx
-                      ? 'h-[8px] w-[24px] opacity-100'
-                      : edge
-                        ? 'h-[5px] w-[5px] opacity-30'
-                        : 'h-[8px] w-[8px] opacity-30'
-                  }`}
-                />
+                  className="flex h-[36px] w-[24px] items-center justify-center bg-transparent p-0"
+                >
+                  <span
+                    className={`block rounded-full bg-current transition-all duration-300 ${
+                      i === realIdx
+                        ? 'h-[8px] w-[24px] opacity-100'
+                        : edge
+                          ? 'h-[5px] w-[5px] opacity-30'
+                          : 'h-[8px] w-[8px] opacity-30'
+                    }`}
+                  />
+                </button>
               )
             })}
           </div>

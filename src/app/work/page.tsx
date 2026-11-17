@@ -15,7 +15,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const [work, site] = await Promise.all([getWorkPage(), getSiteSettings()]);
   return pageMetadataFromSanity(work?.seo, {
-    title: "Case Studies — Fas Lebbie, Ph.D.",
+    title: "Work — Fas Lebbie, Ph.D.",
     description: site?.siteDescription?.trim(),
     ogImage: site?.ogImage,
     ogImageAlt: site?.ogImageAlt,

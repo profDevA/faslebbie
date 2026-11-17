@@ -152,6 +152,8 @@ export type Section =
       sideImage?: string;
       sideVideo?: string;
       sideVideoCard?: boolean;
+      /** Video replaces the side image at the image's size (image = poster). */
+      sideVideoFill?: boolean;
       sideImageFit?: "cover" | "contain";
       sideImageBackgroundColor?: SanityColor;
       mediaPosition?: "left" | "right";
@@ -533,6 +535,8 @@ export interface SanityExhibitionTile {
 
 export interface SanityTeachingPage {
   intro?: PortableTextBlock[];
+  /** Teaching statement & related materials (PDF or link). */
+  materials?: { label?: string; href?: string; pdfUrl?: string }[];
   sections?: SanityTeachingSection[];
   students?: SanityStudentProject[];
   studentsWorkIntro?: string;

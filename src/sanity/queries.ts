@@ -25,7 +25,7 @@ const sectionsProj = `sections[]{
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
-    sideVideoCard,
+    sideVideoCard, sideVideoFill,
     sideImageFit, sideImageBackgroundColor,
     mediaPosition,
     copyPaddingTop, copyPaddingBottom, copyPaddingLeft, copyPaddingRight,
@@ -248,6 +248,7 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
 
 export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
   intro,
+  materials[]{ label, href, "pdfUrl": pdf.asset->url },
   sections[]{ kicker, body, actionKind, actionText },
   students[]{
     id, title, headline, description, span, tint, lightArt,

@@ -80,6 +80,14 @@ export const overviewSection = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "sideVideoFill",
+      title: "Video fills the panel like the side image",
+      type: "boolean",
+      description:
+        "For motion of the side art itself (Galderma's AART infographic, Fas Nov 16: \"it's a video here\"): the video takes the image's place at the same size instead of the phone / laptop width, and the side image becomes its poster while it loads. Leave off for phone and screen recordings.",
+      initialValue: false,
+    }),
+    defineField({
       name: "sideImageFit",
       title: "Side image fit",
       type: "string",

@@ -10,6 +10,8 @@ import { hiResUrl } from "@/sanity/image";
 
 export interface TeachingContentData {
   intro: TeachToken[][];
+  /** Teaching statement & materials — pills at the end of the text. */
+  materials: { label: string; href: string }[];
   sections: TeachSection[];
   students: StudentProject[];
   studentsWorkIntro: string;
@@ -45,6 +47,7 @@ const toTokens = (paras: ProseRun[][]): TeachToken[][] =>
 
 const empty: TeachingContentData = {
   intro: [],
+  materials: [],
   sections: [],
   students: [],
   studentsWorkIntro: "",
@@ -62,6 +65,9 @@ export function teachingFromSanity(
   if (!data) return empty;
 
   const intro = toTokens(proseParagraphs(data.intro));
+  const materials = (data.materials ?? [])
+    .map((m) => ({ label: m.label?.trim() ?? "", href: (m.pdfUrl || m.href || "").trim() }))
+    .filter((m) => m.label && m.href);
 
   const sections: TeachSection[] = (data.sections ?? []).map((s) => ({
     kicker: s.kicker ?? "",
@@ -107,6 +113,7 @@ export function teachingFromSanity(
 
   return {
     intro,
+    materials,
     sections,
     students,
     studentsWorkIntro: data.studentsWorkIntro?.trim() ?? "",

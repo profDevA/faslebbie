@@ -11,6 +11,7 @@ import {
   onActivateKey,
 } from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
+import { AboutFooterLink } from "@/components/AboutContent";
 
 function StaticPill({ text }: { text: string }) {
   return (
@@ -127,11 +128,14 @@ export default function TeachingContent({
   className = "",
   intro,
   sections,
+  materials = [],
   onSeeAllStudents,
 }: {
   className?: string;
   intro: TeachToken[][];
   sections: TeachSection[];
+  /** Teaching statement & materials (Studio) — About-style pills at the end. */
+  materials?: { label: string; href: string }[];
   onSeeAllStudents: () => void;
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -194,6 +198,21 @@ export default function TeachingContent({
           </p>
         </div>
       ))}
+
+      {/* Teaching statement & related materials (Fas, Nov 17: "put my teaching
+          statement and related materials in a place where people can access
+          them… maybe at the end") — same pills as About's CV / Resume. */}
+      {materials.length ? (
+        <div className="@container/about-links mt-12">
+          <div className="flex flex-wrap items-center gap-1 text-inherit sm:gap-3 sm:text-[min(3.7cqw,32px)]">
+            {materials.map((m) => (
+              <AboutFooterLink key={m.label} href={m.href}>
+                {m.label}
+              </AboutFooterLink>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
