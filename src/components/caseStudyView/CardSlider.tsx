@@ -7,6 +7,13 @@ import { useEffect, useRef, useState } from 'react'
 // 1440: card 944×531 radius 30, neighbours scale 0.93 at opacity 0.5, slot gap
 // 16, auto-advance every ~4.4 s with a ~600 ms slide, dots 24×8 / 8×8 at 30 %,
 // arrows 36px filled circles with a 14px chevron, 16px from the dots).
+// Fas, Nov 16: "it should be inside, not spread out… they only put three at a
+// time, when it goes next it shows the next thing" — every card is a white
+// plate (Israel's mock) holding up to three screens composed inside it (the
+// HorizonX way: centre screen in front, the two neighbours behind it, peeking
+// either side), not one screenshot stretched edge to edge. The Studio list is
+// grouped three per card, in order; the lightbox still opens on the single
+// screens.
 // Card width / slot gap / control offsets stay on the Figma numbers: one 16:9
 // card centred (912 @1440, 303 @393), neighbours peeking 220 / 30 px (slot gap
 // 12 / 4); ‹ dots › 133 wide, 41 / 31 px under the card. Autoplay pauses while
@@ -25,6 +32,55 @@ const CARD_SLIDER = {
   aspect: '912 / 513',
   transitionMs: 600,
   autoplayMs: 4400,
+  /** Screens per card (Fas: "three at a time"). */
+  perCard: 3,
+}
+
+/** Up to three screens laid out inside one card: centre in front, sides behind. */
+function ComposedCard({ screens, alt }: { screens: string[]; alt: string }) {
+  const n = screens.length
+  const screen = (src: string, i: number) => (
+    // eslint-disable-next-line @next/next/no-img-element -- case-study art
+    <img
+      key={`${src}-${i}`}
+      src={src}
+      alt={i === 0 ? alt : ''}
+      className="block h-auto w-full rounded-[3%] shadow-[0_6px_22px_rgba(0,0,0,0.28)]"
+    />
+  )
+  if (n === 1) {
+    return (
+      <div className="flex h-full w-full items-center justify-center px-[7%]">
+        <div className="w-full">{screen(screens[0], 0)}</div>
+      </div>
+    )
+  }
+  if (n === 2) {
+    return (
+      <div className="flex h-full w-full items-center justify-center gap-[3%] px-[5%]">
+        {screens.map((s, i) => (
+          <div key={`${s}-${i}`} className="w-1/2">
+            {screen(s, i)}
+          </div>
+        ))}
+      </div>
+    )
+  }
+  // Three: the first and last sit behind the middle one, each showing its
+  // outer ~60 %; the middle one is the largest and in front.
+  return (
+    <div className="relative h-full w-full">
+      <div className="absolute left-[4%] top-1/2 w-[46%] -translate-y-[44%] opacity-90">
+        {screen(screens[0], 0)}
+      </div>
+      <div className="absolute right-[4%] top-1/2 w-[46%] -translate-y-[44%] opacity-90">
+        {screen(screens[2], 2)}
+      </div>
+      <div className="absolute left-1/2 top-1/2 w-[58%] -translate-x-1/2 -translate-y-1/2">
+        {screen(screens[1], 1)}
+      </div>
+    </div>
+  )
 }
 
 export function CardSlider({
@@ -38,7 +94,12 @@ export function CardSlider({
   /** Click on the centred card — the parent opens its lightbox at this index. */
   onExpand?: (index: number) => void
 }) {
-  const n = images.length
+  // Cards = the Studio list grouped three per card, in order.
+  const cards: string[][] = []
+  for (let i = 0; i < images.length; i += CARD_SLIDER.perCard) {
+    cards.push(images.slice(i, i + CARD_SLIDER.perCard))
+  }
+  const n = cards.length
   const [index, setIndex] = useState(() => Math.max(n, 0))
   const [noAnim, setNoAnim] = useState(false)
   const locked = useRef(false)
@@ -120,7 +181,7 @@ export function CardSlider({
     touchStartX.current = null
   }
 
-  const loop = n > 0 ? [...images, ...images, ...images] : []
+  const loop = n > 0 ? [...cards, ...cards, ...cards] : []
   const cardVw = desktop ? CARD_SLIDER.desktopCardVw : CARD_SLIDER.mobileCardVw
   const slotGap = desktop ? CARD_SLIDER.desktopSlotGap : CARD_SLIDER.mobileSlotGap
   const cardW = (viewportW * cardVw) / 100
@@ -193,18 +254,19 @@ export function CardSlider({
             willChange: 'transform',
           }}
         >
-          {loop.map((src, i) => {
+          {loop.map((card, i) => {
             const isCtr = i === index
             return (
               <button
-                key={`${src}-${i}`}
+                key={`${card[0]}-${i}`}
                 type="button"
                 aria-label={`Slide ${(i % n) + 1}`}
                 aria-current={isCtr ? 'true' : undefined}
                 data-cursor="hover"
                 onClick={() => {
                   if (isCtr) {
-                    onExpand?.(realIdx)
+                    // Lightbox index = the first screen of this card.
+                    onExpand?.(realIdx * CARD_SLIDER.perCard)
                     return
                   }
                   goTo(i % n)
@@ -213,7 +275,7 @@ export function CardSlider({
                 style={{ width: slotWidth }}
               >
                 <div
-                  className="overflow-hidden rounded-[10px] lg:rounded-[30px]"
+                  className="overflow-hidden rounded-[10px] bg-white shadow-[0_4px_18px_rgba(0,0,0,0.18)] lg:rounded-[30px]"
                   style={{
                     width: cardWidth,
                     aspectRatio: CARD_SLIDER.aspect,
@@ -224,8 +286,7 @@ export function CardSlider({
                       : `transform ${CARD_SLIDER.transitionMs}ms ease-in-out, opacity ${CARD_SLIDER.transitionMs}ms ease-in-out`,
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
-                  <img src={src} alt="" className="h-full w-full object-cover object-center" />
+                  <ComposedCard screens={card} alt={`Slide ${(i % n) + 1}`} />
                 </div>
               </button>
             )
@@ -240,9 +301,9 @@ export function CardSlider({
             role="tablist"
             aria-label="Slides"
           >
-            {images.map((src, i) => (
+            {cards.map((card, i) => (
               <button
-                key={`${src}-dot-${i}`}
+                key={`${card[0]}-dot-${i}`}
                 type="button"
                 role="tab"
                 aria-selected={i === realIdx}
