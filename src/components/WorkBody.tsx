@@ -256,22 +256,11 @@ export default function WorkBody({
         } else {
           wallOffset.current += diff * 0.15;
         }
-      } else if (!reduce && !hovered && wallOffset.current < maxOffset()) {
+      } else if (!reduce && wallOffset.current < maxOffset()) {
         wallOffset.current += WALL_AUTO_SPEED;
       }
       apply();
       raf = requestAnimationFrame(tick);
-    };
-
-    // The drift stops while a mouse is over the wall and resumes on leave
-    // (Fas, Nov 16 evening: "if you hover it should stop, it should not
-    // continue when you're hovering"). Wheel / touch scrolling still work.
-    let hovered = false;
-    const onPointerEnter = (e: PointerEvent) => {
-      if (e.pointerType === "mouse") hovered = true;
-    };
-    const onPointerLeave = (e: PointerEvent) => {
-      if (e.pointerType === "mouse") hovered = false;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -310,18 +299,12 @@ export default function WorkBody({
     window.addEventListener("wheel", onWheel, { passive: false });
     win.addEventListener("touchstart", onTouchStart, { passive: true });
     win.addEventListener("touchmove", onTouchMove, { passive: false });
-    win.addEventListener("pointerenter", onPointerEnter);
-    win.addEventListener("pointerleave", onPointerLeave);
-    // Already under the mouse when the wall mounts (e.g. after the toggle).
-    hovered = win.matches(":hover");
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("wheel", onWheel);
       win.removeEventListener("touchstart", onTouchStart);
       win.removeEventListener("touchmove", onTouchMove);
-      win.removeEventListener("pointerenter", onPointerEnter);
-      win.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
     };
   }, [view, wide, projects.length]);
