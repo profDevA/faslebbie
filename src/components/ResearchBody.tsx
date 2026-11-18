@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import ResearchContent from "@/components/ResearchContent";
@@ -16,14 +17,23 @@ import { usePopupRoute } from "@/hooks/usePopupRoute";
 import { researchSectionOrder, type ResearchSectionId } from "@/lib/research";
 import type { ResearchContentData } from "@/lib/researchFromSanity";
 
+/** /research/field-notes/<n> → the 0-based note index, else 0. */
+function noteFromPath(pathname: string) {
+  const m = pathname.match(/^\/research\/field-notes\/(\d+)\/?$/);
+  return m ? Math.max(Number(m[1]) - 1, 0) : 0;
+}
+
 // Research page shell — content from Sanity only.
 export default function ResearchBody({
   content,
   initialOpen = null,
+  initialNote = 0,
 }: {
   content: ResearchContentData;
   /** /research/<section> — the page opens with that popup up (Nov 17). */
   initialOpen?: ResearchSectionId | null;
+  /** /research/field-notes/<n> — that field note, 0-based (Nov 18). */
+  initialNote?: number;
 }) {
   const { areas, closing, sections } = content;
 
@@ -35,6 +45,24 @@ export default function ResearchBody({
     researchSectionOrder,
     initialOpen,
   );
+
+  // Each field note has its own address too, /research/field-notes/<n> (Xian,
+  // Nov 18). Paging inside Field Notes replaces the address; Back closes the
+  // popup like the other sections.
+  const [noteIndex, setNoteIndex] = useState(initialNote);
+  const openSection = (id: ResearchSectionId) => {
+    if (id === "field-notes") setNoteIndex(0);
+    open(id);
+  };
+  const changeNote = (i: number) => {
+    setNoteIndex(i);
+    window.history.replaceState(null, "", `/research/field-notes/${i + 1}`);
+  };
+  useEffect(() => {
+    const onPop = () => setNoteIndex(noteFromPath(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
@@ -65,7 +93,7 @@ export default function ResearchBody({
           >
             <ResearchContent
               className="pb-24"
-              onOpen={open}
+              onOpen={openSection}
               areas={areas}
               closing={closing}
             />
@@ -79,6 +107,8 @@ export default function ResearchBody({
         onNavigate={navigate}
         onClose={close}
         sections={sections}
+        noteIndex={noteIndex}
+        onNoteIndex={changeNote}
       />
     </div>
   );

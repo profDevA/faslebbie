@@ -433,13 +433,24 @@ export default function ResearchModal({
   onNavigate,
   onClose,
   sections = {},
+  noteIndex: noteIndexProp,
+  onNoteIndex,
 }: {
   openId: ResearchSectionId | null;
   onNavigate: (id: ResearchSectionId) => void;
   onClose: () => void;
   sections?: Partial<Record<ResearchSectionId, ResearchSectionContent>>;
+  /** Field note shown (0-based). Controlled by ResearchBody so each note has
+   *  its own address, /research/field-notes/<n> (Nov 18). */
+  noteIndex?: number;
+  onNoteIndex?: (index: number) => void;
 }) {
-  const [noteIndex, setNoteIndex] = useState(0);
+  const [innerNote, setInnerNote] = useState(0);
+  const noteIndex = noteIndexProp ?? innerNote;
+  const setNote = (i: number) => {
+    if (onNoteIndex) onNoteIndex(i);
+    else setInnerNote(i);
+  };
   const bodyRef = useRef<HTMLDivElement>(null);
   const sectionPagerIds = useMemo(
     () =>
@@ -459,7 +470,9 @@ export default function ResearchModal({
     openId && !isFieldNotesOpen ? sectionPagerIds.indexOf(openId) : -1;
   const inSectionPager = sectionPagerIndex >= 0;
 
-  useEffect(() => setNoteIndex(0), [openId]);
+  useEffect(() => {
+    if (noteIndexProp === undefined) setInnerNote(0);
+  }, [openId, noteIndexProp]);
   useEffect(() => {
     bodyRef.current?.scrollTo(0, 0);
   }, [openId, noteIndex]);
@@ -469,7 +482,7 @@ export default function ResearchModal({
       const onKey = (e: KeyboardEvent) => {
         if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
         const d = e.key === "ArrowRight" ? 1 : -1;
-        setNoteIndex((p) => (p + d + noteCount) % noteCount);
+        setNote((noteIndex + d + noteCount) % noteCount);
       };
       window.addEventListener("keydown", onKey);
       return () => window.removeEventListener("keydown", onKey);
@@ -487,7 +500,9 @@ export default function ResearchModal({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setNote only calls the latest prop / setter
   }, [
+    noteIndex,
     inSectionPager,
     noteCount,
     onNavigate,
@@ -504,7 +519,7 @@ export default function ResearchModal({
   const isFieldNotes = content.kind === "field-notes";
   const notes = isFieldNotes ? content.notes : [];
   const goNote = (d: 1 | -1) =>
-    setNoteIndex((p) => (p + d + notes.length) % notes.length);
+    setNote((noteIndex + d + notes.length) % notes.length);
 
   const goSection = (d: 1 | -1) => {
     if (!inSectionPager) return;
@@ -556,7 +571,7 @@ export default function ResearchModal({
         noteIndex,
         () => goNote(-1),
         () => goNote(1),
-        setNoteIndex,
+        setNote,
         (i) => `Field note ${notes[i].n}`,
       )
     : inSectionPager

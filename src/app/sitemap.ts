@@ -49,6 +49,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((id) => research.sections[id])
     .map((id) => ({ url: url(`/research/${id}`), changeFrequency: "yearly" as const, priority: 0.6 }));
 
+  // Each field note: /research/field-notes/<n> (Nov 18).
+  const fieldNotes = research.sections["field-notes"];
+  const notes =
+    fieldNotes?.kind === "field-notes"
+      ? fieldNotes.notes.map((_, i) => ({
+          url: url(`/research/field-notes/${i + 1}`),
+          changeFrequency: "yearly" as const,
+          priority: 0.5,
+        }))
+      : [];
+
   const caseStudies = studies
     .filter((s) => !s.passwordProtected)
     .map((s) => ({
@@ -75,5 +86,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
-  return [...pages, ...researchSections, ...caseStudies, ...posts, ...media];
+  return [...pages, ...researchSections, ...notes, ...caseStudies, ...posts, ...media];
 }

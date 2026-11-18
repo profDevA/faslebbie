@@ -30,7 +30,8 @@ export function usePopupRoute<T extends string>(
   const idFromPath = useCallback(
     (pathname: string): T | null => {
       if (!pathname.startsWith(`${basePath}/`)) return null;
-      let seg = pathname.slice(basePath.length + 1).replace(/\/$/, "");
+      // First segment only: /research/field-notes/3 still means "field-notes".
+      let seg = pathname.slice(basePath.length + 1).replace(/\/$/, "").split("/")[0];
       try {
         seg = decodeURIComponent(seg);
       } catch {
