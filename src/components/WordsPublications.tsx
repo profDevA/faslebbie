@@ -32,6 +32,8 @@ const ROW_GRID =
 
 function PublicationRow({ item }: { item: Publication }) {
   const tag = item.tag?.trim();
+  /** Link shown as its own line (Studio "Link text"); otherwise the row links. */
+  const linked = Boolean(item.href && item.linkLabel);
 
   const inner = (
     <>
@@ -54,13 +56,29 @@ function PublicationRow({ item }: { item: Publication }) {
           <span aria-hidden className="hidden lg:block" />
         </div>
       ) : null}
+      {/* Fas, Nov 18: "we have to put the link somehow… just here, each one" —
+          the doc shows a red link under the tag line ("Read publication"). */}
+      {linked ? (
+        <div className={`mt-[6px] ${ROW_GRID}`}>
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cursor="hover"
+            className="w-fit text-[16px] font-normal leading-[1.3] text-accent underline underline-offset-4 transition-opacity hover:opacity-80 md:text-[18px]"
+          >
+            {item.linkLabel}
+          </a>
+          <span aria-hidden className="hidden lg:block" />
+        </div>
+      ) : null}
     </>
   );
 
   const rowClass =
     "flex w-full flex-col border-b border-black pb-[22px] pt-[15px]";
 
-  if (item.href) {
+  if (item.href && !linked) {
     return (
       <a
         href={item.href}
@@ -100,18 +118,17 @@ function PublicationSection({
   );
 }
 
-/** Figma 3315:4124 — the ".publications" tab. Titles renamed Nov 17 (Fas, Nov
- *  16 evening: "Articles, then Books, then Journals… just change the title");
- *  the items stay in their Studio lists until Fas has reviewed them. */
+/** Figma 3315:4124 — the ".publications" tab. Fas, Nov 18: "only two
+ *  categories, Articles and Papers and Books… we're getting rid of this
+ *  journal". Studio: "Articles & Papers" = the currentProjects list; the
+ *  Journals list is no longer shown. */
 export default function WordsPublications({
   publications,
 }: {
   publications: PublicationsData;
 }) {
   const empty =
-    !publications.currentProjects.length &&
-    !publications.books.length &&
-    !publications.journals.length;
+    !publications.currentProjects.length && !publications.books.length;
 
   return (
     <div className="mx-auto flex w-full max-w-[1129px] flex-col gap-14 pt-10 reckless-prose max-md:px-1 lg:gap-[57px] lg:pt-16">
@@ -122,14 +139,10 @@ export default function WordsPublications({
         </p>
       ) : null}
       <PublicationSection
-        title="Articles"
+        title="Articles & Papers"
         items={publications.currentProjects}
       />
       <PublicationSection title="Books" items={publications.books} />
-      <PublicationSection
-        title="Journals"
-        items={publications.journals}
-      />
     </div>
   );
 }

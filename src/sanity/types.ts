@@ -669,6 +669,7 @@ export interface SanityPublicationItem {
   year?: string;
   tag?: string;
   href?: string;
+  linkLabel?: string;
   cover?: string;
 }
 

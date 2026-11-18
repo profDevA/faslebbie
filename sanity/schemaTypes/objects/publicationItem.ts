@@ -37,6 +37,13 @@ export const publicationItem = defineType({
       title: 'Link (optional)',
       type: 'url',
     }),
+    defineField({
+      name: 'linkLabel',
+      title: 'Link text',
+      type: 'string',
+      description:
+        'Shown as a red link under the tag line, e.g. "Read publication", "CMU award record", "View magazine issue" (Fas, Nov 18). Needs the Link above. Empty = the whole row is the link.',
+    }),
   ],
   preview: {
     select: { title: 'title', tag: 'tag', year: 'year', media: 'cover' },

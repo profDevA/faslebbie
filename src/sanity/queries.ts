@@ -359,9 +359,9 @@ export const BLOGS_PAGE_QUERY = defineQuery(`*[_type == "blogsPage"][0]{
       body[]{ ..., markDefs[]{ ... } }
     }
   }, url, publishedAt, authorName, "authorAvatar": authorAvatar${img}, coverBg, panelBg, panelText, "cover": cover${img} },
-  currentProjects[]{ title, tag, year, href, "cover": cover${img} },
-  books[]{ title, tag, year, href, "cover": cover${img} },
-  journals[]{ title, tag, year, href, "cover": cover${img} },
+  currentProjects[]{ title, tag, year, href, linkLabel, "cover": cover${img} },
+  books[]{ title, tag, year, href, linkLabel, "cover": cover${img} },
+  journals[]{ title, tag, year, href, linkLabel, "cover": cover${img} },
   mediaFeatured{
     title, listingBlurb, tag, comingSoonTitle, comingSoonBody,
     earlyAccessLabel, earlyAccessUrl,

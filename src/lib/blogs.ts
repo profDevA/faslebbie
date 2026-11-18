@@ -104,6 +104,8 @@ export type Publication = {
   year: string;
   tag?: string;
   href?: string;
+  /** Red link under the tag line ("Read publication"); needs href. */
+  linkLabel?: string;
   cover?: string;
 };
 

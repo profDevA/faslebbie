@@ -22,8 +22,8 @@ export const blogsPage = defineType({
     }),
     defineField({
       name: "currentProjects",
-      title: "Articles",
-      description: "Shown as \"Articles\" on .publications (was Current Projects, Nov 17).",
+      title: "Articles & Papers",
+      description: "Shown as \"Articles & Papers\" on .publications (Fas, Nov 18). Only the final (green) items from the collaboration doc.",
       type: "array",
       of: [{ type: "publicationItem" }],
       group: "words",
@@ -37,7 +37,8 @@ export const blogsPage = defineType({
     }),
     defineField({
       name: "journals",
-      title: "Journals",
+      title: "Journals (not shown on the site since Nov 18)",
+      description: "Fas, Nov 18: only Articles & Papers and Books. Kept for reference; nothing here appears on the site.",
       type: "array",
       of: [{ type: "publicationItem" }],
       group: "words",
