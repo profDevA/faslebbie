@@ -225,6 +225,9 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   "ogImageHeight": ogImage.asset->metadata.dimensions.height
 }`);
 
+// Sitemap: published studies with the fields the sitemap needs (no sections).
+export const SITEMAP_STUDIES_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**")) && defined(slug.current)] | order(orderRank asc){ "slug": slug.current, passwordProtected, _updatedAt }`);
+
 export const STUDY_SLUGS_QUERY = defineQuery(`*[_type == "caseStudy" && !(_id in path("drafts.**")) && defined(slug.current)].slug.current`);
 
 const researchProseProj = `{

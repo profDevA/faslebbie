@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import CaseStudyAccess from "@/components/CaseStudyAccess";
-import {
-  parseWorkListingView,
-  workListingHref,
-} from "@/lib/caseStudyNav";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
@@ -40,9 +36,12 @@ export default async function CaseStudyPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { slug } = await params;
-  const { view: viewParam } = await searchParams;
-  const listingView = parseWorkListingView(viewParam);
-  const listingHref = workListingHref(listingView);
+  const { view } = await searchParams;
+  // Old links carried ?view=txt / ?view=img (before Nov 17). One address per
+  // study for sharing and Google (Fas, Nov 16 evening: "I need to clean up the
+  // URL"): 308 to the clean /work/<slug>. The "Work" / × link then goes back to
+  // the view this tab last used (sessionStorage, CaseStudyAccess), else .img.
+  if (view !== undefined) permanentRedirect(`/work/${encodeURIComponent(slug)}`);
   const found = await findStudy(slug);
   if (!found) notFound();
 
@@ -51,8 +50,6 @@ export default async function CaseStudyPage({
       project={found.project}
       prev={found.prev}
       next={found.next}
-      listingView={listingView}
-      listingHref={listingHref}
     />
   );
 }

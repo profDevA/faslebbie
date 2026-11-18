@@ -5,7 +5,7 @@ export type WorkListingView = "txt" | "img";
  * Case-study URLs stay clean (`/work/<slug>`, no `?view=txt` — Fas,
  * Nov 16 evening: "I need to clean up the URL"). The Work view a visitor came
  * from is remembered for this tab instead, so "Case Studies" / × go back to it.
- * Old links with `?view=` still work.
+ * Old links with `?view=` 308-redirect to the clean address (Nov 18).
  */
 const WORK_VIEW_KEY = "fas-work-view";
 

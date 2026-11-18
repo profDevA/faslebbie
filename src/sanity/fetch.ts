@@ -15,6 +15,7 @@ import {
   LEADERSHIP_PAGE_QUERY,
   RESEARCH_PAGE_QUERY,
   SITE_SETTINGS_QUERY,
+  SITEMAP_STUDIES_QUERY,
   STUDY_SLUGS_QUERY,
   TEACHING_PAGE_QUERY,
   TESTIMONIALS_QUERY,
@@ -81,6 +82,19 @@ export async function getCategories(): Promise<string[]> {
 
 export async function getWorkPage(): Promise<WorkPageConfig | null> {
   return fetchResolved<WorkPageConfig>(WORK_PAGE_QUERY, {}, workPageOptions);
+}
+
+/** Sitemap rows for case studies (slug, password flag, last edit). */
+export async function getSitemapStudies(): Promise<
+  { slug: string; passwordProtected?: boolean; _updatedAt?: string }[]
+> {
+  return (
+    (await safeSanityFetch<{ slug: string; passwordProtected?: boolean; _updatedAt?: string }[]>(
+      SITEMAP_STUDIES_QUERY,
+      {},
+      studyOptions,
+    )) ?? []
+  );
 }
 
 export async function getStudySlugs(): Promise<string[]> {
