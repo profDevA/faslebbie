@@ -2185,8 +2185,9 @@ function DesktopMotionStaggeredPair({
  * Staggered pair, "Large screens, wide stagger" (Studio `pairSize: large`) —
  * Galderma Key Product Experiences, Israel's Figma 1015:23688; Fas, Nov 16
  * evening: "bigger and spaced… it feels congested", like The AR Handbook.
- * Desktop @1440: screens 555 / 551 on a #f3f3f3 6px plate (radius 12, soft
- * shadow) — the plate sits outside the screen box, as in Figma; left column
+ * Desktop @1440: screens 555 / 551 in a 6px frame outside the screen box, as
+ * in Figma (was our #f3f3f3 plate; since Nov 19 Sakib's baked frame, plate
+ * fill dropped — see `plate` below); left column
  * at x 82, right column from the centre (x 720) with its top 906 below the
  * left one; title → first screen 156; captions 29 / 44 under the screens,
  * screen-wide, lead in regular (Figma) instead of bold. Band padding stays
@@ -2208,9 +2209,14 @@ function DesktopMotionLargePair({
   const title = s.sectionTitle?.trim()
   const pairs = s.carousels ?? []
   const d = MOTION_MOBILE_FLOW_STACK
+  // No plate fill / padding since Nov 19 (Xian: "for galderma, remove our
+  // padding"): Sakib's motions carry their own grey frame (13px #cecece at
+  // 1920, rounded ~44px, black outside the corners), so the #f3f3f3 6px plate
+  // made a double frame. Shadow kept; corners clip at ≈ his radius (2.3% of
+  // the width: 7px at 292, 14px at ~567) so his black corners never show.
   const plate = {
     className:
-      'rounded-[6px] bg-[#f3f3f3] p-[3px] shadow-[0_2px_6px_rgba(0,0,0,0.2)] lg:rounded-[12px] lg:p-[6px] lg:shadow-[0_2px_12px_rgba(0,0,0,0.25)]',
+      'rounded-[7px] shadow-[0_2px_6px_rgba(0,0,0,0.2)] lg:rounded-[14px] lg:shadow-[0_2px_12px_rgba(0,0,0,0.25)]',
   }
   return (
     <section
@@ -2246,13 +2252,14 @@ function DesktopMotionLargePair({
                 } as CSSProperties
               }
             >
-              {/* The plate sits 6px outside the screen box (Figma stroke). */}
+              {/* The frame sits 6px outside the screen box (Figma stroke) —
+                  now Sakib's baked frame fills that 6px band. */}
               <div className="mx-auto max-w-[var(--kpe-media-m)] lg:-m-[6px] lg:max-w-none">
                 <DesktopMotionPosterCarousel
                   slides={slides}
                   fallbackAlt={title || 'Key Product Experiences'}
                   mockupFrame={plate}
-                  viewportClass="rounded-[3px] lg:rounded-[6px]"
+                  viewportClass="rounded-[7px] lg:rounded-[14px]"
                   arrowClass={copyClass}
                   align="start"
                 />
@@ -3287,8 +3294,16 @@ function ViewMoreDeviceTabsModal({
   )
 }
 
+/** A motion item with nothing to show (no image, video, poster or embed) — e.g.
+ *  an old image slot left next to a new video. Census, Nov 5–19: its tablet row
+ *  [empty, video] pushed the band into the old stacked layout (huge phone,
+ *  small tablet). Empty items don't count for the layout and don't render. */
+function motionItemHasMedia(it: MediaItem) {
+  return Boolean(it.image || it.videoFile || it.videoUrl || it.posterImage || it.embedUrl)
+}
+
 function MotionShowcaseBlock({
-  section: s,
+  section: raw,
   projectSlug,
   projectName,
 }: {
@@ -3296,6 +3311,14 @@ function MotionShowcaseBlock({
   projectSlug?: string
   projectName?: string
 }) {
+  const cleanRows = (raw.rows ?? []).map(r =>
+    r.items?.every(motionItemHasMedia) === false
+      ? { ...r, items: r.items.filter(motionItemHasMedia) }
+      : r,
+  )
+  const s = cleanRows.some((r, i) => r !== raw.rows?.[i])
+    ? { ...raw, rows: cleanRows }
+    : raw
   const layoutRaw = s.layoutVariant ?? 'stacked'
   // One device per row = Coral's KPE layout (Coral; Experian since Saqib's
   // Oct 25 videos). Rows with several devices keep the old stacked band.
