@@ -16,9 +16,11 @@ import {
 // Article type — Ade's BLOG Figma (pPaaz2hCLREu8tFaiO9oJ7, 683:7 "1440w
 // default"): body 19 / 26.6 in a 439 column, headings 25. Fas, Nov 17 QA:
 // "increase the size of the text on the right for all the blogs, it's too
-// small". Site font kept (Reckless); mobile steps up too (15 → 17).
+// small". Site font kept (Reckless); mobile steps up too (15 → 17). Line height
+// 1.6 at every width since Nov 19 (Figma's 26.6 = 1.4 read tight; one paragraph
+// line height site-wide).
 const BODY =
-  "reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]";
+  "reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px]";
 
 const blockClass: Record<string, string> = {
   normal: `mt-4 ${BODY}`,
@@ -79,7 +81,7 @@ const CALLOUT_STYLES: Record<
 function createComponents(compact = false): PortableTextComponents {
   const listClass = compact
     ? "mt-2 space-y-1 pl-5 reckless-prose text-[15px] leading-[1.6] text-black/80 md:text-[16px]"
-    : "mt-2 space-y-2 pl-5 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]";
+    : "mt-2 space-y-2 pl-5 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px]";
 
   return {
     block: {

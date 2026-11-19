@@ -134,7 +134,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-center reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
+              className="mt-4 text-center reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -143,7 +143,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
           return (
             <p
               key={i}
-              className="mt-4 text-right reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
+              className="mt-4 text-right reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px]"
             >
               <RichText parts={b.parts} text={b.text} />
             </p>
@@ -194,7 +194,7 @@ function LegacyArticleBody({ blocks }: { blocks: BlogBlock[] }) {
         return (
           <p
             key={i}
-            className="mt-4 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px] md:leading-[1.4]"
+            className="mt-4 reckless-prose text-[17px] leading-[1.6] text-black/80 md:text-[19px]"
           >
             <RichText parts={b.parts} text={b.text} />
           </p>

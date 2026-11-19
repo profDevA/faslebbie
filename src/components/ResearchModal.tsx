@@ -23,6 +23,13 @@ import { hiResUrl } from "@/sanity/image";
 // Paradigms / Principles / Modalities / Manifesto share a 4-dot section pager.
 // Field Notes pages only its own notes — never mixed into that carousel (Fas Sep 30 QA).
 
+/** Last three words never split (non-breaking spaces), so a paragraph doesn't
+ *  end on a one- or two-word line like "behind it." (Xian, Nov 19, note 7). */
+function keepLastWordsTogether(text?: string) {
+  const nbsp = String.fromCharCode(160);
+  return text?.replace(/\s+(\S+)\s+(\S+)\s*$/, `${nbsp}$1${nbsp}$2`);
+}
+
 function SquarePlaceholder({ className = "" }: { className?: string }) {
   return <div className={`aspect-square bg-white ${className}`} />;
 }
@@ -369,13 +376,24 @@ function FieldNotesView({
       <p className="font-grotesk text-[11px] font-light tracking-wide capitalize max-lg:text-[12px]">
         {note.place}
       </p>
-      <p className="mt-2 max-w-[389px] font-grotesk text-[28px] font-normal leading-[1.15] tracking-tight max-lg:mx-auto max-lg:max-w-[282px] lg:mt-2 lg:text-[36px] xl:text-[50px] xl:leading-[1.09]">
+      {/* Desktop text block = the blog header's widths (Xian, Nov 19: wider
+          block, "similar to" /blogs/trust-through-five-expectations): title 656
+          (was 389), paragraph 560 ≈ 75 characters a line (was 329). Mobile keeps
+          282. text-balance: a title that still wraps splits evenly ("My
+          grandmother's / oldest friend", not "…oldest / friend"). */}
+      <p className="mt-2 font-grotesk text-[28px] font-normal leading-[1.15] tracking-tight max-lg:mx-auto max-lg:max-w-[282px] lg:mt-2 lg:max-w-[656px] lg:text-balance lg:text-[36px] xl:text-[50px] xl:leading-[1.09]">
         {note.quote}
       </p>
-      <p className="mt-3 max-w-[329px] font-grotesk text-[14px] font-light leading-[1.35] tracking-[0.72px] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:leading-[1.2] lg:tracking-[1px]">
-        {note.insight}
+      {/* Popup text = one style site-wide: line height 1.6, no extra tracking
+          (was 1.2 / +1px on desktop — read "squished"; Fas, Nov 18 evening:
+          "one consistent look"). Desktop 16px like Design Again / blog header
+          description (Xian, Nov 19); mobile stays 14. No one- or two-word last
+          line (Xian, Nov 19): keepLastWordsTogether + text-pretty (Chrome's
+          pretty alone only avoids a single-word line). */}
+      <p className="mt-3 font-grotesk text-[14px] font-light leading-[1.6] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:max-w-[560px] lg:text-[16px] lg:text-pretty">
+        {keepLastWordsTogether(note.insight)}
       </p>
-      <p className="mt-3 font-grotesk text-[14px] font-light italic leading-[1.35] tracking-[0.72px] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:tracking-[1px]">
+      <p className="mt-3 font-grotesk text-[14px] font-light italic leading-[1.35] max-lg:mx-auto max-lg:max-w-[282px] lg:mt-4 lg:text-[16px]">
         {note.themes}
       </p>
     </>

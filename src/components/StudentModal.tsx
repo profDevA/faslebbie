@@ -73,12 +73,14 @@ function Carousel({ project }: { project: StudentProject }) {
           {project.title}:
         </h2>
         {project.headline ? (
-          <p className="max-w-[282px] font-grotesk text-[15px] font-semibold leading-snug tracking-[0.5px] lg:max-w-[406px] lg:text-[14px] lg:font-bold lg:leading-[17px] lg:tracking-[1px]">
+          <p className="max-w-[282px] font-grotesk text-[15px] font-semibold leading-snug tracking-[0.5px] lg:max-w-[406px] lg:text-[16px] lg:font-bold lg:leading-[1.2] lg:tracking-[1px]">
             {project.headline}
           </p>
         ) : null}
+        {/* Popup text: line height 1.6, no extra tracking, desktop 16px (headline
+            above too) — same as field notes (Nov 19). */}
         {project.description ? (
-          <p className="max-w-[282px] font-grotesk text-[14px] font-normal leading-[1.45] tracking-[0.4px] lg:max-w-[406px] lg:font-light lg:leading-[17px] lg:tracking-[1px]">
+          <p className="max-w-[282px] font-grotesk text-[14px] font-normal leading-[1.6] lg:max-w-[406px] lg:text-[16px] lg:font-light">
             {project.description}
           </p>
         ) : null}

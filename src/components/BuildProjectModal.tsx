@@ -27,7 +27,8 @@ function CheckIcon({ done }: { done: boolean }) {
 // study, the text is too small. It should match the blog… the pebble subtitle
 // is too small, and the product text ["Product · 5 min read" kicker] is way too
 // small" + "the subtitle and the titles can both be increased". Body = the blog
-// body (Ade's BLOG Figma 19 / 1.4), block titles 22, kicker 18, subtitle 20.
+// body (Ade's BLOG Figma 19, line height 1.6 since Nov 19 — was 1.4; one
+// paragraph line height site-wide), block titles 22, kicker 18, subtitle 20.
 function ArticleBlock({
   title,
   children,
@@ -43,7 +44,7 @@ function ArticleBlock({
         {title}
       </p>
       <p
-        className={`font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4] ${
+        className={`font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px] ${
           italic ? 'italic' : ''
         }`}
       >
@@ -84,7 +85,7 @@ function CaseStudyArticle({
           {detail.checklist.map(item => (
             <li key={item.text} className="flex items-start gap-[5px]">
               <CheckIcon done={item.done} />
-              <span className="font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
+              <span className="font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
                 {item.text}
               </span>
             </li>
@@ -98,7 +99,7 @@ function CaseStudyArticle({
         <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           How it works
         </p>
-        <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
+        <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
           {detail.howItWorks.map(step => (
             <li key={step} className="pl-1">
               {step}
@@ -127,7 +128,7 @@ function CaseStudyArticle({
         <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
           Insight grid
         </p>
-        <ul className="list-disc space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.55] text-black lg:text-[19px] lg:leading-[1.4]">
+        <ul className="list-disc space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
           {detail.insights.map(line => (
             <li key={line} className="pl-1">
               {line}
