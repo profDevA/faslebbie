@@ -48,7 +48,10 @@ function DesignAgainPanel({ featured }: { featured: MediaFeatured }) {
           <h2 className="text-[36px] font-normal leading-[1.09] tracking-[-0.55px] capitalize sm:text-[50px] sm:leading-[54px]">
             {featured.comingSoonTitle}
           </h2>
-          <p className="text-[13px] font-normal leading-[1.2] tracking-[-0.13px]">
+          {/* Same as the blog header description (13 / 16 at lg, line height
+              1.6) — 1.2 with negative tracking read "squished" (Fas, Nov 18
+              evening: "one consistent look"). */}
+          <p className="text-[13px] font-normal leading-[1.6] lg:text-[16px]">
             {featured.comingSoonBody}
           </p>
           {featured.earlyAccessUrl ? (

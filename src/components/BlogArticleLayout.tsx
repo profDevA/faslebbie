@@ -248,19 +248,21 @@ export default function BlogArticleLayout({
             within two (Israel, "Blog header fixes" PDF, Nov 12). The side
             padding is 16px rather than Figma's 32 because the page and column
             scrollbars eat ~32px of the column on Windows; the max-widths keep
-            the text at the Figma widths. Type sizes unchanged (site-wide
-            Reckless). */}
+            the text at the Figma widths. Desktop type is Figma + 2px on all
+            three lines — kicker 16, title 48, description 16 (Fas, Nov 18
+            evening: "too tiny… increase this two pixels… so it maintains the
+            hierarchy… apply it to all the blogs"). Mobile unchanged. */}
         <div
           className="order-1 flex shrink-0 flex-col items-center justify-center gap-5 px-7 py-12 text-center max-lg:min-h-[min(62svh,calc(100dvh-var(--blog-mobile-chrome,0rem)-var(--blog-cover-peek,24svh)))] lg:order-none lg:min-h-full lg:px-4 lg:py-14"
           style={{ backgroundColor: post.panelBg, color: post.panelText }}
         >
-          <p className="reckless-prose text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[14px]">
+          <p className="reckless-prose text-[12px] uppercase tracking-[0.14em] opacity-80 lg:text-[16px]">
             {post.kicker}
           </p>
-          <h1 className="reckless-prose text-[34px] font-normal leading-[1.08] lg:max-w-[656px] lg:text-[46px]">
+          <h1 className="reckless-prose text-[34px] font-normal leading-[1.08] lg:max-w-[656px] lg:text-[48px]">
             {post.title}
           </h1>
-          <p className="mx-auto max-w-[34ch] reckless-prose text-[13px] leading-[1.6] opacity-80 lg:max-w-[415px] lg:text-[14px]">
+          <p className="mx-auto max-w-[34ch] reckless-prose text-[13px] leading-[1.6] opacity-80 lg:max-w-[415px] lg:text-[16px]">
             {post.description}
           </p>
         </div>

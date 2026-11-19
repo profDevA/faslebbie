@@ -22,13 +22,24 @@ export const desktopMotionSlide = defineType({
       title: "Slide image",
       type: "image",
       options: { hotspot: true },
-      validation: (r) => r.required(),
+      // Optional when the slide has a motion video, like the AR Handbook's
+      // motion items (Sakib, Nov 19). The video field only shows on
+      // staggered-pair sliders, so every other slider still needs the image.
+      validation: (r) =>
+        r.custom((value, ctx) => {
+          const hasImage = !!(value as { asset?: unknown } | undefined)?.asset;
+          const hasVideo = !!(ctx.parent as { video?: { asset?: unknown } } | undefined)
+            ?.video?.asset;
+          return hasImage || hasVideo
+            ? true
+            : "Add a slide image, or a motion video below.";
+        }),
     }),
     defineField({
       name: "video",
-      title: "Motion video (MP4)",
+      title: "Motion video (MP4 / WebM)",
       description:
-        "Optional. Plays muted on a loop in place of the image (Galderma Key Product Experiences, Nov 16). The image above stays as the poster while it loads.",
+        "Optional. Plays muted on a loop in place of the image (Galderma Key Product Experiences). With a motion uploaded, the slide image is optional; if one is set, it shows while the motion loads.",
       type: "file",
       options: { accept: "video/mp4,video/*" },
       hidden: ({ document, path }) => !inStaggeredPairSlider(document, path),

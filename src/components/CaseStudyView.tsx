@@ -1954,7 +1954,8 @@ function DesktopMotionPosterCarousel({
   /** Extra classes on the clipping viewport (e.g. the inner radius of a plate). */
   viewportClass?: string
 }) {
-  const items = slides.filter(sl => sl.image)
+  // A staggered-pair slide may be motion-only (Sakib, Nov 19: like the AR Handbook).
+  const items = slides.filter(sl => sl.image || sl.video)
   const n = items.length
   const [index, setIndex] = useState(0)
   const reduceMotion = usePrefersReducedMotion()
@@ -2064,21 +2065,22 @@ function DesktopMotionPosterCarousel({
             }}
           >
             {items.map((sl, i) =>
-              sl.image ? (
+              sl.image || sl.video ? (
                 <div
                   key={sl._key ?? i}
                   className="w-full shrink-0"
                   aria-hidden={i !== activeIndex}
                 >
                   {sl.video ? (
-                    // Studio "Motion video (MP4)" on a staggered-pair slide —
-                    // the image is the poster (Fas, Nov 16 evening: Galderma KPE).
+                    // Studio "Motion video" on a staggered-pair slide (Fas,
+                    // Nov 16 evening: Galderma KPE). The image, if any, is the
+                    // poster; motion-only slides have none (Sakib, Nov 19).
                     <CsOverviewVideo
                       src={sl.video}
-                      poster={motionSlideSrc(sl.image)}
+                      poster={sl.image ? motionSlideSrc(sl.image) : undefined}
                       className="block h-auto w-full"
                     />
-                  ) : (
+                  ) : sl.image ? (
                     // eslint-disable-next-line @next/next/no-img-element -- case-study art
                     <img
                       src={motionSlideSrc(sl.image)}
@@ -2086,7 +2088,7 @@ function DesktopMotionPosterCarousel({
                       draggable={false}
                       className="block h-auto w-full max-w-full object-center"
                     />
-                  )}
+                  ) : null}
                 </div>
               ) : null,
             )}
@@ -2147,7 +2149,7 @@ function DesktopMotionStaggeredPair({
       ) : null}
       <div className="flex w-full flex-col">
         {pairs.map((carousel, i) => {
-          const slides = (carousel.slides ?? []).filter(sl => sl.image)
+          const slides = (carousel.slides ?? []).filter(sl => sl.image || sl.video)
           const end = i % 2 === 1
           return (
             <KpeDeviceItem
@@ -2226,7 +2228,7 @@ function DesktopMotionLargePair({
       {/* 2.2vw inside the band gutter (3.5vw) = Figma's x 82 / 720 @1440. */}
       <div className="flex w-full flex-col lg:grid lg:grid-cols-2 lg:px-[2.2vw]">
         {pairs.map((carousel, i) => {
-          const slides = (carousel.slides ?? []).filter(sl => sl.image)
+          const slides = (carousel.slides ?? []).filter(sl => sl.image || sl.video)
           const right = i % 2 === 1
           return (
             <div
