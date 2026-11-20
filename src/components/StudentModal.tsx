@@ -5,18 +5,35 @@ import PopupShell, {
   PopupDots,
   PopupPagerButton,
 } from "@/components/PopupShell";
+import { SliderControls } from "@/components/PagerDots";
 import type { StudentProject } from "@/lib/teaching";
 
 function Slide({ project, index }: { project: StudentProject; index: number }) {
-  const src = project.images?.[index] ?? (index === 0 ? project.cover : undefined);
-  if (src)
+  // All of the project's images are mounted at once (stacked) and only the
+  // current one is visible, so they download when the popup opens and Previous
+  // / Next switch instantly — swapping one <img> src waited ~1 s per click for
+  // the next file (Xian, Nov 20: "works very very slow").
+  const srcs = project.images?.length
+    ? project.images
+    : project.cover
+      ? [project.cover]
+      : [];
+  if (srcs[index])
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- carousel image
-      <img
-        src={src}
-        alt={project.headline || project.title}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      <>
+        {srcs.map((src, i) => (
+          // eslint-disable-next-line @next/next/no-img-element -- carousel image
+          <img
+            key={`${i}-${src}`}
+            src={src}
+            alt={i === index ? project.headline || project.title : ""}
+            aria-hidden={i !== index}
+            className={`absolute inset-0 h-full w-full object-cover ${
+              i === index ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          />
+        ))}
+      </>
     );
   return (
     <div
@@ -66,8 +83,11 @@ function Carousel({ project }: { project: StudentProject }) {
     <>
       {/* Mobile Figma 2971:218674 — copy first, then image (scroll in shell body). */}
       <div className="order-1 flex shrink-0 flex-col items-center justify-center gap-2 bg-[#1a1a1a] px-6 py-8 text-center capitalize text-[#e0e0d7] max-lg:gap-2.5 lg:order-2 lg:h-auto lg:min-h-0 lg:gap-3.5 lg:overflow-y-auto lg:px-20 lg:py-12">
-        <p className="font-grotesk text-[12px] font-light tracking-[-0.08px] lg:text-[11px] lg:tracking-[-0.11px]">
-          Student Works
+        {/* The kicker Fas meant by "this is too tiny" (Nov 19 call, 34:52 — his
+            cursor on it): was 12 / 11 px; now the Build popup's kicker, 14 / 18
+            (Fas, Nov 17: "the product text is way too small"). */}
+        <p className="font-grotesk text-[14px] font-light tracking-[-0.08px] lg:text-[18px]">
+          Student Projects
         </p>
         <h2 className="font-grotesk text-[28px] font-normal leading-[1.12] tracking-[-0.35px] lg:text-[50px] lg:leading-[1.09] lg:tracking-[-0.55px]">
           {project.title}:
@@ -94,40 +114,17 @@ function Carousel({ project }: { project: StudentProject }) {
       <div className="relative order-2 h-[min(52vh,440px)] min-h-[220px] shrink-0 overflow-hidden bg-[#e5eff1] max-lg:w-full lg:order-1 lg:h-auto lg:min-h-[480px]">
         <Slide project={project} index={slide} />
         {slideCount > 1 && (
-          <div className="absolute inset-x-0 bottom-0 flex h-12 items-center justify-center gap-6 bg-black/65 backdrop-blur-[2px] lg:h-[74px] lg:gap-10 lg:bg-gradient-to-t lg:from-black/55 lg:to-transparent lg:backdrop-blur-none">
-            <button
-              type="button"
-              aria-label="Previous image"
-              onClick={() => goSlide(-1)}
-              data-cursor="hover"
-              className="font-grotesk text-[15px] font-medium tracking-[0.32px] text-white transition-opacity hover:opacity-70 lg:text-[22px] lg:tracking-[0.45px]"
-            >
-              {"<"}
-            </button>
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: slideCount }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Image ${i + 1} of ${slideCount}`}
-                  aria-current={i === slide || undefined}
-                  onClick={() => setSlide(i)}
-                  data-cursor="hover"
-                  className={`size-2.5 rounded-full transition-colors lg:size-2 ${
-                    i === slide ? "bg-accent" : "bg-white/80 hover:bg-white"
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              aria-label="Next image"
-              onClick={() => goSlide(1)}
-              data-cursor="hover"
-              className="font-grotesk text-[15px] font-medium tracking-[0.32px] text-white transition-opacity hover:opacity-70 lg:text-[22px] lg:tracking-[0.45px]"
-            >
-              {">"}
-            </button>
+          // Shared slide control (Nov 20: one pager style site-wide).
+          <div className="absolute inset-x-0 bottom-0 flex h-12 items-center justify-center bg-black/65 backdrop-blur-[2px] lg:h-[74px] lg:bg-gradient-to-t lg:from-black/55 lg:to-transparent lg:backdrop-blur-none">
+            <SliderControls
+              tone="light"
+              count={slideCount}
+              active={slide}
+              onPrev={() => goSlide(-1)}
+              onNext={() => goSlide(1)}
+              onSelect={setSlide}
+              labels={Array.from({ length: slideCount }, (_, i) => `Image ${i + 1} of ${slideCount}`)}
+            />
           </div>
         )}
       </div>
@@ -167,10 +164,10 @@ export default function StudentModal({
     <PopupShell
       onClose={onClose}
       bodyRef={bodyRef}
-      label={`Student Works: ${project.title}`}
+      label={`Student Projects: ${project.title}`}
       crumbs={[
         { label: "Teaching", href: "/teaching", hideOnMobile: true },
-        { label: "Student Works", href: "/teaching?view=works" },
+        { label: "Student Projects", href: "/teaching/student-projects" },
         { label: project.title },
       ]}
       bodyClassName="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto max-lg:!px-0 lg:grid-cols-2 lg:overflow-hidden"
@@ -178,7 +175,6 @@ export default function StudentModal({
         projects.length > 1 ? (
           <div className="flex w-full max-w-[620px] items-center justify-between gap-2">
             <PopupPagerButton
-              className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
               onClick={() => goStudent(-1)}
             >
               {"< Previous"}
@@ -191,7 +187,6 @@ export default function StudentModal({
               labelFor={(i) => projects[i].title}
             />
             <PopupPagerButton
-              className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
               onClick={() => goStudent(1)}
             >
               {"Next >"}

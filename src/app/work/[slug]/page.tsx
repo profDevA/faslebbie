@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import CaseStudyAccess from "@/components/CaseStudyAccess";
+import { caseStudyHref } from "@/lib/caseStudyNav";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
 
@@ -50,6 +51,11 @@ export default async function CaseStudyPage({
       project={found.project}
       prev={found.prev}
       next={found.next}
+      pager={{
+        hrefs: found.order.map((s) => caseStudyHref(s.slug)),
+        labels: found.order.map((s) => s.name),
+        active: found.index,
+      }}
     />
   );
 }

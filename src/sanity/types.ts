@@ -1,6 +1,7 @@
 import type { PortableTextBlock } from "@portabletext/types";
 
 import type { LegacyPaddingToken, SpacingValue } from "@/lib/appearanceSpacing";
+import type { BuildSectionTitles } from "@/lib/build";
 
 export interface SanityColor {
   hex: string;
@@ -146,6 +147,8 @@ export type Section =
       serviceList?: string;
       duration?: string;
       team?: string;
+      /** Studio "More details" rows — "Label: text" under Team (Company, Photographers…; Nov 20). */
+      details?: { _key: string; label?: string; value?: string }[];
       confidentialityNote?: string;
       ctaLabel?: string;
       ctaUrl?: string;
@@ -565,6 +568,8 @@ export interface BuildCaseStudyDetail {
 export interface SanityBuildProject {
   id?: string;
   title?: string;
+  /** Studio "Hide on site" — left out of the Build page entirely. */
+  hidden?: boolean;
   tech?: string[];
   span?: SpanTier;
   tint?: string;
@@ -581,6 +586,8 @@ export interface SanityBuildProject {
 export interface SanityBuildPage {
   intro?: PortableTextBlock[];
   projects?: SanityBuildProject[];
+  /** Studio "Popup section titles" — one set for every project popup. */
+  sectionTitles?: Partial<Record<keyof BuildSectionTitles, string>>;
   seo?: SanityPageSeo;
 }
 

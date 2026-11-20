@@ -4,7 +4,27 @@ export type BuildToken =
   | { t: "text"; text: string }
   | { t: "proj"; id: string; text: string };
 
+/** Popup section titles. Fas edits them once on the Build page in Studio
+ *  ("Popup section titles", Nov 20: "Am I able to update the titles, or do
+ *  those require code?"); an empty Studio field falls back to these. */
+export const BUILD_SECTION_TITLE_DEFAULTS = {
+  trigger: "Trigger",
+  observation: "Observation",
+  hypothesis: "Hypothesis",
+  value: "Value",
+  experiment: "Experiment",
+  status: "Status",
+  checklist: "Checklist",
+  whoFor: "Who it's for",
+  howItWorks: "How it works",
+  outputVisuals: "Output visuals",
+  insights: "Insight grid",
+} as const;
+
+export type BuildSectionTitles = Record<keyof typeof BUILD_SECTION_TITLE_DEFAULTS, string>;
+
 export interface BuildCaseStudyDetail {
+  titles: BuildSectionTitles;
   statusLabel: string;
   trigger: string;
   observation: string;

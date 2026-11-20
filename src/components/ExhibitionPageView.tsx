@@ -49,7 +49,7 @@ function ExhibitionIntro({
         {intro}
       </p>
       <Link
-        href="/teaching?view=works"
+        href="/teaching/student-projects"
         data-cursor="hover"
         className={`${POPUP_LINK} pointer-events-auto font-grotesk font-medium ${
           mobile

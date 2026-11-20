@@ -48,8 +48,29 @@ export const overviewSection = defineType({
       type: "text",
       rows: 2,
     }),
-    defineField({ name: "duration", title: "Duration", type: "string" }),
-    defineField({ name: "team", title: "Team", type: "text", rows: 2 }),
+    // Old single-purpose fields. Since Nov 20 Duration / Team live in "More
+    // details" (patch-overview-details-nov20.ts moves them); these boxes only
+    // show while they still hold text, so Studio never has two places for it.
+    defineField({ name: "duration", title: "Duration", type: "string", hidden: ({ value }) => !value }),
+    defineField({ name: "team", title: "Team", type: "text", rows: 2, hidden: ({ value }) => !value }),
+    defineField({
+      name: "details",
+      title: "More details",
+      description:
+        'Extra rows under Duration / Team, each shown as "Label: text" in the same style — e.g. Company, Partners, Photographers, Videographers, Credit. Add, remove or drag to reorder; Enter in the text starts a new line. (Fas, Nov 19: credit the people he worked with.)',
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "overviewDetail",
+          fields: [
+            defineField({ name: "label", title: "Label", type: "string", description: "e.g. Photographers", validation: (r) => r.required() }),
+            defineField({ name: "value", title: "Text", type: "text", rows: 2, validation: (r) => r.required() }),
+          ],
+          preview: { select: { title: "label", subtitle: "value" } },
+        },
+      ],
+    }),
     defineField({
       name: "confidentialityNote",
       title: "Confidentiality / disclaimer",

@@ -16,78 +16,83 @@ import {
 } from "@/lib/reveal";
 import { useReveal } from "@/lib/useReveal";
 import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
-import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { EXTRA_STUDENT_IDS } from "@/lib/studentWorksLayout";
+import { STUDENT_PROJECTS_PATH, studentProjectPath } from "@/lib/teachingPaths";
 
-type View = "philosophy" | "works";
+export type TeachingView = "philosophy" | "works";
+type View = TeachingView;
 const VIEWS = ["philosophy", "works"] as const;
+/** ".works" reads ".student projects" (Fas, Nov 19 QA). */
+const VIEW_LABELS = { works: "student projects" } as const;
 
-function resolveView(v: string | null | undefined): View {
-  if (v === "works" || v === "img") return "works";
-  return "philosophy";
+// Clean addresses, no query string — see lib/teachingPaths.ts.
+function pathFor(view: View, student?: string | null): string {
+  if (student) return studentProjectPath(student);
+  return view === "works" ? STUDENT_PROJECTS_PATH : "/teaching";
 }
 
-function liveSearchParams(): URLSearchParams {
-  if (typeof window === "undefined") return new URLSearchParams();
-  return new URLSearchParams(window.location.search);
+function stateFromPath(pathname: string): { view: View; student: string | null } {
+  if (!pathname.startsWith(STUDENT_PROJECTS_PATH)) return { view: "philosophy", student: null };
+  let seg: string | null =
+    pathname.slice(STUDENT_PROJECTS_PATH.length + 1).split("/")[0] || null;
+  try {
+    seg = seg ? decodeURIComponent(seg) : null;
+  } catch {
+    /* keep raw */
+  }
+  return { view: "works", student: seg };
+}
+
+/** Address bar only — the App Router keeps usePathname in sync with the History API. */
+function setAddress(path: string, push = false) {
+  if (typeof window === "undefined" || window.location.pathname === path) return;
+  window.history[push ? "pushState" : "replaceState"](null, "", path);
 }
 
 export default function TeachingBody({
   content,
-  initialView,
-  initialStudent,
-  initialAll,
+  initialView = "philosophy",
+  initialStudent = null,
 }: {
   content: TeachingContentData;
-  initialView?: string | null;
+  initialView?: View;
   initialStudent?: string | null;
-  initialAll?: boolean;
 }) {
   const { intro, sections, students } = content;
 
   useScrollTopOnMount();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [view, setViewState] = useState<View>(() => {
-    if (initialStudent || initialAll) return "works";
-    return resolveView(initialView);
-  });
-  const [studentId, setStudentId] = useState<string | null>(
-    initialStudent ?? null,
+  const [view, setViewState] = useState<View>(() =>
+    initialStudent ? "works" : initialView,
   );
-  const [showAll, setShowAll] = useState(Boolean(initialAll));
+  const [studentId, setStudentId] = useState<string | null>(initialStudent);
+  // "See All" is page state only now (no ?all=1); a student hidden behind it
+  // opens the full grid.
+  const [showAll, setShowAll] = useState(
+    Boolean(initialStudent && EXTRA_STUDENT_IDS.has(initialStudent)),
+  );
   const { r, pin } = useReveal(view === "philosophy");
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
   const blur = blurPx ? `blur(${blurPx}px)` : undefined;
 
-  const replaceQuery = useCallback(
-    (mutate: (params: URLSearchParams) => void) => {
-      const params = liveSearchParams();
-      mutate(params);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [pathname, router],
-  );
-
   const setView = useCallback(
     (next: View) => {
       if (next === view) return;
       setViewState(next);
-      replaceQuery((params) => params.set("view", next));
+      setAddress(pathFor(next));
     },
-    [replaceQuery, view],
+    [view],
   );
 
+  // Back / Forward: read the state back from the path.
   useEffect(() => {
     const syncFromBar = () => {
-      const params = liveSearchParams();
-      setViewState(resolveView(params.get("view")));
-      setStudentId(params.get("student"));
-      setShowAll(params.get("all") === "1");
+      const { view: v, student } = stateFromPath(window.location.pathname);
+      setViewState(v);
+      setStudentId(student);
+      if (student && EXTRA_STUDENT_IDS.has(student)) setShowAll(true);
     };
     window.addEventListener("popstate", syncFromBar);
     return () => window.removeEventListener("popstate", syncFromBar);
@@ -109,50 +114,30 @@ export default function TeachingBody({
   const seeAllStudents = () => {
     setViewState("works");
     setShowAll(true);
-    replaceQuery((params) => {
-      params.set("view", "works");
-      params.set("all", "1");
-    });
+    setAddress(STUDENT_PROJECTS_PATH);
     window.scrollTo({ top: 0 });
   };
 
+  // Opening a student pushes its address (Back closes the popup); Previous /
+  // Next inside the popup replace it — same as Build and Research.
   const openStudent = (id: string) => {
-    const expand = EXTRA_STUDENT_IDS.has(id);
-    if (expand) setShowAll(true);
+    if (EXTRA_STUDENT_IDS.has(id)) setShowAll(true);
+    const alreadyOpen = Boolean(studentId);
     setStudentId(id);
     setViewState("works");
-    replaceQuery((params) => {
-      params.set("view", "works");
-      params.set("student", id);
-      if (expand) params.set("all", "1");
-    });
+    setAddress(pathFor("works", id), !alreadyOpen);
   };
 
   const closeStudent = () => {
     setStudentId(null);
-    replaceQuery((params) => {
-      params.delete("student");
-    });
+    setAddress(STUDENT_PROJECTS_PATH);
   };
 
-  const expandAll = () => {
-    setShowAll(true);
-    replaceQuery((params) => {
-      params.set("view", "works");
-      params.set("all", "1");
-    });
-  };
-
-  const collapseAll = () => {
-    setShowAll(false);
-    replaceQuery((params) => {
-      params.set("view", "works");
-      params.delete("all");
-    });
-  };
+  const expandAll = () => setShowAll(true);
+  const collapseAll = () => setShowAll(false);
 
   const viewToggle = (
-    <ViewToggle views={VIEWS} value={view} onChange={switchView} />
+    <ViewToggle views={VIEWS} labels={VIEW_LABELS} value={view} onChange={switchView} />
   );
 
   return (

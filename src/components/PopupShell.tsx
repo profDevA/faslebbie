@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import PagerDots from "@/components/PagerDots";
 /**
  * The one popup shell for the whole site (Fas 07/30: "every popup should use
  * the same shell and spacing — consistent breadcrumbs, close button, padding
@@ -192,7 +193,8 @@ export function PopupPagerButton({
   onClick,
   disabled,
   ariaLabel,
-  className = "font-grotesk text-[15px] lg:text-[18px]",
+  // One size for every popup (Nov 20; Build / Media / View All were 15 / 18).
+  className = "shrink-0 whitespace-nowrap font-grotesk text-[16px] lg:text-[21px]",
 }: {
   children: ReactNode;
   onClick: () => void;
@@ -214,7 +216,12 @@ export function PopupPagerButton({
   );
 }
 
-/** Standard dot row used between the two pager buttons. */
+/**
+ * Standard dots between the two pager buttons — the shared PagerDots (one
+ * pager for every popup, the case-study / blog bars and the sliders; Fas, Nov 19
+ * QA: "all next and previous pop-ups… use this modern style"; Xian, Nov 20: the
+ * stick joins two dots and glides).
+ */
 export function PopupDots({
   count,
   active,
@@ -229,22 +236,12 @@ export function PopupDots({
   className?: string;
 }) {
   return (
-    <div
-      className={`max-w-full items-center justify-center gap-2.5 ${className}`}
-    >
-      {Array.from({ length: count }).map((_, i) => (
-        <button
-          key={i}
-          type="button"
-          aria-label={labelFor?.(i) ?? `Go to ${i + 1}`}
-          aria-current={i === active}
-          onClick={() => onSelect(i)}
-          data-cursor="hover"
-          className={`size-2 shrink-0 rounded-full transition-colors ${
-            i === active ? "bg-accent" : "bg-black/25 hover:bg-black/40"
-          }`}
-        />
-      ))}
-    </div>
+    <PagerDots
+      className={className}
+      count={count}
+      active={active}
+      onSelect={onSelect}
+      labels={labelFor ? Array.from({ length: count }, (_, i) => labelFor(i)) : undefined}
+    />
   );
 }

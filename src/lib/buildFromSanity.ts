@@ -1,4 +1,10 @@
-import type { BuildCaseStudyDetail, BuildProject, BuildToken } from "@/lib/build";
+import {
+  BUILD_SECTION_TITLE_DEFAULTS,
+  type BuildCaseStudyDetail,
+  type BuildProject,
+  type BuildSectionTitles,
+  type BuildToken,
+} from "@/lib/build";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
 import type { SanityBuildPage, SanityBuildProject } from "@/sanity/types";
 
@@ -15,11 +21,23 @@ function runToToken(run: ProseRun): BuildToken {
 
 const empty: BuildContentData = { intro: [], projects: [] };
 
+/** Studio titles over the defaults; an empty field keeps the default. */
+function sectionTitles(raw: SanityBuildPage["sectionTitles"]): BuildSectionTitles {
+  const out = { ...BUILD_SECTION_TITLE_DEFAULTS } as BuildSectionTitles;
+  for (const k of Object.keys(out) as (keyof BuildSectionTitles)[]) {
+    const v = raw?.[k]?.trim();
+    if (v) out[k] = v;
+  }
+  return out;
+}
+
 function mapCaseStudyDetail(
   raw: SanityBuildProject["caseStudyDetail"],
+  titles: BuildSectionTitles,
 ): BuildCaseStudyDetail | undefined {
-  if (!raw?.trigger?.trim()) return undefined;
+  if (!raw) return undefined;
   return {
+    titles,
     statusLabel: raw.statusLabel?.trim() ?? "",
     trigger: raw.trigger?.trim() ?? "",
     observation: raw.observation?.trim() ?? "",
@@ -46,7 +64,11 @@ export function buildFromSanity(
     runs.map(runToToken),
   );
 
-  const projects: BuildProject[] = (data.projects ?? []).map((p, i) => {
+  const titles = sectionTitles(data.sectionTitles);
+
+  // "Hide on site" projects stay in Studio but never reach the page (grid,
+  // popup pager, /build/<id>, sitemap).
+  const projects: BuildProject[] = (data.projects ?? []).filter((p) => !p.hidden).map((p, i) => {
     const images = p.images?.filter((u): u is string => Boolean(u));
     return {
       id: p.id ?? `project-${i}`,
@@ -61,7 +83,7 @@ export function buildFromSanity(
       kicker: p.kicker ?? "",
       subtitle: p.subtitle ?? "",
       blurb: p.blurb ?? "",
-      caseStudyDetail: mapCaseStudyDetail(p.caseStudyDetail),
+      caseStudyDetail: mapCaseStudyDetail(p.caseStudyDetail, titles),
     };
   });
 

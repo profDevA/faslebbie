@@ -107,7 +107,7 @@ export default function TeachingGallery({
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
       <div className="mb-8">
         <h2 className="page-body-kicker text-black">
-          Student Works
+          Student Projects
         </h2>
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:hidden">
@@ -147,7 +147,7 @@ export default function TeachingGallery({
             data-cursor="hover"
             className="reckless-prose text-[22px] font-normal text-black underline decoration-from-font underline-offset-4 lg:text-[27px]"
           >
-            {showAll ? "See Less" : "See All Student Works"}
+            {showAll ? "See Less" : "See All Student Projects"}
           </button>
         </div>
       ) : (

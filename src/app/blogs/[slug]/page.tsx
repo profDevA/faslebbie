@@ -90,7 +90,13 @@ export default async function BlogPostPage({
           defaultAuthorAvatar={defaultAuthorAvatar}
           className="grid w-full flex-1 grid-cols-1 max-lg:overflow-visible lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden"
         />
-        {n > 1 ? <PagerBar prevHref={prevHref} nextHref={nextHref} /> : null}
+        {n > 1 ? (
+          <PagerBar
+            prevHref={prevHref}
+            nextHref={nextHref}
+            dots={{ hrefs: posts.map(postHref), labels: posts.map((p) => p.title), active: i }}
+          />
+        ) : null}
       </main>
     </>
   );

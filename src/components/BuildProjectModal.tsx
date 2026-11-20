@@ -54,6 +54,9 @@ function ArticleBlock({
   )
 }
 
+// Titles come from Studio (Build page → "Popup section titles"). A section
+// whose content is empty in Studio is left out with its title (Fas, Nov 20:
+// "I'm removing the sections but the title is still stuck").
 function CaseStudyArticle({
   detail,
   outputSrc,
@@ -61,81 +64,86 @@ function CaseStudyArticle({
   detail: BuildCaseStudyDetail
   outputSrc?: string
 }) {
+  const t = detail.titles
+  const block = (title: string, body: string | undefined, italic?: boolean) =>
+    body ? (
+      <ArticleBlock title={title} italic={italic}>
+        {body}
+      </ArticleBlock>
+    ) : null
   return (
     <div className="flex w-full flex-col gap-[27px] bg-close px-4 py-8 lg:px-0 lg:py-12">
-      <p className="font-grotesk text-[16px] font-normal leading-[1.4] text-black lg:text-[18px]">
-        {detail.statusLabel}
-      </p>
-      <ArticleBlock title="Trigger">{detail.trigger}</ArticleBlock>
-      <ArticleBlock title="Observation">{detail.observation}</ArticleBlock>
-      <ArticleBlock title="Hypothesis" italic>
-        {detail.hypothesis}
-      </ArticleBlock>
-      {detail.value ? (
-        <ArticleBlock title="Value">{detail.value}</ArticleBlock>
+      {detail.statusLabel ? (
+        <p className="font-grotesk text-[16px] font-normal leading-[1.4] text-black lg:text-[18px]">
+          {detail.statusLabel}
+        </p>
       ) : null}
-      <ArticleBlock title="Experiment">{detail.experiment}</ArticleBlock>
-      <ArticleBlock title="Status">{detail.statusBody}</ArticleBlock>
+      {block(t.trigger, detail.trigger)}
+      {block(t.observation, detail.observation)}
+      {block(t.hypothesis, detail.hypothesis, true)}
+      {block(t.value, detail.value)}
+      {block(t.experiment, detail.experiment)}
+      {block(t.status, detail.statusBody)}
 
-      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
-        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
-          Checklist
-        </p>
-        <ul className="flex flex-col gap-3">
-          {detail.checklist.map(item => (
-            <li key={item.text} className="flex items-start gap-[5px]">
-              <CheckIcon done={item.done} />
-              <span className="font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
-                {item.text}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {detail.checklist.length ? (
+        <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+          <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
+            {t.checklist}
+          </p>
+          <ul className="flex flex-col gap-3">
+            {detail.checklist.map(item => (
+              <li key={item.text} className="flex items-start gap-[5px]">
+                <CheckIcon done={item.done} />
+                <span className="font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
+                  {item.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
-      <ArticleBlock title="Who it's for">{detail.whoFor}</ArticleBlock>
+      {block(t.whoFor, detail.whoFor)}
 
-      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
-        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
-          How it works
-        </p>
-        <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
-          {detail.howItWorks.map(step => (
-            <li key={step} className="pl-1">
-              {step}
-            </li>
-          ))}
-        </ol>
-      </div>
+      {detail.howItWorks.length ? (
+        <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+          <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
+            {t.howItWorks}
+          </p>
+          <ol className="list-decimal space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
+            {detail.howItWorks.map(step => (
+              <li key={step} className="pl-1">
+                {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-[27px]">
-        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
-          Output visuals
-        </p>
-        {outputSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
-          <img
-            src={outputSrc}
-            alt=""
-            className="w-full h-auto"
-          />
-        ) : (
-          <div className="aspect-454/376 w-full bg-white" />
-        )}
-      </div>
+      {outputSrc ? (
+        <div className="flex flex-col gap-[27px]">
+          <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
+            {t.outputVisuals}
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN */}
+          <img src={outputSrc} alt="" className="w-full h-auto" />
+        </div>
+      ) : null}
 
-      <div className="flex flex-col gap-[15px] lg:gap-[18px]">
-        <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
-          Insight grid
-        </p>
-        <ul className="list-disc space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
-          {detail.insights.map(line => (
-            <li key={line} className="pl-1">
-              {line}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {detail.insights.length ? (
+        <div className="flex flex-col gap-[15px] lg:gap-[18px]">
+          <p className="font-grotesk text-[19px] font-bold leading-[1.15] text-black lg:text-[22px]">
+            {t.insights}
+          </p>
+          <ul className="list-disc space-y-1 pl-6 font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
+            {detail.insights.map(line => (
+              <li key={line} className="pl-1">
+                {line}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   )
 }

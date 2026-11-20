@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo } from "react";
 import PagePortrait, { PORTRAIT_STICKY_TOP } from "@/components/PagePortrait";
 import BuildContent from "@/components/BuildContent";
 import BuildGallery from "@/components/BuildGallery";
@@ -13,6 +13,7 @@ import { contentDrift, portraitDrift, revealBlur, revealOpacity } from "@/lib/re
 import { useReveal } from "@/lib/useReveal";
 import { useScrollTopOnMount } from "@/lib/useScrollTopOnMount";
 import { usePersistedView } from "@/hooks/usePersistedView";
+import { usePopupRoute } from "@/hooks/usePopupRoute";
 
 type View = "txt" | "img";
 const VIEWS = ["txt", "img"] as const;
@@ -36,23 +37,24 @@ export default function BuildBody({
     undefined,
     initialView,
   );
-  const [openId, setOpenId] = useState<string | null>(() =>
-    initialProject && buildProjects.some((p) => p.id === initialProject)
-      ? initialProject
-      : null,
+  // Each project popup has an address, /build/<project> (Fas, Nov 19 QA: "I
+  // don't see the URL changing for the build pages"): opening pushes it,
+  // Previous / Next replace it, closing goes back to /build, Back closes.
+  const projectIds = useMemo(() => buildProjects.map((p) => p.id), [buildProjects]);
+  const { openId, open, navigate, close } = usePopupRoute(
+    "/build",
+    projectIds,
+    initialProject && projectIds.includes(initialProject) ? initialProject : null,
+    "/build",
   );
-  const { r, pin } = useReveal(view === "txt");
-
-  const closeModal = () => {
-    setOpenId(null);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("project")) {
-        url.searchParams.delete("project");
-        window.history.replaceState({}, "", `${url.pathname}${url.search}`);
-      }
+  // Old /build?project=<id> links still open the popup; show the clean address.
+  useEffect(() => {
+    const id = new URL(window.location.href).searchParams.get("project");
+    if (id && projectIds.includes(id)) {
+      window.history.replaceState(null, "", `/build/${encodeURIComponent(id)}`);
     }
-  };
+  }, [projectIds]);
+  const { r, pin } = useReveal(view === "txt");
 
   const opacity = revealOpacity(r);
   const blurPx = revealBlur(r);
@@ -108,7 +110,7 @@ export default function BuildBody({
                 <BuildContent
                   className="pb-24"
                   intro={intro}
-                  onOpenProject={setOpenId}
+                  onOpenProject={open}
                 />
               </div>
             </main>
@@ -119,7 +121,7 @@ export default function BuildBody({
         <>
           {viewToggle}
           <main className="relative z-10 w-full pb-24 pt-6 max-lg:pt-6 lg:pt-12">
-            <BuildGallery items={buildProjects} onOpen={setOpenId} />
+            <BuildGallery items={buildProjects} onOpen={open} />
           </main>
         </>
       )}
@@ -127,8 +129,8 @@ export default function BuildBody({
       <BuildProjectModal
         projects={buildProjects}
         openId={openId}
-        onNavigate={setOpenId}
-        onClose={closeModal}
+        onNavigate={navigate}
+        onClose={close}
       />
     </div>
   );

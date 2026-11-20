@@ -5,6 +5,7 @@ import PopupShell, {
   PopupDots,
   PopupPagerButton,
 } from "@/components/PopupShell";
+import { SlideArrow } from "@/components/PagerDots";
 import {
   researchBreadcrumbRoot,
   researchPagerIds,
@@ -346,26 +347,20 @@ function FieldNotesView({
       ) : (
         <div className="h-full min-h-[280px] w-full bg-white lg:min-h-0" />
       )}
+      {/* Shared slide arrows in their old place — left / right edges of the
+          image (Nov 20: one pager style site-wide, positions kept). */}
       {images.length > 1 && (
         <>
-          <button
-            type="button"
-            aria-label="Previous image"
+          <SlideArrow
+            dir={-1}
             onClick={() => goImage(-1)}
-            data-cursor="hover"
-            className="absolute left-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:left-6"
-          >
-            {"<"}
-          </button>
-          <button
-            type="button"
-            aria-label="Next image"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-white lg:left-6"
+          />
+          <SlideArrow
+            dir={1}
             onClick={() => goImage(1)}
-            data-cursor="hover"
-            className="absolute right-3 top-1/2 -translate-y-1/2 font-grotesk text-[28px] font-bold text-white/90 transition-opacity hover:opacity-70 lg:right-6"
-          >
-            {">"}
-          </button>
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white lg:right-6"
+          />
         </>
       )}
     </div>
@@ -373,7 +368,9 @@ function FieldNotesView({
 
   const noteCopy = (
     <>
-      <p className="font-grotesk text-[11px] font-light tracking-wide capitalize max-lg:text-[12px]">
+      {/* Kicker 14 / 18 like the Student and Build popups (was 12 / 11 — the
+          size Fas called "too tiny" on the student popup, Nov 19 call). */}
+      <p className="font-grotesk text-[14px] font-light tracking-wide capitalize lg:text-[18px]">
         {note.place}
       </p>
       {/* Desktop text block = the blog header's widths (Xian, Nov 19: wider
@@ -560,7 +557,6 @@ export default function ResearchModal({
   ) => (
     <div className="flex w-full max-w-[620px] items-center justify-between gap-2">
       <PopupPagerButton
-        className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
         onClick={onPrev}
         disabled={disableStep}
       >
@@ -574,7 +570,6 @@ export default function ResearchModal({
         labelFor={labelFor}
       />
       <PopupPagerButton
-        className="shrink-0 whitespace-nowrap text-[16px] lg:text-[21px]"
         onClick={onNext}
         disabled={disableStep}
       >

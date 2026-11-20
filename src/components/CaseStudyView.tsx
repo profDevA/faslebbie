@@ -13,6 +13,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import PagerBar from '@/components/PagerBar'
+import { SliderControls } from '@/components/PagerDots'
 import PopupShell, { PopupDots, PopupPagerButton } from '@/components/PopupShell'
 import { CardSlider } from '@/components/caseStudyView/CardSlider'
 import { CaseStudyProse } from '@/components/caseStudyView/Prose'
@@ -147,11 +148,14 @@ export default function CaseStudyView({
   project: p,
   prev,
   next,
+  pager,
   listingHref = '/work',
 }: {
   project: Study
   prev: StudyCard
   next: StudyCard
+  /** Every study in order + the current one — dot pager in the bottom bar (Nov 20). */
+  pager?: { hrefs: string[]; labels: string[]; active: number }
   /** Kept for callers; case-study links no longer carry the view (Nov 17). */
   listingView?: WorkListingView | null
   listingHref?: string
@@ -277,6 +281,7 @@ export default function CaseStudyView({
       <PagerBar
         prevHref={caseStudyHref(prev.slug)}
         nextHref={caseStudyHref(next.slug)}
+        dots={pager}
       />
     </div>
   )
@@ -805,17 +810,30 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
               )}
             </div>
           )}
-          <div className={`space-y-0 ${body} ${OVERVIEW_META_DESKTOP}`}>
+          {/* A line break typed in Studio stays a new line (Duration / Team /
+              More details text) — Fas, Nov 19 QA. */}
+          <div className={`space-y-0 whitespace-pre-line ${body} ${OVERVIEW_META_DESKTOP}`}>
             {s.duration && (
               <p>
-                <span className="font-bold">Duration</span>: {s.duration}
+                <span className="font-bold">Duration</span>: {s.duration.trim()}
               </p>
             )}
             {s.team && (
               <p>
-                <span className="font-bold">Team</span>: {s.team}
+                <span className="font-bold">Team</span>: {s.team.trim()}
               </p>
             )}
+            {/* Studio "More details" — any number of "Label: text" rows in the
+                Duration / Team style (Company, Partners, Photographers…). Fas,
+                Nov 19 call: credit the people he worked with, "add more… where
+                it stays consistent"; Xian, Nov 20: flexible, not one field per kind. */}
+            {s.details
+              ?.filter(d => d.label?.trim() && d.value?.trim())
+              .map(d => (
+                <p key={d._key}>
+                  <span className="font-bold">{d.label!.trim()}</span>: {d.value!.trim()}
+                </p>
+              ))}
           </div>
           {/* Figma 600:12515 — 36 Thin Italic 12px / +1px tracking. */}
           {s.confidentialityNote && (
@@ -2095,29 +2113,27 @@ function DesktopMotionPosterCarousel({
           </div>
         </div>
       </div>
+      {/* Shared slide control in its old place — under the screen at the
+          right edge (Nov 20: one pager style site-wide, positions kept). */}
       {canPage && (
-        <div
-          className={`mt-4 flex justify-end gap-7 text-[23px] font-medium leading-none lg:mt-5 ${arrowClass}`}
-        >
-          <button
-            type="button"
-            aria-label="Previous slide"
-            data-cursor="hover"
-            onClick={() => go(-1)}
-            className="bg-transparent transition-opacity hover:opacity-70"
-          >
-            &lt;
-          </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            data-cursor="hover"
-            onClick={() => go(1)}
-            className="bg-transparent transition-opacity hover:opacity-70"
-          >
-            &gt;
-          </button>
-        </div>
+        <SliderControls
+          className="ml-auto mt-4 lg:mt-5"
+          tone={arrowClass.includes('text-white') ? 'light' : 'dark'}
+          count={n}
+          active={activeIndex}
+          onPrev={() => go(-1)}
+          onNext={() => go(1)}
+          onSelect={i => {
+            if (i === activeIndex || pagingLocked.current) return
+            pagingLocked.current = true
+            setMotionEnabled(true)
+            setDragDx(0)
+            setIndex(i)
+            window.setTimeout(() => {
+              pagingLocked.current = false
+            }, slideMotionMs + 40)
+          }}
+        />
       )}
     </div>
   )
@@ -2773,28 +2789,23 @@ function InterventionCarouselBlock({
         {(canPage || showCaption) && (
           <div className="shrink-0 lg:mt-[25px]">
             {canPage && (
-              // Same text chevrons as the Research Artifacts / KPE sliders
-              // (Israel #2721: "this arrow has changed, let's make it consistent").
-              <div className="mb-4 flex shrink-0 items-center justify-end gap-7.25 text-[23px] font-medium leading-none text-[#171717] lg:mb-[15px] xl:text-[1.45vw]">
-                <button
-                  type="button"
-                  aria-label="Previous slide"
-                  data-cursor="hover"
-                  onClick={() => go(-1)}
-                  className="bg-transparent transition-opacity hover:opacity-70"
-                >
-                  &lt;
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next slide"
-                  data-cursor="hover"
-                  onClick={() => go(1)}
-                  className="bg-transparent transition-opacity hover:opacity-70"
-                >
-                  &gt;
-                </button>
-              </div>
+              // Shared slide control in its old place — right edge, above the
+              // caption (Nov 20: one pager style site-wide, positions kept).
+              <SliderControls
+                className="mb-4 ml-auto lg:mb-[15px]"
+                count={n}
+                active={index}
+                onPrev={() => go(-1)}
+                onNext={() => go(1)}
+                onSelect={i => {
+                  if (i === index || pagingLocked.current) return
+                  pagingLocked.current = true
+                  setIndex(i)
+                  window.setTimeout(() => {
+                    pagingLocked.current = false
+                  }, slideMotionMs + 40)
+                }}
+              />
             )}
             {showCaption && (
               // Desktop: Figma 559:59203 — text from the band centre + 236, 440
@@ -3134,6 +3145,7 @@ function ShowcaseBlock({
                 scrollContainer={scrollContainer}
                 gutter={false}
                 gap={artifactGap}
+                light={light}
               />
             </div>
           )}
@@ -3183,6 +3195,7 @@ function ShowcaseBlock({
             images={images}
             lightboxImages={lightboxImages.length ? lightboxImages : images}
             scrollContainer={scrollContainer}
+            light={light}
           />
         ))}
     </section>
@@ -4946,9 +4959,12 @@ function ArtifactSlider({
   mobileInitial = 3,
   loadMore = 'Load More',
   loadLess = 'Load Less',
+  light = true,
 }: {
   images: string[]
   scrollContainer?: HTMLDivElement | null
+  /** Band uses light text (controls follow). */
+  light?: boolean
   gap?: number
   /** Outer inset. False when the parent already provides the same gutter. */
   gutter?: boolean
@@ -4991,6 +5007,17 @@ function ArtifactSlider({
     if (locked.current || n <= visible) return
     locked.current = true
     setIndex(i => i + dir)
+    window.setTimeout(() => {
+      locked.current = false
+    }, 620)
+  }
+  /** Dot click: that artifact becomes the first one shown (middle copy). */
+  const goTo = (real: number) => {
+    if (locked.current || n <= visible) return
+    const target = n + real
+    if (target === index) return
+    locked.current = true
+    setIndex(target)
     window.setTimeout(() => {
       locked.current = false
     }, 620)
@@ -5070,28 +5097,20 @@ function ArtifactSlider({
       </div>
 
       <div className="hidden lg:block">
+        {/* Shared slide control in its Figma place — top right above the
+            slides (600:12626); Nov 20: one pager style site-wide, positions kept
+            (Xian: "don't change position"). */}
         {canPage && (
-          // Figma 600:12626: text chevrons, Neue Haas 21px / 500 / +0.44px, 29px gap.
-          <div className="mb-5 flex items-center justify-end gap-7.25 text-[23px] font-medium leading-none text-white xl:text-[1.45vw]">
-            <button
-              type="button"
-              aria-label="Previous slide"
-              data-cursor="hover"
-              onClick={() => go(-1)}
-              className="bg-transparent transition-opacity hover:opacity-70"
-            >
-              &lt;
-            </button>
-            <button
-              type="button"
-              aria-label="Next slide"
-              data-cursor="hover"
-              onClick={() => go(1)}
-              className="bg-transparent transition-opacity hover:opacity-70"
-            >
-              &gt;
-            </button>
-          </div>
+          <SliderControls
+            className="mb-5 ml-auto"
+            tone={light ? 'light' : 'dark'}
+            count={n}
+            active={((index % n) + n) % n}
+            onPrev={() => go(-1)}
+            onNext={() => go(1)}
+            onSelect={goTo}
+            labels={images.map((_, i) => `Artifact ${i + 1} of ${n}`)}
+          />
         )}
         <div ref={viewportRef} className="overflow-hidden">
           <div
@@ -5148,10 +5167,13 @@ function CenterSlider({
   images,
   lightboxImages,
   scrollContainer,
+  light = true,
 }: {
   images: string[]
   lightboxImages: string[]
   scrollContainer?: HTMLDivElement | null
+  /** Band uses light text (controls follow). */
+  light?: boolean
 }) {
   const n = images.length
   const [visible, setVisible] = useState(5)
@@ -5228,37 +5250,7 @@ function CenterSlider({
   const realIdx = n > 0 ? ((index % n) + n) % n : 0
 
   return (
-    <div className="cs-center-slider relative w-full pt-[3.5vw] pb-[3vw]">
-      <div className="pointer-events-none absolute top-0 right-[3vw] z-10 flex items-center gap-[1.5vw]">
-        <button
-          type="button"
-          aria-label="Previous slide"
-          data-cursor="hover"
-          onClick={() => go(-1)}
-          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
-          <img
-            src="/work/slider-arrows.svg"
-            alt=""
-            className="h-[0.85vw] min-h-2 w-[2vw] min-w-4.75 -scale-x-100 brightness-0 invert"
-          />
-        </button>
-        <button
-          type="button"
-          aria-label="Next slide"
-          data-cursor="hover"
-          onClick={() => go(1)}
-          className="pointer-events-auto bg-transparent p-1 opacity-90 transition-opacity hover:opacity-100"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- theme arrow */}
-          <img
-            src="/work/slider-arrows.svg"
-            alt=""
-            className="h-[0.85vw] min-h-2 w-[2vw] min-w-4.75 brightness-0 invert"
-          />
-        </button>
-      </div>
+    <div className="cs-center-slider relative w-full pt-[max(3.5vw,48px)] pb-[3vw]">
       <div
         ref={viewportRef}
         className="overflow-x-hidden overflow-y-visible py-[2vw]"
@@ -5325,6 +5317,24 @@ function CenterSlider({
           })}
         </div>
       </div>
+      {/* Shared slide control in its old place — top right corner (Nov 20:
+          one pager style site-wide, positions kept; was two arrow images). */}
+      <SliderControls
+        className="absolute top-0 right-[3vw] z-10"
+        tone={light ? 'light' : 'dark'}
+        count={n}
+        active={realIdx}
+        onPrev={() => go(-1)}
+        onNext={() => go(1)}
+        onSelect={real => {
+          if (real === realIdx || locked.current || n < 1) return
+          locked.current = true
+          setIndex(Math.floor(index / n) * n + real)
+          window.setTimeout(() => {
+            locked.current = false
+          }, 820)
+        }}
+      />
       {canExpand && lightbox !== null && (
         <ArtifactLightbox
           images={lightboxImages}

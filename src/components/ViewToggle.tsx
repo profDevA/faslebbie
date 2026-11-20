@@ -17,9 +17,12 @@ export default function ViewToggle<T extends string>({
   views,
   value,
   onChange,
+  labels,
   className = "",
 }: {
   views: readonly T[];
+  /** Shown text per view when it differs from the URL key (Teaching: works → "student projects"). */
+  labels?: Partial<Record<T, string>>;
   value: T;
   onChange: (next: T) => void;
   /** Spacing override for pages that sit the switch inside a padded wrapper. */
@@ -39,7 +42,7 @@ export default function ViewToggle<T extends string>({
             value === v ? "underline" : "no-underline"
           }`}
         >
-          .{v}
+          .{labels?.[v] ?? v}
         </button>
       ))}
     </div>

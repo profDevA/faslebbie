@@ -74,7 +74,7 @@ export function teachingFromSanity(
     paragraphs: toTokens(proseParagraphs(s.body)),
     action: {
       kind: s.actionKind ?? "students",
-      text: s.actionText ?? "See all student works",
+      text: s.actionText ?? "See all student projects",
     },
   }));
 

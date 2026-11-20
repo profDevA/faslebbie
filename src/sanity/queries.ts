@@ -22,6 +22,7 @@ const sectionsProj = `sections[]{
   },
   _type == "overviewSection" => {
     sectionTitle, body, serviceCategoryLabel, serviceList, duration, team,
+    details[]{ _key, label, value },
     confidentialityNote, ctaLabel, ctaUrl,
     "sideImage": sideImage${img},
     "sideVideo": sideVideo.asset->url,
@@ -272,7 +273,7 @@ export const TEACHING_PAGE_QUERY = defineQuery(`*[_type == "teachingPage"][0]{
 export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
   intro,
   projects[]{
-    id, title, tech, span, tint, lightArt, kicker, subtitle, blurb,
+    id, title, hidden, tech, span, tint, lightArt, kicker, subtitle, blurb,
     caseStudyDetail{
       statusLabel, trigger, observation, hypothesis, value, experiment, statusBody,
       checklist[]{ done, text },
@@ -281,6 +282,10 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
     "images": images[]${img},
     "outputVisual": outputVisual${img},
     "conceptPreview": conceptPreview${img}
+  },
+  sectionTitles{
+    trigger, observation, hypothesis, value, experiment, status, checklist,
+    whoFor, howItWorks, outputVisuals, insights
   },
   ${seoProj}
 }`);

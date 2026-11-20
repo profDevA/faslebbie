@@ -28,8 +28,10 @@ import { useId, type KeyboardEvent, type ReactNode } from "react";
 const PILL_M = "mx-[0.05em]";
 const CHIP_M = "mx-[0.06em]";
 
+/** Red nav pills never split across lines — a short label moves down whole
+ *  ("More to my story." broke as "More to / my story." on Home; Fas, Nov 19 QA). */
 export const NAV_PILL =
-  `${PILL_M} box-decoration-clone cursor-pointer rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent transition-colors duration-200 hover:bg-black hover:text-white`;
+  `${PILL_M} box-decoration-clone cursor-pointer whitespace-nowrap rounded-full bg-pill px-[0.3em] py-[0.095em] leading-none text-accent transition-colors duration-200 hover:bg-black hover:text-white`;
 
 /** Opens a popup / overlay / drawer without leaving the page. */
 export const POPUP_LINK =

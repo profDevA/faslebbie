@@ -20,12 +20,15 @@ export default function CaseStudyAccess({
   project,
   prev,
   next,
+  pager,
   listingView = null,
   listingHref: serverListingHref = "/work",
 }: {
   project: Study;
   prev: Study;
   next: Study;
+  /** Every study in order + the current one — dot pager in the bottom bar. */
+  pager?: { hrefs: string[]; labels: string[]; active: number };
   listingView?: WorkListingView | null;
   listingHref?: string;
 }) {
@@ -75,6 +78,7 @@ export default function CaseStudyAccess({
           project={project}
           prev={prev}
           next={next}
+          pager={pager}
           listingView={listingView}
           listingHref={listingHref}
         />

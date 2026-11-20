@@ -2,10 +2,13 @@ import type { MetadataRoute } from "next";
 
 import { mediaFeaturedSlug } from "@/lib/blogs";
 import { blogsFromSanity } from "@/lib/blogsFromSanity";
+import { buildFromSanity } from "@/lib/buildFromSanity";
+import { teachingFromSanity } from "@/lib/teachingFromSanity";
+import { STUDENT_PROJECTS_PATH, studentProjectPath } from "@/lib/teachingPaths";
 import { researchSectionOrder } from "@/lib/research";
 import { researchFromSanity } from "@/lib/researchFromSanity";
 import { SITE_URL } from "@/lib/siteUrl";
-import { getBlogsPage, getResearchPage, getSitemapStudies } from "@/sanity/fetch";
+import { getBlogsPage, getBuildPage, getResearchPage, getSitemapStudies, getTeachingPage } from "@/sanity/fetch";
 
 // /sitemap.xml — every page and every popup address, so search engines can
 // find them (Fas, Nov 16 evening: "there's no URL for them so no one can find
@@ -14,9 +17,8 @@ import { getBlogsPage, getResearchPage, getSitemapStudies } from "@/sanity/fetch
 //
 // Left out on purpose:
 //  - password-protected case studies (NDA work; only open studies are listed)
-//  - Build projects and student projects: their addresses still redirect to
-//    /build?project=… and /teaching?view=works&student=… (redirects don't
-//    belong in a sitemap)
+//  (Build projects and student projects are listed since Nov 20 —
+//  /build/<project> and /teaching/student-projects/<student> are real pages.)
 //  - ?view= variants of listing pages (same page)
 
 export const revalidate = 60;
@@ -24,13 +26,28 @@ export const revalidate = 60;
 const url = (path: string) => `${SITE_URL}${path}`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [studies, blogsPage, researchPage] = await Promise.all([
+  const [studies, blogsPage, researchPage, buildPage, teachingPage] = await Promise.all([
     getSitemapStudies(),
     getBlogsPage(),
     getResearchPage(),
+    getBuildPage(),
+    getTeachingPage(),
   ]);
   const blogs = blogsFromSanity(blogsPage);
   const research = researchFromSanity(researchPage);
+  const buildProjects = buildFromSanity(buildPage).projects.map((p) => ({
+    url: url(`/build/${encodeURIComponent(p.id)}`),
+    changeFrequency: "yearly" as const,
+    priority: 0.5,
+  }));
+  const studentProjects = [
+    { url: url(STUDENT_PROJECTS_PATH), changeFrequency: "monthly" as const, priority: 0.6 },
+    ...teachingFromSanity(teachingPage).students.map((s) => ({
+      url: url(studentProjectPath(s.id)),
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    })),
+  ];
 
   const pages: MetadataRoute.Sitemap = [
     { url: url("/"), changeFrequency: "monthly", priority: 1 },
@@ -86,5 +103,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
-  return [...pages, ...researchSections, ...notes, ...caseStudies, ...posts, ...media];
+  return [...pages, ...buildProjects, ...studentProjects, ...researchSections, ...notes, ...caseStudies, ...posts, ...media];
 }

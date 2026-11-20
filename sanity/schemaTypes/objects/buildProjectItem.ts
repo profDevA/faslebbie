@@ -20,6 +20,15 @@ export const buildProjectItem = defineType({
     }),
     defineField({ name: "title", title: "Title", type: "string", group: "card", validation: (r) => r.required() }),
     defineField({
+      name: "hidden",
+      title: "Hide on site",
+      type: "boolean",
+      description:
+        "On: the project disappears from the Build page (grid, popup, Previous / Next) and keeps everything here, so you can bring it back later. (Fas, Nov 19: hide SenseSpace AI while it moves to Work.)",
+      initialValue: false,
+      group: "card",
+    }),
+    defineField({
       name: "tech",
       title: "Tech stack",
       type: "array",
@@ -93,6 +102,11 @@ export const buildProjectItem = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", subtitle: "blurb", media: "images.0" },
+    select: { title: "title", subtitle: "blurb", media: "images.0", hidden: "hidden" },
+    prepare: ({ title, subtitle, media, hidden }) => ({
+      title: hidden ? `${title ?? ""} (hidden)` : title,
+      subtitle,
+      media,
+    }),
   },
 });

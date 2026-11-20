@@ -12,6 +12,7 @@ import {
 } from "@/components/InlineToken";
 import type { TeachSection, TeachToken } from "@/lib/teaching";
 import { AboutFooterLink } from "@/components/AboutContent";
+import { studentProjectPath } from "@/lib/teachingPaths";
 
 function StaticPill({ text }: { text: string }) {
   return (
@@ -100,7 +101,7 @@ function renderTokens(
       return (
         <PopupLink
           key={key}
-          href={`/teaching?view=works&student=${tok.id}`}
+          href={studentProjectPath(tok.id)}
           className="whitespace-nowrap"
         >
           {tok.text}

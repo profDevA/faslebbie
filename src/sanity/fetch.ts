@@ -185,6 +185,9 @@ export async function findStudy(slug: string) {
     project: studies[i],
     prev: studies[(i - 1 + n) % n],
     next: studies[(i + 1) % n],
+    // Every study in Work order — the dot pager in the bottom bar (Nov 20).
+    index: i,
+    order: studies.map((s) => ({ slug: s.slug, name: s.name })),
   };
 }
 
