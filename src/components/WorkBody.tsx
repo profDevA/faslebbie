@@ -849,7 +849,10 @@ function ProjectCard({
   const accent = project.accent?.hex ?? "#999999";
   // The wall (reveal=false) is the first paint when `.img` opens, so load its
   // art eagerly; the mobile masonry (reveal=true) can lazy-load below the fold.
-  const still = cardImage(project.image);
+  // No card thumbnail in Studio → the study's hero image, so a card is never
+  // an empty grey tile (Circle; Fas, Nov 19 call: "why doesn't Circle have an
+  // image?"). A thumbnail uploaded later takes over automatically.
+  const still = cardImage(project.image || project.heroImage || undefined);
   const motionUrl = project.imageMotion;
   const motionGif = isGifMotion(
     motionUrl,

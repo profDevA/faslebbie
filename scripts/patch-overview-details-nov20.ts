@@ -49,7 +49,8 @@ async function main() {
     for (const ov of doc.sections ?? []) {
       const duration = ov.duration?.trim();
       const team = ov.team?.trim();
-      if (!duration && !team && ov.duration === undefined && ov.team === undefined) continue;
+      // Nothing left to move (unset fields come back as null) — re-runs are no-ops.
+      if (!duration && !team && ov.duration == null && ov.team == null) continue;
       const existing = ov.details ?? [];
       const moved = [
         ...(duration ? [row("Duration", duration)] : []),

@@ -672,10 +672,12 @@ function OverviewVideoCard({ src }: { src: string }) {
 
 /** Research & Design disciplines separated by middle dots, never commas — same
  *  on every study whatever the Studio text uses (Israel, Nov 2). */
-/** Overview R&D and Duration / Team, desktop: Figma Final Cleanup type 20 / 22
- *  (Coral 245:50646, FDE 245:44063 "fit two lines"; Xiang chose Figma, Nov 3).
- *  Mobile keeps the body tier. */
-const OVERVIEW_META_DESKTOP = 'lg:!text-[20px] lg:!leading-[22px]'
+/** Overview R&D and Duration / Team / More details, desktop: Figma Final
+ *  Cleanup size 20 (Coral 245:50646, FDE 245:44063 "fit two lines"; Xiang,
+ *  Nov 3). Line height 1.65 = the Overview body above it (was Figma's 22 px =
+ *  1.1 — Fas, Nov 19 call: "congested"; Xian, Nov 20: "like others,
+ *  consistency"). Mobile keeps the body tier (19 / 1.4, same as the body). */
+const OVERVIEW_META_DESKTOP = 'lg:!text-[20px] lg:!leading-[1.65]'
 
 /** Desktop: a discipline never breaks across lines — lines break only after a
  *  dot (Israel #2721, OC Navigator "Privacy / Compliance"). Mobile wraps freely:
