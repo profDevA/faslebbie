@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import PopupShell, { PopupDots, PopupPagerButton } from "@/components/PopupShell";
 import type { Testimonial } from "@/lib/content";
@@ -27,6 +27,29 @@ export default function TestimonialsModal({
   useEffect(() => {
     quoteScrollRef.current?.scrollTo(0, 0);
   }, [i]);
+
+  // Phones: a long quote ran under the pager mid-line with no sign there was
+  // more (mobile QA M10, Nov 23). Fade the bottom while text is left below.
+  // State, not the ref: the shell renders the panel only after it mounts.
+  const [quoteEl, setQuoteEl] = useState<HTMLDivElement | null>(null);
+  const [more, setMore] = useState(false);
+  const quoteRef = useCallback((el: HTMLDivElement | null) => {
+    quoteScrollRef.current = el;
+    setQuoteEl(el);
+  }, []);
+  useEffect(() => {
+    if (!quoteEl) return;
+    const check = () =>
+      setMore(quoteEl.scrollHeight - quoteEl.scrollTop - quoteEl.clientHeight > 4);
+    const raf = requestAnimationFrame(check);
+    quoteEl.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      cancelAnimationFrame(raf);
+      quoteEl.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [quoteEl, i]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -100,9 +123,16 @@ export default function TestimonialsModal({
           </div>
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col bg-[#1a1a1a] lg:min-h-0">
+      <div className="relative flex min-h-0 flex-1 flex-col bg-[#1a1a1a] lg:min-h-0">
         <div
-          ref={quoteScrollRef}
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 transition-opacity duration-200 lg:hidden ${
+            more ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ background: "linear-gradient(to top, #1a1a1a 15%, rgba(26, 26, 26, 0))" }}
+        />
+        <div
+          ref={quoteRef}
           className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-8 [-webkit-overflow-scrolling:touch] lg:flex lg:flex-col lg:justify-center lg:px-14 lg:py-10"
         >
           <p className="w-full text-left text-[16px] font-normal leading-[1.6] text-[#e0e0d7] lg:mx-auto lg:max-w-[540px] lg:text-center lg:text-[18px] lg:leading-[1.6]">
