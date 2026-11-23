@@ -76,7 +76,9 @@ export const highlightReel = defineType({
           if (layout === "composite") return true;
           if (!value?.length) return "Add at least one highlight item.";
           return true;
-        }),
+        // Warning, not error: an empty reel shows nothing on the site, and an
+        // error greyed out Publish for the whole study (Vuforia Chalk, Nov 23).
+        }).warning(),
     }),
     defineField({
       name: "gridCellMatteColor",
