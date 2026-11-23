@@ -81,7 +81,9 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-2.5 max-md:mt-3 sm:mt-9 sm:gap-[18px]" noValidate>
+        // Phones: 33 px from the heading to "Name", as Figma 2218:75673 (was 12;
+        // mobile QA M22, Nov 23). The drawer still fits one screen (Fas, Sep 28).
+        <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-2.5 max-md:mt-[33px] sm:mt-9 sm:gap-[18px]" noValidate>
           <label className="flex flex-col gap-1.5">
             <span className="font-grotesk text-[16px] text-black">Name</span>
             <input
