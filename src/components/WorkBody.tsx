@@ -547,7 +547,9 @@ export default function WorkBody({
                   // fully settle — so links like "Coral Health" work a touch early.
                   pointerEvents: r < 0.7 ? "none" : undefined,
                 }}
-                className="relative z-10 mt-8 will-change-[opacity,filter,transform] lg:mt-0"
+                // Phones: only the grid gap (40) under the Stack row — the extra
+                // mt-8 made it 72 (Figma 2930:62239: 35; mobile QA M14, Nov 23).
+                className="relative z-10 will-change-[opacity,filter,transform]"
               >
                 <section className="page-body-prose page-body-prose-listing-mobile pb-24 text-black">
                   {narrative.map((para, i) => (
