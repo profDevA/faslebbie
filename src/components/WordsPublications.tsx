@@ -27,24 +27,34 @@ function BookCoverThumb({ src, alt }: { src: string; alt: string }) {
 
 // Figma 3315:4149 — title (capped, not full-bleed) · year right. The 01, 02…
 // index column is gone (Fas, Nov 16 evening: "remove all the numbers").
+// Phones: one column, year under the title (mobile Figma 2930:210803) — a long
+// status like "In Development" squeezed the title (mobile QA M17, Nov 23).
 const ROW_GRID =
-  "grid w-full max-w-[min(100%,680px)] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 sm:gap-x-6 lg:max-w-none lg:grid-cols-[minmax(0,680px)_1fr] lg:gap-x-6";
+  "grid w-full max-w-[min(100%,680px)] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 max-md:grid-cols-1 sm:gap-x-6 lg:max-w-none lg:grid-cols-[minmax(0,680px)_1fr] lg:gap-x-6";
 
 function PublicationRow({ item }: { item: Publication }) {
   const tag = item.tag?.trim();
   /** Link shown as its own line (Studio "Link text"); otherwise the row links. */
   const linked = Boolean(item.href && item.linkLabel);
 
+  const title = titleWithoutOrphan(item.title);
+  // Phones: the cover thumb stays with the title's last word instead of
+  // wrapping onto a line of its own (Souvenirs…, mobile QA M17).
+  const cut = item.cover ? title.lastIndexOf(" ") : -1;
+
   const inner = (
     <>
       <div className={ROW_GRID}>
         <span className="min-w-0 text-[18px] font-normal leading-[1.28] tracking-[0.38px] text-black md:text-[28px]">
-          <span className="inline">{titleWithoutOrphan(item.title)}</span>
+          <span className="inline">{cut > 0 ? title.slice(0, cut + 1) : item.cover ? "" : title}</span>
           {item.cover ? (
-            <BookCoverThumb src={item.cover} alt={item.title} />
+            <span className="max-md:whitespace-nowrap">
+              {cut > 0 ? title.slice(cut + 1) : title}
+              <BookCoverThumb src={item.cover} alt={item.title} />
+            </span>
           ) : null}
         </span>
-        <span className="justify-self-end shrink-0 text-right text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black md:text-[20px]">
+        <span className="justify-self-end shrink-0 text-right text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black max-md:justify-self-start max-md:text-left md:text-[20px]">
           {item.year}
         </span>
       </div>
