@@ -177,7 +177,7 @@ function BuildProjectDetailBody({ project }: { project: BuildProject }) {
             <img
               src={cover}
               alt={project.title}
-              className="h-[231px] w-[133%] max-w-none shrink-0 object-contain lg:h-auto lg:w-full lg:max-w-[440px]"
+              className="shrink-0 object-contain max-lg:h-[440px] max-lg:w-full lg:h-auto lg:w-full lg:max-w-[440px]"
             />
           )
         ) : (
