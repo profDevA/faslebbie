@@ -80,7 +80,7 @@ export default function AboutBody({
           className="relative z-10 mt-8 will-change-[opacity,filter,transform] max-lg:mt-6 lg:mt-0"
         >
           <AboutContent
-            className="pb-24"
+            className="pb-24 max-lg:[&_.logo-chip-preview]:hidden"
             logoSvgs={logoSvgs}
             testimonials={testimonials}
             headline={content?.headline}

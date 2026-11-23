@@ -98,7 +98,7 @@ export default function ExhibitionPageView({
 
           <div className="relative">
             {/* Mobile: intro in flow above staggered photos (no overlay on moving layer). */}
-            <div className="relative z-20 px-[35px] pt-24 pb-8 lg:hidden">
+            <div className="relative z-20 px-[35px] pt-32 pb-8 lg:hidden">
               <ExhibitionIntro
                 size="mobile"
                 heading={heading}
