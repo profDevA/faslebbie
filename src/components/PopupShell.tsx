@@ -42,10 +42,17 @@ function Breadcrumbs({
         return (
           // The separator belongs to the crumb it follows, so hiding a crumb on
           // mobile hides its slash too.
+          // Phones: the current crumb keeps its name and parents give way first;
+          // a long one (talk titles) is capped at 70% so a short parent like
+          // "Panels" still shows (mobile QA M7, Nov 23).
           <span
             key={`${crumb.label}-${i}`}
             className={`min-w-0 items-center gap-1.5 ${
               crumb.hideOnMobile ? "hidden sm:flex" : "flex"
+            }${
+              last
+                ? ` max-lg:shrink-0 ${crumb.label.length > 24 ? "max-lg:max-w-[70%]" : "max-lg:max-w-full"}`
+                : ""
             }`}
           >
             {last ? (
