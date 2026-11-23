@@ -83,6 +83,49 @@ export const EXTRA_STUDENT_IDS = new Set([
   "feelnodes",
 ]);
 
+/**
+ * Phones: two columns that end level (mobile QA M16, Nov 23 — desktop columns
+ * 1+3 / 2+4 left the right one ~1½ cards short). Cards keep desktop reading
+ * order (row by row across the four columns); each goes left or right so the
+ * column heights come out as equal as possible, order kept within a column.
+ */
+export function studentWorkMobileColumns(
+  columns: StudentProject[][],
+): StudentProject[][] {
+  const order: StudentProject[] = [];
+  const rows = Math.max(0, ...columns.map((c) => c.length));
+  for (let r = 0; r < rows; r++) for (const c of columns) if (c[r]) order.push(c[r]);
+  // Card height in hundredths of a column width: cover box, then the title
+  // (~22 characters a line at 14px) and the gap to the next card.
+  const h = order.map((s) => {
+    const box = STUDENT_COVER_BOX[s.id];
+    const lines = Math.max(1, Math.ceil(s.title.length / 22));
+    return Math.round(((box ? box.h / box.w : 1) + 0.27 + 0.12 * lines) * 100);
+  });
+  const total = h.reduce((a, b) => a + b, 0);
+  const can: Uint8Array[] = [new Uint8Array(total + 1)];
+  can[0][0] = 1;
+  h.forEach((hi, i) => {
+    const next = can[i].slice();
+    for (let s = 0; s + hi <= total; s++) if (can[i][s]) next[s + hi] = 1;
+    can.push(next);
+  });
+  let best = 0;
+  for (let s = 0; s <= total; s++)
+    if (can[h.length][s] && Math.abs(total - 2 * s) < Math.abs(total - 2 * best)) best = s;
+  const left = new Set<number>();
+  for (let i = h.length, s = best; i > 0; i--)
+    if (!can[i - 1][s]) {
+      left.add(i - 1);
+      s -= h[i - 1];
+    }
+  const firstLeft = left.has(0); // the first card stays top left
+  return [
+    order.filter((_, i) => left.has(i) === firstLeft),
+    order.filter((_, i) => left.has(i) !== firstLeft),
+  ];
+}
+
 export function studentWorkColumns(
   students: StudentProject[],
   expanded: boolean,

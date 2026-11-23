@@ -5,6 +5,7 @@ import {
   INITIAL_STUDENT_COUNT,
   STUDENT_COVER_BOX,
   studentWorkColumns,
+  studentWorkMobileColumns,
 } from "@/lib/studentWorksLayout";
 
 function Cover({ item }: { item: StudentProject }) {
@@ -98,10 +99,7 @@ export default function TeachingGallery({
 
   if (!students.length) return null;
 
-  const mobileColumns = [
-    [...(columns[0] ?? []), ...(columns[2] ?? [])],
-    [...(columns[1] ?? []), ...(columns[3] ?? [])],
-  ];
+  const mobileColumns = studentWorkMobileColumns(columns);
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-12">
