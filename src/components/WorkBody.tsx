@@ -851,8 +851,12 @@ function ProjectCard({
   // art eagerly; the mobile masonry (reveal=true) can lazy-load below the fold.
   // No card thumbnail in Studio → the study's hero image, so a card is never
   // an empty grey tile (Circle; Fas, Nov 19 call: "why doesn't Circle have an
-  // image?"). A thumbnail uploaded later takes over automatically.
-  const still = cardImage(project.image || project.heroImage || undefined);
+  // image?"). A thumbnail uploaded later takes over automatically. Only when
+  // the card has no motion either: the landscape hero sized the box and cut
+  // Sakib's portrait card motions in half (Nov 23; they keep the 4:5 box).
+  const still = cardImage(
+    project.image || (project.imageMotion ? undefined : project.heroImage) || undefined,
+  );
   const motionUrl = project.imageMotion;
   const motionGif = isGifMotion(
     motionUrl,
