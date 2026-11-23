@@ -17,21 +17,29 @@ export interface LeadershipSection {
   blocks: LeadershipSectionBlock[];
 }
 
+export interface LeadershipExpansion {
+  text: string;
+  link?: { text: string; href: string };
+}
+
 export interface LeadershipContentData {
   sections: LeadershipSection[];
-  expansions: Record<string, string>;
+  expansions: Record<string, LeadershipExpansion>;
   contactText: string;
 }
 
 function fieldToTokens(
   runs: ProseRun[],
-  expansions: Record<string, string>,
+  expansions: Record<string, LeadershipExpansion>,
 ): LeadershipToken[] {
   return runs.map((run) => {
     const m = run.mark;
     if (m?._type === "expandPill" || m?._type === "pill") {
       if (m._type === "expandPill" && m.expansion)
-        expansions[run.text] = m.expansion;
+        expansions[run.text] = {
+          text: m.expansion,
+          link: m.linkText && m.linkHref ? { text: m.linkText, href: m.linkHref } : undefined,
+        };
       return { t: "key", text: run.text, tone: "gray" };
     }
     if (m?._type === "action" && m.kind === "contact")
@@ -52,7 +60,7 @@ export function leadershipFromSanity(
 ): LeadershipContentData {
   if (!data) return empty;
 
-  const expansions: Record<string, string> = {};
+  const expansions: Record<string, LeadershipExpansion> = {};
 
   const sections: LeadershipSection[] = (data.sections ?? [])
     .filter((s) => s.title && s.blocks?.length)

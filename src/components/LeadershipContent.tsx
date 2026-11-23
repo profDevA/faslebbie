@@ -1,9 +1,31 @@
 'use client'
 
+import Link from 'next/link'
 import { Fragment, useEffect, useState } from 'react'
 import { PopupTrigger, STATIC_PILL, expandPillClass, onActivateKey } from '@/components/InlineToken'
 import { openContactDrawer } from '@/lib/contactDrawer'
-import type { LeadershipSection, LeadershipToken } from '@/lib/leadershipFromSanity'
+import type { LeadershipExpansion, LeadershipSection, LeadershipToken } from '@/lib/leadershipFromSanity'
+
+/** Reveal copy with its link words, styled like Research's page links.
+ *  `data-lead-key` keeps a press on the link from closing the reveal first. */
+function RevealCopy({ expansion: { text, link } }: { expansion: LeadershipExpansion }) {
+  const at = link ? text.indexOf(link.text) : -1
+  if (!link || at < 0) return <>{text}</>
+  return (
+    <>
+      {text.slice(0, at)}
+      <Link
+        href={link.href}
+        data-lead-key
+        data-cursor="hover"
+        className="text-accent underline decoration-from-font underline-offset-2 hover:decoration-2"
+      >
+        {link.text}
+      </Link>
+      {text.slice(at + link.text.length)}
+    </>
+  )
+}
 
 function GrayPill({
   text,
@@ -35,7 +57,7 @@ function renderProse(
   prefix: string,
   openKey: string | null,
   toggle: (key: string) => void,
-  expansions: Record<string, string>,
+  expansions: Record<string, LeadershipExpansion>,
   interactive: boolean,
 ) {
   return tokens.map((tok, j) => {
@@ -60,7 +82,7 @@ function renderProse(
             <>
               {' '}
               <span className="animate-[panel-in_0.35s_ease-out] font-normal">
-                {expansion}
+                <RevealCopy expansion={expansion} />
               </span>
             </>
           )}
@@ -90,7 +112,7 @@ export default function LeadershipContent({
 }: {
   className?: string
   sections?: LeadershipSection[]
-  expansions?: Record<string, string>
+  expansions?: Record<string, LeadershipExpansion>
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) =>

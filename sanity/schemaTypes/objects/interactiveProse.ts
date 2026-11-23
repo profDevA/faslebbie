@@ -26,6 +26,19 @@ export const interactiveProse = defineType({
                 title: "Reveal copy",
                 description: "Continuation revealed inline when the pill is clicked.",
               },
+              // Approach only: words in the reveal copy drawn as a red underlined link.
+              {
+                name: "linkText",
+                type: "string",
+                title: "Link in the reveal: words",
+                hidden: ({ document }) => document?._type !== "leadershipPage",
+              },
+              {
+                name: "linkHref",
+                type: "string",
+                title: "Link in the reveal: path (e.g. /research)",
+                hidden: ({ document }) => document?._type !== "leadershipPage",
+              },
             ],
           },
           { name: "term", type: "object", title: "Terminal highlight (>/~)", fields: [{ name: "note", type: "string", title: "Note", hidden: true }] },

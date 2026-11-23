@@ -8,6 +8,8 @@ import type { PortableTextBlock } from "@portabletext/types";
 export interface ProseMark {
   _type: string;
   expansion?: string;
+  linkText?: string;
+  linkHref?: string;
   targetId?: string;
   kind?: string;
   href?: string;
