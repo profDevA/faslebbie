@@ -1,6 +1,44 @@
 import type { NextConfig } from "next";
 
+// Page HTML (and its ?_rsc= requests): a repeat visit within 1 minute shows the
+// browser's saved copy instantly; after that the browser checks with the server
+// first (ETag → usually a 304), so a page is never more than a minute old.
+// (Plain `no-cache` added a server round trip, ~0.3–0.6 s, to every repeat visit.)
+// Next's own ISR header (`s-maxage=60, stale-while-revalidate=…`, no max-age) let
+// Safari show its copy from any earlier visit while revalidating in the background
+// — after a deploy that copy linked deleted CSS / JS and Home rendered unstyled
+// (Fas's iPhone, Nov 24; docs/meetings/2026-11-23-actions.md item 1). Next only
+// sets its header when none is set yet (send-payload.js), so these values win.
+// Server-side ISR (Next's cache, revalidate = 60) is unchanged.
+//
+// Not matched: /_next/* (static stays `immutable`), /api/*, and any path with a
+// dot (public/ files, robots.txt, sitemap.xml) — they keep Next's headers.
+const PAGE_CACHE_CONTROL = "max-age=0, stale-while-revalidate=60";
+// Dynamically rendered pages (they read ?view= / ?project=, or are [slug]
+// routes without generateStaticParams) keep the header Next sends them, so the
+// rule above doesn't weaken `no-store`. Later rules override earlier ones.
+const DYNAMIC_PAGE_CACHE_CONTROL =
+  "private, no-cache, no-store, max-age=0, must-revalidate";
+const DYNAMIC_PAGES = [
+  "/:page(work|build|teaching|blogs)",
+  "/:page(work|build)/:slug([^/.]+)",
+  "/blogs/media/:talk([^/.]+)",
+  "/teaching/students/:slug([^/.]+)",
+];
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/((?!_next/|api/)(?!.*\\.).*)",
+        headers: [{ key: "Cache-Control", value: PAGE_CACHE_CONTROL }],
+      },
+      ...DYNAMIC_PAGES.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: DYNAMIC_PAGE_CACHE_CONTROL }],
+      })),
+    ];
+  },
   async redirects() {
     return [
       {
