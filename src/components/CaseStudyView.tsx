@@ -116,6 +116,7 @@ import {
   MOBILE_DENSE_GRID_CAP,
   OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW,
   OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW,
+  OVERVIEW_MEDIA_MOBILE_LANDSCAPE_VIDEO_WIDTH_PCT,
 } from '@/lib/caseStudyDefaults'
 import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
 import {
@@ -456,6 +457,11 @@ const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
   'forever-a-surfer': 'object-top',
 }
 
+/** Mobile QA round 2 R9, Nov 23: OC Links' 393×720 export shown whole like the 807 rule
+ *  (top 59px under the nav, no 78vh cut) so the caption clears the devices (Figma 559:39269).
+ *  By slug, not by size: Galderma's 720 export has its wordmark in that top strip. */
+const MOBILE_HERO_FULL_FRAME_SLUGS = new Set(['oc-links'])
+
 function HeroBlock({
   section: s,
   project: p,
@@ -490,7 +496,7 @@ function HeroBlock({
           src={mobileArt}
           alt=""
           className={
-            isFigmaMobileHeroFrame(s.imageMobile)
+            isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
               ? 'mt-[-15.01%] block h-auto w-full'
               : `block max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`
           }
@@ -736,10 +742,10 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const videoAspect = useVideoAspect(
     hasVideo && !stackedSideMedia && !videoCard && !videoFill ? s.sideVideo : undefined,
   )
-  const desktopVideoWidthVw =
-    (videoAspect ?? 0) > 1
-      ? OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW
-      : OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW
+  const landscapeVideo = (videoAspect ?? 0) > 1
+  const desktopVideoWidthVw = landscapeVideo
+    ? OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW
+    : OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW
   const mediaFirst = s.mediaPosition === 'left'
   const copyOrder = mediaFirst ? 'lg:order-2' : 'lg:order-1'
   const mediaOrder = mediaFirst ? 'lg:order-1' : 'lg:order-2'
@@ -881,7 +887,12 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
             className={mobileMediaSizeClass}
             showFrame={false}
             style={{
-              width: mediaPadMobilePhone.widthPx,
+              // Mobile QA round 2 R1, Nov 23: a landscape (laptop) video gets the Figma
+              // laptop width, not the 167 phone width; a Studio mobile width still wins.
+              width:
+                landscapeVideo && s.mediaWidthMobile == null
+                  ? `${OVERVIEW_MEDIA_MOBILE_LANDSCAPE_VIDEO_WIDTH_PCT}%`
+                  : mediaPadMobilePhone.widthPx,
               marginLeft: 'auto',
               marginRight: 'auto',
             }}
@@ -4882,6 +4893,20 @@ function Label({
   )
 }
 
+/** Mobile QA round 2 R2 / R3, Nov 23: after a tap collapses content above `el`, scroll so
+ *  `el` is back at `top` (its screen position before the tap). The page scrolls in
+ *  `.cs-page-bands` on desktop and in the window on phones. */
+function keepOnScreen(el: Element, top: number) {
+  const d = el.getBoundingClientRect().top - top
+  if (Math.abs(d) < 1) return
+  const bands = el.closest('.cs-page-bands')
+  const scroller =
+    bands && bands.scrollHeight > bands.clientHeight && getComputedStyle(bands).overflowY !== 'visible'
+      ? bands
+      : window
+  scroller.scrollBy({ top: d, behavior: 'instant' })
+}
+
 function Accordion({
   items,
   variant = 'process',
@@ -4894,6 +4919,17 @@ function Accordion({
     items.findIndex(i => i.defaultOpen),
   )
   const [open, setOpen] = useState(initial === -1 ? 0 : initial)
+  // Mobile QA round 2 R2, Nov 23: opening a row closes the open one above it; keep the
+  // tapped row where the finger is (it jumped up 345–400 px, under the nav on Acme).
+  const tapped = useRef<{ row: HTMLElement; top: number } | null>(null)
+  useLayoutEffect(() => {
+    const t = tapped.current
+    if (!t) return
+    tapped.current = null
+    keepOnScreen(t.row, t.top)
+    const id = requestAnimationFrame(() => keepOnScreen(t.row, t.top))
+    return () => cancelAnimationFrame(id)
+  }, [open])
   const headSize =
     variant === 'brought'
       ? 'max-lg:!text-[17px] max-lg:!leading-[1.25] max-lg:!font-normal lg:text-[21px]'
@@ -4908,10 +4944,12 @@ function Accordion({
           <div key={it._key ?? `acc-${i}`} className="border-b-[0.4px] border-current">
             <button
               type="button"
-              onClick={() => {
-                const scrollY = window.scrollY
+              onClick={e => {
+                tapped.current = {
+                  row: e.currentTarget,
+                  top: e.currentTarget.getBoundingClientRect().top,
+                }
                 setOpen(isOpen ? -1 : i)
-                requestAnimationFrame(() => window.scrollTo(0, scrollY))
               }}
               data-cursor="hover"
               className={`flex w-full items-center justify-between gap-6 py-2.5 text-left font-normal lg:py-5 ${headSize}`}
@@ -5048,6 +5086,17 @@ function ArtifactSlider({
   const canPage = n > visible
   const cap = Math.max(1, mobileInitial)
   const [mobileExpanded, setMobileExpanded] = useState(false)
+  // Mobile QA round 2 R3, Nov 23: Load Less shrinks the list above the button; keep the
+  // button (now Load More) where it was on screen instead of leaving you ~2,200 px down.
+  const mobileStackRef = useRef<HTMLDivElement>(null)
+  const loadLessTop = useRef<number | null>(null)
+  useLayoutEffect(() => {
+    const top = loadLessTop.current
+    const btn = mobileStackRef.current?.lastElementChild
+    if (top == null || mobileExpanded || !btn) return
+    loadLessTop.current = null
+    keepOnScreen(btn, top)
+  }, [mobileExpanded])
   const mobileStack = mobileExpanded ? images : images.slice(0, cap)
   const mobileToggleClass =
     `mx-auto mt-2 border-b border-white pb-0.5 text-[14px] font-normal normal-case text-white transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
@@ -5056,7 +5105,7 @@ function ArtifactSlider({
   return (
     <div className={`relative w-full ${gutter ? 'px-6 sm:px-10 xl:px-[3.5vw]' : ''}`}>
       {/* Mobile — Figma 344:19555: stacked list, no carousel. */}
-      <div className="flex flex-col items-stretch gap-10 lg:hidden">
+      <div ref={mobileStackRef} className="flex flex-col items-stretch gap-10 lg:hidden">
         {mobileStack.map((src, i) => (
           <button
             key={`artifact-stack-${i}`}
@@ -5090,7 +5139,10 @@ function ArtifactSlider({
           <button
             type="button"
             data-cursor="hover"
-            onClick={() => setMobileExpanded(false)}
+            onClick={e => {
+              loadLessTop.current = e.currentTarget.getBoundingClientRect().top
+              setMobileExpanded(false)
+            }}
             className={mobileToggleClass}
           >
             {loadLess}

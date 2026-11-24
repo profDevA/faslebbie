@@ -39,10 +39,11 @@ function ExhibitionIntro({
       >
         {heading}
       </h1>
+      {/* Phones: 14px / 1.5 = the desktop intro size (was 10px, Figma 2971:218569; Xian, Nov 23 — mobile QA M5). CTA 16. */}
       <p
         className={
           mobile
-            ? "font-grotesk text-[10px] font-light leading-[13.5px] tracking-[0.8px] text-black"
+            ? "font-grotesk text-[14px] font-light leading-[1.5] tracking-[0.8px] text-black"
             : "max-w-[579px] font-grotesk text-[14px] font-light leading-[17px] tracking-[1px] text-black"
         }
       >
@@ -53,7 +54,7 @@ function ExhibitionIntro({
         data-cursor="hover"
         className={`${POPUP_LINK} pointer-events-auto font-grotesk font-medium ${
           mobile
-            ? "text-[13px] tracking-[0.8px]"
+            ? "text-[16px] tracking-[0.8px]"
             : "text-[20px] tracking-[1px]"
         }`}
       >

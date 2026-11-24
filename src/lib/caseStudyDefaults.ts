@@ -68,6 +68,14 @@ export const OVERVIEW_MEDIA_DESKTOP_VIDEO_WIDTH_VW = (286 / 1440) * 100;
  */
 export const OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW = (499 / 1440) * 100;
 
+/**
+ * Same, on phones, as % of the band (mobile QA round 2 R1, Nov 23): the mean
+ * laptop width of the mobile Figma frames, 288 of 393 — OC Links `559:39633`
+ * ≈ 270, OC Navigator `559:43635` ≈ 283, Acme `239:28621` ≈ 294, Vuforia Chalk
+ * `51:145848` ≈ 303. Portrait phone videos keep `OVERVIEW_MEDIA_MOBILE_PHONE`.
+ */
+export const OVERVIEW_MEDIA_MOBILE_LANDSCAPE_VIDEO_WIDTH_PCT = (288 / 393) * 100;
+
 export const OVERVIEW_COLUMN_GAP = 40;
 
 /** Accordion split panel (Design Process column). */
