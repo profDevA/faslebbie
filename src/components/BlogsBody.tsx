@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import BlogsWatermark from "@/components/BlogsWatermark";
 import MediaBody from "@/components/MediaBody";
 import MediaPopup from "@/components/MediaPopup";
@@ -65,6 +65,8 @@ export default function BlogsBody({
   };
   // The popup's own address has no ?view=, so keep .media behind it.
   const activeTab: Tab = openMediaId ? "media" : tab;
+  // .media "See More" (Nov 24): kept here so it survives a talk popup closing.
+  const [mediaExpanded, setMediaExpanded] = useState(false);
 
   const { r, pin } = useReveal(true);
   const opacity = revealOpacity(r);
@@ -141,6 +143,8 @@ export default function BlogsBody({
                     (mediaFeatured ? 1 : 0) + talkIndex,
                   )
                 }
+                expanded={mediaExpanded}
+                onExpandedChange={setMediaExpanded}
               />
             )}
           </div>

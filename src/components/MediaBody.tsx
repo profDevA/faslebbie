@@ -1,11 +1,21 @@
 "use client";
 
 import Image from "next/image";
+import { useLayoutEffect, useRef } from "react";
 import type { MediaFeatured, MediaItem } from "@/lib/blogs";
 import { hiResUrl } from "@/sanity/image";
 
 const DEFAULT_HERO = "/media/design-again-hero.png";
 const HERO_DISPLAY_W = 1400;
+
+/**
+ * Videos shown before "See More" (Fas, Nov 23 call #6: "two or three videos
+ * here, and then three down, and then another three, and then see more").
+ * 6 = two rows of 3 on desktop ≥ 1280, three rows of 2 at 1024–1279 and on
+ * phones / tablets. Any number of talks can come from Studio; with 6 or fewer
+ * there is no button.
+ */
+const MEDIA_TALKS_SHOWN = 6;
 
 function MediaPlayOverlay({ className = "size-[52px]" }: { className?: string }) {
   return (
@@ -49,9 +59,12 @@ const MEDIA_TITLE =
 
 function TalkCard({
   item,
+  order,
   onClick,
 }: {
   item: MediaItem;
+  /** Position in the Studio list — orders the cards in the desktop grid. */
+  order: number;
   onClick: () => void;
 }) {
   return (
@@ -59,9 +72,11 @@ function TalkCard({
       type="button"
       onClick={onClick}
       data-cursor="hover"
+      style={{ order }}
       className="group flex w-full max-w-[190px] flex-col text-left lg:max-w-[333px]"
     >
-      <div className="relative flex aspect-[190/191] w-full items-center justify-center overflow-hidden bg-white lg:aspect-[333/260] lg:h-[260px] lg:aspect-auto">
+      {/* Desktop: the Figma 333 × 260 box, now scaled to the grid column. */}
+      <div className="relative flex aspect-[190/191] w-full items-center justify-center overflow-hidden bg-white lg:aspect-[333/260]">
         {item.thumb ? (
           <Image
             src={item.thumb}
@@ -83,27 +98,29 @@ function TalkCard({
   );
 }
 
-/** Figma 3330:17914 — two independent columns (round-robin), not row-aligned grid. */
-function TalkMasonry({
+/**
+ * Phones / tablets (< 1024): Figma 3330:17914 — two independent columns
+ * (round-robin), not a row-aligned grid; unchanged.
+ * Desktop (Nov 24, call #6): the column wrappers turn into `display: contents`
+ * and the cards become one row-aligned grid — 2 per row at 1024–1279, 3 per
+ * row from 1280 — kept in the Studio order by each card's `order`.
+ */
+function TalkGrid({
   talks,
   onOpenTalk,
-  className = "",
 }: {
   talks: MediaItem[];
   onOpenTalk: (talkIndex: number) => void;
-  className?: string;
 }) {
   const columns = splitTalkColumns(talks, 2);
 
   return (
-    <div
-      className={`flex w-full items-start justify-center gap-2.5 lg:gap-8 ${className}`}
-    >
+    <div className="flex w-full items-start justify-center gap-2.5 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-[33px] xl:grid-cols-3">
       {columns.map((col, colIndex) => (
         <div
           key={colIndex}
-          className={`flex min-w-0 flex-1 flex-col gap-[18px] lg:max-w-[333px] lg:gap-[33px] ${
-            colIndex === 0 ? "items-end lg:items-start" : "items-start"
+          className={`flex min-w-0 flex-1 flex-col gap-[18px] lg:contents ${
+            colIndex === 0 ? "items-end" : "items-start"
           }`}
         >
           {col.map((item, rowIndex) => {
@@ -112,12 +129,75 @@ function TalkMasonry({
               <TalkCard
                 key={item.slug}
                 item={item}
+                order={talkIndex}
                 onClick={() => onOpenTalk(talkIndex)}
               />
             );
           })}
         </div>
       ))}
+    </div>
+  );
+}
+
+/**
+ * The talk grid plus "See More" / "See Less" (same text button as Teaching's
+ * "See All Student Projects"). See More opens the rest in place; See Less
+ * keeps the button where it was on screen (like case-study Load Less, mobile
+ * QA R3), so you aren't left far below the shorter list.
+ */
+function TalkList({
+  talks,
+  onOpenTalk,
+  expanded,
+  onExpandedChange,
+  className = "",
+}: {
+  talks: MediaItem[];
+  onOpenTalk: (talkIndex: number) => void;
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
+  className?: string;
+}) {
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const lessTop = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    const top = lessTop.current;
+    const btn = toggleRef.current;
+    if (top == null || expanded || !btn) return;
+    lessTop.current = null;
+    const d = btn.getBoundingClientRect().top - top;
+    if (Math.abs(d) >= 1) window.scrollBy({ top: d, behavior: "instant" });
+  }, [expanded]);
+
+  const hasMore = talks.length > MEDIA_TALKS_SHOWN;
+  // The first N are a prefix of the Studio list, so a card's index (and its
+  // /blogs/media/<talk> popup) is the same collapsed or expanded.
+  const shown = hasMore && !expanded ? talks.slice(0, MEDIA_TALKS_SHOWN) : talks;
+
+  return (
+    <div className={`flex w-full flex-col ${className}`}>
+      <TalkGrid talks={shown} onOpenTalk={onOpenTalk} />
+      {hasMore ? (
+        <div className="mt-14 flex justify-center pb-8">
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-expanded={expanded}
+            onClick={(e) => {
+              if (expanded) {
+                lessTop.current = e.currentTarget.getBoundingClientRect().top;
+              }
+              onExpandedChange(!expanded);
+            }}
+            data-cursor="hover"
+            className="reckless-prose text-[22px] font-normal text-black underline decoration-from-font underline-offset-4 lg:text-[27px]"
+          >
+            {expanded ? "See Less" : "See More"}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -132,12 +212,16 @@ function FeaturedCard({
   const heroSrc =
     hiResUrl(featured.heroImage?.trim(), HERO_DISPLAY_W) || DEFAULT_HERO;
 
+  // Desktop: 40 % of the row (was a fixed 687 px, which with the 684 px talks
+  // overflowed a 1440 window with a classic scrollbar by 22 px), and it stays
+  // in view while the videos beside it scroll (Fas, Nov 23 call: "I want the
+  // podcast to stay always here").
   return (
     <button
       type="button"
       onClick={onClick}
       data-cursor="hover"
-      className="group flex w-full flex-col gap-2.5 text-left lg:max-w-[687px] lg:shrink-0 lg:gap-[13px]"
+      className="group flex w-full flex-col gap-2.5 text-left lg:sticky lg:top-[114px] lg:w-[40%] lg:max-w-[687px] lg:shrink-0 lg:gap-[13px]"
     >
       <div className="relative aspect-[390/374] w-full overflow-hidden bg-[#d9d9d9] lg:aspect-[703/674]">
         <Image
@@ -174,11 +258,17 @@ export default function MediaBody({
   talks,
   onOpenFeatured,
   onOpenTalk,
+  expanded,
+  onExpandedChange,
 }: {
   featured: MediaFeatured | null;
   talks: MediaItem[];
   onOpenFeatured: () => void;
   onOpenTalk: (talkIndex: number) => void;
+  /** See More open — held by the page, because closing a talk popup
+   *  remounts this list and would fold it back to the first rows. */
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }) {
   if (!featured && !talks.length) {
     return (
@@ -190,9 +280,11 @@ export default function MediaBody({
 
   if (!featured) {
     return (
-      <TalkMasonry
+      <TalkList
         talks={talks}
         onOpenTalk={onOpenTalk}
+        expanded={expanded}
+        onExpandedChange={onExpandedChange}
         className="reckless-prose max-w-[1408px] lg:max-w-none"
       />
     );
@@ -202,10 +294,12 @@ export default function MediaBody({
     <div className="reckless-prose flex w-full max-w-[1397px] flex-col gap-3 pt-10 max-md:gap-2 lg:flex-row lg:items-start lg:gap-[28px] lg:pt-16">
       <FeaturedCard featured={featured} onClick={onOpenFeatured} />
       {talks.length ? (
-        <TalkMasonry
+        <TalkList
           talks={talks}
           onOpenTalk={onOpenTalk}
-          className="lg:max-w-[684px] lg:shrink-0"
+          expanded={expanded}
+          onExpandedChange={onExpandedChange}
+          className="lg:min-w-0 lg:flex-1"
         />
       ) : null}
     </div>
