@@ -628,6 +628,9 @@ export interface SanityAboutPage {
   bio?: PortableTextBlock[];
   expansions?: SanityAboutExpansion[];
   links?: SanityAboutLink[];
+  /** "CV password" / "Resume password" are set (the values stay server-side). */
+  cvHasOwnPassword?: boolean;
+  resumeHasOwnPassword?: boolean;
   seo?: SanityPageSeo;
 }
 

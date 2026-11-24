@@ -64,13 +64,44 @@ export default function HeroParagraph({
     [segments, storyHref],
   );
 
+  // Below lg: a little space above "More to my story." when it wraps onto its
+  // own line (Fas, Nov 23 call: "give it space a little bit"; Xian, Nov 24:
+  // only when wrapped — inline after the last word, as on Fas's iPhone, stays
+  // exactly as it is). CSS only, so nothing moves after load: a zero-width
+  // strut glued to the word before the pill makes THAT word's line 10px
+  // deeper. Wrapped, that line is the one above the pill → 10px gap. Inline,
+  // it's the last line → 10px below it, which the paragraph's -10px bottom
+  // margin takes back, so the page lays out exactly as before.
+  const n = tokens.length;
+  const strutAt =
+    tokens[n - 1]?.kind === "story" &&
+    tokens[n - 2]?.kind === "space" &&
+    tokens[n - 3]?.kind === "word"
+      ? n - 3
+      : -1;
+
   return (
     <div
-      className={`home-hero-prose text-(length:--hero-para-size,28px) md:text-[36px] lg:text-[42px] ${className}`}
+      className={`home-hero-prose text-(length:--hero-para-size,28px) md:text-[36px] lg:text-[42px] ${
+        strutAt >= 0 ? "max-lg:-mb-[10px]" : ""
+      } ${className}`}
     >
       {tokens.map((token, i) => {
         if (token.kind === "space") return <span key={i}> </span>;
-        if (token.kind === "word") return <span key={i}>{token.text}</span>;
+        if (token.kind === "word")
+          return (
+            <span key={i}>
+              {token.text}
+              {i === strutAt ? (
+                <span
+                  aria-hidden
+                  className="hidden w-0 select-none pb-[10px] align-top max-lg:inline-block"
+                >
+                  {"​"}
+                </span>
+              ) : null}
+            </span>
+          );
         // Every hero keyword navigates to another page → the red pill.
         return (
           <NavPill key={i} href={token.href}>

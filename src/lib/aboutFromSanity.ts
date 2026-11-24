@@ -2,11 +2,22 @@ import { stripExpansionKeywordPrefix } from '@/lib/aboutExpansionNormalize'
 import type { PortableTextBlock } from '@portabletext/types'
 import type { SanityAboutPage } from '@/sanity/types'
 import { aboutLogos, type AboutToken } from '@/lib/content'
+import type { AboutLockedLink, AccessScope } from '@/lib/access'
 
 export interface AboutLink {
   label: string
   href: string
   passwordProtected?: boolean
+  /** CV / Resume: own password when Studio's "CV password" / "Resume password" is set. */
+  access?: AccessScope
+}
+
+/** Which About link a "CV password" / "Resume password" belongs to (by label). */
+function lockedLinkFor(label: string): AboutLockedLink | null {
+  const l = label.trim()
+  if (/^cv$/i.test(l)) return 'cv'
+  if (/^r[eé]sum[eé]$/i.test(l)) return 'resume'
+  return null
 }
 
 export interface AboutContentData {
@@ -58,6 +69,11 @@ function childToToken(child: Child, markDefs: MarkDef[]): AboutToken | null {
 
   if (mark?._type === 'pill') return { t: 'key', text, tone: 'gray' }
   if (mark?._type === 'redKey') {
+    // "Web page (new tab)": e.g. "free monthly" → Fas's cal.com booking (Nov 24).
+    if (mark.kind === 'url') {
+      const href = mark.href?.trim()
+      return href ? { t: 'key', text, popup: 'url', href } : { t: 'text', text }
+    }
     const kind = mark.kind === 'contact' ? 'contact' : 'testimonials'
     return { t: 'key', text, popup: kind }
   }
@@ -124,10 +140,21 @@ export function aboutFromSanity(
       href = `mailto:${href}`
     }
     const lockedDefault = /^(cv|resume)$/i.test(l.label.trim())
+    const lockedLink = lockedLinkFor(l.label)
     links.push({
       label: l.label,
       href,
       passwordProtected: l.passwordProtected ?? lockedDefault,
+      access: lockedLink
+        ? {
+            link: lockedLink,
+            own: Boolean(
+              lockedLink === 'cv'
+                ? data.cvHasOwnPassword
+                : data.resumeHasOwnPassword,
+            ),
+          }
+        : undefined,
     })
   }
 

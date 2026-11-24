@@ -321,6 +321,8 @@ export const ABOUT_PAGE_QUERY = defineQuery(`*[_type == "aboutPage"][0]{
     "body": body[]${aboutProseProj}
   },
   links[]{ label, href, passwordProtected, "pdfUrl": pdf.asset->url },
+  "cvHasOwnPassword": defined(cvPassword) && cvPassword != "",
+  "resumeHasOwnPassword": defined(resumePassword) && resumePassword != "",
   ${seoProj}
 }`);
 
@@ -332,6 +334,11 @@ export const ACCESS_PASSWORD_QUERY = defineQuery(
 // Server-only (/api/access) — a case study's own password, if it has one.
 export const STUDY_ACCESS_PASSWORD_QUERY = defineQuery(
   `*[_type == "caseStudy" && slug.current == $slug && !(_id in path("drafts.**"))][0]{ passwordProtected, accessPassword }`,
+);
+
+// Server-only (/api/access) — the About CV / Resume own passwords, if set.
+export const ABOUT_LINK_PASSWORDS_QUERY = defineQuery(
+  `*[_type == "aboutPage" && !(_id in path("drafts.**"))][0]{ cvPassword, resumePassword }`,
 );
 
 // "What people are saying" testimonials, ordered — powers the About modal.

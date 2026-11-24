@@ -25,22 +25,13 @@ function MediaPlayOverlay({ className = "size-[52px]" }: { className?: string })
   );
 }
 
+// No underline: part of the blurb was underlined like a link but wasn't one
+// (mobile QA M18; Fas, Nov 23 call: "it should not be underlined"). Same p
+// classes as before, so the lines sit where they did.
 function FeaturedBlurb({ text }: { text: string }) {
-  const split = text.match(/^(.*?)(schools,.*)$/i);
-  if (!split) {
-    return (
-      <p className="text-[14px] font-normal capitalize leading-[1.35] text-black lg:text-[18px] lg:leading-[1.09]">
-        {text}
-      </p>
-    );
-  }
-
   return (
     <p className="text-[14px] font-normal capitalize leading-[1.35] text-black lg:text-[18px]">
-      <span className="leading-[0.91] lg:leading-[1.09]">{split[1]}</span>
-      <span className="underline decoration-1 underline-offset-2">
-        {split[2]}
-      </span>
+      {text}
     </p>
   );
 }
@@ -50,6 +41,11 @@ function splitTalkColumns(talks: MediaItem[], count = 2): MediaItem[][] {
   talks.forEach((item, i) => cols[i % count]!.push(item));
   return cols;
 }
+
+/** Talk and podcast titles: italic, underlined, red while the card is hovered
+ *  (Fas, Nov 23 call: the podcast title gets the talk-title treatment). */
+const MEDIA_TITLE =
+  "italic underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent";
 
 function TalkCard({
   item,
@@ -77,7 +73,7 @@ function TalkCard({
         ) : null}
         <MediaPlayOverlay />
       </div>
-      <p className="mt-2.5 text-[14px] font-normal italic capitalize leading-[1.35] text-black underline decoration-1 underline-offset-2 transition-colors group-hover:text-accent lg:mt-2.5 lg:text-[18px]">
+      <p className={`mt-2.5 text-[14px] font-normal capitalize leading-[1.35] text-black ${MEDIA_TITLE} lg:mt-2.5 lg:text-[18px]`}>
         {item.title}
       </p>
       <p className="mt-[15px] text-[13px] font-normal capitalize leading-[1.35] text-black lg:text-[18px]">
@@ -155,15 +151,18 @@ function FeaturedCard({
         />
       </div>
       <div className="flex w-full flex-col gap-2 capitalize not-italic lg:gap-[15px]">
-        <p className="text-[14px] font-normal leading-[0.91] text-black lg:text-[18px]">
+        <p className={`text-[14px] font-normal leading-[0.91] text-black ${MEDIA_TITLE} lg:text-[18px]`}>
           {featured.title}
         </p>
         {featured.listingBlurb ? (
           <FeaturedBlurb text={featured.listingBlurb} />
         ) : null}
-        <p className="text-[13px] font-normal leading-[1.35] text-black lg:text-[18px]">
-          {featured.tag}
-        </p>
+        {/* Studio "Tag line" — empty = no line (Fas, Nov 23: drop "Podcast · Ongoing"). */}
+        {featured.tag ? (
+          <p className="text-[13px] font-normal leading-[1.35] text-black lg:text-[18px]">
+            {featured.tag}
+          </p>
+        ) : null}
       </div>
     </button>
   );

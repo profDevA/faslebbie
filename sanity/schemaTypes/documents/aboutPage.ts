@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { pageSeoField } from "../objects/pageSeo";
+import { StudyPasswordInput } from "../../components/StudyPasswordInput";
 
 // Singleton for the /about page: the bio itself, the reveal copy behind each
 // grey keyword, and the CV / Resume / LinkedIn / Email links.
@@ -86,7 +87,7 @@ export const aboutPage = defineType({
               type: "boolean",
               initialValue: false,
               description:
-                "Turn on for CV / Resume. Uses the Site Settings → Access password.",
+                "Turn on for CV / Resume. Uses the CV / Resume password below, or the Site Settings → Access password when that's empty.",
             },
           ],
           preview: {
@@ -114,6 +115,25 @@ export const aboutPage = defineType({
             }),
         },
       ],
+    }),
+    // Own passwords for the CV / Resume links (Fas Nov 23: "I need to be able
+    // to update these two passwords"). Matched to the link labelled "CV" /
+    // "Resume"; the values stay server-side (/api/access).
+    defineField({
+      name: "cvPassword",
+      title: "CV password",
+      type: "string",
+      group: "links",
+      description: "Leave empty to use the site Access password (Site Settings).",
+      components: { input: StudyPasswordInput },
+    }),
+    defineField({
+      name: "resumePassword",
+      title: "Resume password",
+      type: "string",
+      group: "links",
+      description: "Leave empty to use the site Access password (Site Settings).",
+      components: { input: StudyPasswordInput },
     }),
     pageSeoField,
   ],

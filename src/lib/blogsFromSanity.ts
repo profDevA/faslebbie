@@ -71,7 +71,7 @@ export function blogsFromSanity(
     ? {
         title: data.mediaFeatured.title.trim(),
         listingBlurb: data.mediaFeatured.listingBlurb?.trim() ?? "",
-        tag: data.mediaFeatured.tag?.trim() ?? "Podcast · Ongoing",
+        tag: data.mediaFeatured.tag?.trim() ?? "",
         heroImage: data.mediaFeatured.heroImage ?? undefined,
         comingSoonTitle:
           data.mediaFeatured.comingSoonTitle?.trim() ?? "Coming Soon",

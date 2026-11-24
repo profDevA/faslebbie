@@ -119,7 +119,7 @@ export const aboutProse = defineType({
           {
             name: "redKey",
             type: "object",
-            title: "Red keyword (opens pop-up)",
+            title: "Red keyword (opens pop-up or web page)",
             fields: [
               {
                 name: "kind",
@@ -129,9 +129,26 @@ export const aboutProse = defineType({
                   list: [
                     { title: "Testimonials modal", value: "testimonials" },
                     { title: "Contact drawer", value: "contact" },
+                    { title: "Web page (new tab)", value: "url" },
                   ],
                 },
                 initialValue: "testimonials",
+              },
+              {
+                // e.g. "free monthly" → Fas's cal.com booking page (Nov 24).
+                name: "href",
+                type: "url",
+                title: "Web page",
+                description: "Opens in a new tab, e.g. the cal.com booking page.",
+                hidden: ({ parent }: { parent?: { kind?: string } }) =>
+                  parent?.kind !== "url",
+                validation: (r) =>
+                  r.custom((value, ctx) =>
+                    (ctx.parent as { kind?: string } | undefined)?.kind ===
+                      "url" && !value
+                      ? "Add the web page address."
+                      : true,
+                  ),
               },
             ],
           },

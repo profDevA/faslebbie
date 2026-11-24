@@ -237,7 +237,8 @@ type RenderCtx = {
 // vs red text); `opens` drives behaviour (inline expansion vs boxed panel).
 // Default: grey → inline, red → panel — so existing tokens are unchanged.
 function keyOpensPanel(tok: Extract<AboutToken, { t: 'key' }>) {
-  if (tok.popup === 'testimonials' || tok.popup === 'contact') return false
+  if (tok.popup === 'testimonials' || tok.popup === 'contact' || tok.popup === 'url')
+    return false
   return tok.opens ? tok.opens === 'panel' : tok.tone !== 'gray'
 }
 
@@ -247,6 +248,23 @@ function renderKeyPill(
   displayText: string,
   key: string,
 ) {
+  // Red keyword that opens a web page (Studio "Web page (new tab)") — e.g.
+  // "free monthly" → Fas's cal.com booking (Nov 24). Same red underline as
+  // the drawer / testimonials keywords, in a new tab.
+  if (tok.popup === 'url' && tok.href)
+    return (
+      <a
+        key={key}
+        href={normalizeHref(tok.href)}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-about-key
+        data-cursor="hover"
+        className={`relative z-10 ${POPUP_KEY_CLASS}`}
+      >
+        {displayText}
+      </a>
+    )
   // A grey pill reveals narrative; red text on a pill is reserved for
   // navigation, which a keyword never does, so `gray-red` renders as a plain
   // grey pill too.
@@ -705,7 +723,8 @@ export default function AboutContent({
   const [activePanel, setActivePanel] = useState<string | null>(() =>
     initialTestimonials ? testimonialsKey : null,
   )
-  const { gateOpen, requestAccess, closeGate, onGateSuccess } = useAccessGate()
+  const { gateOpen, gateScope, requestAccess, closeGate, onGateSuccess } =
+    useAccessGate()
 
   const openProtectedHref = (href: string) => {
     let resolved = href.trim()
@@ -887,7 +906,10 @@ export default function AboutContent({
               <AboutFooterButton
                 key={link.label}
                 onClick={() =>
-                  requestAccess(() => openProtectedHref(link.href))
+                  requestAccess(
+                    () => openProtectedHref(link.href),
+                    link.access,
+                  )
                 }
               >
                 {link.label}
@@ -904,6 +926,7 @@ export default function AboutContent({
       <PasswordGate
         open={gateOpen}
         message="Please enter your password."
+        scope={gateScope}
         onClose={closeGate}
         onSuccess={onGateSuccess}
       />

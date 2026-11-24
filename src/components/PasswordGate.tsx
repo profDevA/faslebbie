@@ -15,7 +15,7 @@ export default function PasswordGate({
   onSuccess,
   scope,
 }: {
-  /** A case study with its own password — checked against that one only. */
+  /** A case study or About CV / Resume with its own password — checked against that one only. */
   scope?: AccessScope;
   open: boolean;
   message?: string;
