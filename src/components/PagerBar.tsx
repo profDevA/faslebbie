@@ -26,7 +26,8 @@ export default function PagerBar({
   dots?: { hrefs: string[]; labels: string[]; active: number };
 }) {
   return (
-    <div className="sticky bottom-0 z-50 flex min-h-12 shrink-0 items-center border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom,0px)] lg:static lg:pb-0">
+    // data-pager-bar: the floating intro-video card sits above this bar.
+    <div data-pager-bar className="sticky bottom-0 z-50 flex min-h-12 shrink-0 items-center border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom,0px)] lg:static lg:pb-0">
       <div className={`w-full ${csShell()}`}>
         <div
           className={`${csPagerShell()} reckless-prose font-normal ${csUiText()}`}

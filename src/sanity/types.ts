@@ -448,6 +448,14 @@ export interface SanitySiteSettings {
   ogImageWidth?: number;
   ogImageHeight?: number;
   ogImageAlt?: string;
+  /** Intro video card (Nov 23): video file URL + resolved thumbnail URL. */
+  introCardVideo?: string;
+  introCardThumbnail?: string;
+  introCardKicker?: string;
+  introCardText?: string;
+  introCardButtonLabel?: string;
+  introCardButtonHref?: string;
+  introCardHidden?: boolean;
 }
 
 // --- Research page (raw Sanity shape) -------------------------------------
@@ -581,6 +589,10 @@ export interface SanityBuildProject {
   images?: string[];
   outputVisual?: string;
   conceptPreview?: string;
+  /** Studio "Popup image panel colour" — empty = #133034. */
+  panelColor?: SanityColor;
+  /** Studio "Popup image size" — empty = padded. */
+  panelImageFit?: "padded" | "fill";
 }
 
 export interface SanityBuildPage {

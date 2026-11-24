@@ -48,6 +48,11 @@ export interface BuildProject {
   images?: string[];
   outputVisual?: string;
   conceptPreview?: string;
+  /** Popup image panel background (CSS colour); undefined = the #133034 teal. */
+  panelColor?: string;
+  /** Popup image size: "fill" = the card image covers the panel edge to edge;
+   *  undefined / "padded" = centred with padding (as before). */
+  panelImageFit?: "padded" | "fill";
   kicker: string;
   subtitle: string;
   blurb: string;

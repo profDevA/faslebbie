@@ -151,12 +151,30 @@ function CaseStudyArticle({
 function BuildProjectDetailBody({ project }: { project: BuildProject }) {
   const cover = project.images?.[0]
   const secondary = project.images?.[1]
+  // Studio "Popup image size" → Fill: the card image covers the whole panel
+  // (Fas, Nov 23 call: "take this image and put it here… full size").
+  const fill = project.panelImageFit === 'fill' && Boolean(cover)
 
   return (
     <>
-      {/* Teal mockup — desktop + phone when both assets exist (Figma Leoney). */}
-      <div className="order-2 flex h-[538px] shrink-0 flex-col items-center justify-center overflow-hidden bg-[#133034] px-6 pt-12 lg:order-1 lg:h-full lg:min-h-0 lg:px-10 lg:py-14">
-        {cover ? (
+      {/* Image panel — desktop + phone when both assets exist (Figma Leoney).
+          Teal #133034 unless Studio "Popup image panel colour" is set (Fas,
+          Nov 23: "it should reflect the case study"). Read from the same
+          project as the image, so it switches with Previous / Next. */}
+      <div
+        style={project.panelColor ? { backgroundColor: project.panelColor } : undefined}
+        className={`order-2 flex h-[538px] shrink-0 flex-col items-center justify-center overflow-hidden bg-[#133034] px-6 pt-12 lg:order-1 lg:h-full lg:min-h-0 lg:px-10 lg:py-14${
+          fill ? ' relative' : ''
+        }`}
+      >
+        {fill ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
+          <img
+            src={cover}
+            alt={project.title}
+            className="absolute inset-0 size-full object-cover object-center"
+          />
+        ) : cover ? (
           secondary ? (
             <div className="flex w-full max-w-[520px] items-end justify-center gap-3 lg:max-w-[560px] lg:gap-5">
               {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN */}

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./fonts/reckless-neue.css";
 import "./globals.css";
 import DotCursor from "@/components/DotCursor";
+import IntroVideoCard from "@/components/IntroVideoCard";
 import { SiteProvider } from "@/components/SiteProvider";
 import { siteFromSanity } from "@/lib/siteFromSanity";
 import { siteMetadataFromSanity } from "@/lib/siteMetadata";
@@ -56,6 +57,8 @@ export default async function RootLayout({
         <SiteProvider value={site}>
           <DotCursor />
           {children}
+          {/* In the root layout so it survives client-side navigation. */}
+          <IntroVideoCard card={site.introCard} />
         </SiteProvider>
       </body>
     </html>

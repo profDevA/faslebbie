@@ -223,7 +223,11 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings"][0]{
   "favicon": favicon${img},
   "ogImage": ogImage${img},
   "ogImageWidth": ogImage.asset->metadata.dimensions.width,
-  "ogImageHeight": ogImage.asset->metadata.dimensions.height
+  "ogImageHeight": ogImage.asset->metadata.dimensions.height,
+  "introCardVideo": introCardVideo.asset->url,
+  "introCardThumbnail": introCardThumbnail${img},
+  introCardKicker, introCardText, introCardButtonLabel, introCardButtonHref,
+  introCardHidden
 }`);
 
 // Sitemap: published studies with the fields the sitemap needs (no sections).
@@ -274,6 +278,7 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
   intro,
   projects[]{
     id, title, hidden, tech, span, tint, lightArt, kicker, subtitle, blurb,
+    panelColor, panelImageFit,
     caseStudyDetail{
       statusLabel, trigger, observation, hypothesis, value, experiment, statusBody,
       checklist[]{ done, text },

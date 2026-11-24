@@ -5,6 +5,7 @@ import {
   type BuildSectionTitles,
   type BuildToken,
 } from "@/lib/build";
+import { colorToCss } from "@/components/caseStudyView/colors";
 import { proseParagraphs, type ProseRun } from "@/lib/sanityProse";
 import type { SanityBuildPage, SanityBuildProject } from "@/sanity/types";
 
@@ -80,6 +81,8 @@ export function buildFromSanity(
       images,
       outputVisual: p.outputVisual?.trim() || undefined,
       conceptPreview: p.conceptPreview?.trim() || undefined,
+      panelColor: colorToCss(p.panelColor),
+      panelImageFit: p.panelImageFit === "fill" ? "fill" : "padded",
       kicker: p.kicker ?? "",
       subtitle: p.subtitle ?? "",
       blurb: p.blurb ?? "",

@@ -1,6 +1,7 @@
 import { defineField, defineType } from "sanity";
 
-// Site Settings: brand (logo + portrait), nav, contact drawer, SEO / share.
+// Site Settings: brand (logo + portrait), nav, contact drawer, intro video
+// card, SEO / share.
 export const siteSettings = defineType({
   name: "siteSettings",
   title: "Site Settings",
@@ -10,6 +11,7 @@ export const siteSettings = defineType({
     { name: "nav", title: "Navigation" },
     { name: "contact", title: "Contact" },
     { name: "access", title: "Access" },
+    { name: "introCard", title: "Intro video card" },
     { name: "seo", title: "SEO / Share" },
   ],
   fields: [
@@ -132,6 +134,69 @@ export const siteSettings = defineType({
       group: "access",
       description:
         "Shared password for any case study or About link marked password-protected. Leave empty to turn the gate off (toggles stay, but visitors won't be asked).",
+    }),
+
+    // --- Intro video card (Fas, Nov 23 call: "exactly like" horizonx.so) ---
+    // Floating card at the bottom right of every page. It shows only when
+    // both the video and the thumbnail are set.
+    defineField({
+      name: "introCardVideo",
+      title: "Video",
+      type: "file",
+      group: "introCard",
+      options: { accept: "video/mp4,video/webm" },
+      description:
+        "Your welcome video (MP4 or WebM). It plays inside the card, with sound, when a visitor presses play. The card shows only when this video and the thumbnail are both set.",
+    }),
+    defineField({
+      name: "introCardThumbnail",
+      title: "Thumbnail",
+      type: "image",
+      group: "introCard",
+      options: { hotspot: true },
+      description:
+        "Shown before and after the video (16:9 landscape; the card crops other shapes around the hotspot). The white play button sits on top of it.",
+    }),
+    defineField({
+      name: "introCardKicker",
+      title: "Small line",
+      type: "string",
+      group: "introCard",
+      description: 'Small grey line under the thumbnail (e.g. "New here?"). Optional.',
+    }),
+    defineField({
+      name: "introCardText",
+      title: "Short description",
+      type: "text",
+      rows: 2,
+      group: "introCard",
+      description:
+        "One or two short lines in white under the small line. A line break here starts a new line on the card. Optional.",
+    }),
+    defineField({
+      name: "introCardButtonLabel",
+      title: "Button label",
+      type: "string",
+      group: "introCard",
+      description:
+        "Optional white pill button at the bottom of the card. It shows only when the label and the link are both set.",
+    }),
+    defineField({
+      name: "introCardButtonHref",
+      title: "Button link",
+      type: "string",
+      group: "introCard",
+      description:
+        'A page on this site ("/about") or a full web address ("https://…", opens in a new tab).',
+    }),
+    defineField({
+      name: "introCardHidden",
+      title: "Hide on site",
+      type: "boolean",
+      group: "introCard",
+      initialValue: false,
+      description:
+        "On: the card is not shown anywhere, and everything above stays here so you can bring it back later.",
     }),
 
     // --- SEO / Share (browser tab + link previews) ---

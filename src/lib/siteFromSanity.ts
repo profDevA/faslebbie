@@ -25,12 +25,24 @@ export interface SiteBrand {
   portraitSrc: string;
 }
 
+/** Floating intro-video card (Site Settings → Intro video card). */
+export interface IntroCardData {
+  videoSrc: string;
+  thumbnailSrc: string;
+  kicker: string;
+  text: string;
+  /** Pill button — only when Studio has both a label and a link. */
+  button: NavItem | null;
+}
+
 export interface SiteContentData {
   brand: SiteBrand;
   navItems: NavItem[];
   mobileNavItems: NavItem[];
   projectNavItems: NavItem[];
   contact: ContactCopy;
+  /** Null unless Studio has a video AND a thumbnail (and "Hide on site" is off). */
+  introCard: IntroCardData | null;
 }
 
 const defaultProjectNav: NavItem[] = defaultProjectNavItems.map((i) => ({
@@ -63,6 +75,21 @@ const emptyContact: ContactCopy = {
   sendAnotherLabel: "",
 };
 
+function mapIntroCard(data: SanitySiteSettings): IntroCardData | null {
+  const videoSrc = data.introCardVideo?.trim();
+  const thumbnailSrc = data.introCardThumbnail?.trim();
+  if (data.introCardHidden || !videoSrc || !thumbnailSrc) return null;
+  const label = data.introCardButtonLabel?.trim();
+  const href = data.introCardButtonHref?.trim();
+  return {
+    videoSrc,
+    thumbnailSrc,
+    kicker: data.introCardKicker?.trim() || "",
+    text: data.introCardText?.trim() || "",
+    button: label && href ? { label, href } : null,
+  };
+}
+
 /** Site Settings from Sanity only — no in-code nav/content seed. */
 export function siteFromSanity(
   data: SanitySiteSettings | null | undefined,
@@ -79,6 +106,7 @@ export function siteFromSanity(
       mobileNavItems: ensureHome([]),
       projectNavItems: defaultProjectNav,
       contact: emptyContact,
+      introCard: null,
     };
   }
 
@@ -109,5 +137,6 @@ export function siteFromSanity(
       successBody: data.contactSuccessBody?.trim() || "",
       sendAnotherLabel: data.contactSendAnotherLabel?.trim() || "",
     },
+    introCard: mapIntroCard(data),
   };
 }

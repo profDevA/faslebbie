@@ -72,6 +72,34 @@ export const buildProjectItem = defineType({
         "Gallery `.img` thumb and modal teal-band hero (first slide). One image only.",
       group: "card",
     }),
+    // Fas, Nov 23 call (item 7): the popup's image panel was the same dark
+    // teal for every project ("it should reflect the case study").
+    defineField({
+      name: "panelColor",
+      title: "Popup image panel colour",
+      type: "color",
+      description:
+        "Background of the popup's image panel (left half on desktop, the block under the title on phones). Empty = the dark teal #133034.",
+      options: { disableAlpha: true },
+      group: "modal",
+    }),
+    defineField({
+      name: "panelImageFit",
+      title: "Popup image size",
+      type: "string",
+      description:
+        "Padded: the card image sits in the middle of the panel colour (as now). Fill: it covers the whole panel edge to edge (cropped to fit, centred).",
+      initialValue: "padded",
+      options: {
+        list: [
+          { title: "Padded (as now)", value: "padded" },
+          { title: "Fill the panel", value: "fill" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      group: "modal",
+    }),
     defineField({ name: "kicker", title: "Modal kicker", type: "string", group: "modal" }),
     defineField({ name: "subtitle", title: "Modal subtitle", type: "text", rows: 2, group: "modal" }),
     defineField({
