@@ -5834,6 +5834,15 @@ function ImageGrid({
   )
 }
 
+/**
+ * Space between the number and a word suffix ("3 Priorities", "5 Days",
+ * "2020 Pre-Census Pilot"). Units and symbols stay attached ("65%", "20M+",
+ * "$4M", "3.2×", "15hrs", "13pts", "3mins"). Word = capital + lowercase letter.
+ */
+function statSuffixGap(suffix?: string) {
+  return suffix && /^[A-Z][a-z]/.test(suffix) ? ' ' : ''
+}
+
 function Stat({
   stat,
   scrollContainer,
@@ -5903,6 +5912,7 @@ function Stat({
       >
         {stat.prefix}
         {n}
+        {statSuffixGap(stat.suffix)}
         {stat.suffix}
       </p>
       <p className="mt-[13px] max-w-[min(360px,100%)] text-[19px] font-bold leading-[1.25] sm:max-w-none lg:mt-5 lg:text-[22px] lg:leading-[1.245]">
