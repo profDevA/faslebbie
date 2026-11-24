@@ -265,17 +265,20 @@ export default function CaseStudyView({
             href={listingHref}
             aria-label="Close"
             data-cursor="hover"
-            className="shrink-0 text-[24px] leading-none text-black transition-opacity hover:opacity-60"
+            // ✕ like the popups (Xian, Nov 24; was × at 24px). ✕ at 24 draws
+            // ~2× the old ×'s ink (19 × 17 vs 10 × 9), so 13px keeps the same
+            // look; the 24px line box keeps the old tap area.
+            className="shrink-0 text-[13px] leading-[24px] text-black transition-opacity hover:opacity-60"
           >
-            ×
+            ✕
           </Link>
         </div>
       </div>
 
-      <div
-        ref={setScrollNode}
-        className="cs-page-bands max-lg:pb-[calc(3rem+env(safe-area-inset-bottom,0px))]"
-      >
+      {/* No bottom padding: the pager bar is sticky (in the flow), not fixed —
+          padding for it left a 48px white strip under Reflection on phones
+          (mobile QA R4, Nov 24). */}
+      <div ref={setScrollNode} className="cs-page-bands">
         {bands}
       </div>
 
@@ -495,10 +498,11 @@ function HeroBlock({
         <img
           src={mobileArt}
           alt=""
+          {...sanityUrlImageSize(mobileArt)}
           className={
             isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
               ? 'mt-[-15.01%] block h-auto w-full'
-              : `block max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`
+              : `block h-auto max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`
           }
         />
         {siteWash && (
@@ -523,6 +527,7 @@ function HeroBlock({
         <img
           src={s.image}
           alt={p.name}
+          {...sanityUrlImageSize(s.image)}
           className="block h-auto w-full"
         />
         {/* Figma 4556:37569 — same 178.5deg → #171717 wash as mobile, taller on
@@ -539,6 +544,17 @@ function HeroBlock({
       </div>
     </section>
   )
+}
+
+/** width / height from a Sanity asset URL (`-{w}x{h}.`, or its `rect=` crop),
+ *  so the hero reserves its box before the multi-MB PNG arrives — mobile QA
+ *  R17: Vuforia Editor sat at 0 px on a first visit, then the page jumped
+ *  633 px. CSS keeps `h-auto`, so the loaded image draws exactly as before. */
+function sanityUrlImageSize(url?: string) {
+  const m =
+    url?.match(/[?&]rect=\d+,\d+,(\d+),(\d+)/) ??
+    url?.match(/-(\d+)x(\d+)\.\w+(?:\?|$)/)
+  return m ? { width: Number(m[1]), height: Number(m[2]) } : {}
 }
 
 /** Sanity asset URLs carry `-{w}x{h}.`; the Figma mobile hero frame is 393×807 at any scale. */
@@ -1179,7 +1195,9 @@ function ReflectionBlock({
               {s.nextStepsHeading && (
                 <h2 className={titleClass}>{s.nextStepsHeading}</h2>
               )}
-              <div className={body}>
+              {/* Same 20px paragraph gap as the Reflection body (CaseStudyProse
+                  space-y-5) — mobile QA R5, Nov 24; desktop too (Xian, Nov 24). */}
+              <div className={`space-y-5 ${body}`}>
                 {steps.map((it, i) => (
                   <p key={i}>{it}</p>
                 ))}
@@ -3173,6 +3191,8 @@ function ShowcaseBlock({
   return (
     <section
       data-cs-stretch
+      // Cards slider: its own phone padding (globals.css, mobile QA R15).
+      data-cs-m={cards ? 'cards' : undefined}
       className={`flex flex-col justify-center ${SECTION_GAP_CLASS}`}
       {...cursorInvertAttrs(light)}
       style={{
@@ -4510,6 +4530,11 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
           frames={cells.flatMap(highlightFrameUrls)}
           matteColor={singleMatte}
           mattePadding={singlePad}
+          onColouredBand={
+            !!s.appearance?.backgroundColor?.hex &&
+            (s.appearance.backgroundColor.alpha ?? 1) > 0.5 &&
+            !sanityColorIsLight(s.appearance.backgroundColor)
+          }
         />
       ) : (
         <>
@@ -4587,11 +4612,18 @@ function HighlightCardView({
   frames,
   matteColor,
   mattePadding,
+  onColouredBand = false,
 }: {
   frames: string[]
   matteColor: string
   mattePadding: number
+  /** Mid / dark band fill: the red pager vanished on AR Handbook's teal
+   *  (1.0 : 1) and Memory Tubes' (1.8 : 1) — mobile QA R12. There it takes
+   *  the band's text colour, like the title above it; light bands keep red. */
+  onColouredBand?: boolean
 }) {
+  const pagerLink = onColouredBand ? '' : 'text-accent'
+  const pagerCount = onColouredBand ? 'opacity-80' : 'text-black/55'
   const autoIndex = useFrameCycle(frames.length, 0)
   const [manualIndex, setManualIndex] = useState(0)
   const [mobileManual, setMobileManual] = useState(false)
@@ -4635,18 +4667,18 @@ function HighlightCardView({
             type="button"
             data-cursor="hover"
             onClick={() => go(-1)}
-            className={`font-grotesk font-normal text-accent ${csUiText()}`}
+            className={`font-grotesk font-normal ${pagerLink} ${csUiText()}`}
           >
             {'< Previous'}
           </button>
-          <span className="font-grotesk text-[13px] text-black/55">
+          <span className={`font-grotesk text-[13px] ${pagerCount}`}>
             {i + 1} / {n}
           </span>
           <button
             type="button"
             data-cursor="hover"
             onClick={() => go(1)}
-            className={`font-grotesk font-normal text-accent ${csUiText()}`}
+            className={`font-grotesk font-normal ${pagerLink} ${csUiText()}`}
           >
             {'Next >'}
           </button>
@@ -5564,9 +5596,13 @@ function ArtifactLightbox({
           onClick={onClose}
           aria-label="Close"
           data-cursor="hover"
-          className="absolute right-5 top-5 z-10 text-[22px] leading-none text-black transition-opacity hover:opacity-60 sm:right-8 sm:top-6 sm:text-[24px]"
+          // Tap target ≥ 44 × 44 (was the 9 × 22 glyph — mobile QA R6, Nov 24):
+          // the padding grows the button, the equal negative margin keeps the
+          // glyph's corner exactly where it was. ✕ at 22px like PopupShell and
+          // the other popups (Xian, Nov 24; was × at 22 / 24px).
+          className="absolute right-5 top-5 z-10 -mx-[14px] -my-[11px] px-[14px] py-[11px] text-[22px] leading-none text-black transition-opacity hover:opacity-60 sm:right-8 sm:top-6"
         >
-          ×
+          ✕
         </button>
       </div>
     </div>,
@@ -5618,7 +5654,11 @@ function DeviceGallery({
         <div
           className={
             popupMode
-              ? 'mx-auto flex w-full max-w-[240px] flex-nowrap items-end justify-between pb-1 lg:max-w-[300px]'
+              ? // Phones: tabs are 17px (mobile type), so long labels ("Use case 1–3",
+                // Acme) filled the 240 row with 2px gaps — the row now grows to keep
+                // 32px between tabs; short ones (Mobile / iPad / Desktop) still spread
+                // over 240 as before (mobile QA R14, Figma 4556:40715).
+                'mx-auto flex w-full max-w-[240px] flex-nowrap items-end justify-between pb-1 max-lg:w-max max-lg:min-w-[240px] max-lg:max-w-full max-lg:gap-x-8 lg:max-w-[300px]'
               : 'mx-auto flex w-full max-lg:flex-col max-lg:items-stretch max-lg:gap-3 lg:flex-nowrap lg:justify-center gap-x-3 sm:flex-wrap sm:gap-8 xl:gap-[6vw]'
           }
         >
