@@ -37,6 +37,18 @@ export const researchPage = defineType({
       description: "Statement paragraphs; use bold for the emphasised phrases.",
       group: "sections",
     }),
+    // Off unless switched on: an existing document has no value, so field notes
+    // are hidden with no content change (Fas, Nov 24 call: "Can we hide the
+    // field notes for now?"). Like Build's "Hide on site", the notes stay here.
+    defineField({
+      name: "showFieldNotes",
+      title: "Show field notes on site",
+      type: "boolean",
+      description:
+        "Off: no Field Notes popup or pages, no field-note addresses in the sitemap, and the red \"field notes\" link and the words joining it (\", along with selected\") drop out of the Research text, so it ends \"…and a manifesto.\". On: all of it comes back as written. The notes below are kept either way. Never empty the list to hide them.",
+      initialValue: false,
+      group: "sections",
+    }),
     defineField({
       name: "fieldNotes",
       title: "Field notes",

@@ -22,14 +22,17 @@ export const mediaEntry = defineType({
       initialValue: "Podcast",
       validation: (r) => r.required(),
     }),
+    // Platform · Year first: on desktop that line sits on top of the card,
+    // underlined, with the title under it (Fas, Nov 24 evening: "update the
+    // back end to reflect this change").
+    defineField({ name: "platform", title: "Platform", type: "string", description: 'e.g. "Spotify", "MIT Media Lab".' }),
+    defineField({ name: "year", title: "Year", type: "string" }),
     defineField({
       name: "title",
       title: "Title",
       type: "string",
       validation: (r) => r.required(),
     }),
-    defineField({ name: "platform", title: "Platform", type: "string", description: 'e.g. "Spotify", "MIT Media Lab".' }),
-    defineField({ name: "year", title: "Year", type: "string" }),
     defineField({
       name: "thumb",
       title: "Thumbnail",

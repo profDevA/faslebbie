@@ -498,6 +498,8 @@ export interface SanityResearchPage {
     footnote?: string;
   };
   manifesto?: PortableTextBlock[];
+  /** Studio "Show field notes on site"; unset = hidden (Nov 25). */
+  showFieldNotes?: boolean;
   fieldNotes?: {
     place?: string;
     quote?: string;

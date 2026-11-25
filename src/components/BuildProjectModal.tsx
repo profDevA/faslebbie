@@ -12,7 +12,7 @@ function CheckIcon({ done }: { done: boolean }) {
     <svg
       aria-hidden
       viewBox="0 0 16 16"
-      className="mt-0.5 size-4 shrink-0"
+      className="size-4 shrink-0"
       fill="none"
     >
       <rect x="1.5" y="1.5" width="13" height="13" stroke="black" />
@@ -92,11 +92,19 @@ function CaseStudyArticle({
           </p>
           <ul className="flex flex-col gap-3">
             {detail.checklist.map(item => (
-              <li key={item.text} className="flex items-start gap-[5px]">
-                <CheckIcon done={item.done} />
-                <span className="font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]">
-                  {item.text}
+              <li
+                key={item.text}
+                className="flex items-start gap-[5px] font-grotesk text-[17px] font-light leading-[1.6] text-black lg:text-[19px]"
+              >
+                {/* Icon box one text line tall (1.6em = the line height at
+                    17 / 19 px), icon centred in it, so the box sits on the
+                    centre of the first line, also when the item wraps (Fas's
+                    doc, Nov 25: icon was 3.6 / 5.2 px high since the Nov 19
+                    line height 1.6). */}
+                <span className="flex h-[1.6em] shrink-0 items-center">
+                  <CheckIcon done={item.done} />
                 </span>
+                <span>{item.text}</span>
               </li>
             ))}
           </ul>

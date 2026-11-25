@@ -250,6 +250,7 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   principles{ label, intro, "image": image${img}, items[]{ title, body }, conclusionKicker, conclusionBody },
   modalities{ kicker, statement, "image": image${img}, items, groups[]{ title, items }, footnote },
   manifesto,
+  showFieldNotes,
   fieldNotes[]{ place, quote, methodology, themes, insight, "image": image${img} },
   ${seoProj}
 }`);

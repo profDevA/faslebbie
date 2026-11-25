@@ -9,6 +9,7 @@ import type {
   ResearchSectionId,
   ResearchToken,
 } from "@/lib/research";
+import { withoutFieldNotesLinks } from "@/lib/research";
 
 export interface ResearchContentData {
   areas: ResearchArea[];
@@ -98,14 +99,24 @@ export function researchFromSanity(
 ): ResearchContentData {
   if (!data) return { areas: [], closing: [], sections: {} };
 
+  // Field notes stay off until Studio "Show field notes on site" is on (Fas,
+  // Nov 24 call: "Can we hide the field notes for now?"). Off: no Field Notes
+  // section, so no popup, /research/field-notes[/<n>] is a 404 and the sitemap
+  // leaves them out; the text loses its field-notes link (withoutFieldNotesLinks).
+  const showFieldNotes = data.showFieldNotes === true;
+  const prose = (blocks?: PortableTextBlock[]) => {
+    const tokens = blocksToTokens(blocks);
+    return showFieldNotes ? tokens : withoutFieldNotesLinks(tokens);
+  };
+
   const areas: ResearchArea[] = (data.areas ?? [])
     .map((a) => ({
       kicker: a.kicker ?? "",
-      body: blocksToTokens(a.body),
+      body: prose(a.body),
     }))
     .filter((a) => a.body.length > 0);
 
-  const closing = blocksToTokens(data.closing);
+  const closing = prose(data.closing);
   const sections: Partial<Record<ResearchSectionId, ResearchSectionContent>> =
     {};
 
@@ -164,7 +175,7 @@ export function researchFromSanity(
     } satisfies ManifestoContent;
   }
 
-  if (data.fieldNotes?.length) {
+  if (showFieldNotes && data.fieldNotes?.length) {
     sections["field-notes"] = {
       kind: "field-notes",
       notes: data.fieldNotes.map((note, i) => ({

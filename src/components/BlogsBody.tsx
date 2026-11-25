@@ -65,8 +65,14 @@ export default function BlogsBody({
   };
   // The popup's own address has no ?view=, so keep .media behind it.
   const activeTab: Tab = openMediaId ? "media" : tab;
-  // .media "See More" (Nov 24): kept here so it survives a talk popup closing.
+  // .media "See More" (Nov 24, phones / tablets since the Nov 24 evening
+  // call): kept here so it survives a talk popup closing.
   const [mediaExpanded, setMediaExpanded] = useState(false);
+  // Desktop .media with the podcast runs edge to edge: the podcast panel sits
+  // flush with the window's left edge (Figma Final Cleanup 1392:16974). Its
+  // bottom padding moves into the talks column (MediaBody), so the fixed panel
+  // doesn't get pushed up in the last 64 px of scroll.
+  const mediaEdgeToEdge = activeTab === "media" && !!mediaFeatured;
 
   const { r, pin } = useReveal(true);
   const opacity = revealOpacity(r);
@@ -97,7 +103,11 @@ export default function BlogsBody({
             className="gap-8 sm:gap-12 lg:gap-[84px]"
           />
         </div>
-        <main className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-12 pt-6 max-lg:pt-6 lg:px-12 lg:pb-16 lg:pt-12">
+        <main
+          className={`relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-12 pt-6 max-lg:pt-6 lg:pt-12 ${
+            mediaEdgeToEdge ? "lg:max-w-none lg:px-0 lg:pb-0" : "lg:px-12 lg:pb-16"
+          }`}
+        >
           <div
             style={{
               opacity,
@@ -133,7 +143,7 @@ export default function BlogsBody({
               /* Figma 2729:2736 — centered 1129px block, numbered rows. */
               <WordsPublications publications={publications} />
             ) : (
-              /* Figma 3323:9065 / 3330:17914 — Design Again hero + talk grid. */
+              /* Figma 1392:16974 (desktop, Final Cleanup) / 3330:17914 — Design Again panel + talk grid. */
               <MediaBody
                 featured={mediaFeatured}
                 talks={media}

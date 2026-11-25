@@ -23,6 +23,9 @@ import { hiResUrl } from "@/sanity/image";
 // Research section popups (Figma 2854:1464–1925 desktop, 2869:* mobile).
 // Paradigms / Principles / Modalities / Manifesto share a 4-dot section pager.
 // Field Notes pages only its own notes — never mixed into that carousel (Fas Sep 30 QA).
+// Popup text is plain, no grey `text-shadow-token` (Fas, Nov 24 call: "regular
+// text instead of a shadow… removing the shadows on all of them"). Phones had
+// none since Sep 30 (globals.css); this removes it on desktop too.
 
 /** Last three words never split (non-breaking spaces), so a paragraph doesn't
  *  end on a one- or two-word line like "behind it." (Xian, Nov 19, note 7). */
@@ -96,10 +99,10 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
         className="mx-auto w-[232px] lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]"
       />
       <div>
-          <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
+          <p className="font-grotesk text-[20px] font-medium text-black lg:text-[24px]">
             {c.label}
           </p>
-          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.6] text-black text-shadow-token lg:text-[42px] lg:leading-[1.6]">
+          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.6] text-black lg:text-[42px] lg:leading-[1.6]">
             {c.intro}
           </p>
           <div className="mt-10">
@@ -119,20 +122,20 @@ function PrinciplesView({ c }: { c: PrinciplesContent }) {
         className="mx-auto w-[232px] lg:sticky lg:top-0 lg:mx-0 lg:w-[207px]"
       />
       <div>
-          <p className="font-grotesk text-[20px] font-medium text-black text-shadow-token lg:text-[24px]">
+          <p className="font-grotesk text-[20px] font-medium text-black lg:text-[24px]">
             {c.label}
           </p>
-          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.35] text-black text-shadow-token lg:text-[42px]">
+          <p className="mt-2 max-w-none font-grotesk text-[24px] font-medium leading-[1.35] text-black lg:text-[42px]">
             {c.intro}
           </p>
           <div className="mt-10">
             <NumberedList items={c.items} />
           </div>
           <div className="mt-12 max-w-none pt-8">
-            <p className="font-grotesk text-[18px] font-medium text-black text-shadow-token">
+            <p className="font-grotesk text-[18px] font-medium text-black">
               {c.conclusion.kicker}
             </p>
-            <p className="mt-3 font-grotesk text-[24px] font-medium leading-[1.6] text-black text-shadow-token lg:text-[32px]">
+            <p className="mt-3 font-grotesk text-[24px] font-medium leading-[1.6] text-black lg:text-[32px]">
               {c.conclusion.body}
             </p>
           </div>
@@ -221,10 +224,10 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
       />
       <div>
       <div className="border-b border-black pb-10">
-        <p className="font-grotesk text-[18px] font-medium text-black text-shadow-token lg:text-[24px]">
+        <p className="font-grotesk text-[18px] font-medium text-black lg:text-[24px]">
           {c.kicker}
         </p>
-        <p className="mt-6 font-grotesk text-[24px] font-medium leading-[1.35] text-balance text-black text-shadow-token lg:text-[42px]">
+        <p className="mt-6 font-grotesk text-[24px] font-medium leading-[1.35] text-balance text-black lg:text-[42px]">
           {c.statement}
         </p>
       </div>
@@ -246,7 +249,7 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
       <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-2">
         {c.groups.map((g, gi) => (
           <div key={g.title} className="flex flex-col">
-            <p className="mx-auto mb-4 inline-block font-grotesk text-[22px] font-bold lowercase text-black underline underline-offset-4 text-shadow-token lg:text-[32px]">
+            <p className="mx-auto mb-4 inline-block font-grotesk text-[22px] font-bold lowercase text-black underline underline-offset-4 lg:text-[32px]">
               {g.title}
             </p>
             <NodeCluster items={g.items} groupIndex={gi} />
@@ -272,11 +275,11 @@ function ManifestoView({ c }: { c: ManifestoContent }) {
           }`}
         >
           {i === 0 && (
-            <p className="mb-3 font-grotesk text-[18px] font-medium text-black text-shadow-token lg:text-[24px]">
+            <p className="mb-3 font-grotesk text-[18px] font-medium text-black lg:text-[24px]">
               Manifesto
             </p>
           )}
-          <p className="font-grotesk text-[22px] font-medium leading-[1.4] text-black text-shadow-token lg:text-[32px] lg:leading-[1.35]">
+          <p className="font-grotesk text-[22px] font-medium leading-[1.4] text-black lg:text-[32px] lg:leading-[1.35]">
             {runs.map((run, j) =>
               run.bold ? (
                 <span key={j} className="font-black">

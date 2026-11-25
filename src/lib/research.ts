@@ -50,6 +50,44 @@ export type ResearchArea = {
   body: ResearchToken[];
 };
 
+/** Words joining a list's last item to the one before: ", along with
+ *  selected ", ", and ", ", ". */
+const TRAILING_CONNECTOR =
+  /,?\s*(?:\b(?:and|plus|as well as|along with)(?:\s+(?:selected|some|the|a|my))?)?\s*$/i;
+
+const isFieldNotesLink = (tok: ResearchToken) =>
+  (tok.t === "link" && tok.opens === "field-notes") ||
+  (tok.t === "ext" && /^\/research\/field-notes(?:[/?#]|$)/.test(tok.href));
+
+/**
+ * Text with field notes hidden (Fas, Nov 24 call: "No, let's end it here.
+ * Period… Manifesto."): every field-notes link goes, with the connector words
+ * right before it, so "…and a manifesto, along with selected field notes."
+ * reads "…and a manifesto." The text after the link (the full stop) stays.
+ * Also inside highlight reveals. The tokens themselves are not changed, so
+ * switching field notes back on shows the sentence as written.
+ */
+export function withoutFieldNotesLinks(tokens: ResearchToken[]): ResearchToken[] {
+  const out: ResearchToken[] = [];
+  for (const tok of tokens) {
+    if (isFieldNotesLink(tok)) {
+      const prev = out[out.length - 1];
+      if (prev?.t === "text") {
+        const kept = prev.text.replace(TRAILING_CONNECTOR, "");
+        if (kept) out[out.length - 1] = { t: "text", text: kept };
+        else out.pop();
+      }
+      continue;
+    }
+    out.push(
+      tok.t === "hl" && tok.expand
+        ? { ...tok, expand: withoutFieldNotesLinks(tok.expand) }
+        : tok,
+    );
+  }
+  return out;
+}
+
 export const researchAreas: ResearchArea[] = [
   {
     kicker: "Minerals, Material & Post-Extractive Design",
