@@ -123,15 +123,21 @@ export const STATS_BAND_DEFAULTS = {
   titleMarginBottom: 43,
   titleMarginBottomDesktop: 64,
   bodyMarginBottom: 48,
-  /** Mobile number box `4551:32024` is 54px. Desktop keeps WP 8.5vw. */
+  /** Mobile number box `4551:32024` is 54px. Desktop: 128 light @1440 =
+   *  8.9vw (Figma Final Cleanup Coral 25:24265 / Census 261:47843: a "3" is
+   *  90 px of ink; Reckless Light 128 gives 90). Was WP 8.5vw regular (85). */
   valueFontSizeMobile: 54,
-  valueFontSize: "clamp(60px, 8.5vw, 160px)",
+  valueFontSize: "clamp(60px, 8.9vw, 168px)",
   gridMaxWidth: 1280,
 } as const;
 
 /** §06 Research Artifacts expandable slider. */
 export const SHOWCASE_ARTIFACT_DEFAULTS = {
   sliderGap: 20,
+  /** Research Artifacts slider from 1024 (Figma Final Cleanup, same on all 4
+   *  frames — Coral 25:23886: 360-wide slides at x 140 / 540 / 940 @1440):
+   *  gap 40 = 2.78vw, side margins 140 = 9.72vw. Was 20px / 3.5vw. */
+  sliderGapDesktopVw: 2.78,
 } as const;
 
 /** §07 Motion showcase band. */

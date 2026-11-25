@@ -53,6 +53,7 @@ import {
   CS_CAPTION_LG,
   CS_CAPTION_SM,
   CS_CE_CAPTION,
+  CS_HERO_CAP_TITLE,
   CS_KICKER,
   CS_SUBHEAD_MOBILE,
   csExpandLabel,
@@ -465,6 +466,11 @@ const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
  *  By slug, not by size: Galderma's 720 export has its wordmark in that top strip. */
 const MOBILE_HERO_FULL_FRAME_SLUGS = new Set(['oc-links'])
 
+/** Census QA #4, Nov 25: Census's 393×807 export has its NEW YORK wordmark at
+ *  y 38–115, inside the top 59px the 807 rule hides, so phones showed half of
+ *  it. Shown uncropped (the hero is 56px taller at 375). */
+const MOBILE_HERO_NO_TOP_CROP_SLUGS = new Set(['2020-us-census-benefit-calculator'])
+
 function HeroBlock({
   section: s,
   project: p,
@@ -481,9 +487,15 @@ function HeroBlock({
   // (Israel, Final Cleanup "XIAN" page, Nov 2 — reverses Fas 08/05).
   const caption = (
     <p className={capSize}>
-      <strong className="font-bold">{title}</strong> · {s.caption ?? p.tagline}
+      <strong className={CS_HERO_CAP_TITLE}>{title}</strong> · {s.caption ?? p.tagline}
     </p>
   )
+  // Portrait exports shown whole (393×807 frame, OC Links): on iPad portrait
+  // (768–1023) that art was 1.4 screens tall with the caption below the fold
+  // (Census QA #5, Nov 25), so the landscape desktop hero is used from 768.
+  const fullFrame =
+    isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
+  const topCrop = !MOBILE_HERO_NO_TOP_CROP_SLUGS.has(p.slug)
   // Israel's Nov 2 hero exports carry their own gradient; the site wash on top
   // reads as "too much" (Studio: "Images already include the dark gradient").
   const siteWash = !s.imageHasGradient
@@ -492,7 +504,9 @@ function HeroBlock({
   // Full-page mobile hero — Figma 3928:28893 / 4173:68708 (MV_Hero collage + overlay copy).
   return (
     <section data-cs-hero data-cs-media-natural className="relative">
-      <div className="relative overflow-hidden bg-[#171717] lg:hidden">
+      <div
+        className={`relative overflow-hidden bg-[#171717] ${fullFrame ? 'md:hidden' : 'lg:hidden'}`}
+      >
         {/* Mobile exports are the 393×807 Figma frame; its top 59px sits under the site nav. */}
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
@@ -500,8 +514,8 @@ function HeroBlock({
           alt=""
           {...sanityUrlImageSize(mobileArt)}
           className={
-            isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
-              ? 'mt-[-15.01%] block h-auto w-full'
+            fullFrame
+              ? `${topCrop ? 'mt-[-15.01%] ' : ''}block h-auto w-full`
               : `block h-auto max-h-[min(78vh,820px)] w-full object-cover ${mobileObjectPos}`
           }
         />
@@ -522,7 +536,7 @@ function HeroBlock({
           ) : null}
         </div>
       </div>
-      <div className="relative hidden bg-[#171717] lg:block">
+      <div className={`relative hidden bg-[#171717] ${fullFrame ? 'md:block' : 'lg:block'}`}>
         {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
         <img
           src={s.image}
@@ -538,7 +552,10 @@ function HeroBlock({
             aria-hidden
           />
         )}
-        <div className="cs-hero-caption absolute left-7.5 p-2.5 text-white">
+        {/* Figma 261:46373 / 25:23624: caption at x 30 @1440, no padding
+            (was left 30 + 10 padding = 40). bottom-8 = the lg rule in
+            globals.css, also needed on iPad portrait (fullFrame heroes). */}
+        <div className="cs-hero-caption absolute bottom-8 left-[2.08vw] text-white">
           {caption}
         </div>
       </div>
@@ -1012,8 +1029,10 @@ function AccordionBlock({ section: s }: { section: Of<'accordionSection'> }) {
             <CaseStudyProse value={s.sideBody} className={`lg:mt-3 ${csBodyText()}`} />
           </div>
         </div>
+        {/* Panel padding from 1280: 60 sides / 41 top + bottom @1440 (Figma
+            Final Cleanup Coral 25:23863 in 25:23862; Census 65 / 41). Was 2vw (29). */}
         <div
-          className={`order-1 self-stretch px-[18px] py-[30px] lg:order-2 lg:p-[10vw_5vw] xl:p-[2vw] ${panelTextClass}`}
+          className={`order-1 self-stretch px-[18px] py-[30px] lg:order-2 lg:p-[10vw_5vw] xl:px-[4.17vw] xl:py-[2.85vw] ${panelTextClass}`}
           style={{
             backgroundColor: colorToCss(s.accordionBackgroundColor),
             ...(panelTextCss ? { color: panelTextCss } : undefined),
@@ -1391,7 +1410,7 @@ function CoreExperienceScreenCard({
             className={`${bandCaptionClass} ${mobileGridTile ? 'break-words' : ''}`}
             style={captionStyle}
           >
-            {screen.label && <span className="font-medium max-lg:!font-bold">{screen.label} </span>}
+            {screen.label && <span className="font-bold">{screen.label} </span>}
             {screen.description && (
               <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
                 {screen.description}
@@ -1432,7 +1451,7 @@ function CoreExperienceScreenCard({
       </div>
       {(screen.label || screen.description) && (
         <figcaption className={popupCaptionClass}>
-          {screen.label && <span className="font-medium max-lg:!font-bold">{screen.label} </span>}
+          {screen.label && <span className="font-bold">{screen.label} </span>}
           {screen.description && (
             <span className={onDark ? 'font-normal opacity-95' : 'font-normal'}>
               {screen.description}
@@ -1904,7 +1923,7 @@ function CoreExperienceBlock({
                 type="button"
                 data-cursor="hover"
                 onClick={() => setPopupOpen(true)}
-                className={`font-grotesk shrink-0 normal-case leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.1vw] ${CS_M_EXPAND_BTN} ${light ? 'text-white' : ''}`}
+                className={`font-grotesk shrink-0 normal-case leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.46vw] ${CS_M_EXPAND_BTN} ${light ? 'text-white' : ''}`}
               >
                 {viewMore}
               </button>
@@ -2906,9 +2925,10 @@ function InterventionGridBlock({
   const popupTabs: DeviceTab[] = [
     { _key: 'all', label: s.sectionTitle || 'Design Interventions', items },
   ]
-  // Same size as the Coral band CTAs (CE View All, popup Load More).
+  // Same size as the Coral band CTAs (CE View All, popup Load More): 21 @1440
+  // (Figma Final Cleanup, Coral / Acme / Census View All; was 1.1vw = 15.8).
   const loadMoreBtnClass =
-    `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] font-normal text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
+    `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.46vw] font-normal text-[#171717] transition-opacity hover:opacity-70 ${CS_M_EXPAND_BTN}`
 
   return (
     <section
@@ -3130,10 +3150,12 @@ function ShowcaseBlock({
   // Redesigned Research Artifacts (Figma 600:12544): 3-up landscape slider on
   // top, title + body BELOW it (left-aligned). Only the expandable variant.
   if (s.expandable) {
-    const artifactGap =
-      typeof s.sliderGap === 'number' && s.sliderGap >= 0
-        ? s.sliderGap
-        : SHOWCASE_ARTIFACT_DEFAULTS.sliderGap
+    const studioGap =
+      typeof s.sliderGap === 'number' && s.sliderGap >= 0 ? s.sliderGap : undefined
+    const artifactGap = studioGap ?? SHOWCASE_ARTIFACT_DEFAULTS.sliderGap
+    // Desktop gap scales with the window (40 @1440) unless Studio sets one.
+    const artifactGapVw =
+      studioGap === undefined ? SHOWCASE_ARTIFACT_DEFAULTS.sliderGapDesktopVw : undefined
     return (
       <section
         data-cs-stretch
@@ -3145,15 +3167,16 @@ function ShowcaseBlock({
           ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
         }}
       >
+        {/* Desktop side margins 140 @1440 (Figma 25:23880; was the shared
+            CS_WIDE_BAND_GUTTER 3.5vw, which My Approach keeps). */}
         <div
-          className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-4 max-lg:!gap-[45px] sm:px-16 ${CS_WIDE_BAND_GUTTER}`}
+          className={`relative flex w-full flex-col ${SECTION_GAP_CLASS} px-4 max-lg:!gap-[45px] sm:px-16 lg:px-[9.72vw]`}
           style={sectionGapStyle(s.appearance, gapDefault('lg', false), true)}
         >
           {(s.sectionTitle || s.introBody) && (
-            <div
-              className="order-1 w-full lg:order-2 lg:max-w-[calc((100%-2*var(--cs-artifact-gap))/3)]"
-              style={{ ['--cs-artifact-gap' as string]: `${artifactGap}px` }}
-            >
+            // Title + intro column 584 @1440 (Figma 25:23969 / 261:47375). It
+            // used to be one slide wide, which shrank with the 360 slides.
+            <div className="order-1 w-full lg:order-2 lg:max-w-[40.56vw]">
               {s.sectionTitle && (
                 <h2
                   className={`text-left ${csSectionTitle()} ${light ? 'text-white' : ''}`}
@@ -3176,6 +3199,7 @@ function ShowcaseBlock({
                 scrollContainer={scrollContainer}
                 gutter={false}
                 gap={artifactGap}
+                gapVw={artifactGapVw}
                 light={light}
               />
             </div>
@@ -3703,7 +3727,7 @@ function MotionShowcaseCrossFunctionalBand({
               type="button"
               data-cursor="hover"
               onClick={() => setPopupOpen(true)}
-              className={`font-grotesk shrink-0 normal-case leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.1vw] ${CS_M_EXPAND_BTN} ${textClass}`}
+              className={`font-grotesk shrink-0 normal-case leading-none underline underline-offset-4 transition-opacity hover:opacity-80 ${csUiText()} xl:text-[1.46vw] ${CS_M_EXPAND_BTN} ${textClass}`}
             >
               {viewMore}
             </button>
@@ -4082,12 +4106,19 @@ function MotionShowcaseMobileFlowStackBand({
         className={`mx-auto hidden w-full max-w-[min(1280px,100%)] flex-col lg:flex ${csShell('!px-0')}`}
       >
         {rows.map((row, i) => (
+          // Rows overlap (−72) only from 1280: at 1024–1279 the phone and laptop
+          // columns meet, so the laptop covered the end of the phone caption
+          // (Census QA #21, Nov 25 — Census, Coral, Experian, DVA, OC Navigator).
           <div
             key={row._key ?? `motion-flow-d-${i}`}
-            style={{
-              marginTop:
-                i === 0 ? 0 : MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx,
-            }}
+            className={i === 0 ? undefined : 'xl:mt-[var(--cs-kpe-row-gap)]'}
+            style={
+              i === 0
+                ? undefined
+                : {
+                    ['--cs-kpe-row-gap' as string]: `${MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx}px`,
+                  }
+            }
           >
             <MotionRowMobileItemStack
               row={row}
@@ -4553,8 +4584,11 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
               />
             ))}
           </div>
+          {/* Desktop grid 1226 wide, centred (margins 107 @1440 → tiles ≈ 400 with
+              Studio's 14px gap, 397 with Figma's 18): Figma Final Cleanup Coral
+              25:24281, Census 261:47859 (was the band's 48px gutter, tiles 439). */}
           <div
-            className="mx-auto hidden w-full grid-cols-3 grid-flow-row grid-rows-2 lg:grid xl:gap-[1vw]"
+            className="mx-auto hidden w-full grid-cols-3 grid-flow-row grid-rows-2 lg:grid lg:max-w-[85.17vw] xl:gap-[1vw]"
             style={{ gap: gridGap }}
           >
             {cells.map((c, i) => (
@@ -5027,6 +5061,7 @@ function ArtifactSlider({
   images,
   scrollContainer,
   gap = SHOWCASE_ARTIFACT_DEFAULTS.sliderGap,
+  gapVw,
   gutter = true,
   mobileInitial = 3,
   loadMore = 'Load More',
@@ -5038,6 +5073,8 @@ function ArtifactSlider({
   /** Band uses light text (controls follow). */
   light?: boolean
   gap?: number
+  /** From 1024: the gap as a share of the window (vw) instead of `gap` px. */
+  gapVw?: number
   /** Outer inset. False when the parent already provides the same gutter. */
   gutter?: boolean
   /** Mobile stack cap before expand (Oct 2026 QA). */
@@ -5053,12 +5090,14 @@ function ArtifactSlider({
   const locked = useRef(false)
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewportW, setViewportW] = useState(0)
-  const GAP = gap
+  const [windowW, setWindowW] = useState(0)
+  const GAP = gapVw !== undefined && windowW >= 1024 ? (gapVw * windowW) / 100 : gap
 
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth
       setVisible(w < 640 ? 1 : w < 1024 ? 2 : 3)
+      setWindowW(w)
       if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
     }
     update()
@@ -5790,7 +5829,7 @@ function ImageGrid({
     )
 
   const gridToggleButton = (() => {
-    const btnClass = `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.1vw] ${CS_M_EXPAND_BTN} ${light ? 'text-white' : ''}`
+    const btnClass = `relative pb-1 normal-case leading-none after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-current ${csUiText()} xl:text-[1.46vw] ${CS_M_EXPAND_BTN} ${light ? 'text-white' : ''}`
 
     if (shown < images.length) {
       return (
@@ -5945,9 +5984,10 @@ function Stat({
       ref={ref}
       className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center max-lg:max-w-none max-lg:items-start max-lg:px-0 max-lg:text-left sm:max-w-none sm:px-3 lg:items-center lg:text-center"
     >
-      {/* Impact number — mobile 54px Thin `4551:32024`; desktop WP 8.5vw. */}
+      {/* Impact number — mobile 54px Thin `4551:32024`; desktop light 8.9vw
+          (Figma Final Cleanup, all 4 frames). */}
       <p
-        className="font-normal leading-none max-lg:!text-[54px] max-lg:!leading-none max-lg:font-thin"
+        className="font-normal leading-none max-lg:!text-[54px] max-lg:!leading-none max-lg:font-thin lg:font-light"
         style={{ fontSize: STATS_BAND_DEFAULTS.valueFontSize }}
       >
         {stat.prefix}
@@ -5959,7 +5999,8 @@ function Stat({
         {stat.label}
       </p>
       {stat.note && (
-        <p className={`max-w-[min(360px,100%)] font-normal leading-[1.245] sm:max-w-none lg:mt-2.5 ${csBodyText()}`}>
+        // Label baseline → note top 39 @1440 (Figma Coral 25:24265; was 25).
+        <p className={`max-w-[min(360px,100%)] font-normal leading-[1.245] sm:max-w-none lg:mt-[1.63vw] ${csBodyText()}`}>
           {stat.note}
         </p>
       )}

@@ -68,9 +68,14 @@ export function csMetaXs(extra = '') {
   return `text-[14px] font-normal italic leading-4.25 ${CS_M_BODY} ${extra}`
 }
 
+/** Desktop hero caption line (title · tagline). Figma Final Cleanup, same on
+ *  all 4 frames (Census 261:46373, Coral 25:23624): tagline 14 regular, title
+ *  18 bold (`CS_HERO_CAP_TITLE`). Was 19 / 19. Phones have their own caption. */
 export function csHeroCap(extra = '') {
-  return `text-[18px] leading-[1.6] lg:text-[19px] ${extra}`
+  return `text-[14px] leading-[1.6] ${extra}`
 }
+
+export const CS_HERO_CAP_TITLE = 'text-[18px] font-bold'
 
 export const CS_KICKER = 'text-[13px] sm:text-[14px]'
 export const CS_CAPTION_LG = `text-[15px] sm:text-[16px] ${CS_M_BODY}`
