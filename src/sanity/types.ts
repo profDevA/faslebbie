@@ -393,6 +393,11 @@ export interface Study extends StudyCard {
   sections: Section[];
 }
 
+/** A video's width × height, read from the file (`src/sanity/videoSize.ts`). */
+export type VideoSize = readonly [width: number, height: number];
+/** Video URL → size, for every video in a study (QA X1, Nov 25). */
+export type VideoSizes = Record<string, VideoSize>;
+
 export interface ToolStackItem {
   label?: string;
   src?: string;
@@ -589,6 +594,8 @@ export interface SanityBuildProject {
   blurb?: string;
   caseStudyDetail?: BuildCaseStudyDetail;
   images?: string[];
+  /** Studio "Popup image (left panel)" — empty = the card image. */
+  popupImage?: string;
   outputVisual?: string;
   conceptPreview?: string;
   /** Studio "Popup image panel colour" — empty = #133034. */

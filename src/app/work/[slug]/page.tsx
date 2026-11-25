@@ -4,6 +4,7 @@ import CaseStudyAccess from "@/components/CaseStudyAccess";
 import { caseStudyHref } from "@/lib/caseStudyNav";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
 import { findStudy, getSiteSettings, getStudySlugs } from "@/sanity/fetch";
+import { getVideoSizes } from "@/sanity/videoSize";
 
 export const revalidate = 60;
 
@@ -45,10 +46,14 @@ export default async function CaseStudyPage({
   if (view !== undefined) permanentRedirect(`/work/${encodeURIComponent(slug)}`);
   const found = await findStudy(slug);
   if (!found) notFound();
+  // Each video's size from its file, so the bands keep their height while the
+  // videos load (QA X1, Nov 25).
+  const videoSizes = await getVideoSizes(found.project.sections);
 
   return (
     <CaseStudyAccess
       project={found.project}
+      videoSizes={videoSizes}
       prev={found.prev}
       next={found.next}
       pager={{

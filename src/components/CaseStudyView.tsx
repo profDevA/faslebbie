@@ -3,7 +3,9 @@
 import Link from 'next/link'
 import {
   Fragment,
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -87,6 +89,7 @@ import type {
   StudyCard,
   HighlightCell,
   CoreExperienceScreen,
+  VideoSizes,
 } from '@/sanity/types'
 import type { PortableTextBlock } from '@portabletext/types'
 import {
@@ -148,12 +151,15 @@ import {
 // ── main component ────────────────────────────────────────────────────────────
 export default function CaseStudyView({
   project: p,
+  videoSizes = NO_VIDEO_SIZES,
   prev,
   next,
   pager,
   listingHref = '/work',
 }: {
   project: Study
+  /** Video URL → width × height, read on the server (QA X1, Nov 25). */
+  videoSizes?: VideoSizes
   prev: StudyCard
   next: StudyCard
   /** Every study in order + the current one — dot pager in the bottom bar (Nov 20). */
@@ -280,7 +286,7 @@ export default function CaseStudyView({
           padding for it left a 48px white strip under Reflection on phones
           (mobile QA R4, Nov 24). */}
       <div ref={setScrollNode} className="cs-page-bands">
-        {bands}
+        <VideoSizeContext.Provider value={videoSizes}>{bands}</VideoSizeContext.Provider>
       </div>
 
       <PagerBar
@@ -462,14 +468,31 @@ const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
 }
 
 /** Mobile QA round 2 R9, Nov 23: OC Links' 393×720 export shown whole like the 807 rule
- *  (top 59px under the nav, no 78vh cut) so the caption clears the devices (Figma 559:39269).
- *  By slug, not by size: Galderma's 720 export has its wordmark in that top strip. */
-const MOBILE_HERO_FULL_FRAME_SLUGS = new Set(['oc-links'])
+ *  (no 78vh cut) so the caption clears the devices (Figma 559:39269). By slug, not by
+ *  size: Galderma's 720 export has its wordmark in that top strip.
+ *  QA X6, Nov 25: FDE (its 720 export `245:43522`: the title now sits under the phones,
+ *  not over them) and Acme (ready for Israel's 720 export `261:41239`; its current
+ *  393×807 file is already shown whole by size, so nothing changes until the upload). */
+const MOBILE_HERO_FULL_FRAME_SLUGS = new Set([
+  'oc-links',
+  'financial-data-exchange',
+  'acme-lending',
+])
 
-/** Census QA #4, Nov 25: Census's 393×807 export has its NEW YORK wordmark at
- *  y 38–115, inside the top 59px the 807 rule hides, so phones showed half of
- *  it. Shown uncropped (the hero is 56px taller at 375). */
-const MOBILE_HERO_NO_TOP_CROP_SLUGS = new Set(['2020-us-census-benefit-calculator'])
+/** The Oct 13 rule hides the top 59px of a whole-frame hero (the Figma frame's
+ *  nav strip, under the site header). Opt-in since QA X6, Nov 25. Its top strip
+ *  is empty on Coral, Design Assist, Experian, OC Links and FDE. Not cropped:
+ *  Census (NEW YORK wordmark, QA #4), Circle (phone status bars from y 49, C6),
+ *  and — Xian, Nov 25 "yes, go", the Census trade-off (56px taller at 375) —
+ *  the five whose strip holds art: Acme (logo top), DVA (head), Memory Tubes
+ *  (photo), OC Navigator (logo leaves), The AR Handbook (PTC logo). */
+const MOBILE_HERO_TOP_CROP_SLUGS = new Set([
+  'coral-health',
+  'design-assist-ai',
+  'experian-boost',
+  'oc-links',
+  'financial-data-exchange',
+])
 
 function HeroBlock({
   section: s,
@@ -495,7 +518,7 @@ function HeroBlock({
   // (Census QA #5, Nov 25), so the landscape desktop hero is used from 768.
   const fullFrame =
     isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
-  const topCrop = !MOBILE_HERO_NO_TOP_CROP_SLUGS.has(p.slug)
+  const topCrop = MOBILE_HERO_TOP_CROP_SLUGS.has(p.slug)
   // Israel's Nov 2 hero exports carry their own gradient; the site wash on top
   // reads as "too much" (Studio: "Images already include the dark gradient").
   const siteWash = !s.imageHasGradient
@@ -581,6 +604,10 @@ function isFigmaMobileHeroFrame(url?: string) {
   return Math.abs(Number(m[2]) / Number(m[1]) - 807 / 393) < 0.01
 }
 
+const NO_VIDEO_SIZES: VideoSizes = {}
+/** Video URL → width × height from the file (server, `src/sanity/videoSize.ts`). */
+const VideoSizeContext = createContext<VideoSizes>(NO_VIDEO_SIZES)
+
 /** Case-study native video — autoplay muted loop; optional mute chip (overview only). */
 function CsOverviewVideo({
   src,
@@ -601,6 +628,7 @@ function CsOverviewVideo({
   showMuteControl?: boolean
 }) {
   const ref = useRef<HTMLVideoElement>(null)
+  const size = useContext(VideoSizeContext)[src]
   const [muted, setMuted] = useState(true)
   const [inView, setInView] = useState(false)
   const [armed, setArmed] = useState(false)
@@ -634,6 +662,12 @@ function CsOverviewVideo({
       className={`relative h-full w-full ${showFrame ? 'ring-1 ring-black/15' : ''}`}
       style={style}
     >
+      {/* Nothing loads until the video is in view, and an empty <video> is
+          150px tall, so bands grew while the visitor scrolled (QA X1, Nov 25:
+          Coral KPE 877 → 1760). The file's own size reserves the box from the
+          first paint; once loaded the video has that same shape, so it draws
+          exactly as before. No `auto`: with it a poster of another shape set
+          the box until the video arrived (OC Navigator laptop 274 → 294). */}
       <video
         ref={ref}
         src={armed ? src : undefined}
@@ -643,6 +677,7 @@ function CsOverviewVideo({
         playsInline
         preload="none"
         className={className}
+        style={size ? { aspectRatio: `${size[0]} / ${size[1]}` } : undefined}
       />
       {showMuteControl ? (
         <button
@@ -772,9 +807,16 @@ function OverviewBlock({ section: s }: { section: Of<'overviewSection'> }) {
   const videoFill = hasVideo && !!s.sideVideoFill && !videoCard
   /** Both set → video over still (Memory Tubes overview only in practice). */
   const stackedSideMedia = hasVideo && !!s.sideImage && !videoCard && !videoFill
-  const videoAspect = useVideoAspect(
-    hasVideo && !stackedSideMedia && !videoCard && !videoFill ? s.sideVideo : undefined,
+  // The server-read size decides phone vs landscape from the first paint; the
+  // metadata read is only the fallback (it widened Acme's landscape video
+  // 167 → 275 at 375 after load — QA X1, Nov 25).
+  const knownSize = useContext(VideoSizeContext)[s.sideVideo ?? '']
+  const metaAspect = useVideoAspect(
+    hasVideo && !stackedSideMedia && !videoCard && !videoFill && !knownSize
+      ? s.sideVideo
+      : undefined,
   )
+  const videoAspect = knownSize ? knownSize[0] / knownSize[1] : metaAspect
   const landscapeVideo = (videoAspect ?? 0) > 1
   const desktopVideoWidthVw = landscapeVideo
     ? OVERVIEW_MEDIA_DESKTOP_LANDSCAPE_VIDEO_WIDTH_VW
@@ -2213,7 +2255,10 @@ function DesktopMotionStaggeredPair({
           {title}
         </h2>
       ) : null}
-      <div className="flex w-full flex-col">
+      {/* Above 1440 the columns stop growing (Xian, Nov 25): capped at the
+          1440 band's content width (1440 − 2 × 3.5vw gutter = 1339.2) and
+          centred, so wider windows show the 1440 layout. */}
+      <div className="mx-auto flex w-full flex-col xl:max-w-[1339.2px]">
         {pairs.map((carousel, i) => {
           const slides = (carousel.slides ?? []).filter(sl => sl.image || sl.video)
           const end = i % 2 === 1
@@ -2222,6 +2267,7 @@ function DesktopMotionStaggeredPair({
               key={carousel._key ?? i}
               kind={kpeDeviceKind(slides[0]?.image)}
               align={end ? 'end' : 'start'}
+              insetStart
               first={i === 0}
               caption={
                 carousel.body?.length ? (
@@ -2456,12 +2502,16 @@ function KpeDeviceItem({
   align,
   first,
   caption,
+  insetStart = false,
   children,
 }: {
   kind: KpeDeviceKind
   align: 'start' | 'end' | 'center'
   first: boolean
   caption: React.ReactNode
+  /** Staggered pair (Circle): left items at the flow stack's x 82 (5.69vw from
+   *  the band edge) instead of the band gutter's 50 — QA X2, Nov 25. */
+  insetStart?: boolean
   children: React.ReactNode
 }) {
   const d = MOTION_MOBILE_FLOW_STACK
@@ -2487,11 +2537,16 @@ function KpeDeviceItem({
     '--kpe-media': `${media}px`,
     '--kpe-media-m': `${mediaM}px`,
   } as CSSProperties
+  // insetStart: the band gutter is 24px at lg and 3.5vw from xl
+  // (CS_WIDE_BAND_GUTTER), so these add up to 5.69vw at every desktop width;
+  // above 1440 the inset stops at its 1440 value (31.54 = 2.19 % of 1440).
   const rowAlign =
     align === 'end'
       ? 'lg:ml-auto lg:mr-0'
       : align === 'start'
-        ? 'lg:ml-0 lg:mr-auto'
+        ? insetStart
+          ? 'lg:ml-[calc(5.69vw-24px)] lg:mr-auto xl:ml-[min(2.19vw,31.54px)]'
+          : 'lg:ml-0 lg:mr-auto'
         : 'lg:mx-auto'
   return (
     <div
@@ -2723,7 +2778,11 @@ function DesktopMotionShowcaseBlock({
                 captionBelow
                   ? 'lg:ml-[calc(50%+3.47vw)] lg:max-w-[42.78vw]'
                   : 'lg:ml-auto lg:max-w-[min(445px,42%)]'
-              } ${fluidMockup && !captionBelow ? 'lg:translate-x-[clamp(72px,8vw,160px)]' : ''}`}
+              } ${
+                // Offset only from 1280: at 1024 it pushed the copy 6px past the
+                // window (Circle QA C8, Nov 25). 1280+ unchanged.
+                fluidMockup && !captionBelow ? 'xl:translate-x-[clamp(72px,8vw,160px)]' : ''
+              }`}
             >
               {copyTitle && (
                 <h2 className={csSectionTitle()}>
@@ -4102,33 +4161,36 @@ function MotionShowcaseMobileFlowStackBand({
         ))}
       </div>
 
-      <div
-        className={`mx-auto hidden w-full max-w-[min(1280px,100%)] flex-col lg:flex ${csShell('!px-0')}`}
-      >
-        {rows.map((row, i) => (
-          // Rows overlap (−72) only from 1280: at 1024–1279 the phone and laptop
-          // columns meet, so the laptop covered the end of the phone caption
-          // (Census QA #21, Nov 25 — Census, Coral, Experian, DVA, OC Navigator).
-          <div
-            key={row._key ?? `motion-flow-d-${i}`}
-            className={i === 0 ? undefined : 'xl:mt-[var(--cs-kpe-row-gap)]'}
-            style={
-              i === 0
-                ? undefined
-                : {
-                    ['--cs-kpe-row-gap' as string]: `${MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx}px`,
-                  }
-            }
-          >
-            <MotionRowMobileItemStack
-              row={row}
-              textClass={textClass}
-              appearance={s.appearance}
-              desktop
-              align={rows.length === 1 ? 'center' : i % 2 === 1 ? 'end' : 'start'}
-            />
-          </div>
-        ))}
+      {/* Full band width (out of the 48px gutter): the columns are placed in vw
+          from the band edge (QA X2, Nov 25 — see MotionRowMobileItemStack).
+          Above 1440 the columns stop growing: the 1440 layout, centred. */}
+      <div className="hidden lg:-mx-12 lg:block">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col">
+          {rows.map((row, i) => (
+            // Rows overlap (−72) only from 1280: at 1024–1279 the phone and laptop
+            // columns meet, so the laptop covered the end of the phone caption
+            // (Census QA #21, Nov 25 — Census, Coral, Experian, DVA, OC Navigator).
+            <div
+              key={row._key ?? `motion-flow-d-${i}`}
+              className={i === 0 ? undefined : 'xl:mt-[var(--cs-kpe-row-gap)]'}
+              style={
+                i === 0
+                  ? undefined
+                  : {
+                      ['--cs-kpe-row-gap' as string]: `${MOTION_MOBILE_FLOW_STACK.betweenRowsGapDesktopPx}px`,
+                    }
+              }
+            >
+              <MotionRowMobileItemStack
+                row={row}
+                textClass={textClass}
+                appearance={s.appearance}
+                desktop
+                align={rows.length === 1 ? 'center' : i % 2 === 1 ? 'end' : 'start'}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -4160,14 +4222,30 @@ function MotionRowMobileItemStack({
       : d.tabletMaxWidthPx
   // Captions span the item column, not the device: mobile 301 (device
   // centered above), desktop 488 / 515 (device left-aligned in the item).
+  // Desktop columns — Figma Final Cleanup, same on Coral 1:3678, Experian and
+  // DVA (QA X2, Nov 25): left items at x 82 (5.69vw); right items in a 515 box
+  // from x 853 (59.24vw), device at the box's left. Was a 1304 shell from x 68
+  // with the right item right-aligned (phone x 884 in 488). The right box keeps
+  // ≥ 5vw to the band edge (= 853 at 1440), so it never runs off narrower
+  // windows; below 1280 the rows stack (Census QA #21), so the columns may
+  // overlap horizontally there without touching. Above 1440 the values stop at
+  // their 1440 px (82 / 72) inside the centred 1440 box (Xian, Nov 25).
+  const rightColumn = desktop && align === 'end'
   const captionMax = desktop
-    ? device === 'mobile'
-      ? d.captionMaxWidthDesktopPhonePx
-      : d.captionMaxWidthDesktopTabletPx
+    ? rightColumn
+      ? d.captionMaxWidthDesktopTabletPx
+      : device === 'mobile'
+        ? d.captionMaxWidthDesktopPhonePx
+        : d.captionMaxWidthDesktopTabletPx
     : d.captionMaxWidthPx
   const itemMax = Math.max(mediaMax, captionMax)
-  const rowAlign =
-    align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
+  const rowAlign = !desktop
+    ? 'mx-auto'
+    : align === 'end'
+      ? 'lg:ml-[min(59.24vw,calc(100%-515px-min(5vw,72px)))]'
+      : align === 'start'
+        ? 'lg:ml-[min(5.69vw,82px)]'
+        : 'mx-auto'
   return (
     <div className="w-full">
       <div className={`w-full ${rowAlign}`} style={{ maxWidth: itemMax }}>

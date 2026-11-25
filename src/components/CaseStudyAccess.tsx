@@ -10,7 +10,7 @@ import {
   workListingHref,
   type WorkListingView,
 } from "@/lib/caseStudyNav";
-import type { Study } from "@/sanity/types";
+import type { Study, VideoSizes } from "@/sanity/types";
 
 /**
  * Standalone `/work/[slug]` gate. Work overlay opens already go through
@@ -18,6 +18,7 @@ import type { Study } from "@/sanity/types";
  */
 export default function CaseStudyAccess({
   project,
+  videoSizes,
   prev,
   next,
   pager,
@@ -25,6 +26,8 @@ export default function CaseStudyAccess({
   listingHref: serverListingHref = "/work",
 }: {
   project: Study;
+  /** Video URL → width × height (server-read), passed to CaseStudyView. */
+  videoSizes?: VideoSizes;
   prev: Study;
   next: Study;
   /** Every study in order + the current one — dot pager in the bottom bar. */
@@ -76,6 +79,7 @@ export default function CaseStudyAccess({
       {allowed ? (
         <CaseStudyView
           project={project}
+          videoSizes={videoSizes}
           prev={prev}
           next={next}
           pager={pager}
