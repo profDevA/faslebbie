@@ -72,6 +72,18 @@ export const buildProjectItem = defineType({
         "Gallery `.img` thumb and modal teal-band hero (first slide). One image only.",
       group: "card",
     }),
+    // Israel, Nov 25 (Holistic → QUICK FIXES): each popup's left panel has its
+    // own 549 × 684 art, different from the .img card. Set = it fills the
+    // panel and the colour / size below don't apply; empty = the card image.
+    defineField({
+      name: "popupImage",
+      title: "Popup image (left panel)",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Full-bleed art for the popup's left panel (Israel's Quick Fixes art). Empty = uses the card image.",
+      group: "modal",
+    }),
     // Fas, Nov 23 call (item 7): the popup's image panel was the same dark
     // teal for every project ("it should reflect the case study").
     defineField({

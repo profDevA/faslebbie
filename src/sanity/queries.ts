@@ -286,6 +286,7 @@ export const BUILD_PAGE_QUERY = defineQuery(`*[_type == "buildPage"][0]{
       whoFor, howItWorks, insights
     },
     "images": images[]${img},
+    "popupImage": popupImage${img},
     "outputVisual": outputVisual${img},
     "conceptPreview": conceptPreview${img}
   },

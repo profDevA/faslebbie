@@ -46,6 +46,10 @@ export interface BuildProject {
   tint: string;
   lightArt?: boolean;
   images?: string[];
+  /** Popup left-panel art (Studio "Popup image (left panel)"); fills the panel
+   *  edge to edge. undefined = the card image (images[0]) with the colour /
+   *  size below. */
+  popupImage?: string;
   outputVisual?: string;
   conceptPreview?: string;
   /** Popup image panel background (CSS colour); undefined = the #133034 teal. */

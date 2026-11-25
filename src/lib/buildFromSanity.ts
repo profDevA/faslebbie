@@ -79,6 +79,7 @@ export function buildFromSanity(
       tint: p.tint || "#2f3b4a",
       lightArt: p.lightArt,
       images,
+      popupImage: p.popupImage?.trim() || undefined,
       outputVisual: p.outputVisual?.trim() || undefined,
       conceptPreview: p.conceptPreview?.trim() || undefined,
       panelColor: colorToCss(p.panelColor),

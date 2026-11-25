@@ -1,6 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import PopupShell, {
   PopupDots,
   PopupPagerButton,
@@ -156,12 +162,28 @@ function CaseStudyArticle({
   )
 }
 
+/** "w / h" from a Sanity CDN URL (its `rect=` crop, else the `-{w}x{h}.` name). */
+function sanityUrlAspect(url: string) {
+  const m =
+    url.match(/[?&]rect=\d+,\d+,(\d+),(\d+)/) ?? url.match(/-(\d+)x(\d+)\.\w+(?:\?|$)/)
+  return m ? `${m[1]} / ${m[2]}` : undefined
+}
+
 function BuildProjectDetailBody({ project }: { project: BuildProject }) {
   const cover = project.images?.[0]
   const secondary = project.images?.[1]
+  // Studio "Popup image (left panel)" = Israel's full-bleed panel art (Nov 25,
+  // Holistic → QUICK FIXES): covers the panel on desktop, shown whole below lg
+  // ("Popup image size" doesn't apply). Empty = the card image, as before.
+  const panelArt = project.popupImage
+  // Phones (< 768): the panel takes the art's shape (549 × 684 → 360 × 449 at
+  // 375) instead of 538 tall, so no colour bands above / below it (Xian,
+  // Nov 25). Tablet keeps 538: at 768 the art's shape made the panel 713 × 888,
+  // taller than the popup body. No size in the URL = 538 as before.
+  const panelArtAspect = panelArt ? sanityUrlAspect(panelArt) : undefined
   // Studio "Popup image size" → Fill: the card image covers the whole panel
   // (Fas, Nov 23 call: "take this image and put it here… full size").
-  const fill = project.panelImageFit === 'fill' && Boolean(cover)
+  const fill = Boolean(panelArt) || (project.panelImageFit === 'fill' && Boolean(cover))
 
   return (
     <>
@@ -170,17 +192,34 @@ function BuildProjectDetailBody({ project }: { project: BuildProject }) {
           Nov 23: "it should reflect the case study"). Read from the same
           project as the image, so it switches with Previous / Next. */}
       <div
-        style={project.panelColor ? { backgroundColor: project.panelColor } : undefined}
+        style={
+          project.panelColor || panelArtAspect
+            ? ({
+                backgroundColor: project.panelColor,
+                '--panel-art-aspect': panelArtAspect,
+              } as CSSProperties)
+            : undefined
+        }
         className={`order-2 flex h-[538px] shrink-0 flex-col items-center justify-center overflow-hidden bg-[#133034] px-6 pt-12 lg:order-1 lg:h-full lg:min-h-0 lg:px-10 lg:py-14${
           fill ? ' relative' : ''
-        }`}
+        }${panelArtAspect ? ' max-md:h-auto max-md:aspect-(--panel-art-aspect)' : ''}`}
       >
         {fill ? (
+          // Panel art (Xian, Nov 25): desktop crops like Israel's frames,
+          // which hide the art's top 80 / 684 under the 80 px header — 80 %
+          // keeps the top within ~10 px of Figma at 1440 × 900 and the logos
+          // clear at 1920 × 1080. Below lg the whole art shows (no side crop):
+          // on phones the panel has the art's shape, so it fills the panel; on
+          // tablet the panel colour (or teal) is in the gaps.
           // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN
           <img
-            src={cover}
+            src={panelArt ?? cover}
             alt={project.title}
-            className="absolute inset-0 size-full object-cover object-center"
+            className={`absolute inset-0 size-full ${
+              panelArt
+                ? 'max-lg:object-contain max-lg:object-center lg:object-cover lg:object-[50%_80%]'
+                : 'object-cover object-center'
+            }`}
           />
         ) : cover ? (
           secondary ? (
