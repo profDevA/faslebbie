@@ -617,18 +617,19 @@ body {
   pointer-events: none;
 }
 
+/* Filter pick / close / clear re-mounts every card (WorkBody `popsNonce`), and
+   they settle up 20px. No fade from 0 and no 0.5s delay: those left the whole
+   wall blank for ~1s after each pick (Fas's screen, Nov 25 call: ~6s). */
 .work-card-pops {
-  animation: workPopsIn 1s ease 0.5s both;
+  animation: workPopsIn 1s ease both;
 }
 
 @keyframes workPopsIn {
   from {
     transform: translateY(20px);
-    opacity: 0;
   }
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
