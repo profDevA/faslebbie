@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import PopupShell, {
   PopupDots,
   PopupPagerButton,
@@ -68,7 +68,14 @@ function DesignAgainPanel({ featured }: { featured: MediaFeatured }) {
   );
 }
 
-function TalkPanel({ item }: { item: MediaItem }) {
+function TalkPanel({
+  item,
+  scrollRef,
+}: {
+  item: MediaItem;
+  /** Desktop right-column scroller — reset to the top on Previous / Next. */
+  scrollRef: RefObject<HTMLDivElement | null>;
+}) {
   const embedSrc = mediaEmbedSrc(item.video);
 
   return (
@@ -100,7 +107,10 @@ function TalkPanel({ item }: { item: MediaItem }) {
           )}
         </div>
       </div>
-      <div className="order-2 bg-close px-[21px] pb-12 pt-0 text-black lg:flex lg:h-full lg:items-center lg:overflow-y-auto lg:px-[50px] lg:py-[50px]">
+      <div
+        ref={scrollRef}
+        className="order-2 bg-close px-[21px] pb-12 pt-0 text-black lg:flex lg:h-full lg:items-center lg:overflow-y-auto lg:px-[50px] lg:py-[50px]"
+      >
         <div className="reckless-prose flex w-full flex-col gap-[15px] lg:mx-auto lg:max-w-[420px]">
           <div className="border-b border-black pb-3">
             <p className="text-[18px] font-normal leading-[1.6] tracking-[0.38px] text-black">
@@ -240,7 +250,7 @@ export default function MediaPopup({
       {isPodcast && featured ? (
         <DesignAgainPanel featured={featured} />
       ) : talk ? (
-        <TalkPanel item={talk} />
+        <TalkPanel item={talk} scrollRef={rightScrollRef} />
       ) : null}
     </PopupShell>
   );

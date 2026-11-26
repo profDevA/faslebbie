@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type RefObject,
 } from 'react'
 import PopupShell, {
   PopupDots,
@@ -169,7 +170,14 @@ function sanityUrlAspect(url: string) {
   return m ? `${m[1]} / ${m[2]}` : undefined
 }
 
-function BuildProjectDetailBody({ project }: { project: BuildProject }) {
+function BuildProjectDetailBody({
+  project,
+  scrollRef,
+}: {
+  project: BuildProject
+  /** Desktop right-column scroller — reset to the top on Previous / Next. */
+  scrollRef: RefObject<HTMLDivElement | null>
+}) {
   const cover = project.images?.[0]
   const secondary = project.images?.[1]
   // Studio "Popup image (left panel)" = Israel's full-bleed panel art (Nov 25,
@@ -262,7 +270,10 @@ function BuildProjectDetailBody({ project }: { project: BuildProject }) {
       </div>
 
       {/* Hero then article. Mobile: title slide first (Figma 16:3649). Desktop: hero fills right pane, article scrolls below (2971:219110). */}
-      <div className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="contents lg:order-2 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto"
+      >
         <div className="order-1 flex shrink-0 flex-col items-center justify-center gap-[14px] bg-[#1a1a1a] px-[39px] py-12 text-center max-lg:h-[calc(100dvh-11rem)] lg:min-h-full lg:px-20 lg:py-14">
           <p className="font-grotesk text-[14px] font-light capitalize tracking-[-0.08px] text-[#e0e0d7] lg:text-[18px]">
             {project.kicker}
@@ -302,6 +313,7 @@ export default function BuildProjectModal({
 }) {
   const [mounted, setMounted] = useState(false)
   const shellScrollRef = useRef<HTMLDivElement>(null)
+  const rightScrollRef = useRef<HTMLDivElement>(null)
   useEffect(() => setMounted(true), [])
 
   const index = openId ? projects.findIndex(p => p.id === openId) : -1
@@ -315,8 +327,12 @@ export default function BuildProjectModal({
     [index, projects, onNavigate],
   )
 
+  // Previous / Next opens the next project at the top (Fas, Nov 25 call: "the
+  // next always starts at the bottom"). Phones scroll the shell body; desktop
+  // scrolls the right column — same pair as MediaPopup.
   useEffect(() => {
     if (shellScrollRef.current) shellScrollRef.current.scrollTop = 0
+    if (rightScrollRef.current) rightScrollRef.current.scrollTop = 0
   }, [openId])
 
   useEffect(() => {
@@ -356,7 +372,7 @@ export default function BuildProjectModal({
         </div>
       }
     >
-      <BuildProjectDetailBody project={project} />
+      <BuildProjectDetailBody project={project} scrollRef={rightScrollRef} />
     </PopupShell>
   )
 }

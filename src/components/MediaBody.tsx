@@ -76,8 +76,9 @@ const MEDIA_TITLE =
  * Desktop (Fas, Nov 24 evening, Figma 1392:16997 — "this goes up … this
  * becomes the line"): "platform · year" moves up, 10 px under the thumbnail,
  * italic + underlined + red on hover; the title sits 15 px under it, italic,
- * no underline. Both 18 / 1.35. Flipped with `order` so the phone DOM and
- * spacing stay as they were.
+ * no underline. Platform · year 18 / 1.35; the title 16 / 1.35 (Fas, Nov 25
+ * call: "it's italics and it should be smaller"). Flipped with `order` so the
+ * phone DOM and spacing stay as they were.
  */
 function TalkCard({
   item,
@@ -115,7 +116,7 @@ function TalkCard({
         ) : null}
         <MediaPlayOverlay />
       </div>
-      <p className="mt-2.5 text-[14px] font-normal capitalize italic leading-[1.35] text-black transition-colors max-lg:underline max-lg:decoration-1 max-lg:underline-offset-2 max-lg:group-hover:text-accent lg:order-2 lg:mt-[15px] lg:text-[18px]">
+      <p className="mt-2.5 text-[14px] font-normal capitalize italic leading-[1.35] text-black transition-colors max-lg:underline max-lg:decoration-1 max-lg:underline-offset-2 max-lg:group-hover:text-accent lg:order-2 lg:mt-[15px] lg:text-[16px]">
         {item.title}
       </p>
       <p className="mt-[15px] text-[13px] font-normal capitalize leading-[1.35] text-black lg:order-1 lg:mt-2.5 lg:text-[18px] lg:italic lg:underline lg:decoration-1 lg:underline-offset-2 lg:transition-colors lg:group-hover:text-accent">
