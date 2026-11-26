@@ -594,7 +594,9 @@ export default function WorkBody({
                 data-cursor="hover"
                 onClick={clearFilter}
                 aria-label={`Clear ${appliedFilter} filter`}
-                className="flex size-3 shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60 lg:size-[18px]"
+                // Phones / tablets: 40 × 40 tap area around the 12 px ✕ (responsive
+                // pass, Nov 26); the equal negative margin keeps the glyph in place.
+                className="flex size-3 shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60 max-lg:-m-3.5 max-lg:box-content max-lg:p-3.5 lg:size-[18px]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -748,7 +750,11 @@ export default function WorkBody({
                   onClick={openFilter}
                   data-cursor="hover"
                   aria-expanded={false}
-                  className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
+                  // max-lg:py-2.5: 40 px wide tap area on phones / tablets (was the
+                  // 20 px text column; centred, so the label doesn't move — Nov 26).
+                  // py, not px: Tailwind's py is padding-block, which is horizontal
+                  // in this vertical writing mode.
+                  className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-lg:py-2.5 font-grotesk text-[13px] font-medium uppercase tracking-[0.2em] text-black/70 [writing-mode:vertical-rl] transition-colors hover:text-black"
                 >
                   Filter Work
                 </button>

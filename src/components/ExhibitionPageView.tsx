@@ -26,7 +26,9 @@ function ExhibitionIntro({
     <div
       className={`flex flex-col items-center text-center ${
         mobile
-          ? "w-full max-w-[332px] gap-[11px]"
+          ? // mx-auto: centred over the centred photo band on tablets (it sat
+            // in the left 332 px at 768; phones unchanged — Nov 26).
+            "mx-auto w-full max-w-[332px] gap-[11px]"
           : "max-w-[677px] gap-[14px]"
       } ${className}`}
     >

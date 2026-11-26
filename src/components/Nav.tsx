@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import ContactDrawer from "@/components/ContactDrawer";
 import { useSite } from "@/components/SiteProvider";
 import { OPEN_CONTACT_EVENT } from "@/lib/contactDrawer";
-import { NAV_H, NAV_TOP } from "@/lib/navLayout";
+import { NAV_H } from "@/lib/navLayout";
 
 // Whether a nav href is the current section (WIP3 1111:4384 — the active page
 // is highlighted stronger than the rest).
@@ -115,8 +115,11 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
     return () => window.removeEventListener(OPEN_CONTACT_EVENT, openDrawer);
   }, []);
 
-  // Sticky header above the menu panel (z-50 > z-40). Panel is a sibling so
-  // it can’t paint over the logo/X. Slides right ↔ left.
+  // Panel is a sibling of the sticky header and starts under it (57 px = the
+  // 56 px bar + its 1 px bottom border, always drawn while the menu is open), so
+  // it can’t paint over the logo/X. z-55 (was z-40): above the blog post’s
+  // sticky Previous / Next bar (PagerBar, z-50), which showed over the open menu
+  // on phones / tablets (responsive pass, Nov 26). Slides right ↔ left.
   const menuOpen = menuMounted;
 
   return (
@@ -197,7 +200,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
 
       {menuOpen && (
         <div
-          className={`fixed inset-x-0 bottom-0 ${NAV_TOP} z-40 flex flex-col overflow-y-auto bg-[#1e1e1e] text-white transition-transform duration-300 ease-out lg:hidden ${
+          className={`fixed inset-x-0 bottom-0 top-14.25 z-55 flex flex-col overflow-y-auto bg-[#1e1e1e] text-white transition-transform duration-300 ease-out lg:hidden ${
             menuEntered ? "translate-x-0" : "translate-x-full"
           }`}
         >

@@ -171,7 +171,10 @@ export default function PopupShell({
             aria-label="Close"
             onClick={onClose}
             data-cursor="hover"
-            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            // Phones / tablets: 46 × 44 tap area around the 18 × 22 glyph, like
+            // the case-study lightbox ✕ (mobile QA R6); the equal negative margin
+            // keeps the glyph where it was (responsive pass, Nov 26).
+            className="shrink-0 text-[22px] leading-none text-black transition-opacity hover:opacity-60 max-lg:-mx-3.5 max-lg:-my-2.75 max-lg:px-3.5 max-lg:py-2.75"
           >
             ✕
           </button>

@@ -55,7 +55,9 @@ export default function ContactDrawer({
             onClick={onClose}
             aria-label="Close"
             data-cursor="hover"
-            className="flex size-5 items-center justify-center text-[22px] leading-none text-black transition-opacity hover:opacity-60"
+            // Phones / tablets: 44 × 44 tap area around the 20 px ✕; the equal
+            // negative margin keeps the glyph where it was (responsive pass, Nov 26).
+            className="flex size-5 items-center justify-center text-[22px] leading-none text-black transition-opacity hover:opacity-60 max-lg:-m-3 max-lg:box-content max-lg:p-3"
           >
             ✕
           </button>

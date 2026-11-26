@@ -38,7 +38,9 @@ export default function ViewToggle<T extends string>({
           type="button"
           onClick={() => onChange(v)}
           data-cursor="hover"
-          className={`font-grotesk text-[22px] font-medium italic leading-none text-black underline-offset-4 hover:underline lg:text-[27px] ${
+          // Phones / tablets: tap area 44 px tall (+16 px wide) around the 22 px
+          // label; the equal negative margins keep the layout as it was (Nov 26).
+          className={`font-grotesk text-[22px] font-medium italic leading-none text-black underline-offset-4 hover:underline max-lg:-mx-2 max-lg:-my-2.75 max-lg:px-2 max-lg:py-2.75 lg:text-[27px] ${
             value === v ? "underline" : "no-underline"
           }`}
         >
