@@ -472,11 +472,20 @@ const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
  *  size: Galderma's 720 export has its wordmark in that top strip.
  *  QA X6, Nov 25: FDE (its 720 export `245:43522`: the title now sits under the phones,
  *  not over them) and Acme (ready for Israel's 720 export `261:41239`; its current
- *  393×807 file is already shown whole by size, so nothing changes until the upload). */
+ *  393×807 file is already shown whole by size, so nothing changes until the upload).
+ *  QA X6 (c), Nov 25 (2): the 393×720 exports of Snapback, Forever, Galderma, Miner and
+ *  Editor (whole, caption over the art's dark foot as in Figma 70:14996; from 768 the
+ *  desktop hero).
+ *  Not top-cropped: Galderma's wordmark is in that strip. */
 const MOBILE_HERO_FULL_FRAME_SLUGS = new Set([
   'oc-links',
   'financial-data-exchange',
   'acme-lending',
+  'snapback-lifestyle',
+  'forever-a-surfer',
+  'galderma',
+  'life-of-a-miner-vr',
+  'vuforia-expert-capture',
 ])
 
 /** The Oct 13 rule hides the top 59px of a whole-frame hero (the Figma frame's
@@ -1997,17 +2006,37 @@ function CoreExperienceBlock({
   )
 }
 
-/** Keep PNG alpha. Sanity `auto=format` serves AVIF and fills transparent corners black. */
-function motionSlideSrc(url: string) {
-  if (!url.includes('cdn.sanity.io') || !/\.png(?:\?|$)/i.test(url)) return url
+/** Slider / Old vs New slide widths (QA X12, Nov 25 — bandwidth). */
+const MOTION_SLIDE_WIDTHS = [900, 1800] as const
+
+/** Slide URL at `width` (≤ 1800). PNGs go out as WebP, which keeps their alpha
+ *  (transparent device corners): `auto=format` serves AVIF, which filled them
+ *  black (`5ddd67c`), and the PNG that replaced it was ~7 MB a slide at 2400
+ *  (Snapback's 14 slides = 96 MB). Other formats keep `auto=format`. */
+function motionSlideSrc(url: string, width: number = MOTION_SLIDE_WIDTHS[1]) {
+  if (!url.includes('cdn.sanity.io/images/') || /\.gif(?:\?|$)/i.test(url)) return url
   try {
     const u = new URL(url)
-    u.searchParams.delete('auto')
-    u.searchParams.set('fm', 'png')
+    const natural = sanityUrlImageSize(url).width
+    u.searchParams.set('w', String(natural ? Math.min(width, natural) : width))
+    if (/\.png(?:\?|$)/i.test(u.pathname)) {
+      u.searchParams.delete('auto')
+      u.searchParams.set('fm', 'webp')
+    }
     return u.toString()
   } catch {
     return url
   }
+}
+
+/** `srcSet` for `motionSlideSrc` (900 / 1800, never above the upload's width). */
+function motionSlideSrcSet(url: string) {
+  if (!url.includes('cdn.sanity.io/images/') || /\.gif(?:\?|$)/i.test(url)) return undefined
+  const natural = sanityUrlImageSize(url).width
+  const widths = [
+    ...new Set(MOTION_SLIDE_WIDTHS.map(w => (natural ? Math.min(w, natural) : w))),
+  ]
+  return widths.map(w => `${motionSlideSrc(url, w)} ${w}w`).join(', ')
 }
 
 /** §08 mockup wrapper — appearance.tileBorderRadius: 0 = square art (no device chrome). */
@@ -2054,6 +2083,7 @@ function DesktopMotionPosterCarousel({
   arrowClass,
   align = 'center',
   viewportClass = '',
+  sizes,
 }: {
   slides: NonNullable<Of<'desktopMotionShowcase'>['slides']>
   fallbackAlt: string
@@ -2063,6 +2093,8 @@ function DesktopMotionPosterCarousel({
   align?: 'center' | 'start' | 'end'
   /** Extra classes on the clipping viewport (e.g. the inner radius of a plate). */
   viewportClass?: string
+  /** `sizes` for the slide `srcSet` (default: the mockup width on desktop). */
+  sizes?: string
 }) {
   // A staggered-pair slide may be motion-only (Sakib, Nov 19: like the AR Handbook).
   const items = slides.filter(sl => sl.image || sl.video)
@@ -2070,6 +2102,22 @@ function DesktopMotionPosterCarousel({
   const [index, setIndex] = useState(0)
   const reduceMotion = usePrefersReducedMotion()
   const activeIndex = n > 0 ? Math.min(index, n - 1) : 0
+  // QA X12 (Nov 25, bandwidth): the first slide loads with the page; the
+  // slides next to the one showing load once the carousel is near the screen,
+  // the rest when the visitor pages towards them (was every slide at once).
+  // A slide that isn't loaded yet keeps its box (X11), so nothing jumps.
+  const [wanted, setWanted] = useState<ReadonlySet<number>>(() => new Set([0]))
+  const want = useCallback(
+    (i: number) => {
+      if (n < 1) return
+      setWanted(prev => {
+        const near = [i, (i + 1) % n, (i - 1 + n) % n]
+        if (near.every(j => prev.has(j))) return prev
+        return new Set([...prev, ...near])
+      })
+    },
+    [n],
+  )
   const [dragDx, setDragDx] = useState(0)
   const [slideWidth, setSlideWidth] = useState(0)
   const [motionEnabled, setMotionEnabled] = useState(true)
@@ -2093,6 +2141,23 @@ function DesktopMotionPosterCarousel({
     return () => ro.disconnect()
   }, [])
 
+  // Neighbours of the first slide once the carousel comes near the screen
+  // (paging calls `want` itself, so the index is still 0 here).
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el || n < 2) return
+    const io = new IntersectionObserver(
+      entries => {
+        if (!entries.some(e => e.isIntersecting)) return
+        io.disconnect()
+        want(0)
+      },
+      { rootMargin: '400px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [n, want])
+
   const trackOffsetPx = -activeIndex * slideWidth + dragDx
   const trackTransition =
     motionEnabled && !reduceMotion && slideWidth > 0
@@ -2104,7 +2169,9 @@ function DesktopMotionPosterCarousel({
     pagingLocked.current = true
     setMotionEnabled(true)
     setDragDx(0)
-    setIndex(i => (i + dir + n) % n)
+    const next = (activeIndex + dir + n) % n
+    setIndex(next)
+    want(next)
     window.setTimeout(() => {
       pagingLocked.current = false
     }, slideMotionMs + 40)
@@ -2133,6 +2200,11 @@ function DesktopMotionPosterCarousel({
 
   const alignClass =
     align === 'end' ? 'ml-auto' : align === 'start' ? 'mr-auto' : 'mx-auto'
+  const slideSizes =
+    sizes ??
+    (mockupMax
+      ? `(min-width: 1024px) ${mockupMax}px, 100vw`
+      : '(min-width: 1024px) 61vw, 100vw')
 
   return (
     <div
@@ -2191,13 +2263,31 @@ function DesktopMotionPosterCarousel({
                       className="block h-auto w-full"
                     />
                   ) : sl.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- case-study art
-                    <img
-                      src={motionSlideSrc(sl.image)}
-                      alt={sl.alt || fallbackAlt}
-                      draggable={false}
-                      className="block h-auto w-full max-w-full object-center"
-                    />
+                    (() => {
+                      // QA X11: the upload's size (Sanity `-WxH`) reserves the
+                      // box before the file arrives (Forever DI 819 → 1349).
+                      const size = sanityUrlImageSize(sl.image)
+                      if (!wanted.has(i) && i !== activeIndex && size.width) {
+                        return (
+                          <div
+                            className="w-full"
+                            style={{ aspectRatio: `${size.width} / ${size.height}` }}
+                          />
+                        )
+                      }
+                      return (
+                        // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                        <img
+                          src={motionSlideSrc(sl.image)}
+                          srcSet={motionSlideSrcSet(sl.image)}
+                          sizes={slideSizes}
+                          {...size}
+                          alt={sl.alt || fallbackAlt}
+                          draggable={false}
+                          className="block h-auto w-full max-w-full object-center"
+                        />
+                      )
+                    })()
                   ) : null}
                 </div>
               ) : null,
@@ -2221,6 +2311,7 @@ function DesktopMotionPosterCarousel({
             setMotionEnabled(true)
             setDragDx(0)
             setIndex(i)
+            want(i)
             window.setTimeout(() => {
               pagingLocked.current = false
             }, slideMotionMs + 40)
@@ -2284,6 +2375,7 @@ function DesktopMotionStaggeredPair({
                 mockupFrame={mockupFrame}
                 arrowClass={copyClass}
                 align={end ? 'end' : 'start'}
+                sizes="(min-width: 1024px) 40vw, 100vw"
               />
             </KpeDeviceItem>
           )
@@ -2374,6 +2466,7 @@ function DesktopMotionLargePair({
                   viewportClass="rounded-[7px] lg:rounded-[14px]"
                   arrowClass={copyClass}
                   align="start"
+                  sizes="(min-width: 1024px) 40vw, 100vw"
                 />
               </div>
               {carousel.body?.length ? (
@@ -2620,26 +2713,40 @@ function DesktopMotionOldVsNew({
         {rows.map((row, i) => {
           const [oldSlide, newSlide] = row.slides ?? []
           const rowTitle = row.title?.trim()
-          const screen = (sl: typeof oldSlide | undefined, which: string) =>
+          // Phones (Figma 626:20400, Q31 — Xian "yes", Nov 25): "Before" /
+          // "After" above each screen (mobile title tier, top → screen 50),
+          // screens up to 353 wide (were 292). Desktop unchanged (298:33681).
+          const screen = (
+            sl: typeof oldSlide | undefined,
+            which: string,
+            label: string,
+          ) =>
             sl?.image ? (
-              // eslint-disable-next-line @next/next/no-img-element -- case-study art
-              <img
-                src={motionSlideSrc(sl.image)}
-                alt={sl.alt || `${which} — ${rowTitle || title || 'Old vs New'}`}
-                className="mx-auto block h-auto w-full max-lg:max-w-[var(--ovn-m)]"
-              />
+              <div className="mx-auto w-full max-lg:max-w-[353px]">
+                <p className={`mb-[29px] text-left lg:hidden ${csSectionTitle()}`}>
+                  {label}
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
+                <img
+                  src={motionSlideSrc(sl.image)}
+                  srcSet={motionSlideSrcSet(sl.image)}
+                  sizes="(min-width: 1024px) 32vw, 100vw"
+                  {...sanityUrlImageSize(sl.image)}
+                  alt={sl.alt || `${which} — ${rowTitle || title || 'Old vs New'}`}
+                  className="block h-auto w-full"
+                />
+              </div>
             ) : null
           return (
             <div
               key={row._key ?? i}
               className="flex flex-col items-center lg:grid lg:grid-cols-[29.87vw_4.92vw_31.28vw_24.7vw] lg:items-center"
-              style={{ '--ovn-m': `${d.tabletMaxWidthPx}px` } as CSSProperties}
             >
-              {screen(oldSlide, 'Old screen')}
+              {screen(oldSlide, 'Old screen', 'Before')}
               <div className="flex items-center justify-center max-lg:my-5 max-lg:h-[54.5px]">
                 <OldVsNewArrow className="w-[54.5px] shrink-0 max-lg:rotate-90 lg:w-[3.78vw]" />
               </div>
-              {screen(newSlide, 'New screen')}
+              {screen(newSlide, 'New screen', 'After')}
               {rowTitle || row.body?.length ? (
                 <div
                   className="w-full text-left max-lg:mt-[50px] max-lg:max-w-[var(--ovn-cap-m)] lg:pl-[2.89vw]"
@@ -2999,9 +3106,16 @@ function InterventionGridBlock({
         ...sectionGapStyle(s.appearance, gapDefault('lg', false), true),
       }}
     >
-      <div className="mx-auto flex w-full max-w-[344px] flex-col lg:max-w-[min(1400px,calc(100%-2.5rem))] lg:px-12">
+      {/* Desktop geometry (QA X15, Nov 25; Figma Miner 1180:39193, Chalk
+          51:142987 / 51:143429, Editor 194:16327 — the frames agree): inside
+          the band's 48px gutter, cards from x 90 to 1356 @1440 (6.25vw /
+          5.83vw), 573 wide, gaps 120 / 89 (8.33vw / 6.18vw). Above 1440 the
+          1440 layout stays centred (box capped at 1440 − 2 × 48). Title +
+          intro 9 left of the cards (x 81), intro 409 wide (fixed px like the
+          22px body type, so the line breaks match Figma at every width). */}
+      <div className="mx-auto flex w-full max-w-[344px] flex-col lg:max-w-[1344px] lg:pr-[min(calc(5.83vw-48px),36px)] lg:pl-[min(calc(6.25vw-48px),42px)]">
         {(s.sectionTitle || s.introBody?.length) && (
-          <div className="w-full max-w-[607px] text-left">
+          <div className="w-full max-w-[607px] text-left lg:-ml-[min(0.625vw,9px)] lg:max-w-[409px]">
             {s.sectionTitle && (
               <h2 className={csSectionTitle()}>
                 {s.sectionTitle}
@@ -3017,18 +3131,20 @@ function InterventionGridBlock({
           </div>
         )}
         {visible.length > 0 && (
-          <div className="mt-[50px] grid grid-cols-1 gap-[50px] lg:mt-14 lg:grid-cols-2 lg:gap-x-[120px] lg:gap-y-[100px]">
+          <div className="mt-[50px] grid grid-cols-1 gap-[50px] lg:mt-14 lg:grid-cols-2 lg:gap-x-[min(8.33vw,120px)] lg:gap-y-[min(6.18vw,89px)]">
             {visible.map(item =>
               item.image ? (
                 <div
                   key={item._key}
-                  className={`overflow-hidden bg-white ${INTERVENTION_GRID_CARD_SHADOW_CLASS}`}
+                  className={`overflow-hidden bg-white lg:aspect-573/373 ${INTERVENTION_GRID_CARD_SHADOW_CLASS}`}
                 >
+                  {/* Desktop: Figma's 573 × 373 white plate, the 1.6 image
+                      whole inside it (≈ 7px white above / below @1440). */}
                   {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                   <img
                     src={item.image}
                     alt={item.caption || 'Design intervention'}
-                    className="block h-auto w-full"
+                    className="block h-auto w-full lg:h-full lg:object-contain"
                   />
                 </div>
               ) : null,
@@ -3268,7 +3384,9 @@ function ShowcaseBlock({
     )
   }
 
-  // Galderma coverflow (unchanged): title above, 5-up center slider below.
+  // Galderma coverflow: title above the 5-up center slider on phones; on
+  // desktop the copy sits under the slides, bottom left (QA G2, Nov 25 —
+  // Figma 1015:22317: x 60, 616 wide @1440; the 1440 place stays above 1440).
   // Studio "Slider style: Cards" → Life of a Miner card slider (Figma 618:21805).
   const cards = s.sliderStyle === 'cards'
   return (
@@ -3284,7 +3402,13 @@ function ShowcaseBlock({
       }}
     >
       {(s.sectionTitle || s.introBody) && (
-        <div className={csShell()}>
+        <div
+          className={
+            cards
+              ? csShell()
+              : 'mx-auto w-full px-5 sm:px-8 lg:order-2 lg:mr-0 lg:ml-[max(4.17vw,calc(50%-660px))] lg:w-[min(42.78vw,616px)] lg:px-0'
+          }
+        >
           {s.sectionTitle && <Label light={light}>{s.sectionTitle}</Label>}
           <CaseStudyProse
             value={s.introBody}
@@ -5337,12 +5461,17 @@ function ArtifactSlider({
                   className="group shrink-0 overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
                   style={{ width: itemW > 0 ? `${itemW}px` : fallbackW }}
                 >
-                  <div className="aspect-1800/1098 w-full overflow-hidden">
+                  {/* Figma's white plate, 360 × 235 (QA X13, Nov 25; Census
+                      Q15): the whole slide shows. 1.536 exports fill it; 1800 ×
+                      1098 uploads get Figma's white above / below. Was a fixed
+                      1800 / 1098 box with a top-anchored cover crop, which cut
+                      the footnote / source lines (Memory Tubes, Editor). */}
+                  <div className="aspect-360/235 w-full overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                     <img
                       src={src}
                       alt=""
-                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </div>
                 </button>
@@ -5380,6 +5509,7 @@ function CenterSlider({
 }) {
   const n = images.length
   const [visible, setVisible] = useState(5)
+  const [desktop, setDesktop] = useState(false)
   const [index, setIndex] = useState(() => Math.max(n, 0))
   const [noAnim, setNoAnim] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
@@ -5392,6 +5522,7 @@ function CenterSlider({
     const update = () => {
       const w = window.innerWidth
       setVisible(w < 575 ? 1 : w < 992 ? 3 : 5)
+      setDesktop(w >= 1024)
       if (viewportRef.current) setViewportW(viewportRef.current.clientWidth)
     }
     update()
@@ -5447,16 +5578,28 @@ function CenterSlider({
   }, [n])
 
   const loop = n > 0 ? [...images, ...images, ...images] : []
-  const gapPx = viewportW > 0 ? viewportW * 0.015 : 0
-  const slideW = viewportW > 0 ? viewportW / visible : 0
+  // Desktop (QA G2, Nov 25 — Figma 1015:22317 @1440): slides 315 × 561, one
+  // every 398.5 (51 apart), the centre one 380 × 677 (×1.2068), the outer ring
+  // 280 × 498 (×0.8877) pulled 50 in so it also sits 51 from its neighbour.
+  // Sized from the band width up to 1440, then the 1440 sizes stay (centred).
+  // Phones / tablets keep the old 1- / 3- / 5-up slider.
+  const geoW = Math.min(viewportW, 1440)
+  const gapPx = viewportW > 0 ? (desktop ? geoW * 0.02892 : viewportW * 0.015) : 0
+  const slideW = viewportW > 0 ? (desktop ? geoW * 0.27674 : viewportW / visible) : 0
   const translateX = viewportW > 0 ? viewportW / 2 - (index + 0.5) * slideW : 0
   const realIdx = n > 0 ? ((index % n) + n) % n : 0
+  const slideTransform = (d: number) => {
+    if (!desktop) return d === 0 ? 'scale(1.15)' : 'scale(1)'
+    if (d === 0) return 'scale(1.2068)'
+    if (Math.abs(d) === 1) return 'scale(1)'
+    return `translateX(${-Math.sign(d) * geoW * 0.03486}px) scale(0.8877)`
+  }
 
   return (
-    <div className="cs-center-slider relative w-full pt-[max(3.5vw,48px)] pb-[3vw]">
+    <div className="cs-center-slider relative w-full pt-[max(3.5vw,48px)] pb-[3vw] lg:pt-[min(15.56vw,224px)] lg:pb-[min(2.29vw,33px)]">
       <div
         ref={viewportRef}
-        className="overflow-x-hidden overflow-y-visible py-[2vw]"
+        className="overflow-x-hidden overflow-y-visible py-[2vw] lg:py-[min(4.03vw,58px)]"
       >
         <div
           className="flex items-center"
@@ -5499,8 +5642,8 @@ function CenterSlider({
                 }}
               >
                 <div
-                  className="relative w-full overflow-hidden pt-[150%] transition-transform duration-800 ease-in-out"
-                  style={{ transform: isCtr ? 'scale(1.15)' : 'scale(1)' }}
+                  className="relative w-full overflow-hidden pt-[150%] transition-transform duration-800 ease-in-out lg:pt-[178.16%]"
+                  style={{ transform: slideTransform(i - index) }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                   <img
@@ -5523,7 +5666,8 @@ function CenterSlider({
       {/* Shared slide control in its old place — top right corner (Nov 20:
           one pager style site-wide, positions kept; was two arrow images). */}
       <SliderControls
-        className="absolute top-0 right-[3vw] z-10"
+        // Desktop: Figma's arrows, centred at y 159, right edge 66 from the band edge.
+        className="absolute top-0 right-[3vw] z-10 lg:top-[min(5.63vw,81px)] lg:right-[max(4.58vw,calc(50%-654px))]"
         tone={light ? 'light' : 'dark'}
         count={n}
         active={realIdx}
@@ -6057,16 +6201,63 @@ function Stat({
       cancelAnimationFrame(raf)
     }
   }, [stat.value, scrollContainer])
+
+  // QA X14 (Nov 25): the value stays on one line ("3 Services" / "5 Days"
+  // wrapped at 128px). A value wider than its column (the hidden copies below,
+  // at the full size: the final number and the "0" it counts up from — the
+  // digits differ in width) is scaled down just enough to fit; the others
+  // keep the full size. Phones keep their fixed 54px. Interim until Israel
+  // picks a smaller style for word suffixes (Q25).
+  const fullText = `${stat.prefix ?? ''}${stat.value}${statSuffixGap(stat.suffix)}${stat.suffix ?? ''}`
+  const zeroText = `${stat.prefix ?? ''}0${statSuffixGap(stat.suffix)}${stat.suffix ?? ''}`
+  const measureRef = useRef<HTMLSpanElement>(null)
+  const [fit, setFit] = useState(1)
+  useEffect(() => {
+    const box = ref.current
+    const probe = measureRef.current
+    if (!box || !probe) return
+    const ro = new ResizeObserver(() => {
+      const cs = getComputedStyle(box)
+      const avail =
+        box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+      const need = probe.getBoundingClientRect().width
+      setFit(avail > 0 && need > avail ? Math.floor((avail / need) * 1000) / 1000 : 1)
+    })
+    ro.observe(box)
+    ro.observe(probe) // the web font arriving changes the text width
+    return () => ro.disconnect()
+  }, [fullText, zeroText])
+  const valueClass =
+    'whitespace-nowrap font-normal leading-none max-lg:!text-[54px] max-lg:!leading-none max-lg:font-thin lg:font-light'
   return (
     <div
       ref={ref}
-      className="mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center max-lg:max-w-none max-lg:items-start max-lg:px-0 max-lg:text-left sm:max-w-none sm:px-3 lg:items-center lg:text-center"
+      className="relative mx-auto flex w-full max-w-[min(400px,100%)] flex-col items-center px-2 text-center max-lg:max-w-none max-lg:items-start max-lg:px-0 max-lg:text-left sm:max-w-none sm:px-3 lg:items-center lg:text-center"
     >
+      {/* Clipped so the hidden copy never widens the page. */}
+      <span aria-hidden className="pointer-events-none invisible absolute inset-0 overflow-hidden">
+        <span
+          ref={measureRef}
+          className={`inline-flex flex-col items-start ${valueClass}`}
+          style={{ fontSize: STATS_BAND_DEFAULTS.valueFontSize }}
+        >
+          <span>{fullText}</span>
+          <span>{zeroText}</span>
+        </span>
+      </span>
       {/* Impact number — mobile 54px Thin `4551:32024`; desktop light 8.9vw
           (Figma Final Cleanup, all 4 frames). */}
       <p
-        className="font-normal leading-none max-lg:!text-[54px] max-lg:!leading-none max-lg:font-thin lg:font-light"
-        style={{ fontSize: STATS_BAND_DEFAULTS.valueFontSize }}
+        className={valueClass}
+        style={
+          fit < 1
+            ? {
+                fontSize: `calc(${STATS_BAND_DEFAULTS.valueFontSize} * ${fit})`,
+                // Same line box as the full-size values, so the labels line up.
+                lineHeight: STATS_BAND_DEFAULTS.valueFontSize,
+              }
+            : { fontSize: STATS_BAND_DEFAULTS.valueFontSize }
+        }
       >
         {stat.prefix}
         {n}
