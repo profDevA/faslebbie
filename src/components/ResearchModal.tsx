@@ -63,15 +63,23 @@ function SectionCover({
 
 function NumberedList({
   items,
+  flushEnd = false,
 }: {
   items: { n: string; title: string; body: string }[];
+  /** The list ends the popup (Paradigms): drop the last item's bottom
+   *  padding so only the body's own py-10 / lg:py-14 sits above the pager
+   *  (Nov 24 evening #14, "white space at the bottom"). Principles keeps it —
+   *  its conclusion follows the list. */
+  flushEnd?: boolean;
 }) {
   return (
     <div>
       {items.map((it) => (
         <div
           key={it.n}
-          className="border-t border-black py-6 first:border-t-0 first:pt-0 lg:mt-8 lg:grid lg:grid-cols-[48px_minmax(0,1fr)] lg:gap-x-3 lg:py-8 lg:first:mt-0"
+          className={`border-t border-black py-6 first:border-t-0 first:pt-0 lg:mt-8 lg:grid lg:grid-cols-[48px_minmax(0,1fr)] lg:gap-x-3 lg:py-8 lg:first:mt-0${
+            flushEnd ? " last:pb-0" : ""
+          }`}
         >
           <span className="mb-6 block font-grotesk text-[36px] leading-[1.2] text-black lg:mb-0 lg:text-[27px]">
             {it.n}
@@ -106,7 +114,7 @@ function ParadigmsView({ c }: { c: ParadigmsContent }) {
             {c.intro}
           </p>
           <div className="mt-10">
-            <NumberedList items={c.items} />
+            <NumberedList items={c.items} flushEnd />
           </div>
       </div>
     </div>
@@ -267,10 +275,12 @@ function ModalitiesView({ c }: { c: ModalitiesContent }) {
 function ManifestoView({ c }: { c: ManifestoContent }) {
   return (
     <div className="mx-auto max-w-[900px]">
+      {/* last:mb-0 — the body's py-10 / lg:py-14 is the only space under the
+          last paragraph (Nov 24 evening #14: it was 32 / 40 px extra). */}
       {c.paragraphs.map((runs, i) => (
         <div
           key={i}
-          className={`mb-8 max-w-[704px] lg:mb-10 ${
+          className={`mb-8 max-w-[704px] last:mb-0 lg:mb-10 ${
             i % 2 === 0 ? "lg:ml-auto" : "lg:ml-0"
           }`}
         >

@@ -123,6 +123,7 @@ import {
   OVERVIEW_MEDIA_MOBILE_LANDSCAPE_VIDEO_WIDTH_PCT,
 } from '@/lib/caseStudyDefaults'
 import { caseStudyHref, type WorkListingView } from '@/lib/caseStudyNav'
+import { mobileHeroLayout, sanityUrlImageSize } from '@/lib/mobileHeroLayout'
 import {
   gapDefault,
   padDefaults,
@@ -467,42 +468,6 @@ const MOBILE_HERO_OBJECT_POSITION: Partial<Record<string, string>> = {
   'forever-a-surfer': 'object-top',
 }
 
-/** Mobile QA round 2 R9, Nov 23: OC Links' 393×720 export shown whole like the 807 rule
- *  (no 78vh cut) so the caption clears the devices (Figma 559:39269). By slug, not by
- *  size: Galderma's 720 export has its wordmark in that top strip.
- *  QA X6, Nov 25: FDE (its 720 export `245:43522`: the title now sits under the phones,
- *  not over them) and Acme (ready for Israel's 720 export `261:41239`; its current
- *  393×807 file is already shown whole by size, so nothing changes until the upload).
- *  QA X6 (c), Nov 25 (2): the 393×720 exports of Snapback, Forever, Galderma, Miner and
- *  Editor (whole, caption over the art's dark foot as in Figma 70:14996; from 768 the
- *  desktop hero).
- *  Not top-cropped: Galderma's wordmark is in that strip. */
-const MOBILE_HERO_FULL_FRAME_SLUGS = new Set([
-  'oc-links',
-  'financial-data-exchange',
-  'acme-lending',
-  'snapback-lifestyle',
-  'forever-a-surfer',
-  'galderma',
-  'life-of-a-miner-vr',
-  'vuforia-expert-capture',
-])
-
-/** The Oct 13 rule hides the top 59px of a whole-frame hero (the Figma frame's
- *  nav strip, under the site header). Opt-in since QA X6, Nov 25. Its top strip
- *  is empty on Coral, Design Assist, Experian, OC Links and FDE. Not cropped:
- *  Census (NEW YORK wordmark, QA #4), Circle (phone status bars from y 49, C6),
- *  and — Xian, Nov 25 "yes, go", the Census trade-off (56px taller at 375) —
- *  the five whose strip holds art: Acme (logo top), DVA (head), Memory Tubes
- *  (photo), OC Navigator (logo leaves), The AR Handbook (PTC logo). */
-const MOBILE_HERO_TOP_CROP_SLUGS = new Set([
-  'coral-health',
-  'design-assist-ai',
-  'experian-boost',
-  'oc-links',
-  'financial-data-exchange',
-])
-
 function HeroBlock({
   section: s,
   project: p,
@@ -522,12 +487,10 @@ function HeroBlock({
       <strong className={CS_HERO_CAP_TITLE}>{title}</strong> · {s.caption ?? p.tagline}
     </p>
   )
-  // Portrait exports shown whole (393×807 frame, OC Links): on iPad portrait
-  // (768–1023) that art was 1.4 screens tall with the caption below the fold
-  // (Census QA #5, Nov 25), so the landscape desktop hero is used from 768.
-  const fullFrame =
-    isFigmaMobileHeroFrame(s.imageMobile) || MOBILE_HERO_FULL_FRAME_SLUGS.has(p.slug)
-  const topCrop = MOBILE_HERO_TOP_CROP_SLUGS.has(p.slug)
+  // Phone exports (393×720 / 393×807 frames) are shown whole, and from 768 the
+  // landscape desktop hero (Census QA #5, Nov 25). Picked from the image's own
+  // size since Nov 26, so a duplicated study needs no code (src/lib/mobileHeroLayout.ts).
+  const { fullFrame, topCrop } = mobileHeroLayout(p.slug, s.imageMobile)
   // Israel's Nov 2 hero exports carry their own gradient; the site wash on top
   // reads as "too much" (Studio: "Images already include the dark gradient").
   const siteWash = !s.imageHasGradient
@@ -593,24 +556,6 @@ function HeroBlock({
       </div>
     </section>
   )
-}
-
-/** width / height from a Sanity asset URL (`-{w}x{h}.`, or its `rect=` crop),
- *  so the hero reserves its box before the multi-MB PNG arrives — mobile QA
- *  R17: Vuforia Editor sat at 0 px on a first visit, then the page jumped
- *  633 px. CSS keeps `h-auto`, so the loaded image draws exactly as before. */
-function sanityUrlImageSize(url?: string) {
-  const m =
-    url?.match(/[?&]rect=\d+,\d+,(\d+),(\d+)/) ??
-    url?.match(/-(\d+)x(\d+)\.\w+(?:\?|$)/)
-  return m ? { width: Number(m[1]), height: Number(m[2]) } : {}
-}
-
-/** Sanity asset URLs carry `-{w}x{h}.`; the Figma mobile hero frame is 393×807 at any scale. */
-function isFigmaMobileHeroFrame(url?: string) {
-  const m = url?.match(/-(\d+)x(\d+)\.\w+(?:\?|$)/)
-  if (!m) return false
-  return Math.abs(Number(m[2]) / Number(m[1]) - 807 / 393) < 0.01
 }
 
 const NO_VIDEO_SIZES: VideoSizes = {}
