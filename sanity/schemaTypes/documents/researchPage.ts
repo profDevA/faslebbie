@@ -29,6 +29,18 @@ export const researchPage = defineType({
     }),
     defineField({ name: "paradigms", type: "researchParadigms", group: "sections" }),
     defineField({ name: "principles", type: "researchPrinciples", group: "sections" }),
+    // Off unless switched on, like "Show field notes on site" below (Fas, Nov 25
+    // call: "modalities… I don't want to delete it completely. I just want to
+    // hide it."). The Modalities content stays here either way.
+    defineField({
+      name: "showModalities",
+      title: "Show modalities on site",
+      type: "boolean",
+      description:
+        "Off: no Modalities popup, page or pager dot, no /research/modalities in the sitemap, and the red \"modalities\" link and the \", \" before it drop out of the Research text, so it reads \"…paradigms, principles and a manifesto.\" (the comma before \"and\" goes too). On: all of it comes back as written. The Modalities content below is kept either way. Never empty it to hide it.",
+      initialValue: false,
+      group: "sections",
+    }),
     defineField({ name: "modalities", type: "researchModalities", group: "sections" }),
     defineField({
       name: "manifesto",

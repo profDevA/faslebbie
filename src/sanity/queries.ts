@@ -249,6 +249,7 @@ export const RESEARCH_PAGE_QUERY = defineQuery(`*[_type == "researchPage"][0]{
   paradigms{ label, intro, "image": image${img}, items[]{ title, body } },
   principles{ label, intro, "image": image${img}, items[]{ title, body }, conclusionKicker, conclusionBody },
   modalities{ kicker, statement, "image": image${img}, items, groups[]{ title, items }, footnote },
+  showModalities,
   manifesto,
   showFieldNotes,
   fieldNotes[]{ place, quote, methodology, themes, insight, "image": image${img} },

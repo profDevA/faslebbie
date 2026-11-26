@@ -502,6 +502,8 @@ export interface SanityResearchPage {
     groups?: { title?: string; items?: string[] }[];
     footnote?: string;
   };
+  /** Studio "Show modalities on site"; unset = hidden (Nov 25 evening). */
+  showModalities?: boolean;
   manifesto?: PortableTextBlock[];
   /** Studio "Show field notes on site"; unset = hidden (Nov 25). */
   showFieldNotes?: boolean;

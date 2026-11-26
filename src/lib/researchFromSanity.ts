@@ -9,7 +9,7 @@ import type {
   ResearchSectionId,
   ResearchToken,
 } from "@/lib/research";
-import { withoutFieldNotesLinks } from "@/lib/research";
+import { withoutSectionLinks } from "@/lib/research";
 
 export interface ResearchContentData {
   areas: ResearchArea[];
@@ -100,13 +100,19 @@ export function researchFromSanity(
   if (!data) return { areas: [], closing: [], sections: {} };
 
   // Field notes stay off until Studio "Show field notes on site" is on (Fas,
-  // Nov 24 call: "Can we hide the field notes for now?"). Off: no Field Notes
-  // section, so no popup, /research/field-notes[/<n>] is a 404 and the sitemap
-  // leaves them out; the text loses its field-notes link (withoutFieldNotesLinks).
+  // Nov 24 call: "Can we hide the field notes for now?"), Modalities until
+  // "Show modalities on site" is on (Fas, Nov 25 call: "I don't want to delete
+  // it completely. I just want to hide it."). Off: no section, so no popup and
+  // no pager dot, /research/<section> is a 404 and the sitemap leaves it out;
+  // the text loses its link to it (withoutSectionLinks).
   const showFieldNotes = data.showFieldNotes === true;
+  const showModalities = data.showModalities === true;
+  const hidden: ResearchSectionId[] = [];
+  if (!showModalities) hidden.push("modalities");
+  if (!showFieldNotes) hidden.push("field-notes");
   const prose = (blocks?: PortableTextBlock[]) => {
     const tokens = blocksToTokens(blocks);
-    return showFieldNotes ? tokens : withoutFieldNotesLinks(tokens);
+    return hidden.length ? withoutSectionLinks(tokens, hidden) : tokens;
   };
 
   const areas: ResearchArea[] = (data.areas ?? [])
@@ -152,7 +158,7 @@ export function researchFromSanity(
     };
   }
 
-  if (data.modalities?.items?.length) {
+  if (showModalities && data.modalities?.items?.length) {
     sections.modalities = {
       kind: "modalities",
       kicker: data.modalities.kicker ?? "",

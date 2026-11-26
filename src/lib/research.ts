@@ -55,33 +55,57 @@ export type ResearchArea = {
 const TRAILING_CONNECTOR =
   /,?\s*(?:\b(?:and|plus|as well as|along with)(?:\s+(?:selected|some|the|a|my))?)?\s*$/i;
 
-const isFieldNotesLink = (tok: ResearchToken) =>
-  (tok.t === "link" && tok.opens === "field-notes") ||
-  (tok.t === "ext" && /^\/research\/field-notes(?:[/?#]|$)/.test(tok.href));
+/** ", and a " / ", or " right after a removed item: its comma goes. */
+const LEADING_LIST_COMMA = /^,(?=\s*(?:and|or)\b)/i;
+
+/** The section a red link opens: a section link, or a "/research/<id>" path. */
+const linkedSection = (tok: ResearchToken): string | null =>
+  tok.t === "link"
+    ? tok.opens
+    : tok.t === "ext"
+      ? (tok.href.match(/^\/research\/([^/?#]+)(?:[/?#]|$)/)?.[1] ?? null)
+      : null;
 
 /**
- * Text with field notes hidden (Fas, Nov 24 call: "No, let's end it here.
- * Period… Manifesto."): every field-notes link goes, with the connector words
- * right before it, so "…and a manifesto, along with selected field notes."
- * reads "…and a manifesto." The text after the link (the full stop) stays.
- * Also inside highlight reveals. The tokens themselves are not changed, so
- * switching field notes back on shows the sentence as written.
+ * Text with some sections hidden (Studio "Show … on site" switches): every
+ * link to a hidden section goes, with the connector words right before it.
+ * Field notes (Fas, Nov 24 call: "No, let's end it here. Period…
+ * Manifesto."): "…and a manifesto, along with selected field notes." reads
+ * "…and a manifesto."; the text after the link (the full stop) stays.
+ * Modalities (Fas, Nov 25 call: "I'm going to hide it"): ", " before it goes,
+ * and the ", and a " after it loses its comma, so "…principles, modalities,
+ * and a manifesto" reads "…principles and a manifesto". That comma only goes
+ * when an item was removed. Also inside highlight reveals. The tokens
+ * themselves are not changed, so switching a section back on shows the
+ * sentence as written.
  */
-export function withoutFieldNotesLinks(tokens: ResearchToken[]): ResearchToken[] {
+export function withoutSectionLinks(
+  tokens: ResearchToken[],
+  hidden: readonly ResearchSectionId[],
+): ResearchToken[] {
   const out: ResearchToken[] = [];
+  let removed = false;
   for (const tok of tokens) {
-    if (isFieldNotesLink(tok)) {
+    const target = linkedSection(tok);
+    if (target && hidden.includes(target as ResearchSectionId)) {
       const prev = out[out.length - 1];
       if (prev?.t === "text") {
         const kept = prev.text.replace(TRAILING_CONNECTOR, "");
         if (kept) out[out.length - 1] = { t: "text", text: kept };
         else out.pop();
       }
+      removed = true;
       continue;
     }
+    if (removed && tok.t === "text") {
+      out.push({ t: "text", text: tok.text.replace(LEADING_LIST_COMMA, "") });
+      removed = false;
+      continue;
+    }
+    removed = false;
     out.push(
       tok.t === "hl" && tok.expand
-        ? { ...tok, expand: withoutFieldNotesLinks(tok.expand) }
+        ? { ...tok, expand: withoutSectionLinks(tok.expand, hidden) }
         : tok,
     );
   }
