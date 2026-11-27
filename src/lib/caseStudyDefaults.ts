@@ -254,9 +254,12 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
       top: "0%",
       /** 286 / 1440 — Coral KPE phone (was 16.33%). */
       width: "19.86%",
-      captionMaxWidth: 270,
-      /** 713 − 684.5px @ 1440 — vw so gap scales with full-bleed band width. */
-      captionGapVw: 1.976,
+      /** Caption box — Figma AR 6:50769 (454 wide; was 270 from 6:50313). Desktop only. */
+      captionMaxWidth: 454,
+      /** Phone's bottom (689) → caption (724.3) @ 1440, Figma 6:50646 (Israel
+       *  row 109, Nov 27; was 713 − 684.5 from 6:50313) — vw so the gap scales
+       *  with the full-bleed band width. */
+      captionGapVw: 2.451,
       zIndex: 30,
     },
     {
@@ -272,9 +275,10 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
       top: "27.76%",
       /** 593 / 1440 */
       width: "41.18%",
-      captionMaxWidth: 351,
-      /** 1220 − 1187.7px @ 1440 */
-      captionGapVw: 2.243,
+      /** Figma 6:50772 (was 351). */
+      captionMaxWidth: 454,
+      /** Bezel bottom (1195) → caption (1244.1), Figma 6:50646 (was 1220 − 1187.7). */
+      captionGapVw: 3.403,
       zIndex: 10,
     },
     {
@@ -282,9 +286,10 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
       /** (66.49% − 8.83%) × 2256 / 2057 */
       top: "63.24%",
       width: "49.66%",
-      captionMaxWidth: 366,
-      /** 2003 − 1976.7px @ 1440 */
-      captionGapVw: 1.828,
+      /** Figma 6:50775 (was 366). */
+      captionMaxWidth: 454,
+      /** Screen bottom (1977) → caption (2016.05), Figma 6:50646 (was 2003 − 1976.7). */
+      captionGapVw: 2.712,
       zIndex: 20,
     },
   ] as const,

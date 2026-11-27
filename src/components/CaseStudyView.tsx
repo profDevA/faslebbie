@@ -2032,6 +2032,7 @@ function DesktopMotionPosterCarousel({
   align = 'center',
   viewportClass = '',
   sizes,
+  uniformFrame = false,
 }: {
   slides: NonNullable<Of<'desktopMotionShowcase'>['slides']>
   fallbackAlt: string
@@ -2043,10 +2044,29 @@ function DesktopMotionPosterCarousel({
   viewportClass?: string
   /** `sizes` for the slide `srcSet` (default: the mockup width on desktop). */
   sizes?: string
+  /** Every slide in the first slide's box (Israel's Final QA row 184, Nov 27). */
+  uniformFrame?: boolean
 }) {
   // A staggered-pair slide may be motion-only (Sakib, Nov 19: like the AR Handbook).
   const items = slides.filter(sl => sl.image || sl.video)
   const n = items.length
+  // Israel's Final QA row 184 (Nov 27, Snapback Design Interventions): "all
+  // the dimensions of each frame as you scroll should be consistent". Uploads
+  // of one slider differ in width (Snapback 3720–4320 × 2480), so each slide
+  // drew its own height. With `uniformFrame` every slide gets the first
+  // slide's box. A slide fills it (Figma 6:92475 crops the photo to a fixed
+  // 1008 × 629.5 frame) when that trims ≤ 3 % a side; a slide further off
+  // shows whole inside it, so no text near an edge is cut (AR Handbook).
+  const firstImage = items.find(sl => sl.image)?.image
+  const frameSize = uniformFrame ? sanityUrlImageSize(firstImage) : {}
+  const frameRatio =
+    frameSize.width && frameSize.height ? frameSize.width / frameSize.height : 0
+  const slideFit = (size: { width?: number; height?: number }) => {
+    if (!frameRatio || !size.width || !size.height) return 'cover' as const
+    const r = size.width / size.height
+    const trim = r > frameRatio ? (1 - frameRatio / r) / 2 : (1 - r / frameRatio) / 2
+    return trim <= 0.03 ? ('cover' as const) : ('contain' as const)
+  }
   const [index, setIndex] = useState(0)
   const reduceMotion = usePrefersReducedMotion()
   const activeIndex = n > 0 ? Math.min(index, n - 1) : 0
@@ -2215,6 +2235,30 @@ function DesktopMotionPosterCarousel({
                       // QA X11: the upload's size (Sanity `-WxH`) reserves the
                       // box before the file arrives (Forever DI 819 → 1349).
                       const size = sanityUrlImageSize(sl.image)
+                      if (frameRatio) {
+                        // Row 184: the first slide's box for every slide.
+                        return (
+                          <div
+                            className="w-full overflow-hidden"
+                            style={{ aspectRatio: `${frameSize.width} / ${frameSize.height}` }}
+                          >
+                            {wanted.has(i) || i === activeIndex ? (
+                              // eslint-disable-next-line @next/next/no-img-element -- case-study art
+                              <img
+                                src={motionSlideSrc(sl.image)}
+                                srcSet={motionSlideSrcSet(sl.image)}
+                                sizes={slideSizes}
+                                {...size}
+                                alt={sl.alt || fallbackAlt}
+                                draggable={false}
+                                className={`block h-full w-full max-w-full object-center ${
+                                  slideFit(size) === 'cover' ? 'object-cover' : 'object-contain'
+                                }`}
+                              />
+                            ) : null}
+                          </div>
+                        )
+                      }
                       if (!wanted.has(i) && i !== activeIndex && size.width) {
                         return (
                           <div
@@ -2785,6 +2829,7 @@ function DesktopMotionShowcaseBlock({
               mockupFrame={mockupFrame}
               mockupMax={mockupMax}
               arrowClass={copyClass}
+              uniformFrame
             />
           ) : (
             <div
@@ -3827,20 +3872,25 @@ function MotionShowcaseCrossFunctionalBand({
               >
                 <CrossFunctionalDeviceMedia row={row} appearance={s.appearance} />
                 {(row.label || row.caption) && (
+                  // Israel's Final QA (AR row 109, Nov 27): captions like the
+                  // Experian / Coral KPE ones — 13 px uppercase label, body-tier
+                  // text 8 below (`MotionRowMobileItemStack`). Figma AR 6:50646 /
+                  // 6:51081: the caption box is 454 wide at every device (wider
+                  // than the phone, so it overflows the phone's slot).
                   <div
                     className={textClass}
                     style={{
-                      maxWidth: slot.captionMaxWidth,
+                      width: `min(${slot.captionMaxWidth}px, ${(slot.captionMaxWidth / 14.4).toFixed(3)}vw)`,
                       marginTop: `${slot.captionGapVw}vw`,
                     }}
                   >
                     {row.label && (
-                      <p className={`text-[16px] font-normal leading-[1.05] ${CS_M_TITLE} max-lg:!font-normal`}>
+                      <p className={`text-[13px] font-normal uppercase leading-[1.2] ${CS_M_TITLE} max-lg:!normal-case max-lg:!font-normal`}>
                         {row.label}
                       </p>
                     )}
                     {row.caption && (
-                      <p className={`mt-1 ${csBodyText()} max-lg:!mt-2.5`}>
+                      <p className={`${csBodyText()} ${row.label ? 'mt-2' : ''}`}>
                         {row.caption}
                       </p>
                     )}
@@ -5250,6 +5300,24 @@ function Accordion({
   )
 }
 
+/** Desktop Research-slider plate shape: the most common slide shape in this
+ *  slider (from the `-{w}x{h}.` in each Sanity URL), as a CSS aspect-ratio.
+ *  Ties go to the earlier slide. Figma's 360 × 235 when no size can be read. */
+function artifactPlateAspect(images: string[]): string {
+  const shapes = new Map<string, { count: number; w: number; h: number }>()
+  for (const src of images) {
+    const { width, height } = sanityUrlImageSize(src)
+    if (!width || !height) continue
+    const key = (width / height).toFixed(2)
+    const shape = shapes.get(key)
+    if (shape) shape.count++
+    else shapes.set(key, { count: 1, w: width, h: height })
+  }
+  let best: { count: number; w: number; h: number } | undefined
+  for (const shape of shapes.values()) if (!best || shape.count > best.count) best = shape
+  return best ? `${best.w} / ${best.h}` : '360 / 235'
+}
+
 /** Research-Artifacts slider (Coral redesign — Figma 600:12544): 3-up equal
  *  landscape cards on black, arrows top-right, infinite loop, tap-to-expand.
  *  No coverflow scaling/dimming — every card is shown at full opacity/size. */
@@ -5346,6 +5414,7 @@ function ArtifactSlider({
   }, [index, n])
 
   const loop = n > 0 ? [...images, ...images, ...images] : []
+  const plateAspect = artifactPlateAspect(images)
   const itemW = viewportW > 0 ? (viewportW - (visible - 1) * GAP) / visible : 0
   const step = itemW + GAP
   const translateX = -index * step
@@ -5380,9 +5449,11 @@ function ArtifactSlider({
             aria-label={`Expand artifact ${i + 1}`}
             onClick={() => setLightbox(i)}
             data-cursor="hover"
-            className="w-full overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+            className="w-full overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
           >
-            <div className="flex min-h-[140px] w-full items-center justify-center overflow-hidden bg-white/5 p-2">
+            {/* Israel's Final QA, Nov 27: no white mat round the slide (was
+                bg-white + p-2; Figma 6:12962 has none). Whole slide, no crop. */}
+            <div className="flex min-h-[140px] w-full items-center justify-center overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
               <img
                 src={src}
@@ -5452,20 +5523,22 @@ function ArtifactSlider({
                   aria-label={`Expand artifact ${real + 1}`}
                   onClick={() => setLightbox(real)}
                   data-cursor="hover"
-                  className="group shrink-0 overflow-hidden bg-white shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+                  className="group shrink-0 overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
                   style={{ width: itemW > 0 ? `${itemW}px` : fallbackW }}
                 >
-                  {/* Figma's white plate, 360 × 235 (QA X13, Nov 25; Census
-                      Q15): the whole slide shows. 1.536 exports fill it; 1800 ×
-                      1098 uploads get Figma's white above / below. Was a fixed
-                      1800 / 1098 box with a top-anchored cover crop, which cut
-                      the footnote / source lines (Memory Tubes, Editor). */}
-                  <div className="aspect-360/235 w-full overflow-hidden">
+                  {/* Israel's Final QA, Nov 27 ("no white outlines"): the slides
+                      are designed at 1200 × 732 in Figma (6:106146 / 6:106067 /
+                      6:106169), so the plate follows the slides' own shape (the
+                      most common one in this slider) at the same column width:
+                      no white, nothing cut. A slide of another shape in the same
+                      slider is centred cover (trimmed slightly, never white). No
+                      readable size → Figma's 360 × 235 plate (QA X13, Nov 25). */}
+                  <div className="w-full overflow-hidden" style={{ aspectRatio: plateAspect }}>
                     {/* eslint-disable-next-line @next/next/no-img-element -- case-study art */}
                     <img
                       src={src}
                       alt=""
-                      className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </div>
                 </button>
