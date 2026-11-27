@@ -1139,6 +1139,13 @@ function ProblemContextBlock({ section: s }: { section: Of<'problemContextSectio
   )
 }
 
+/** Next Steps items are joined into one paragraph, so each must end a
+ *  sentence: `.` `!` `?` `…`, optionally followed by closing quotes /
+ *  brackets. Anything else gets a full stop. */
+function withSentenceEnd(text: string): string {
+  return /[.!?…]["'”’)\]»]*$/.test(text) ? text : `${text}.`
+}
+
 /** Figma 2110:41713 — Reflection + Next Steps on one #171717 band. */
 function ReflectionBlock({
   section: s,
@@ -1213,11 +1220,13 @@ function ReflectionBlock({
               {/* Next Steps = one paragraph, as in Figma's template (Israel's
                   Final QA, Nov 26: "Remove the extra text gaps in Reflection
                   and Next Steps"). Replaces the 20px gap between items from
-                  mobile QA R5 (Nov 24). Studio keeps one item per step. */}
+                  mobile QA R5 (Nov 24). Studio keeps one item per step; an
+                  item without an ending stop gets one (Forever, Nov 27). */}
               <p className={body}>
                 {steps
                   .map((it) => it?.trim())
-                  .filter(Boolean)
+                  .filter((it): it is string => !!it)
+                  .map(withSentenceEnd)
                   .join(' ')}
               </p>
             </div>

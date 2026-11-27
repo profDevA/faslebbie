@@ -26,6 +26,55 @@ const DYNAMIC_PAGES = [
   "/teaching/students/:slug([^/.]+)",
 ];
 
+/** Old WordPress paths → new pages, [source, destination]. Order matters: a
+ *  specific rule must come before a general one that also matches it. */
+const LEGACY_WP_REDIRECTS: [string, string][] = [
+  ["/case-studies/remote-assistant-object-detection", "/work/the-ar-handbook"],
+  ["/case-studies/:slug", "/work/:slug"],
+  ["/works", "/work"],
+  ["/podcast", "/blogs/media/design-again-podcast"],
+  ["/leadership", "/approach"],
+  // Fas may point this at /research later.
+  ["/academic", "/teaching"],
+  ["/testimonials", "/about/testimonials"],
+  ["/students-work", "/teaching/student-projects"],
+  ["/sfk-beijeing-exhibition", "/teaching/exhibition"],
+  // Leftover "My Story… coming soon" placeholder (src/app/[section]); the
+  // story is on About. Only `story` was in that page's list.
+  ["/story", "/about"],
+  // Blog posts (WordPress served them at the site root).
+  [
+    "/design-pulse-a-framework-for-reading-organizational-design-health-in-real-time",
+    "/blogs/design-pulse-org-design-health-monitor",
+  ],
+  ["/the-tetrahedral-product-organization", "/blogs/tetrahedral-model"],
+  ["/building-a-design-handbook-that-works", "/blogs/design-handbook-that-works"],
+  [
+    "/setting-clear-expectations-a-design-leaders-framework",
+    "/blogs/trust-through-five-expectations",
+  ],
+  ["/my-five-commitments-to-a-team-2", "/blogs/commitments-to-a-design-team"],
+  // "Won’t" with a curly apostrophe (as linked), its URL-encoded form, a
+  // plain apostrophe, or none. Matching is case-insensitive.
+  ...[
+    "/design-big-design-why-the-super-IC-Won’t-Save-Us",
+    "/design-big-design-why-the-super-IC-Won%E2%80%99t-Save-Us",
+    "/design-big-design-why-the-super-IC-Won't-Save-Us",
+    "/design-big-design-why-the-super-IC-Won%27t-Save-Us",
+    "/design-big-design-why-the-super-IC-Wont-Save-Us",
+  ].map((source): [string, string] => [
+    source,
+    "/blogs/big-design-why-the-super-ic-wont-save-us",
+  ]),
+  ...[
+    "six-roles-that-drive-your-design-process-and-practice",
+    "scalar-approach-to-design-leadership",
+    "extractive-2-0-the-enduring-logic-of-the-extractive-empire",
+    "ai-design-led-research-reclaiming-agency-in-the-age-of-llms",
+    "the-great-value-inversion-earth-over-algorithms",
+  ].map((slug): [string, string] => [`/${slug}`, `/blogs/${slug}`]),
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -55,6 +104,15 @@ const nextConfig: NextConfig = {
       // also work"). Old /casestudies links keep working (query kept).
       { source: "/casestudies", destination: "/work", permanent: true },
       { source: "/casestudies/:slug*", destination: "/work/:slug*", permanent: true },
+      // Old WordPress addresses (faslebbie.com before the rebuild), Nov 27.
+      // None of these paths is a page here (checked against src/app), so no
+      // live route changes. Trailing-slash forms work too: Next first drops
+      // the slash (308), then the rule below applies (308).
+      ...LEGACY_WP_REDIRECTS.map(([source, destination]) => ({
+        source,
+        destination,
+        permanent: true,
+      })),
     ];
   },
   // Pin the Turbopack workspace root to this app. The repo has a second

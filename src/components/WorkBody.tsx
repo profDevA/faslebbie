@@ -165,12 +165,15 @@ export default function WorkBody({
   // Card / narrative clicks go to `/work/[slug]`.
   const router = useRouter();
   // Persist .txt/.img in ?view= so a refresh stays on the same view (Fas 08/06).
-  const [view, setView] = usePersistedView<View>(
+  const [urlView, setView] = usePersistedView<View>(
     WORK_VIEWS,
     imgOn ? "img" : "txt",
     undefined,
     viewFromUrl,
   );
+  // One view switched off in Studio → always the other, even for an old
+  // /work?view=txt link (Fas, Nov 27: "Hide the case study .txt… for now").
+  const view: View = showToggle ? urlView : imgOn ? "img" : "txt";
   // Reveal/pin (txt view only) — same transition as About/Home. Latches at 1
   // on first completion so scrolling back up never replays it (Israel 07/02);
   // re-arms when toggling back to `.txt` (which scrolls to top).
@@ -476,6 +479,12 @@ export default function WorkBody({
   const viewToggle = (
     <ViewToggle views={WORK_VIEWS} value={view} onChange={switchView} />
   );
+  // `.img` wall window. With the switch hidden (one view off in Studio) the
+  // wall also takes the switch row's height (75 px desktop / 65 px phones), so
+  // the gallery moves up and still ends at the same bottom edge (Nov 27).
+  const wallHeight = showToggle
+    ? "h-[calc(100vh-150px)] lg:h-[calc(100vh-190px)]"
+    : "h-[calc(100vh-85px)] lg:h-[calc(100vh-115px)]";
 
   return (
     <div className="relative" style={bgColor ? { backgroundColor: bgColor } : undefined}>
@@ -626,7 +635,7 @@ export default function WorkBody({
               slides right — same Filter Work interaction on every breakpoint. */}
           <div
             ref={wallWinRef}
-            className="relative h-[calc(100vh-150px)] w-full overflow-hidden lg:h-[calc(100vh-190px)]"
+            className={`relative w-full overflow-hidden ${wallHeight}`}
           >
             <div className="flex h-full w-full gap-2 px-2 lg:gap-5 lg:px-6">
               <div

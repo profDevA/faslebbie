@@ -7,6 +7,7 @@ import Nav from "@/components/Nav";
 import PagerBar from "@/components/PagerBar";
 import { blogsFromSanity } from "@/lib/blogsFromSanity";
 import { pageMetadataFromSanity } from "@/lib/pageMetadata";
+import { SITE_URL } from "@/lib/siteUrl";
 import { getBlogsPage, getSiteSettings } from "@/sanity/fetch";
 
 export const revalidate = 60;
@@ -63,7 +64,8 @@ export default async function BlogPostPage({
 
   const defaultAuthorAvatar =
     site?.masterPortrait?.trim() || "/portrait-master.png";
-  const sharePath = `/blogs/${encodeURIComponent(post.slug)}`;
+  // Absolute: LinkedIn / X / Threads (and a pasted copy) need the full address.
+  const shareUrl = `${SITE_URL}/blogs/${encodeURIComponent(post.slug)}`;
   // Previous / Next in the /blogs list order, wrapping like case studies.
   const i = posts.indexOf(post);
   const n = posts.length;
@@ -86,7 +88,7 @@ export default async function BlogPostPage({
         </div>
         <BlogArticleLayout
           post={post}
-          shareUrl={sharePath}
+          shareUrl={shareUrl}
           defaultAuthorAvatar={defaultAuthorAvatar}
           className="grid w-full flex-1 grid-cols-1 max-lg:overflow-visible lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden"
         />
