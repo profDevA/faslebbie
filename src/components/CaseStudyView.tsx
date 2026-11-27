@@ -1210,13 +1210,16 @@ function ReflectionBlock({
               {s.nextStepsHeading && (
                 <h2 className={titleClass}>{s.nextStepsHeading}</h2>
               )}
-              {/* Same 20px paragraph gap as the Reflection body (CaseStudyProse
-                  space-y-5) — mobile QA R5, Nov 24; desktop too (Xian, Nov 24). */}
-              <div className={`space-y-5 ${body}`}>
-                {steps.map((it, i) => (
-                  <p key={i}>{it}</p>
-                ))}
-              </div>
+              {/* Next Steps = one paragraph, as in Figma's template (Israel's
+                  Final QA, Nov 26: "Remove the extra text gaps in Reflection
+                  and Next Steps"). Replaces the 20px gap between items from
+                  mobile QA R5 (Nov 24). Studio keeps one item per step. */}
+              <p className={body}>
+                {steps
+                  .map((it) => it?.trim())
+                  .filter(Boolean)
+                  .join(' ')}
+              </p>
             </div>
           )}
         </div>
@@ -4265,6 +4268,34 @@ function MotionShowcaseMobileFlowStackBand({
   )
 }
 
+/** width / height of a motion row's first asset: the video's size read on the
+ *  server (VideoSizeContext), else the `-WxH` of its image / poster URL, else
+ *  (`probe` only — a server read that missed its time budget) the video's
+ *  metadata in the browser. Undefined until known. */
+function useMotionItemAspect(
+  item: MediaItem | undefined,
+  rowPoster: string | undefined,
+  probe: boolean,
+) {
+  const sizes = useContext(VideoSizeContext)
+  const src = typeof item?.videoFile === 'string' ? item.videoFile : undefined
+  const known = src ? sizes[src] : undefined
+  let aspect = known ? known[0] / known[1] : undefined
+  if (aspect === undefined) {
+    for (const url of [item?.image, item?.posterImage, rowPoster]) {
+      const { width, height } = sanityUrlImageSize(url)
+      if (width && height) {
+        aspect = width / height
+        break
+      }
+    }
+  }
+  const metaAspect = useVideoAspect(
+    probe && aspect === undefined ? src : undefined,
+  )
+  return aspect ?? metaAspect
+}
+
 /** One motion row — first device only, caption under it (mobileFlowStack). */
 function MotionRowMobileItemStack({
   row,
@@ -4282,6 +4313,19 @@ function MotionRowMobileItemStack({
   const first = row.items?.[0]
   const device = row.device ?? 'mobile'
   const d = MOTION_MOBILE_FLOW_STACK
+  // Desktop: a landscape screen (laptop / desktop motion) gets Figma's 632 from
+  // the band's centre, caption 632 (Israel's Final QA rows 77 / 97, Nov 26 —
+  // Census, OC Navigator). Phones and portrait tablets (Coral) are unchanged.
+  const aspect = useMotionItemAspect(
+    first,
+    row.posterImage,
+    desktop && device !== 'mobile',
+  )
+  const wideScreen =
+    desktop && device !== 'mobile' && aspect !== undefined && aspect > 1
+  // 632 @1440, scaling below it so the columns keep their gap at 1280 (fixed
+  // 632 left 8 px to the phone caption there).
+  const wideMax = `min(${d.screenMaxWidthDesktopPx}px, ${d.screenWidthDesktopVw}vw)`
   const mediaMax = desktop
     ? device === 'mobile'
       ? d.phoneMaxWidthDesktopPx
@@ -4307,11 +4351,16 @@ function MotionRowMobileItemStack({
         ? d.captionMaxWidthDesktopPhonePx
         : d.captionMaxWidthDesktopTabletPx
     : d.captionMaxWidthPx
-  const itemMax = Math.max(mediaMax, captionMax)
+  // A landscape screen's caption spans the screen (Figma: both 632).
+  const itemMax = wideScreen ? wideMax : Math.max(mediaMax, captionMax)
   const rowAlign = !desktop
     ? 'mx-auto'
     : align === 'end'
-      ? 'lg:ml-[min(59.24vw,calc(100%-515px-min(5vw,72px)))]'
+      ? wideScreen
+        ? // Screen box from x 720 (50vw, 720 max inside the 1440 box), same
+          // ≥ 5vw (72 max) to the band edge as the 515 box below.
+          'lg:ml-[min(50vw,720px,calc(100%-min(632px,43.89vw)-min(5vw,72px)))]'
+        : 'lg:ml-[min(59.24vw,calc(100%-515px-min(5vw,72px)))]'
       : align === 'start'
         ? 'lg:ml-[min(5.69vw,82px)]'
         : 'mx-auto'
@@ -4321,7 +4370,7 @@ function MotionRowMobileItemStack({
       {first && (
         <div
           className={`w-full drop-shadow-[0_2px_17px_rgba(0,0,0,0.25)] ${desktop ? '' : 'mx-auto'}`}
-          style={{ maxWidth: mediaMax }}
+          style={{ maxWidth: wideScreen ? wideMax : mediaMax }}
         >
           <DeviceMedia item={first} poster={row.posterImage} device={device} />
         </div>

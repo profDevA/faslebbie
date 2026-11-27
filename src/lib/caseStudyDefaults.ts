@@ -178,6 +178,16 @@ export const MOTION_MOBILE_FLOW_STACK = {
   titleMarginBottomDesktop: 105,
   phoneMaxWidthDesktopPx: 286,
   tabletMaxWidthDesktopPx: 438,
+  /**
+   * Landscape screen (laptop / desktop motion, wider than tall) — Israel's
+   * Final QA rows 77 / 97 (Nov 26: "make the desktop mockup a bit bigger"),
+   * Figma "END DESIGN +DEV 2027" Census `11:57452` / OC Navigator `6:40824`:
+   * 632 wide from x 720 (the band's centre) with its caption 632 wide below.
+   * Portrait tablets (Coral's iPad) keep the 438 above.
+   */
+  screenMaxWidthDesktopPx: 632,
+  /** 632 / 1440 — the screen scales below 1440 (columns keep their gap at 1280). */
+  screenWidthDesktopVw: 43.89,
   captionMaxWidthDesktopPhonePx: 488,
   captionMaxWidthDesktopTabletPx: 515,
   captionMarginTopDesktopPx: 29,
@@ -250,12 +260,18 @@ export const MOTION_CROSS_FUNCTIONAL_DEFAULTS = {
       zIndex: 30,
     },
     {
-      /** Right edge kept at 92.14% (was 52.4% + 39.74%). */
-      left: "61.72%",
-      /** (34.62% − 8.83%) × 2256 / 2057 */
-      top: "28.29%",
-      /** 438 / 1440 — Coral KPE tablet (was 39.74%). */
-      width: "30.42%",
+      /**
+       * iPad — Israel's Final QA row 111 (Nov 26: "make the iPad view a bit
+       * bigger"). Figma "END DESIGN +DEV 2027" AR `6:50313` / `6:50646` /
+       * `6:51081`: the device (bezel included, as in the exports) is 593 wide
+       * from x 743, its top 571 below the phone's. Was 438 at 61.72% / 28.29%
+       * (Coral KPE tablet, Oct 26).
+       */
+      left: "51.6%",
+      /** 571 / 2057 */
+      top: "27.76%",
+      /** 593 / 1440 */
+      width: "41.18%",
       captionMaxWidth: 351,
       /** 1220 − 1187.7px @ 1440 */
       captionGapVw: 2.243,
