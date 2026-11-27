@@ -1293,6 +1293,19 @@ function coreExperienceTileRadius(
   return CORE_EXPERIENCE_BAND_MOBILE_DEFAULTS.tileBorderRadius
 }
 
+/** Studio "Screen shadow" (mobile row, desktop widths): Figma FDX CE 6:4525,
+ *  fitted to the screenshot pixels — ~16% darker at the bottom edge, ~10% at
+ *  the sides, ~5% at the top; fades over ~17 px below, ~13 at the sides, ~8
+ *  above (Israel, Nov 27). drop-shadow follows the PNG's rounded corners, so
+ *  it needs transparent screens (an export with the band colour baked in gets
+ *  a rectangle). */
+const CE_SCREEN_SHADOW = 'lg:[filter:drop-shadow(0_3px_9px_rgba(0,0,0,0.21))]'
+/** Studio "Large captions" (desktop grid, desktop widths): Figma OC Links
+ *  6:44652 / OC Navigator 6:40085 — 16 px / 20 line, about two lines under each
+ *  tablet, starting at the screen's left edge (Israel, Nov 27). */
+const CE_LARGE_CAPTION =
+  'lg:text-[16px] lg:leading-[1.25] lg:max-w-[78%] lg:justify-self-start'
+
 function CoreExperienceScreenCard({
   screen,
   layout,
@@ -1301,6 +1314,8 @@ function CoreExperienceScreenCard({
   bandApp,
   bandStack = false,
   bandMobileGrid = false,
+  screenShadow = false,
+  largeCaptions = false,
   className,
 }: {
   screen: CoreExperienceScreen
@@ -1312,6 +1327,10 @@ function CoreExperienceScreenCard({
   bandStack?: boolean
   /** Mobile 2-col band grid (Figma 3928:29088 / 3928:44401). */
   bandMobileGrid?: boolean
+  /** Studio "Screen shadow" — mobileRow desktop strip only. */
+  screenShadow?: boolean
+  /** Studio "Large captions" — desktopGrid desktop grid only. */
+  largeCaptions?: boolean
   className?: string
 }) {
   if (!screen.image) return null
@@ -1327,7 +1346,7 @@ function CoreExperienceScreenCard({
     ? `text-left ${CS_CE_CAPTION} ${caption}`
     : desktop
       ? `text-left ${CS_CE_CAPTION} ${caption} ${
-          bandStack ? 'mt-5' : ''
+          bandStack ? 'mt-5' : largeCaptions ? CE_LARGE_CAPTION : ''
         }`
       : `mt-3 text-left ${CS_CE_CAPTION} lg:mt-4 ${caption}`
 
@@ -1371,9 +1390,14 @@ function CoreExperienceScreenCard({
       ? { borderRadius: tileRadius }
       : undefined
     /** Full-frame PNGs include device chrome / shadow — wrapper drop-shadow reads as a mismatched box. */
-    const tileShadowClass = preserveFullFrame
-      ? ''
-      : 'shadow-[0_2px_12px_rgba(0,0,0,0.22)]'
+    const tileShadowClass = `${
+      preserveFullFrame ? '' : 'shadow-[0_2px_12px_rgba(0,0,0,0.22)]'
+    } ${
+      // Desktop phone strip only (the mobile 2-col grid is a separate tile).
+      screenShadow && !desktop && !mobileGridTile
+        ? `${CE_SCREEN_SHADOW}${preserveFullFrame ? '' : ' lg:shadow-none'}`
+        : ''
+    }`
     const tileBoxStyle: CSSProperties = {
       /** Pre-rounded PNGs with alpha — no wrapper fill (white tile bg reads as corner fringe). */
       backgroundColor: preserveFullFrame ? 'transparent' : cardBg,
@@ -1486,6 +1510,8 @@ function CoreExperienceBandPreview({
   previewColumns,
   previewRowStagger,
   tone,
+  screenShadow = false,
+  largeCaptions = false,
 }: {
   screens: CoreExperienceScreen[]
   layout: 'mobileRow' | 'desktopGrid'
@@ -1493,6 +1519,8 @@ function CoreExperienceBandPreview({
   previewColumns?: number
   previewRowStagger?: number
   tone: 'onDark' | 'onLight'
+  screenShadow?: boolean
+  largeCaptions?: boolean
 }) {
   const bandApp = previewAppearance
   const colGap = resolveSpacingPx(
@@ -1581,6 +1609,7 @@ function CoreExperienceBandPreview({
                     tone={tone}
                     size="preview"
                     bandApp={bandApp}
+                    largeCaptions={largeCaptions}
                   />
                 ))}
               </div>
@@ -1648,6 +1677,7 @@ function CoreExperienceBandPreview({
               tone={tone}
               size="preview"
               bandApp={bandApp}
+              screenShadow={screenShadow}
             />
           ))}
         </div>
@@ -1917,6 +1947,8 @@ function CoreExperienceBlock({
               previewColumns={s.previewColumns}
               previewRowStagger={s.previewRowStagger}
               tone={light ? 'onDark' : 'onLight'}
+              screenShadow={s.screenShadow === true}
+              largeCaptions={s.largeCaptions === true}
             />
           </div>
           {hasPopup && (

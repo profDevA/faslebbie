@@ -31,6 +31,8 @@ const DYNAMIC_PAGES = [
 const LEGACY_WP_REDIRECTS: [string, string][] = [
   ["/case-studies/remote-assistant-object-detection", "/work/the-ar-handbook"],
   ["/case-studies/:slug", "/work/:slug"],
+  // The bare listing (`:slug` needs a segment, so the rule above skips it).
+  ["/case-studies", "/work"],
   ["/works", "/work"],
   ["/podcast", "/blogs/media/design-again-podcast"],
   ["/leadership", "/approach"],

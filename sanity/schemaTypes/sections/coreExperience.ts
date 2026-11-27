@@ -68,6 +68,24 @@ export const coreExperience = defineType({
       hidden: ({ parent }) => parent?.layoutVariant !== "desktopGrid",
     }),
     defineField({
+      name: "screenShadow",
+      title: "Screen shadow",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "Mobile row only, desktop widths: a subtle drop shadow under each band screen so it stands out from the band colour (Figma FDX, Israel Nov 27). Needs screens exported with a transparent background; leave it off when the shadow is already in the export. Phones unchanged. Off by default.",
+      hidden: ({ parent }) => parent?.layoutVariant === "desktopGrid",
+    }),
+    defineField({
+      name: "largeCaptions",
+      title: "Large captions, left-aligned with the screen",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "Desktop grid only, desktop widths: captions at 16 px that wrap naturally (about two lines), starting at the screen's left edge (Figma OC Links / OC Navigator, Israel Nov 27). Phones unchanged. Off = 13 px captions (default).",
+      hidden: ({ parent }) => parent?.layoutVariant !== "desktopGrid",
+    }),
+    defineField({
       name: "previewAppearance",
       title: "Band preview — layout & colors",
       type: "appearance",

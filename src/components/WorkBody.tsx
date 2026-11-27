@@ -482,9 +482,14 @@ export default function WorkBody({
   // `.img` wall window. With the switch hidden (one view off in Studio) the
   // wall also takes the switch row's height (75 px desktop / 65 px phones), so
   // the gallery moves up and still ends at the same bottom edge (Nov 27).
+  // Phones without the switch and without a filter label: the grid starts 16 px
+  // under the nav (was 62, Nov 27), so the wall grows by the 46 px and its
+  // bottom edge stays where it was.
   const wallHeight = showToggle
     ? "h-[calc(100vh-150px)] lg:h-[calc(100vh-190px)]"
-    : "h-[calc(100vh-85px)] lg:h-[calc(100vh-115px)]";
+    : appliedFilter !== "All" && !filterOpen
+      ? "h-[calc(100vh-85px)] lg:h-[calc(100vh-115px)]"
+      : "h-[calc(100vh-39px)] lg:h-[calc(100vh-115px)]";
 
   return (
     <div className="relative" style={bgColor ? { backgroundColor: bgColor } : undefined}>
@@ -628,7 +633,10 @@ export default function WorkBody({
           )}
           <main
             ref={gridRef}
-            className={`relative z-10 w-full pb-0 lg:pt-4 ${appliedFilter !== "All" && !filterOpen ? "pt-5" : "pt-[62px]"}`}
+            // Phones: 62 px left room for the .txt / .img switch row; with the
+            // switch hidden (one view off in Studio) they use the desktop 16
+            // (Xian, Nov 27). Both views on: unchanged.
+            className={`relative z-10 w-full pb-0 lg:pt-4 ${appliedFilter !== "All" && !filterOpen ? "pt-5" : showToggle ? "pt-[62px]" : "max-lg:pt-4"}`}
           >
           {/* Shared wall (Figma mobile 1:17564 / 1:19168 + desktop 1111:4653):
               2 cols mobile / 4 desktop. On open, left slides left and right

@@ -211,6 +211,10 @@ export type Section =
       previewColumns?: number;
       previewRowStagger?: number;
       viewMoreLabel?: string;
+      /** Mobile row, desktop widths: subtle drop shadow under each screen (FDX, Israel Nov 27). */
+      screenShadow?: boolean;
+      /** Desktop grid, desktop widths: 16 px captions that wrap, at the screen's left edge (OC Links / OC Navigator, Israel Nov 27). */
+      largeCaptions?: boolean;
       previewScreens?: CoreExperienceScreen[];
       previewAppearance?: Appearance;
       /** @deprecated horizontal-scroll popup */

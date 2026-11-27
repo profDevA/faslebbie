@@ -47,6 +47,7 @@ const sectionsProj = `sections[]{
   },
   _type == "coreExperience" => {
     sectionTitle, body, layoutVariant, previewColumns, previewRowStagger, viewMoreLabel,
+    screenShadow, largeCaptions,
     previewScreens[]{
       _key, label, description, imageWidth, imageHeight,
       "image": image${img},
