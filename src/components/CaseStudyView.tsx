@@ -4807,6 +4807,11 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
     return null
   }
   const single = layout === 'single'
+  // Single + a video in an item → one video card (Vuforia Chalk, Israel row
+  // 127). Memory Tubes / AR Handbook hold stills only → cross-fading card.
+  const singleVideoCell = single
+    ? cells.find(c => !!highlightCellMotionSrc(c))
+    : undefined
   const gridGap =
     typeof s.gridGap === 'number' && s.gridGap >= 0
       ? s.gridGap
@@ -4842,6 +4847,12 @@ function HighlightReelBlock({ section: s }: { section: Of<'highlightReel'> }) {
           desktopSrc={s.compositeImage!}
           mobileSrc={s.compositeImageMobile}
           maxWidth={compositeMaxW}
+        />
+      ) : singleVideoCell ? (
+        <HighlightVideoCardView
+          cell={singleVideoCell}
+          matteColor={singleMatte}
+          mattePadding={singlePad}
         />
       ) : single ? (
         <HighlightCardView
@@ -4923,6 +4934,69 @@ function HighlightCompositeView({
     <div className="mx-auto w-full" style={{ maxWidth }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- highlight art */}
       <img src={desktopSrc} alt="" loading="lazy" className={imgClass} />
+    </div>
+  )
+}
+
+// Single-video card (Vuforia Chalk, Figma "END DESIGN +DEV 2027" 9:39615 /
+// 47:11927): one 1020 × 643 video box in a white outside stroke (Studio
+// "Single card matte padding", 13 on Chalk; outer 1046 × 669), inner radius
+// 24, centred, shadow. Below ~1040 px wide the matte and radius scale with the
+// viewport (≈ 5 / 9 px at 375). The video fills the box (cover, like Figma's
+// own stills); Sakib exports at the box's shape. Plays the first item with a
+// video; no pager, no PLAY overlay.
+function HighlightVideoCardView({
+  cell,
+  matteColor,
+  mattePadding,
+}: {
+  cell: HighlightCell
+  matteColor: string
+  mattePadding: number
+}) {
+  const src = highlightCellMotionSrc(cell)
+  if (!src) return null
+  const pad = `min(${mattePadding}px, 1.25vw)`
+  const radius = 'min(24px, 2.35vw)'
+  const media = 'h-full w-full object-cover'
+  return (
+    <div className="mx-auto w-full" style={{ maxWidth: 1020 + 2 * mattePadding }}>
+      <div
+        className="w-full shadow-[0_12px_30px_rgba(0,0,0,0.22)]"
+        style={{
+          backgroundColor: matteColor,
+          padding: pad,
+          borderRadius: `calc(${radius} + ${pad})`,
+        }}
+      >
+        <div
+          className="relative aspect-1020/643 overflow-hidden"
+          style={{ borderRadius: radius }}
+        >
+          <div className="absolute inset-0">
+            {highlightCellIsGif(cell, src) ? (
+              // eslint-disable-next-line @next/next/no-img-element -- animated GIF asset
+              <img src={src} alt={cell.caption || ''} loading="lazy" className={media} />
+            ) : cell.videoUrl && !cell.videoFile ? (
+              <iframe
+                src={cell.videoUrl}
+                title={cell.caption || 'Highlight animation'}
+                className="h-full w-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <CsOverviewVideo
+                src={src}
+                poster={cell.posterImage}
+                showFrame={false}
+                showMuteControl={false}
+                className={media}
+              />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
