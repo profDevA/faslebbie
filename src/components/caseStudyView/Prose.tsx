@@ -44,6 +44,57 @@ const ptComponents: PortableTextComponents = {
   },
 }
 
+/** A text block whose spans hold only whitespace (Studio leftovers: an empty bold H3, a stray Enter). */
+function isBlankBlock(v: unknown): boolean {
+  if (!v || typeof v !== 'object') return false
+  const b = v as { _type?: unknown; children?: unknown }
+  if (b._type !== 'block' || !Array.isArray(b.children)) return false
+  return b.children.every(
+    c =>
+      !!c &&
+      typeof c === 'object' &&
+      (c as { _type?: unknown })._type === 'span' &&
+      !String((c as { text?: unknown }).text ?? '').trim(),
+  )
+}
+
+/**
+ * Drops blank text blocks from every portable-text array in a case study's
+ * sections (deep). A field left with no blocks becomes undefined, so the
+ * `s.intro && …` / `s.body?.length` wrappers and their margins don't render
+ * (Census KPE empty H3 = +40 px, audit Nov 27). Untouched objects keep their
+ * identity.
+ */
+export function withoutBlankProse<T>(value: T): T {
+  if (Array.isArray(value)) {
+    let changed = false
+    const out: unknown[] = []
+    for (const item of value) {
+      if (isBlankBlock(item)) {
+        changed = true
+        continue
+      }
+      const next = withoutBlankProse(item)
+      if (next !== item) changed = true
+      out.push(next)
+    }
+    return (changed ? out : value) as T
+  }
+  if (!value || typeof value !== 'object') return value
+  let changed = false
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(value)) {
+    if (Array.isArray(v) && v.length > 0 && v.every(isBlankBlock)) {
+      changed = true
+      continue
+    }
+    const next = withoutBlankProse(v)
+    if (next !== v) changed = true
+    out[k] = next
+  }
+  return (changed ? out : value) as T
+}
+
 export function CaseStudyProse({
   value,
   className = '',

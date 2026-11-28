@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -18,7 +19,7 @@ import PagerBar from '@/components/PagerBar'
 import { SliderControls } from '@/components/PagerDots'
 import PopupShell, { PopupDots, PopupPagerButton } from '@/components/PopupShell'
 import { CardSlider } from '@/components/caseStudyView/CardSlider'
-import { CaseStudyProse } from '@/components/caseStudyView/Prose'
+import { CaseStudyProse, withoutBlankProse } from '@/components/caseStudyView/Prose'
 import {
   bandStyle,
   cursorInvertAttrs,
@@ -227,9 +228,12 @@ export default function CaseStudyView({
     }
   }, [p.slug, scroller])
 
+  // Whitespace-only text blocks render nothing but still open their wrapper.
+  const sections = useMemo(() => withoutBlankProse(p.sections ?? []), [p.sections])
+
   const bands = (
     <>
-      {groupSections(p.sections ?? []).map(group =>
+      {groupSections(sections).map(group =>
         group.length > 1 ? (
           <ProseGroupBlock
             key={group[0]._key}
